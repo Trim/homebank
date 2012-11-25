@@ -30,7 +30,7 @@
 /****************************************************************************/
 /* Debug macros										 */
 /****************************************************************************/
-#define MYDEBUG 0
+#define MYDEBUG 1
 
 #if MYDEBUG
 #define DB(x) (x);
@@ -986,9 +986,6 @@ gint row;
 		data->NB_year = make_year(label);
 		gtk_table_attach (GTK_TABLE (table), data->NB_year, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
 
-		g_signal_connect (data->CY_month, "changed", G_CALLBACK (ui_flt_manage_period_change), NULL);
-		g_signal_connect (data->NB_year, "value-changed", G_CALLBACK (ui_flt_manage_period_change), NULL);
-
 	gtk_container_set_border_width(GTK_CONTAINER(alignment), HB_BOX_SPACING);
 
 	return alignment;
@@ -1378,9 +1375,13 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
 		gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 	}
 
-	//text
-	//maybe later
+	//setup, init and show window
+	ui_flt_manage_setup(&data);
+	ui_flt_manage_set(&data);
 
+	ui_flt_manage_option_update(window, NULL);
+
+	
 	/* signal connect */
     g_signal_connect (data.CY_option[FILTER_STATUS]  , "changed", G_CALLBACK (ui_flt_manage_option_update), NULL);
     g_signal_connect (data.CY_option[FILTER_DATE]    , "changed", G_CALLBACK (ui_flt_manage_option_update), NULL);
@@ -1400,6 +1401,9 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
 	    g_signal_connect (data.BT_acc[BUTTON_INVERT], "clicked", G_CALLBACK (ui_flt_manage_acc_select), GINT_TO_POINTER(BUTTON_INVERT));
 	}
 
+	g_signal_connect (data.CY_month, "changed", G_CALLBACK (ui_flt_manage_period_change), NULL);
+	g_signal_connect (data.NB_year, "value-changed", G_CALLBACK (ui_flt_manage_period_change), NULL);
+
     g_signal_connect (data.BT_pay[BUTTON_ALL]   , "clicked", G_CALLBACK (ui_flt_manage_pay_select), GINT_TO_POINTER(BUTTON_ALL));
     g_signal_connect (data.BT_pay[BUTTON_NONE]  , "clicked", G_CALLBACK (ui_flt_manage_pay_select), GINT_TO_POINTER(BUTTON_NONE));
     g_signal_connect (data.BT_pay[BUTTON_INVERT], "clicked", G_CALLBACK (ui_flt_manage_pay_select), GINT_TO_POINTER(BUTTON_INVERT));
@@ -1408,14 +1412,9 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
     g_signal_connect (data.BT_cat[BUTTON_NONE]  , "clicked", G_CALLBACK (ui_flt_manage_cat_select), GINT_TO_POINTER(BUTTON_NONE));
     g_signal_connect (data.BT_cat[BUTTON_INVERT], "clicked", G_CALLBACK (ui_flt_manage_cat_select), GINT_TO_POINTER(BUTTON_INVERT));
 
-	//setup, init and show window
-	ui_flt_manage_setup(&data);
 
 	gtk_widget_show_all (window);
 
-	ui_flt_manage_set(&data);
-
-	ui_flt_manage_option_update(window, NULL);
 
 	//wait for the user
 	gint result = 55;
