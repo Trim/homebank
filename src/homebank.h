@@ -67,7 +67,7 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-#define HB_UNSTABLE			FALSE
+#define HB_UNSTABLE			TRUE
 #define HB_VERSION			"4.5"
 #define FILE_VERSION		0.7
 
