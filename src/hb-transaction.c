@@ -658,7 +658,7 @@ Account *acc;
 	/* todo:move this to transaction add
 		store a new cheque number into account ? */
 
-	if( (newope->info) && (newope->paymode == PAYMODE_CHECK) && !(newope->flags & OF_INCOME) )
+	if( (newope->paymode == PAYMODE_CHECK) && (newope->info) && !(newope->flags & OF_INCOME) )
 	{
 	guint cheque;
 
@@ -668,11 +668,14 @@ Account *acc;
 
 		//DB( g_printf(" -> should store cheque number %d to %d", cheque, newope->account) );
 		if( newope->flags & OF_CHEQ2 )
-			acc->cheque2 = cheque;
+		{
+			acc->cheque2 = MAX(acc->cheque2, cheque);
+		}
 		else
-			acc->cheque1 = cheque;
+		{
+			acc->cheque1 = MAX(acc->cheque1, cheque);
+		}
 	}
-
 
 	/* add normal transaction */
 	acc = da_acc_get( newope->kacc);

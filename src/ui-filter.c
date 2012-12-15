@@ -1329,7 +1329,7 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
 
 
 	notebook = gtk_notebook_new();
-	//gtk_notebook_set_tab_pos(notebook, GTK_POS_LEFT);
+	gtk_notebook_set_tab_pos(notebook, GTK_POS_LEFT);
     gtk_box_pack_start (GTK_BOX (mainbox), notebook, TRUE, TRUE, 0);
 	data.notebook = notebook;
 
