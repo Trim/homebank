@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -423,7 +423,7 @@ GdkPixbuf *pixbuf;
 		  "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
 		  "MA 02110-1301, USA.";
 
-	static const gchar *copyright = "Copyright \xc2\xa9 1995-2012 - Maxime DOYEN";
+	static const gchar *copyright = "Copyright \xc2\xa9 1995-2013 - Maxime DOYEN";
 
 
 	pathfilename = g_build_filename(homebank_app_get_images_dir(), "splash.png", NULL);

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -100,7 +100,7 @@ guint32		da_acc_get_max_key(void);
 Account		*da_acc_get_by_name(gchar *name);
 Account		*da_acc_get_by_imp_name(gchar *name);
 Account		*da_acc_get(guint32 key);
-
+void da_acc_consistency(Account *item);
 
 
 gboolean account_is_used(guint32 key);
@@ -110,4 +110,5 @@ void account_compute_balances(void);
 gboolean account_balances_add(Transaction *trn);
 gboolean account_balances_sub(Transaction *trn);
 
+GList *account_glist_sorted(gint column);
 #endif

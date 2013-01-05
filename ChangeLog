@@ -23,17 +23,22 @@
  * change: homebank, clarified the error load messages
  * change: homebank, optimized xml
  * change: homebank, added a visual type of category everywhere (-income/+expense)
+ * change: replaced (none) by something more relevant
  * wish  : #140504	category split for transaction
  * wish  : #400010	csv export add support of mm-dd-yy
  * wish  : #593435	add subtotals for account list by type or bank
  * wish  : #660450	Cash Account hidden from Accounts Overview
  * wish  : #688494	limit day for automatic transaction add in the future
+ * wish  : #722226 	wish: xhb file format : amounts and order details
+ * wish  : #730137 	wish: portable app for ms-windows
+ * wish  : #730319 	wish: single click in calendar to choose date 
  * wish  : #787131	Column titles in exported CSV
  * wish  : #787134	Exporting to CSV should include all available columns
  * wish  : #833614	sorting on category / subcategory in statistics report
  * wish  : #856477	improve category dropdown with +/-
  * wish  : #886372	Poland in the European country list
  * wish  : #1006802	hide reconciled transactions by default
+ * wish  : #1088259	wish: Handling "VOIDed" check transactions
  * bugfix: archive target internal transfer account
  * bugfix: closed accounts were not excluded from reports
  * bugfix: detail status and rate in toolbar report window was not initialized
@@ -58,8 +63,12 @@
  * bugfix: #885749	QIF Import shows wrong amount
  * bugfix: #905277	balance rapport reports wrong amount
  * bugfix: #926915	transaction modify window sizing problem
+ * bugfix: #931187 	preferences not saved when ~/.config doesn't exist
+ * bugfix: #932959 	win7: Cannot import QXF/OFX file if path or filename contains non-ascii chars
  * bugfix: #942346	internal transactions mixup
  * bugfix: #1024907	2 qif export problems that must be fixed 
+ * bugfix: #1074133	Problems with dates: from date to date - does'nt cout the last day of the months
+ * (bugfix: #1047103	win: Importing QFX causes HomeBank to freeze)
 
 
 2012-11-17  Maxime Doyen

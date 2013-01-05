@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -190,7 +190,7 @@ guint32 *new_key;
 	DB( g_print("da_acc_append\n") );
 
 	/* ensure no duplicate */
-	//g_strstrip(item->name);
+	g_strstrip(item->name);
 	if(item->name != NULL)
 	{
 		existitem = da_acc_get_by_name( item->name );
@@ -275,7 +275,10 @@ da_acc_get(guint32 key)
 }
 
 
-
+void da_acc_consistency(Account *item)
+{
+	g_strstrip(item->name);
+}
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -304,6 +307,42 @@ da_acc_debug_list(void)
 }
 
 #endif
+
+
+static gint
+account_glist_name_compare_func(Account *a, Account *b)
+{
+gint retval = 0;
+
+    if (a->name == NULL || b->name == NULL)
+    {
+        retval = (a->name == NULL) ? -1 : 1;
+    }
+    else
+    {
+        retval = g_utf8_collate(a->name, b->name);
+    }
+
+	return retval;
+}
+
+
+static gint
+account_glist_key_compare_func(Account *a, Account *b)
+{
+	return a->key - b->key;
+}
+
+
+GList *account_glist_sorted(gint column)
+{
+GList *list = g_hash_table_get_values(GLOBALS->h_acc);
+
+	if(column == 0)
+		return g_list_sort(list, (GCompareFunc)account_glist_key_compare_func);
+	else
+		return g_list_sort(list, (GCompareFunc)account_glist_name_compare_func);
+}
 
 
 

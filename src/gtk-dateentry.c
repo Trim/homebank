@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -109,7 +109,7 @@ g_date_fill_parse_tokens (const gchar *str, GDateParseTokens *pt)
   gint i;
   const guchar *s;
   
-  DB( g_print(" (dateentry) fill parse token\n") );
+  DB( g_print("\n[dateentry] fill parse token\n") );
   
   /* We count 4, but store 3; so we can give an error
    * if there are 4.
@@ -153,7 +153,7 @@ gchar buf[128];
 GDateParseTokens testpt;
 gint i;
 
-  DB( g_print(" (dateentry) determine dmy\n") );
+  DB( g_print("\n[dateentry] determine dmy\n") );
 
 
   g_date_clear (&d, 1);              /* clear for scratch use */
@@ -200,7 +200,7 @@ gtk_dateentry_get_type ()
 {
 static GType dateentry_type = 0;
 
-	//DB( g_print(" (dateentry) get_type\n") );
+	//DB( g_print("\n[dateentry] get_type\n") );
 
 	if (!dateentry_type)
     {
@@ -240,7 +240,7 @@ gtk_dateentry_class_init (GtkDateEntryClass * klass)
 
   parent_class = g_type_class_peek_parent (klass);
 
-	DB( g_print(" (dateentry) class_init\n") );
+	DB( g_print("\n[dateentry] class_init\n") );
 
 
 	object_class->destroy = gtk_dateentry_destroy;
@@ -279,7 +279,7 @@ static gboolean gtk_dateentry_focus(GtkWidget     *widget,
 {
 GtkDateEntry *dateentry = user_data;
 
-	DB( g_print(" (dateentry) focus-out-event %d\n", gtk_widget_is_focus(GTK_WIDGET(dateentry))) );
+	DB( g_print("\n[dateentry] focus-out-event %d\n", gtk_widget_is_focus(GTK_WIDGET(dateentry))) );
 
 	gtk_dateentry_entry_new(GTK_WIDGET(dateentry), dateentry);
 
@@ -292,7 +292,7 @@ gtk_dateentry_init (GtkDateEntry *dateentry)
 GtkWidget *widget;
 GtkWidget *arrow;
 
-	DB( g_print(" (dateentry) init\n") );
+	DB( g_print("\n[dateentry] init\n") );
 
 	/* initialize datas */
 	dateentry->date = g_date_new();
@@ -358,39 +358,34 @@ GtkWidget *arrow;
 				G_CALLBACK (gtk_dateentry_calendar_year), dateentry);
 
 	g_signal_connect (GTK_OBJECT (dateentry->calendar), "day-selected",
-				G_CALLBACK (gtk_dateentry_calendar_getfrom), dateentry);
-
-	g_signal_connect (GTK_OBJECT (dateentry->calendar), "day-selected-double-click",
 				G_CALLBACK (gtk_dateentry_calendar_select), dateentry);
+
+	/*g_signal_connect (GTK_OBJECT (dateentry->calendar), "month-changed",
+				G_CALLBACK (gtk_dateentry_calendar_select), dateentry);*/
 
 	gtk_dateentry_calendar_getfrom(NULL, dateentry);
 }
 
-// the rest
-GtkWidget *
-gtk_dateentry_new ()
+
+GtkWidget *gtk_dateentry_new ()
 {
 GtkDateEntry *dateentry;
 
-	DB( g_print(" (dateentry) new\n") );
+	DB( g_print("\n[dateentry] new\n") );
 
 	dateentry = g_object_new (GTK_TYPE_DATE_ENTRY, NULL);
 
 	return GTK_WIDGET(dateentry);
-
 }
 
 
-
-
-static void
-gtk_dateentry_destroy (GtkObject * object)
+static void gtk_dateentry_destroy (GtkObject * object)
 {
 GtkDateEntry *dateentry;
 
-	DB( g_print(" \n(dateentry) destroy\n") );
+	DB( g_print(" \n[dateentry] destroy\n") );
 
-  g_return_if_fail (GTK_IS_DATE_ENTRY (object));
+	g_return_if_fail (GTK_IS_DATE_ENTRY (object));
 
 	dateentry = GTK_DATE_ENTRY (object);
 
@@ -416,6 +411,8 @@ GtkDateEntry *dateentry;
 */
 void gtk_dateentry_set_date(GtkDateEntry *dateentry, guint32 julian_days)
 {
+	DB( g_print(" \n[dateentry] set date\n") );
+
 	g_return_if_fail (GTK_IS_DATE_ENTRY (dateentry));
 
 	if(g_date_valid_julian(julian_days))
@@ -434,6 +431,8 @@ void gtk_dateentry_set_date(GtkDateEntry *dateentry, guint32 julian_days)
 */
 guint32 gtk_dateentry_get_date(GtkDateEntry * dateentry)
 {
+	DB( g_print(" \n[dateentry] get date\n") );
+
 	g_return_val_if_fail (GTK_IS_DATE_ENTRY (dateentry), 0);
 
 	return(g_date_get_julian(dateentry->date));
@@ -449,7 +448,7 @@ gtk_dateentry_set_property (GObject         *object,
 {
 GtkDateEntry *dateentry = GTK_DATE_ENTRY (object);
 
-	DB( g_print(" (dateentry) set %d\n", prop_id) );
+	DB( g_print("\n[dateentry] set %d\n", prop_id) );
 
 
   switch (prop_id)
@@ -478,7 +477,7 @@ gtk_dateentry_get_property (GObject         *object,
 {
 GtkDateEntry *dateentry = GTK_DATE_ENTRY (object);
 
-	DB( g_print(" (dateentry) get\n") );
+	DB( g_print("\n[dateentry] get\n") );
 
   switch (prop_id)
     {
@@ -501,7 +500,7 @@ static void gtk_dateentry_datetoentry(GtkDateEntry * dateentry)
 {
 gchar buffer[256];
 
-	DB( g_print(" (dateentry) date2entry\n") );
+	DB( g_print("\n[dateentry] date2entry\n") );
 
 	g_date_clamp(dateentry->date, &dateentry->mindate, &dateentry->maxdate);
 
@@ -520,7 +519,7 @@ gchar buffer[256];
 	/* emit the signal */
 	if(dateentry->lastdate != g_date_get_julian(dateentry->date))
 	{
-		DB( g_print(" **emit 'chnaged' signal**\n") );
+		DB( g_print(" **emit 'changed' signal**\n") );
 
 		g_signal_emit_by_name (dateentry, "changed", NULL, NULL);
 	}
@@ -589,7 +588,7 @@ static void gtk_dateentry_entry_new(GtkWidget *gtkentry, gpointer user_data)
 GtkDateEntry *dateentry = user_data;
 const gchar *str;
 
-	DB( g_print(" (dateentry) entry validation\n") );
+	DB( g_print("\n[dateentry] entry_new\n") );
 
  	str = gtk_entry_get_text (GTK_ENTRY (dateentry->entry));
 
@@ -617,7 +616,7 @@ static void gtk_dateentry_calendar_year(GtkWidget *calendar, GtkDateEntry *datee
 {
 guint year, month, day;
 
-	DB( g_print(" (dateentry) year changed\n") );
+	DB( g_print("\n[dateentry] calendar_year\n") );
 
 	gtk_calendar_get_date (GTK_CALENDAR (dateentry->calendar), &year, &month, &day);
 	if( year < 1900)
@@ -635,10 +634,16 @@ static void gtk_dateentry_calendar_getfrom(GtkWidget * calendar, GtkDateEntry * 
 {
 guint year, month, day;
 
-	DB( g_print(" (dateentry) get from calendar\n") );
+	DB( g_print("\n[dateentry] calendar_getfrom\n") );
 
 	gtk_calendar_get_date (GTK_CALENDAR (dateentry->calendar), &year, &month, &day);
+	if(g_date_get_day (dateentry->date) != day)
+	{
+		gtk_dateentry_hide_popdown_window(dateentry);
+	}
+
 	g_date_set_dmy (dateentry->date, day, month + 1, year);
+
 	gtk_dateentry_datetoentry(dateentry);
 }
 
@@ -647,10 +652,10 @@ static void gtk_dateentry_calendar_select(GtkWidget * calendar, gpointer user_da
 {
 GtkDateEntry *dateentry = user_data;
 
-	DB( g_print(" (dateentry) calendar_select\n") );
+	DB( g_print("\n[dateentry] calendar_day_select\n") );
 
-	gtk_dateentry_hide_popdown_window(dateentry);
 	gtk_dateentry_calendar_getfrom(NULL, dateentry);
+	//gtk_dateentry_hide_popdown_window(dateentry);
 }
 
 
@@ -659,7 +664,7 @@ gtk_dateentry_entry_key (GtkWidget *widget, GdkEventKey *event, gpointer user_da
 {
 GtkDateEntry *dateentry = user_data;
 
-	DB( g_print(" (dateentry) entry key pressed: state=%04x, keyval=%04x\n", event->state, event->keyval) );
+	DB( g_print("\n[dateentry] entry key pressed: state=%04x, keyval=%04x\n", event->state, event->keyval) );
 
 	if( event->keyval == GDK_Up )
 	{
@@ -716,7 +721,7 @@ position_popup (GtkDateEntry * dateentry)
 	gint bwidth, bheight;
 	GtkRequisition req;
 
-	DB( g_print(" (dateentry) position popup\n") );
+	DB( g_print("\n[dateentry] position popup\n") );
 
 	gtk_widget_size_request (dateentry->popwin, &req);
 
@@ -750,7 +755,7 @@ int month;
   //gint height, width, x, y;
   //gint old_width, old_height;
 
-	DB( g_print(" (dateentry) popup_display\n****\n\n") );
+	DB( g_print("\n[dateentry] popup_display\n****\n\n") );
 
   //old_width = dateentry->popwin->allocation.width;
   //old_height  = dateentry->popwin->allocation.height;
@@ -790,7 +795,7 @@ int month;
 static void
 gtk_dateentry_hide_popdown_window(GtkDateEntry *dateentry)
 {
-	DB( g_print(" (dateentry) hide_popdown_window\n") );
+	DB( g_print("\n[dateentry] hide_popdown_window\n") );
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dateentry->arrow), FALSE);
 
@@ -804,7 +809,7 @@ gtk_dateentry_arrow_press (GtkWidget * widget, GtkDateEntry * dateentry)
 {
   GtkToggleButton *button;
 
-	DB( g_print(" (dateentry) arrow_press\n") );
+	DB( g_print("\n[dateentry] arrow_press\n") );
 
   button = GTK_TOGGLE_BUTTON(widget);
 
@@ -827,7 +832,7 @@ key_press_popup (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 GtkDateEntry *dateentry = user_data;
 
 
-	DB( g_print(" (dateentry) key pressed%d\n", event->keyval) );
+	DB( g_print("\n[dateentry] key pressed%d\n", event->keyval) );
 
 	if (event->keyval != GDK_Escape)
 		return FALSE;
@@ -850,7 +855,7 @@ gtk_dateentry_button_press (GtkWidget * widget, GdkEvent * event, gpointer data)
 {
   GtkWidget *child;
 
-DB( g_print(" (dateentry) button_press\n") );
+DB( g_print("\n[dateentry] button_press\n") );
 
   child = gtk_get_event_widget (event);
 

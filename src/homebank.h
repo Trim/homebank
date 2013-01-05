@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -106,10 +106,6 @@
 /* for transaction dialog */
 #define GTK_RESPONSE_ADD	 1
 
-/* default zoomx for charts */
-#define GTK_CHART_MINBARW 	8
-#define GTK_CHART_BARW 		24
-#define GTK_CHART_MAXBARW 	64
 
 #define HB_NUMBER_SAMPLE	20457.99
 

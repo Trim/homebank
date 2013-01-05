@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -263,24 +263,39 @@ GList *list;
 		da_archive_consistency(entry);
 		list = g_list_next(list);
 	}
+
+
+	list = g_hash_table_get_values(GLOBALS->h_acc);
+	while (list != NULL)
+	{
+	Account *item = list->data;
+
+		da_acc_consistency(item);
+		list = g_list_next(list);
+	}
+	g_list_free(list);
+
 	
-	// ensure type equal for categories and its children
+	list = g_hash_table_get_values(GLOBALS->h_pay);
+	while (list != NULL)
+	{
+	Payee *item = list->data;
+
+		da_pay_consistency(item);
+		list = g_list_next(list);
+	}
+	g_list_free(list);
+
 	
 	list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *item = list->data;
-	gboolean isIncome;
-		
-		if(!(item->flags & GF_SUB) && item->key > 0)
-		{
-			isIncome = (item->flags & GF_INCOME) ? TRUE : FALSE;
-			category_change_type(item, isIncome);
-		}
+
+		da_cat_consistency(item);
 		list = g_list_next(list);
 	}
 	g_list_free(list);
-	
 	
 }
 

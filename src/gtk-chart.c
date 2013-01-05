@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -115,6 +115,7 @@ struct mycolors
 	guint8	r, g, b;
 };
 
+
 struct mycolors money_colors[] =
 {
 	{ 255, 193,  96 },
@@ -145,6 +146,7 @@ struct mycolors money_colors[] =
 	{ 165, 181, 156 },
 };
 
+
 struct mycolors quicken_colors[] =
 {
 	{ 226,  73,  13 },
@@ -159,6 +161,7 @@ struct mycolors quicken_colors[] =
 	{ 220, 106,   0 },
 	{ 113, 113, 113 },
 };
+
 
 struct mycolors analytics_colors[] =
 {
@@ -176,10 +179,7 @@ struct mycolors analytics_colors[] =
 };
 
 
-
-
-
-struct mycolors excel2010_colors[] =
+struct mycolors office2010_colors[] =
 {
 	{  60, 100, 149 },
 	{ 150,  60,  59 },
@@ -467,9 +467,9 @@ void gtk_chart_set_color_scheme(GtkChart * chart, gint colorscheme)
 			colors = analytics_colors;
 			nb_colors = G_N_ELEMENTS(analytics_colors);
 			break;
-		case CHART_COLMAP_EXCEL2010:
-			colors = excel2010_colors;
-			nb_colors = G_N_ELEMENTS(excel2010_colors);
+		case CHART_COLMAP_OFFICE2010:
+			colors = office2010_colors;
+			nb_colors = G_N_ELEMENTS(office2010_colors);
 			break;
 	}
 }
@@ -995,6 +995,7 @@ gint blkw;
 
 	cr = cairo_create (s);
 	cairo_text_extents(cr, "ajpq12", &extents);
+
 	cairo_destroy(cr);
 	cairo_surface_destroy(s);
 
@@ -1181,7 +1182,7 @@ cairo_text_extents_t extents;
 		}
 	}
 
-	/* draw x-legend */
+	/* draw x-legend (amount) */
 
 	curxval = chart->max;
 	for(i=0;i<=chart->div;i++)
@@ -1198,11 +1199,23 @@ cairo_text_extents_t extents;
 
 			//DB( g_print("'%s', %f %f %f %f %f %f\n", valstr, extents.x_bearing, extents.y_bearing, extents.width, extents.height, extents.x_advance, extents.y_advance) );
 
-			cairo_set_source_rgb(cr, COLTOCAIRO(102), COLTOCAIRO(102), COLTOCAIRO(102));
-			cairo_move_to(cr, chart->l, y + 2 + extents.height);
-			cairo_show_text(cr, valstr);
+			// draw white background
+			cairo_set_line_width (cr, 2);
+			cairo_set_source_rgba(cr, COLTOCAIRO(255), COLTOCAIRO(255), COLTOCAIRO(255), 0.66);
+			cairo_move_to(cr, chart->l, y + 2 + extents.height + 0.5);
+			cairo_text_path (cr, valstr);
+			cairo_stroke (cr);
 
-			cairo_move_to(cr, chart->r - extents.x_advance, y + 2 + extents.height);
+			cairo_move_to(cr, chart->r - extents.width, y + 2 + extents.height + 0.5);
+			cairo_text_path (cr, valstr);
+			cairo_stroke (cr);
+			
+			// draw texts
+			cairo_move_to(cr, chart->l, y + 2 + extents.height);
+			cairo_set_source_rgb(cr, COLTOCAIRO(102), COLTOCAIRO(102), COLTOCAIRO(102));
+			cairo_show_text(cr, valstr);
+			
+			cairo_move_to(cr, chart->r - extents.width, y + 2 + extents.height);
 			cairo_show_text(cr, valstr);
 		}
 
@@ -1302,7 +1315,8 @@ gint i;
 
 	}
 
-
+	cairo_destroy(cr);
+	
 }
 
 /*
@@ -1632,6 +1646,7 @@ cairo_t *cr;
 			cairo_arc(cr, dx, dy, radius, a1, a2);
 
 #if PIE_LINE_SLICE == 1
+			cairo_set_line_width(cr, 1.0);
 			cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
 			cairo_line_to(cr, cx, cy);
 			cairo_stroke_preserve(cr);

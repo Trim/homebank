@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -48,6 +48,7 @@ gboolean	da_pay_append(Payee *acc);
 guint32		da_pay_get_max_key(void);
 Payee		*da_pay_get_by_name(gchar *name);
 Payee		*da_pay_get(guint32 key);
+void da_pay_consistency(Payee *item);
 
 GList *payee_glist_sorted(gint column);
 

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -427,7 +427,7 @@ gint insert;
 		{
 			if(txn->info)
 			{
-				if( g_strrstr(txn->info, flt->info) != NULL )
+				if( g_strstr_len(txn->info, -1, flt->info) != NULL )
 					insert1 = 1;
 			}
 		}
@@ -438,7 +438,7 @@ gint insert;
 		{
 			if(txn->wording)
 			{
-				if( g_strrstr(txn->wording, flt->wording) != NULL )
+				if( g_strstr_len(txn->wording, -1, flt->wording) != NULL )
 					insert2 = 1;
 			}
 		}
@@ -450,7 +450,7 @@ gint insert;
 			tags = transaction_tags_tostring(txn);
 			if(tags)
 			{
-				if( g_strrstr(tags, flt->tag) != NULL )
+				if( g_strstr_len(tags, -1, flt->tag) != NULL )
 					insert3 = 1;
 
 			}
@@ -462,6 +462,7 @@ gint insert;
 		insert = insert1 && insert2 && insert3 ? 1 : 0;
 
 		if(flt->option[FILTER_TEXT] == 2) insert ^= 1;
+
 	}
 	if(!insert) goto end;
 

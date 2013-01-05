@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -1329,7 +1329,7 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
 
 
 	notebook = gtk_notebook_new();
-	gtk_notebook_set_tab_pos(notebook, GTK_POS_LEFT);
+	gtk_notebook_set_tab_pos(GTK_NOTEBOOK (notebook), GTK_POS_LEFT);
     gtk_box_pack_start (GTK_BOX (mainbox), notebook, TRUE, TRUE, 0);
 	data.notebook = notebook;
 

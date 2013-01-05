@@ -140,9 +140,9 @@
 <ope date="731599" amount="-3" account="0" dst_account="0" paymode="3" flags="1" payee="16" category="49" wording="Cash" info=""/>
 <ope date="731602" amount="-48" account="0" dst_account="0" paymode="2" flags="1" payee="12" category="0" wording="PEAVEY Envoy 110" info="8760944"/>
 <ope date="731609" amount="-8" account="0" dst_account="0" paymode="1" flags="1" payee="10" category="5" wording="Black shoes" info="26.01"/>
-<ope date="731610" amount="-121" account="0" dst_account="0" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
+<ope date="731610" amount="-121.95999999999999" account="0" dst_account="1" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
 <ope date="731610" amount="-2" account="0" dst_account="0" paymode="1" flags="1" payee="7" category="1" wording="Refuel (d=92597 v=15.41)" info="30.01"/>
-<ope date="731610" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="5" wording="Savings" info=""/>
+<ope date="731610" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="0" wording="Savings" info=""/>
 <ope date="731610" amount="1371" account="0" dst_account="0" paymode="4" flags="3" payee="2" category="57" wording="Amiga Technologies" info=""/>
 <ope date="731614" amount="-46" account="0" dst_account="0" paymode="2" flags="1" payee="20" category="6" wording="Harddisk 420Mb" info="8760945"/>
 <ope date="731614" amount="-30" account="0" dst_account="0" paymode="1" flags="1" payee="8" category="34" wording="Internet DSL" info=""/>
@@ -150,8 +150,8 @@
 <ope date="731625" amount="-5" account="0" dst_account="0" paymode="1" flags="1" payee="7" category="1" wording="Refuel (d=92788 v=40)" info="14.02"/>
 <ope date="731626" amount="-66" account="0" dst_account="0" paymode="4" flags="1" payee="6" category="33" wording="Home sweet home" info=""/>
 <ope date="731636" amount="-3" account="0" dst_account="0" paymode="3" flags="1" payee="16" category="49" wording="Cash" info=""/>
-<ope date="731638" amount="-121" account="0" dst_account="0" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
-<ope date="731638" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="5" wording="Savings" info=""/>
+<ope date="731638" amount="-121.95999999999999" account="0" dst_account="1" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
+<ope date="731638" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="0" wording="Savings" info=""/>
 <ope date="731638" amount="1371" account="0" dst_account="0" paymode="4" flags="3" payee="2" category="57" wording="Amiga Technologies" info=""/>
 <ope date="731641" amount="-11" account="0" dst_account="0" paymode="1" flags="1" payee="0" category="5" wording="Levis 501" info="01.03"/>
 <ope date="731643" amount="-30" account="0" dst_account="0" paymode="1" flags="1" payee="8" category="34" wording="Internet DSL" info=""/>
@@ -161,8 +161,8 @@
 <ope date="731655" amount="-66" account="0" dst_account="0" paymode="4" flags="1" payee="6" category="33" wording="Home sweet home" info=""/>
 <ope date="731667" amount="1371" account="0" dst_account="0" paymode="4" flags="3" payee="2" category="57" wording="Amiga Technologies" info=""/>
 <ope date="731668" amount="18" account="0" dst_account="0" paymode="2" flags="3" payee="0" category="0" wording="BOSS BE-5 Sold" info=""/>
-<ope date="731670" amount="-121" account="0" dst_account="0" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
-<ope date="731670" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="5" wording="Savings" info=""/>
+<ope date="731670" amount="-121.95999999999999" account="0" dst_account="1" paymode="5" flags="1" payee="0" category="0" wording="Savings" info=""/>
+<ope date="731670" amount="121.95999999999999" account="1" dst_account="0" paymode="5" flags="3" payee="0" category="0" wording="Savings" info=""/>
 <ope date="731674" amount="-30" account="0" dst_account="0" paymode="1" flags="0" payee="8" category="34" wording="Internet DSL" info=""/>
 <ope date="731675" amount="-31" account="0" dst_account="0" paymode="2" flags="0" payee="0" category="6" wording="Blizzard 1230-IV-50Mhz-8Mb" info="8760949"/>
 <ope date="731676" amount="-65" account="0" dst_account="0" paymode="2" flags="0" payee="21" category="1" wording="Car repair" info="8760950"/>

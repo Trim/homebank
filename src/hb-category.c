@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -361,7 +361,6 @@ Category *item = NULL;
 
 	DB( g_print("da_cat_get_by_fullname\n") );
 
-	//g_strstrip(fullname);
 	typestr = g_strsplit(fullname, ":", 2);
 	if( g_strv_length(typestr) == 2 )
 	{
@@ -418,11 +417,8 @@ guint32 *new_key;
 
 	DB( g_print(" -> fullname: '%s' %d\n", fullname, strlen(fullname)) );
 
-
 	if( strlen(fullname) > 0 )
 	{
-
-		//g_strstrip(fullname);
 		typestr = g_strsplit(fullname, ":", 2);
 
 		/* if we have a subcategory : aaaa:bbb */
@@ -534,6 +530,22 @@ da_cat_get(guint32 key)
 
 	return g_hash_table_lookup(GLOBALS->h_cat, &key);
 }
+
+
+void da_cat_consistency(Category *item)
+{
+gboolean isIncome;
+
+	// ensure type equal for categories and its children
+	if(!(item->flags & GF_SUB) && item->key > 0)
+	{
+		isIncome = (item->flags & GF_INCOME) ? TRUE : FALSE;
+		category_change_type(item, isIncome);
+	}
+	g_strstrip(item->name);
+}
+
+
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
@@ -664,7 +676,6 @@ gboolean retval;
 
 	stripname = g_strdup(newname);
 	g_strstrip(stripname);
-
 
 	if( item->parent == 0)
 		fullname = g_strdup(stripname);

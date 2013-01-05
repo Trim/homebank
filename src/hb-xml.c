@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -835,7 +835,7 @@ GString *node;
 
 	node = g_string_sized_new(255);
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	list = account_glist_sorted(0);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -874,7 +874,7 @@ static void homebank_save_xml_pay(GIOChannel *io)
 GList *list;
 gchar *tmpstr;
 
-	list = payee_glist_sorted(1);
+	list = payee_glist_sorted(0);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -907,7 +907,7 @@ guint i;
 
 	node = g_string_sized_new(255);
 
-	list = category_glist_sorted(1);
+	list = category_glist_sorted(0);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -947,7 +947,7 @@ static void homebank_save_xml_tag(GIOChannel *io)
 GList *list;
 gchar *tmpstr;
 
-	list = tag_glist_sorted(1);
+	list = tag_glist_sorted(0);
 	while (list != NULL)
 	{
 	Tag *item = list->data;

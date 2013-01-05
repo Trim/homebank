@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,6 +20,7 @@
 
 #include "homebank.h"
 
+#include "gtk-chart.h"
 #include "ui-widgets.h"
 
 /****************************************************************************/

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,7 +50,11 @@ enum
 	CHART_TYPE_MAX
 };
 
+/* default zoomx for charts */
+#define GTK_CHART_MINBARW 	8
 #define GTK_CHART_BARW 		24
+#define GTK_CHART_MAXBARW 	64
+
 #define CHART_BUFFER_LENGTH 128
 #define	NUM_COLORMAP_MAX	24
 
@@ -69,7 +73,7 @@ enum
 	CHART_COLMAP_MSMONEY,
 	CHART_COLMAP_QUICKEN,
 	CHART_COLMAP_ANALYTICS,
-	CHART_COLMAP_EXCEL2010
+	CHART_COLMAP_OFFICE2010
 };
 
 

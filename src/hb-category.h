@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2012 Maxime DOYEN
+ *  Copyright (C) 1995-2013 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -61,6 +61,7 @@ Category *da_cat_get_by_name(gchar *name);
 Category *da_cat_get(guint32 key);
 Category *da_cat_get_by_fullname(gchar *fullname);
 Category *da_cat_append_ifnew_by_fullname(gchar *fullname, gboolean imported);
+void da_cat_consistency(Category *item);
 
 GList *category_glist_sorted(gint column);
 
