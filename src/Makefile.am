@@ -106,7 +106,9 @@ homebank_SOURCES =  \
 	ui-transaction.c \
 	ui-transaction.h \
 	ui-widgets.c \
-	ui-widgets.h
+	ui-widgets.h \
+	gtk-chart-colors.c \
+	gtk-chart-colors.h
 
 homebank_LDADD = $(DEPS_LIBS)
 

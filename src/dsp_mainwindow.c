@@ -985,7 +985,8 @@ gboolean file_clear = GPOINTER_TO_INT(user_data);
 
 	if(file_clear == TRUE)
 	{
-		ui_start_assistant();
+		//ui_start_assistant();
+		ui_mainwindow_action_help_welcome();
 	}
 
 }
@@ -1234,7 +1235,7 @@ next1:
 		hb_label_set_amount(GTK_LABEL(data->TX_topamount), total, GLOBALS->minor);
 
 		gtk_chart_set_color_scheme(GTK_CHART(data->RE_pie), PREFS->report_color_scheme);
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, LST_TOPSPEND_AMOUNT);
+		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, LST_TOPSPEND_AMOUNT, NULL);
 		//gtk_chart_show_legend(GTK_CHART(data->RE_pie), FALSE);
 
 

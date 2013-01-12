@@ -20,7 +20,7 @@
 #include "homebank.h"
 #include "hb-preferences.h"
 #include "hb-filter.h"
-#include "gtk-chart.h"
+#include "gtk-chart-colors.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -318,7 +318,7 @@ gint i;
 	PREFS->stat_showdetail = FALSE;
 	PREFS->stat_showrate   = FALSE;
 	PREFS->budg_showdetail = FALSE;
-	PREFS->report_color_scheme = CHART_COLMAP_MSMONEY;
+	PREFS->report_color_scheme = CHART_COLMAP_HOMEBANK;
 
 	PREFS->chart_legend = FALSE;
 

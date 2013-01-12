@@ -795,7 +795,7 @@ static void deftransaction_update_transfer(GtkWidget *widget, gpointer user_data
 {
 struct deftransaction_data *data;
 gboolean sensitive;
-	guint kacc, kdst;
+guint kacc, kdst;
 
 	DB( g_printf("(ui_transaction) update transfer\n") );
 
@@ -926,9 +926,9 @@ gboolean sensitive;
 			if(amount > 0)
 				gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount *= -1);
 		}
-
-		deftransaction_update_accto(widget, user_data);
 	}
+
+	deftransaction_update_accto(widget, user_data);
 
 	/*
 	if( payment == PAYMODE_INTXFER && data->type == TRANSACTION_EDIT_ADD )

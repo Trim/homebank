@@ -22,6 +22,7 @@
 
 #include "ui-pref.h"
 #include "dsp_mainwindow.h"
+#include "gtk-chart-colors.h"
 
 
 /****************************************************************************/
@@ -124,13 +125,7 @@ N_("y-m-d"),
 NULL
 };
 
-gchar *CYA_CHART_COLORSCHEME[] = {
-	"MS Money",
-	"Quicken",
-	"Google Analytics",
-	"Office 2010",
-	NULL
-};
+extern gchar *CYA_CHART_COLORSCHEME[];
 
 
 typedef struct
@@ -345,7 +340,7 @@ GDate *date;
 
 
 /*
-** update the number samlpe label
+** update the number sample label
 */
 static void defpref_numberbase_sample(GtkWidget *widget, gpointer user_data)
 {
@@ -970,7 +965,7 @@ gint row;
 	label = make_label(_("Color Scheme:"), 0, 0.5);
 	//----------------------------------------- l, r, t, b
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_cycle(label, CYA_CHART_COLORSCHEME);
+	widget = make_cycle(label, chart_colors);
 	data->CY_color_scheme = widget;
 	//gtk_table_attach_defaults (GTK_TABLE (table), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);

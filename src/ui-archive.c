@@ -333,28 +333,27 @@ Archive *item;
 }
 
 
-
-
-
-
-
 static void ui_arc_manage_update_accto(GtkWidget *widget, gpointer user_data)
 {
 struct ui_arc_manage_data *data;
-guint kacc;
+guint kacc, kdst;
 
-	DB( g_printf("(defarchive) update accto\n") );
+	DB( g_printf("\n(defarchive) update accto\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	kacc = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
-
-	DB( g_printf(" acc is %d\n", kacc) );
-
+	kdst = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_accto));
+	
+	DB( g_printf(" ksrc=%d, kdst=%d\n", kacc, kdst) );
 
 	ui_acc_comboboxentry_populate_except(GTK_COMBO_BOX(data->PO_accto), GLOBALS->h_acc, kacc, ACC_LST_INSERT_NORMAL);
-	ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_accto), 0);
 
+	if( (kacc == 0) || (kacc == kdst) )
+	{
+		ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_accto), 0);
+	}
+	
 }
 
 

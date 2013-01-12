@@ -641,6 +641,7 @@ gboolean byamount;
 GtkTreeModel		 *model;
 gint page, tmpfor, tmpkind, column;
 gboolean xval;
+gchar *title;
 
 	DB( g_print("(statistic) update\n") );
 
@@ -683,13 +684,15 @@ gboolean xval;
 	gtk_chart_set_color_scheme(GTK_CHART(data->RE_bar), PREFS->report_color_scheme);
 	gtk_chart_set_color_scheme(GTK_CHART(data->RE_pie), PREFS->report_color_scheme);
 
+	/* set chart title */
+	title = g_strdup_printf("%s - %s", _(CYA_STATSELECT[tmpfor]), _(CYA_KIND2[tmpkind]) );
+	
 	/* update bar chart */
 	DB( g_print(" set bar to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
 	if( tmpkind == 0 )
-		gtk_chart_set_dualdatas(GTK_CHART(data->RE_bar), model, LST_STAT_EXPENSE, LST_STAT_INCOME);
+		gtk_chart_set_dualdatas(GTK_CHART(data->RE_bar), model, LST_STAT_EXPENSE, LST_STAT_INCOME, title);
 	else
-		gtk_chart_set_datas(GTK_CHART(data->RE_bar), model, column);
-	gtk_chart_set_title(GTK_CHART(data->RE_bar), _(CYA_KIND2[tmpkind]));
+		gtk_chart_set_datas(GTK_CHART(data->RE_bar), model, column, title);
 
 
 	/* show xval for month/year and no by amount display */
@@ -719,11 +722,12 @@ gboolean xval;
 
 	DB( g_print(" set pie to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
 	if( tmpkind != 0 )
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, column);
+		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, column, title);
 	else
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), NULL, 0);
-	gtk_chart_set_title(GTK_CHART(data->RE_pie), _(CYA_KIND2[tmpkind]));
+		gtk_chart_set_datas(GTK_CHART(data->RE_pie), NULL, 0, NULL);
 
+	g_free(title);
+	
 }
 
 static void statistic_update_daterange(GtkWidget *widget, gpointer user_data)

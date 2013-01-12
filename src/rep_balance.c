@@ -705,7 +705,7 @@ Account *acc;
 
 	/* update bar chart */
 	//DB( g_print(" set bar to %d\n\n", LST_STAT_EXPENSE+tmpkind) );
-	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_OVER_BALANCE);
+	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_OVER_BALANCE, NULL);
 	//gtk_chart_set_line_datas(GTK_CHART(data->RE_line), model, LST_OVER_BALANCE, LST_OVER_DATE);
 
 	//repbalance_busy(data->window, FALSE);

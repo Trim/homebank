@@ -646,12 +646,9 @@ gint page, tmpfor, tmpslice, column;
 
 	}
 
-	//gtk_chart_show_xval(GTK_CHART(data->RE_bar), xval);
-
-	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_STAT_AMOUNT);
-		gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE);
-		gtk_chart_show_xval(GTK_CHART(data->RE_line), TRUE);
-
+	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_STAT_AMOUNT, NULL);
+	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE);
+	gtk_chart_show_xval(GTK_CHART(data->RE_line), TRUE);
 
 }
 

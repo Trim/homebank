@@ -51,12 +51,32 @@ enum
 };
 
 /* default zoomx for charts */
-#define GTK_CHART_MINBARW 	8
 #define GTK_CHART_BARW 		24
+#define GTK_CHART_MINBARW 	8
 #define GTK_CHART_MAXBARW 	64
 
 #define CHART_BUFFER_LENGTH 128
-#define	NUM_COLORMAP_MAX	24
+
+
+#define DEFAULT_DELAY 500           /* Default delay in ms */
+
+// for cairo pie
+#define PIE_LINE_SLICE 0
+#define SOFT_LIGHT  0
+#define GRADIENT	0
+#define CHART_PIE_DONUT	 0
+
+
+/* new stuff */
+
+
+#define MARGIN 8
+
+//#define PROP_SHOW_MINOR		6
+//#define PROP_SHOW_LEGEND	7
+
+
+/* end */
 
 enum
 {
@@ -68,16 +88,6 @@ enum
 	NUM_LST_LEGEND
 };
 
-enum
-{
-	CHART_COLMAP_MSMONEY,
-	CHART_COLMAP_QUICKEN,
-	CHART_COLMAP_ANALYTICS,
-	CHART_COLMAP_OFFICE2010
-};
-
-
-
 
 /* you should access only the entry and list fields directly */
 struct _GtkChart
@@ -86,46 +96,46 @@ struct _GtkChart
 	GtkHBox			hbox;
 
 	GtkWidget		*drawarea;
-	GtkWidget		*treeview;
-	GtkTreeModel	*legend;
 	GtkAdjustment	*adjustment;
 	GtkWidget		*scrollbar;
+
 	GtkWidget		*scrollwin;
+	GtkWidget		*treeview;
+	GtkTreeModel	*legend;
 
-	gint			type;
-	guint32			kcur;		//currency key
-	gboolean		minor;
-	gboolean		show_over;
-	gboolean		show_xval;
-	gint			decy_xval;
-
-	gdouble			minor_rate;
-	gchar			*minor_symbol;
-
-	GtkTreeModel	*model;
 	GtkWidget		*tooltipwin;
-	GtkWidget		*tttitle;
 	GtkWidget		*ttlabel;
 
-	GdkColor		normal_colors[NUM_COLORMAP_MAX];
-	GdkColor		over_colors[NUM_COLORMAP_MAX];
-
-
-
+	/* data storage */
 	guint		entries;
 	gchar		*title;
-	gint		*id;
 	gchar		**titles;
 	gdouble		*datas1;
 	gdouble		*datas2;
-	gboolean	dual;
-	/*gint		test;*/
 
-	gint		nb_colors;
+	/* chart properties */
+	gint		type;
+	gboolean	dual;
+	gboolean	show_over;
+	gboolean	show_xval;
+	gint		decy_xval;
+	//guint32		kcur;
+	gboolean	minor;
+	gdouble		minor_rate;
+	gchar		*minor_symbol;
+
+	/* color datas */
+	struct rgbcol		*colors;
+	gint	nb_cols;
+	gint	cs_red, cs_green, cs_blue;
+
 
 	double		l, t, b, r, w, h;
 	/* our drawing rectangle with margin */
 	double		legend_w;
+
+	/* zones height */
+	double		title_zh;
 
 
 	double		ox, oy;
@@ -141,12 +151,12 @@ struct _GtkChart
 	/* bar specifics */
 	double	range, min, max, unit, minimum;
 	gint	div;
-	gint visible;
+	gint	visible;
 
 	double font_h;
 
-	double graph_width, graph_height;	//graph dimension
-	double barw, posbarh, negbarh;
+	double graph_x, graph_y, graph_width, graph_height;	//graph dimension
+	double barw, blkw, posbarh, negbarh;
 
 	gchar			buffer[CHART_BUFFER_LENGTH];
 };
@@ -169,13 +179,11 @@ GtkWidget *gtk_chart_new(gint type);
 void gtk_chart_set_type(GtkChart *chart, gint type);
 void gtk_chart_set_color_scheme(GtkChart * chart, gint colorscheme);
 
-void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column);
-void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2);
-
-void gtk_chart_set_title(GtkChart * chart, gchar *title);
+void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gchar *title);
+void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title);
 
 void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol);
-void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
+//void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
 
 void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum);
 void gtk_chart_set_decy_xval(GtkChart * chart, gint decay);

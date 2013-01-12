@@ -853,13 +853,9 @@ next1:
 		gtk_chart_set_color_scheme(GTK_CHART(data->RE_bar), PREFS->report_color_scheme);
 
 		if( tmpview == 0 )
-			gtk_chart_set_dualdatas(GTK_CHART(data->RE_bar), model, LST_BUDGET_SPENT, LST_BUDGET_BUDGET);
+			gtk_chart_set_dualdatas(GTK_CHART(data->RE_bar), model, LST_BUDGET_SPENT, LST_BUDGET_BUDGET, _(CYA_BUDGETSELECT[tmpview]));
 		else
-			gtk_chart_set_datas(GTK_CHART(data->RE_bar), model, column);
-
-		gtk_chart_set_title(GTK_CHART(data->RE_bar), _(CYA_BUDGETSELECT[tmpview]));
-
-
+			gtk_chart_set_datas(GTK_CHART(data->RE_bar), model, column, _(CYA_BUDGETSELECT[tmpview]));
 
 	}
 

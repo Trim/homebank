@@ -451,7 +451,6 @@ gint i;
 		gtk_widget_set_sensitive(data->spinner[i+1], sensitive);
 	}
 
-
 }
 
 /*
@@ -481,6 +480,8 @@ gint i;
 	}
 
 	data->cat->flags &= ~(GF_BUDGET);	//remove flag
+
+	gtk_widget_queue_draw (data->LV_cat);
 
 }
 
@@ -578,6 +579,8 @@ gdouble oldvalue;
 		// compute chnages
 		if( (old_flags != item->flags) || change )
 			data->change++;
+
+		gtk_widget_queue_draw (data->LV_cat);
 
 	}
 
