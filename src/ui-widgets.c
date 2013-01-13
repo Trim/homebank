@@ -414,9 +414,7 @@ GtkWidget *spinner;
 	return spinner;
 }
 
-/*
-**
-*/
+
 GtkWidget *make_year(GtkWidget *label)
 {
 GtkWidget *spinner;
@@ -473,9 +471,7 @@ set_sensitive (GtkCellLayout   *cell_layout,
   g_object_set (cell, "sensitive", sensitive, NULL);
 }
 
-/*
-**
-*/
+
 GtkWidget *make_cycle(GtkWidget *label, gchar **items)
 {
 GtkWidget *combobox;
@@ -485,17 +481,20 @@ guint i;
 
 	for (i = 0; items[i] != NULL; i++)
 	{
-		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), _(items[i]));
+		if(*items[i] != 0)
+			gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), _(items[i]));
+		else
+			gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), "");
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+	gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (combobox), is_separator, NULL, NULL);
 
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), combobox);
 
-   gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (combobox), is_separator, NULL, NULL);
-
 	return combobox;
 }
+
 
 GtkWidget *make_daterange(GtkWidget *label, gboolean custom)
 {
@@ -509,7 +508,10 @@ guint i;
 
 	for (i = 0; items[i] != NULL; i++)
 	{
-		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), _(items[i]));
+		if(*items[i] != 0)
+			gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), _(items[i]));
+		else
+			gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combobox), "");
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
 
@@ -534,9 +536,8 @@ guint i;
 	gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (combobox), is_separator, NULL, NULL);
 
 	return combobox;
-
-
 }
+
 
 /*
 **

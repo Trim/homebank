@@ -117,22 +117,22 @@ struct lconv *lc = localeconv();
 
     //see g_locale_to_utf8 here
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SCURRENCY, wcBuffer, BUFFER_SIZE);
-    printf("LOCALE_SCURRENCY='%s'\n", buffer);
+    DB( g_print("LOCALE_SCURRENCY='%s'\n", buffer) );
     PREFS->base_cur.suffix_symbol = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
 
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, wcBuffer, BUFFER_SIZE);
-    printf("LOCALE_SDECIMAL='%s'\n", buffer);
+    DB( g_print("LOCALE_SDECIMAL='%s'\n", buffer) );
     PREFS->base_cur.decimal_char  = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
 
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, wcBuffer, BUFFER_SIZE);
-    printf("LOCALE_STHOUSAND='%s'\n", buffer);
+    DB( g_print("LOCALE_STHOUSAND='%s'\n", buffer) );
     PREFS->base_cur.grouping_char = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
 
 	PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
 	//PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");
 	//PREFS->base_cur.decimal_char  = g_strdup(".");
 	//PREFS->base_cur.grouping_char = NULL; //g_strdup("");
-		PREFS->base_cur.frac_digits   = 2;
+	PREFS->base_cur.frac_digits   = 2;
 	#else
 	PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
 	PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");

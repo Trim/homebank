@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 
+#include "homebank.h"
 #include "gtk-chart-colors.h"
 #include "gtk-chart.h"
 
@@ -235,7 +236,7 @@ GtkChart *chart;
 /*
 **
 */
-double GetBase10(double num)
+static double GetBase10(double num)
 {
 double result;
 double cnt;
@@ -252,7 +253,7 @@ double cnt;
 /*
 **
 */
-double GetUnit(double value)
+static double GetUnit(double value)
 {
 double truc, base10, unit;
 
@@ -274,7 +275,7 @@ double truc, base10, unit;
 /*
 ** print a integer number
 */
-gchar *chart_print_int(GtkChart *chart, gint value)
+static gchar *chart_print_int(GtkChart *chart, gint value)
 {
 
 	//mystrfmon(chart->buffer, CHART_BUFFER_LENGTH-1, (gdouble)value, chart->minor);
@@ -297,7 +298,7 @@ gchar *chart_print_int(GtkChart *chart, gint value)
 /*
 ** print a double number
 */
-gchar *chart_print_double(GtkChart *chart, gdouble value)
+static gchar *chart_print_double(GtkChart *chart, gdouble value)
 {
 
 	mystrfmon(chart->buffer, CHART_BUFFER_LENGTH-1, value, chart->minor);
