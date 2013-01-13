@@ -119,6 +119,7 @@ static void ui_mainwindow_action_about(void);
 static GtkWidget *ui_mainwindow_create_recent_chooser_menu (GtkRecentManager *manager);
 static void ui_mainwindow_populate_accounts(GtkWidget *widget, gpointer user_data);
 static void ui_mainwindow_populate_upcoming(GtkWidget *widget, gpointer user_data);
+static void ui_mainwindow_populate_topspending(GtkWidget *widget, gpointer user_data);
 
 void ui_mainwindow_open(GtkWidget *widget, gpointer user_data);
 
@@ -135,6 +136,7 @@ gboolean ui_dialog_msg_savechanges(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_update(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_check_scheduled(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_addtransactions(GtkWidget *widget, gpointer user_data);
+
 
 void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path);
 
@@ -443,8 +445,8 @@ GdkPixbuf *pixbuf;
 	gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(about), artists);
 	//gtk_about_dialog_set_documenters(GTK_ABOUT_DIALOG(about), );
 	//gtk_about_dialog_set_translator_credits(GTK_ABOUT_DIALOG(about), );
-	gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(about), pixbuf);
 	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(about), "homebank");
+	gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(about), pixbuf);
 	
 	/*
  	gtk_show_about_dialog(GTK_WINDOW(GLOBALS->mainwindow),
@@ -966,26 +968,30 @@ GList *list;
 */
 void ui_mainwindow_clear(GtkWidget *widget, gpointer user_data)
 {
-struct hbfile_data *data;
+//struct hbfile_data *data;
 gboolean file_clear = GPOINTER_TO_INT(user_data);
 
 	DB( g_printf("\n[ui-mainwindow] clear\n") );
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	// Close opened account window
 	// Clear TreeView
 	ui_mainwindow_close_openbooks();
-	gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc))));
-	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_upc))));
-
+	//gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc))));
+	//gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_upc))));
+	//gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_top))));
+	
 	hbfile_cleanup(file_clear);
-
 	hbfile_setup(file_clear);
 
 	if(file_clear == TRUE)
 	{
 		//ui_start_assistant();
+		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_populate_upcoming(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
+
 		ui_mainwindow_action_help_welcome();
 	}
 

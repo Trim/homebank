@@ -609,14 +609,14 @@ GtkWidget *drawarea = chart->drawarea;
 	chart->h = drawarea->allocation.height - (MARGIN*2);
 
 	chart->font_h = CHART_FONT_SIZE_NORMAL;
-	DB( g_print(" + text w=%f h=%f\n", te.width, te.height) );
+	//DB( g_print(" + text w=%f h=%f\n", te.width, te.height) );
 
 	// compute title
 	chart->title_zh = 0;
 	if(chart->title != NULL)
 	{
 		chart->title_zh = CHART_FONT_SIZE_TITLE + (MARGIN*2);
-		DB( g_print(" - title: %s w=%f h=%f\n", chart->title, te.width, te.height) );
+		//DB( g_print(" - title: %s w=%f h=%f\n", chart->title, te.width, te.height) );
 	}
 
 	chart->graph_x = chart->l;
