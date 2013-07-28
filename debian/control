@@ -1,0 +1,24 @@
+Source: homebank
+Section: gnome
+Priority: extra
+Maintainer: Maxime Doyon <homebank@free.fr>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.3
+Homepage: http://homebank.free.fr
+Vcs-Bzr: https://code.launchpad.net/~mdoyen/homebank/4.5
+Vcs-Browser: http://bazaar.launchpad.net/~mdoyen/homebank/4.5/files
+
+Package: homebank
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libofx4 (>= 0.9.4), libgtk2.0-0 (>=2.24.13), homebank-data (= 4.5)
+Description: Manage your personal accounts at home
+ homebank is a simple and easy to use program to manage your accounts.
+ It has a lot of features such  as  statistics  with  graphical  charts,
+ multi-accounts support, budget management, reminder, and even more!
+
+Package: homebank-data
+Architecture: all
+Description: Manage your personal accounts at home
+ homebank is a simple and easy to use program to manage your accounts.
+ It has a lot of features such  as  statistics  with  graphical  charts,
+ multi-accounts support, budget management, reminder, and even more!

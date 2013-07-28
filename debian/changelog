@@ -1,0 +1,5 @@
+homebank (4.5-0ubuntu1) quantal; urgency=low
+
+  * Upstream 4.5 release.
+
+ -- Charles Brunet <cbrunet@cbrunet.net>  Mon, 25 Feb 2013 18:06:48 -0500
