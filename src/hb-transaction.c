@@ -104,14 +104,16 @@ guint i, count = 0;
 }
 
 
-
 void da_transaction_splits_free(Transaction *txn)
 {
 guint count, i=0;
 
-	DB( g_print("= = da_transaction_splits_free = =\n") );
-
 	count = da_transaction_splits_count(txn);
+	if(count == 0)
+		return;
+	
+	DB( g_print("da_transaction_splits_free\n") );
+
 	for(;i<=count;i++)
 	{
 		DB( g_print("- freeing %d :: %p\n", i, txn->splits[i]) );
@@ -253,11 +255,8 @@ GList *da_transaction_sort(GList *list)
 	return( g_list_sort(list, (GCompareFunc)da_transaction_compare_func));
 }
 
-
-gboolean da_transaction_append(Transaction *item)
+static void da_transaction_insert_memo(Transaction *item)
 {
-	GLOBALS->ope_list = g_list_append(GLOBALS->ope_list, item);
-
 	// append the memo if new
 	if( item->wording != NULL )
 	{
@@ -266,7 +265,21 @@ gboolean da_transaction_append(Transaction *item)
 			g_hash_table_insert(GLOBALS->h_memo, g_strdup(item->wording), NULL);
 		}
 	}
+}
 
+
+gboolean da_transaction_insert_sorted(Transaction *item)
+{
+	GLOBALS->ope_list = g_list_insert_sorted(GLOBALS->ope_list, item, (GCompareFunc)da_transaction_compare_func);
+	da_transaction_insert_memo(item);
+	return TRUE;
+}
+
+
+gboolean da_transaction_append(Transaction *item)
+{
+	GLOBALS->ope_list = g_list_append(GLOBALS->ope_list, item);
+	da_transaction_insert_memo(item);
 	return TRUE;
 }
 
@@ -362,7 +375,7 @@ Transaction *transaction_strong_get_child_transfer(Transaction *src)
 {
 GList *list;
 
-	DB( g_print("(transaction) transaction_strong_get_child_transfer\n") );
+	DB( g_print("\n[transaction] transaction_strong_get_child_transfer\n") );
 
 	//DB( g_print(" - search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
 
@@ -390,7 +403,7 @@ GList *transaction_match_get_child_transfer(Transaction *src)
 GList *list;
 GList *match = NULL;
 
-	DB( g_print("(transaction) transaction_match_get_child_transfer\n") );
+	DB( g_print("\n[transaction] transaction_match_get_child_transfer\n") );
 
 	//DB( g_print(" - search : %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
 
@@ -423,7 +436,7 @@ GList *matchlist = transaction_match_get_child_transfer(ope);
 guint count = g_list_length(matchlist);
 
 
-	DB( g_print("(transaction) transaction_xfer_search_or_add_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
 
 	DB( g_printf(" - found result is %d, switching\n", count) );
 
@@ -472,7 +485,7 @@ Transaction *child;
 Account *acc;
 gchar swap;
 
-	DB( g_printf("(transaction) transaction_xfer_create_child\n") );
+	DB( g_printf("\n[transaction] transaction_xfer_create_child\n") );
 
 	if( ope->kxferacc > 0 )
 	{
@@ -522,7 +535,7 @@ void transaction_xfer_change_to_child(Transaction *ope, Transaction *child)
 {
 Account *acc;
 
-	DB( g_printf("(transaction) transaction_xfer_change_to_child\n") );
+	DB( g_printf("\n[transaction] transaction_xfer_change_to_child\n") );
 
 	child->paymode = PAYMODE_INTXFER;
 
@@ -545,7 +558,7 @@ Account *acc;
 void transaction_xfer_sync_child(Transaction *ope, Transaction *child)
 {
 
-	DB( g_printf("(transaction) transaction_xfer_sync_child\n") );
+	DB( g_printf("\n[transaction] transaction_xfer_sync_child\n") );
 
 	account_balances_sub (child);
 
@@ -571,7 +584,7 @@ void transaction_xfer_delete_child(Transaction *src)
 {
 Transaction *dst;
 
-	DB( g_printf("(transaction) transaction_xfer_delete_child\n") );
+	DB( g_printf("\n[transaction] transaction_xfer_delete_child\n") );
 
 	dst = transaction_strong_get_child_transfer( src );
 
@@ -591,7 +604,7 @@ Transaction *transaction_old_get_child_transfer(Transaction *src)
 GList *list;
 Transaction *item;
 
-	DB( g_print("(transaction) transaction_get_child_transfer\n") );
+	DB( g_print("\n[transaction] transaction_get_child_transfer\n") );
 
 	//DB( g_print(" search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
 
@@ -625,12 +638,12 @@ Transaction *item;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
-void transaction_add(Transaction *ope, GtkWidget *treeview, gint accnum)
+void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum)
 {
 Transaction *newope;
 Account *acc;
 
-	DB( g_printf("(transaction) transaction add\n") );
+	DB( g_printf("\n[transaction] transaction add\n") );
 
 	//controls accounts valid (archive scheduled maybe bad)
 	acc = da_acc_get(ope->kacc);
@@ -684,7 +697,8 @@ Account *acc;
 		acc->flags |= AF_ADDED;
 
 		DB( g_printf(" + add normal %p\n", newope) );
-		da_transaction_append(newope);
+		//da_transaction_append(newope);
+		da_transaction_insert_sorted(newope);
 
 		if(treeview != NULL)
 			transaction_add_treeview(newope, treeview, accnum);
@@ -701,14 +715,14 @@ Account *acc;
 
 
 
-void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, gint accnum)
+void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum)
 {
 GtkTreeModel *model;
 GtkTreeIter  iter;
 //GtkTreePath *path;
 //GtkTreeSelection *sel;
 
-	DB( g_printf("(transaction) transaction add treeview\n") );
+	DB( g_printf("\n[transaction] transaction add treeview\n") );
 
 	if(ope->kacc == accnum)
 	{
@@ -734,12 +748,15 @@ GtkTreeIter  iter;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-gint transaction_auto_assign(GList *ope_list, guint key)
+gint transaction_auto_assign(GList *ope_list, guint32 key)
 {
 GList *l_ope;
 GList *l_rul, *c_rul;
 gint changes = 0;
 
+	DB( g_printf("\n[transaction] transaction_auto_assign\n") );
+
+	
 	l_ope = g_list_first(ope_list);
 	l_rul = g_hash_table_get_values(GLOBALS->h_rul);
 
@@ -749,35 +766,26 @@ gint changes = 0;
 
 		//DB( g_print("ope '%s' %d, %d\n", ope->wording, ope->payee, ope->category) );
 
-		if( (key == -1 || key == ope->kacc) && !(ope->flags & OF_SPLIT) )
+		if( (key == ope->kacc) && !(ope->flags & OF_SPLIT) )
 		{
 			if( ope->kpay == 0 || ope->kcat == 0 )
 			{
+			gboolean txn_changed = FALSE;
+				
 				c_rul = g_list_first(l_rul);
 				while (c_rul != NULL)
 				{
 				Assign *rul = c_rul->data;
 
-					DB( g_print("search %s in %s\n", rul->name, ope->wording) );
-					if( rul->name != NULL)
+					//DB( g_print("search %s in %s\n", rul->name, ope->wording) );
+					if( rul->name != NULL )
 					{
 						if( rul->exact )
 						{
 							if( g_strrstr(ope->wording, rul->name) != NULL )
 							{
-								DB( g_print(" found case\n") );
-								if( ope->kpay == 0 )
-								{
-									ope->kpay    = rul->kpay;
-									ope->flags |= OF_CHANGED;
-									changes++;
-								}
-								if( ope->kcat == 0 )
-								{
-									ope->kcat = rul->kcat;
-									ope->flags |= OF_CHANGED;
-									changes++;
-								}
+								DB( g_print(" found case '%s'\n", rul->name) );
+								txn_changed = TRUE;
 							}
 						}
 						else
@@ -787,25 +795,31 @@ gint changes = 0;
 
 							if( g_strrstr(word, needle) != NULL )
 							{
-								DB( g_print(" found nocase\n") );
-								if( ope->kpay == 0 )
-								{
-									ope->kpay    = rul->kpay;
-									ope->flags |= OF_CHANGED;
-									changes++;
-								}
-								if( ope->kcat == 0 )
-								{
-									ope->kcat = rul->kcat;
-									ope->flags |= OF_CHANGED;
-									changes++;
-								}
+								DB( g_print(" found nocase '%s'\n", rul->name) );
+								txn_changed = TRUE;
 							}
 
 							g_free(word);
 							g_free(needle);
 
 						}
+
+						if( txn_changed == TRUE )
+						{
+							if( ope->kpay == 0 && rul->kpay > 0 )
+							{
+								ope->kpay = rul->kpay;
+								ope->flags |= OF_CHANGED;
+								changes++;
+							}
+							if( ope->kcat == 0 && rul->kcat > 0 )
+							{
+								ope->kcat = rul->kcat;
+								ope->flags |= OF_CHANGED;
+								changes++;
+							}
+						}
+						
 					}
 
 					c_rul = g_list_next(c_rul);
@@ -932,6 +946,8 @@ guint count, i;
 Tag *tag;
 
 	DB( g_print("(transaction_set_tags)\n") );
+
+	DB( g_print(" - tagstring='%s'\n", tagstring) );
 
 	str_array = g_strsplit (tagstring, " ", 0);
 	count = g_strv_length( str_array );

@@ -26,6 +26,11 @@ enum {
 	TRN_LIST_TYPE_IMPORT,
 };
 
+struct list_transaction_data
+{
+	GtkTreeViewColumn   *tvc_balance;
+	gboolean			tvc_is_visible;
+};
 
 
 GtkWidget *create_list_transaction(gint type, gboolean *pref_columns);

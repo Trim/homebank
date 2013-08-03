@@ -50,7 +50,7 @@ gchar *name = NULL;
 
     DB( g_print ("ui_cat_comboboxentry_get_name()\n") );
 
-	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	if( cbname != NULL)
 	{
 		name = g_strdup(cbname);
@@ -77,7 +77,7 @@ gchar *name;
 
 	DB( g_print ("ui_cat_comboboxentry_get_key()\n") );
 
-	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	if( name == NULL)
 		return -1;
@@ -112,7 +112,7 @@ gchar *name;
 
 	DB( g_print ("ui_cat_comboboxentry_get_key()\n") );
 
-	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	if( name == NULL)
 		return -1;
 
@@ -138,17 +138,17 @@ gchar *fullname;
 		if( item != NULL)
 		{
 			if( item->parent == 0)
-				gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), item->name);
+				gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), item->name);
 			else
 			{
 				fullname = da_cat_get_fullname(item);
-				gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), fullname);
+				gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), fullname);
 				g_free(fullname);
 			}
 			return TRUE;
 		}
 	}
-	gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), "");
+	gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), "");
 	return FALSE;
 }
 
@@ -259,7 +259,7 @@ struct catPopContext ctx;
     DB( g_print ("ui_cat_comboboxentry_populate()\n") );
 
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(entry_box));
-	completion = gtk_entry_get_completion(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	/* keep our model alive and detach from comboboxentry and completion */
 	g_object_ref(model);
@@ -394,7 +394,7 @@ GtkCellRenderer    *renderer;
 
 
 
-	gtk_entry_set_completion (GTK_ENTRY (GTK_BIN (comboboxentry)->child), completion);
+	gtk_entry_set_completion (GTK_ENTRY (gtk_bin_get_child(GTK_BIN (comboboxentry))), completion);
 
 	g_object_unref(store);
 
@@ -1033,7 +1033,7 @@ static void
 ui_cat_manage_dialog_modify(GtkWidget *widget, gpointer user_data)
 {
 struct ui_cat_manage_dialog_data *data;
-GtkWidget *window, *mainvbox, *w_name, *w_type = NULL;
+GtkWidget *window, *content, *mainvbox, *w_name, *w_type = NULL;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
@@ -1058,8 +1058,9 @@ GtkTreeIter			 iter;
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
+		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_MAINBOX_SPACING);
 
 		w_name = gtk_entry_new();
@@ -1088,7 +1089,7 @@ GtkTreeIter			 iter;
 		{
 		const gchar *name;
 
-			// 1: mange renaming
+			// 1: manage renaming
 			name = gtk_entry_get_text(GTK_ENTRY(w_name));
 			// ignore if item is empty
 			if (name && *name)
@@ -1158,7 +1159,7 @@ GtkTreeIter			 iter;
 static void ui_cat_manage_dialog_move(GtkWidget *widget, gpointer user_data)
 {
 struct ui_cat_manage_dialog_data *data;
-GtkWidget *window, *mainvbox, *getwidget;
+GtkWidget *window, *content, *mainvbox, *getwidget;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
@@ -1183,8 +1184,9 @@ GtkTreeIter			 iter;
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
+		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
 
 		getwidget = ui_cat_comboboxentry_new(NULL);
@@ -1218,19 +1220,29 @@ GtkTreeIter			 iter;
 
 			if( result == GTK_RESPONSE_YES )
 			{
+			Category *newcat, *parent;
 			guint dstkey;
 
 				dstkey = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(getwidget));
+				newcat = da_cat_get (dstkey);
 
 				DB( g_print(" moving to %d\n", dstkey) );
 
 				category_move(item->key, dstkey);
 
-				// remove the old payee
+				//keep the income with us
+				parent = da_cat_get(item->parent);
+				if(parent != NULL && (parent->flags & GF_INCOME))
+					newcat->flags |= GF_INCOME;
+
+				// remove the old category
 				da_cat_remove(item->key);
 				ui_cat_listview_remove_selected(GTK_TREE_VIEW(data->LV_cat));
-				data->change++;
 
+				//add the new category into listview
+				ui_cat_listview_add(GTK_TREE_VIEW(data->LV_cat), newcat, NULL);
+
+				data->change++;
 			}
 	    }
 
@@ -1478,7 +1490,7 @@ static void ui_cat_manage_dialog_setup(struct ui_cat_manage_dialog_data *data)
 GtkWidget *ui_cat_manage_dialog (void)
 {
 struct ui_cat_manage_dialog_data data;
-GtkWidget *window, *mainvbox, *table, *hbox, *label, *scrollwin, *vbox, *separator, *treeview;
+GtkWidget *window, *content, *mainvbox, *table, *hbox, *label, *scrollwin, *vbox, *separator, *treeview;
 gint row;
 
       window = gtk_dialog_new_with_buttons (_("Manage Categories"),
@@ -1502,8 +1514,9 @@ gint row;
 			G_CALLBACK (gtk_widget_destroyed), &window);
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainvbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
 
     //our table

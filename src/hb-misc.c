@@ -572,7 +572,7 @@ hb_strdup_nobrackets (const gchar *str)
 
 
 static gboolean
-hb_date_parser_get_dmy(gchar *string, gint *d, gint *m, gint *y)
+hb_date_parser_get_nums(gchar *string, gint *n1, gint *n2, gint *n3)
 {
 gboolean retval;
 gchar **str_array;
@@ -596,19 +596,9 @@ gchar **str_array;
 
 	if( g_strv_length( str_array ) == 3 )
 	{
-		*d = atoi(str_array[0]);
-		*m = atoi(str_array[1]);
-		*y = atoi(str_array[2]);
-
-		//correct for 2 digits year
-		if(*y < 1970)
-		{
-			if(*y < 60)
-				*y += 2000;
-			else
-				*y += 1900;
-		}
-
+		*n1 = atoi(str_array[0]);
+		*n2 = atoi(str_array[1]);
+		*n3 = atoi(str_array[2]);
 		retval = TRUE;
 	}
 
@@ -617,11 +607,66 @@ gchar **str_array;
 	return retval;
 }
 
+guint32 hb_date_get_julian(gchar *string, gint datefmt)
+{
+GDate *date;
+gint n1, n2, n3, d, m, y;
+guint32 julian = 0;
+
+	DB( g_print("hb_date_get_julian: %s, %d\n", string, datefmt) );
+	
+	if( hb_date_parser_get_nums(string, &n1, &n2, &n3) )
+	{
+		DB( g_print("-> %d %d %d\n", n1, n2, n3) );
+
+		date = g_date_new();
+		switch(datefmt)
+		{
+			case PRF_DATEFMT_MDY:
+				d = n2;
+				m = n1;
+				y = n3;
+				break;
+			case PRF_DATEFMT_DMY:
+				d = n1;
+				m = n2;
+				y = n3;
+				break;
+			default:
+			case PRF_DATEFMT_YMD:
+				d = n3;
+				m = n2;
+				y = n1;
+				break;
+		}
+
+		//correct for 2 digits year
+		if(y < 1970)
+		{
+			if(y < 60)
+				y += 2000;
+			else
+				y += 1900;
+		}
+
+		DB( g_print("-> %d %d %d\n", d, m, y) );
+
+		g_date_set_dmy(date, d, m, y);
+		if( g_date_valid (date) )
+			julian = g_date_get_julian (date);
+		
+		g_date_free(date);
+	}
+
+	return julian;
+}
+
+
 static gboolean hb_string_isdate(gchar *str)
 {
 gint d, m, y;
 
-	return(hb_date_parser_get_dmy(str, &d, &m, &y));
+	return(hb_date_parser_get_nums(str, &d, &m, &y));
 }
 
 
@@ -665,7 +710,7 @@ gunichar c;
 }
 
 
-gboolean hb_string_csv_valid(gchar *str, gint nbcolumns, gint *csvtype)
+gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype)
 {
 gchar **str_array;
 gboolean valid = TRUE;
@@ -735,39 +780,6 @@ csvend:
 	return valid;
 }
 
-guint32 hb_date_get_julian(gchar *string, gint datefmt)
-{
-GDate *date;
-gint d, m, y;
-guint32 julian = 0;
-
-	if( hb_date_parser_get_dmy(string, &d, &m, &y) )
-	{
-		date = g_date_new();
-		switch(datefmt)
-		{
-			case PRF_DATEFMT_MDY:
-				if(g_date_valid_dmy(m, d, y))
-					g_date_set_dmy(date, m, d, y);
-				break;
-			case PRF_DATEFMT_DMY:
-				if(g_date_valid_dmy(d, m, y))
-					g_date_set_dmy(date, d, m, y);
-				break;
-			case PRF_DATEFMT_YMD:
-				if(g_date_valid_dmy(y, m, d))
-					g_date_set_dmy(date, y, m, d);
-				break;
-		}
-		
-		if( g_date_valid (date) )
-			julian = g_date_get_julian (date);
-		
-		g_date_free(date);
-	}
-
-	return julian;
-}
 
 
 /*

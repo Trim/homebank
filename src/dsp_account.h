@@ -81,7 +81,7 @@ struct account_data
 };
 
 
-GtkWidget *create_account_window(gint accnum, Account *acc);
+GtkWidget *create_account_window(guint32 accnum, Account *acc);
 
 
 void account_init_window(GtkWidget *widget, gpointer user_data);

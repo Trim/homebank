@@ -21,6 +21,6 @@
 #define __HOMEBANK_REPTIME_H__
 
 
-GtkWidget *create_trendtime_window(void);
+GtkWidget *create_trendtime_window(guint32 accnum);
 
 #endif

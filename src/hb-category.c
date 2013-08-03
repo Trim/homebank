@@ -305,7 +305,7 @@ da_cat_get_key_by_name(gchar *name)
 {
 Category *cat;
 
-	DB( g_print("da_cat_get_id_by_name\n") );
+	DB( g_print("da_cat_get_key_by_name\n") );
 
 	cat = g_hash_table_find(GLOBALS->h_cat, (GHRFunc)da_cat_name_grfunc, name);
 	if( cat == NULL)
@@ -526,7 +526,7 @@ guint32 *new_key;
 Category *
 da_cat_get(guint32 key)
 {
-	DB( g_print("da_cat_get\n") );
+	//DB( g_print("da_cat_get\n") );
 
 	return g_hash_table_lookup(GLOBALS->h_cat, &key);
 }
@@ -1005,7 +1005,7 @@ gchar *category_find_preset(gchar **lang)
 gchar **langs;
 gchar *filename;
 gboolean exists;
-gint i;
+guint i;
 
 	DB( g_printf("** category_find_preset **\n") );
 

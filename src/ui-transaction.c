@@ -62,7 +62,7 @@ static void ui_txn_split_dialog_line_sensitive(guint line, gboolean sensitive, g
 {
 struct ui_txn_split_dialog_data *data = user_data;
 
-	if(line < 0 || line > TXN_MAX_SPLIT )
+	if( line > TXN_MAX_SPLIT )
 		return;
 
 	if( line == 0 ) // line 0 always active !
@@ -325,7 +325,7 @@ gchar *txt;
 static GtkWidget *ui_txn_split_dialog (GtkWidget *parent, Transaction *ope, gdouble amount)
 {
 struct ui_txn_split_dialog_data data;
-GtkWidget *dialog, *mainvbox, *label;
+GtkWidget *dialog, *content, *mainvbox, *label;
 GtkWidget *table, *widget;
 gint row, i;
 
@@ -363,8 +363,9 @@ gint row, i;
 			G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	//dialog contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 	mainvbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->vbox), mainvbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
 
 
@@ -833,7 +834,7 @@ guint kacc, kdst;
 end:
 	DB( g_printf(" sensitive %d\n", sensitive) );
 
-	gtk_widget_set_sensitive(GTK_DIALOG(data->window)->action_area, sensitive);
+	gtk_widget_set_sensitive(gtk_dialog_get_action_area(GTK_DIALOG (data->window)), sensitive);
 
 }
 
@@ -1212,7 +1213,7 @@ gint row;
 GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type)
 {
 struct deftransaction_data *data;
-GtkWidget *window, *hbox, *mainbox, *table, *label, *widget, *expander;
+GtkWidget *window, *content, *hbox, *mainbox, *table, *label, *widget, *expander;
 GtkWidget *alignment;
 
 	DB( g_printf("(ui_transaction) new\n") );
@@ -1272,8 +1273,9 @@ GtkWidget *alignment;
 
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
 	// parameters HB_BOX_SPACING

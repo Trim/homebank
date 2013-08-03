@@ -343,7 +343,7 @@ gchar *errmsg;
 	/* win32 API call */
 	retval = ShellExecuteA (NULL, "open", url, NULL, NULL, SW_NORMAL);
 
-	if (retval < 0 && retval > 32)
+	if (retval < 0 || retval > 32)
 		return TRUE;
 
 	errmsg = g_win32_error_message(retval);
@@ -463,7 +463,7 @@ gboolean homebank_lastopenedfiles_save(void)
 GKeyFile *keyfile;
 gboolean retval = FALSE;
 gchar *group, *filename;
-guint length;
+gsize length;
 
 	DB( g_print("\n[homebank] lastopenedfiles save\n") );
 
@@ -476,7 +476,7 @@ guint length;
 			group = "HomeBank";
 			g_key_file_set_string  (keyfile, group, "LastOpenedFile", GLOBALS->xhb_filepath);
 
-			gchar *contents = g_key_file_to_data (keyfile, &length, NULL);
+			gchar *contents = g_key_file_to_data( keyfile, &length, NULL);
 
 			//DB( g_print(" keyfile:\n%s\nlen=%d\n", contents, length) );
 
@@ -1086,10 +1086,6 @@ gboolean openlast;
 	DB( g_print("\n--------------------------------" ) );
 	DB( g_print("\nhomebank starting...\n" ) );
 
-
-	/* Init type system as soon as possible */
-	g_type_init ();
-
 	build_package_paths();
 
 #ifdef G_OS_WIN32
@@ -1168,9 +1164,6 @@ gboolean openlast;
 
 	g_set_application_name (APPLICATION_NAME);
 
-
-
-
 	if( homebank_setup() )
 	{
 
@@ -1205,9 +1198,14 @@ gboolean openlast;
 
 			//setup, init and show window
 			wg = &PREFS->wal_wg;
-			gtk_window_move(GTK_WINDOW(mainwin), wg->l, wg->t);
-			gtk_window_resize(GTK_WINDOW(mainwin), wg->w, wg->h);
-
+			if(wg->s == 0)
+			{
+				gtk_window_move(GTK_WINDOW(mainwin), wg->l, wg->t);
+				gtk_window_resize(GTK_WINDOW(mainwin), wg->w, wg->h);
+			}
+			else
+				gtk_window_maximize(GTK_WINDOW(mainwin));
+				
 			//todo: pause on splash
 			if( PREFS->showsplash == TRUE )
 			{

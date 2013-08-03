@@ -322,6 +322,11 @@ guint cnt, i;
 	Account *item = list->data;
 		g_free(item->name);
 		item->name = g_strdup_printf("account %d", item->key);
+		g_free(item->number);
+		item->number = NULL;
+		g_free(item->bankname);
+		item->bankname = NULL;
+		
 		GLOBALS->changes_count++;
 		list = g_list_next(list);
 	}

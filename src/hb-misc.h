@@ -46,7 +46,7 @@ void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey);
 void hb_string_strip_crlf(gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
-gboolean hb_string_csv_valid(gchar *str, gint nbcolumns, gint *csvtype);
+gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);
 
 guint32 hb_date_get_julian(gchar *string, gint datefmt);
 

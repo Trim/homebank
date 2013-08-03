@@ -190,9 +190,9 @@ static EuroParams euro_params[] =
 
 
 GtkWidget *pref_list_create(void);
-GtkWidget *list_opecolumncreate(void);
+GtkWidget *list_txn_colprefcreate(void);
 
-static void list_opecolumn_get(GtkTreeView *treeview, gboolean *columns);
+static void list_txn_colpref_get(GtkTreeView *treeview, gboolean *columns);
 
 /*
 **
@@ -202,7 +202,7 @@ static GtkWidget *make_euro_presets(GtkWidget *label)
 GtkWidget *combobox;
 guint i;
 
-	DB( g_print("(defpref) make euro preset\n") );
+	DB( g_print("\n[ui-pref] make euro preset\n") );
 
 	combobox = gtk_combo_box_text_new();
 	for (i = 0; i < G_N_ELEMENTS (euro_params); i++)
@@ -223,7 +223,7 @@ static defpref_currency_display(GtkWidget *widget, gpointer user_data)
 struct defpref_data *data;
 struct iso4217format *curfmt;
 
-	DB( g_print("(defpref) display default currency\n") );
+	DB( g_print("\n[ui-pref] display default currency\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -244,7 +244,7 @@ static void defpref_currency_change(GtkWidget *widget, gpointer user_data)
 struct defpref_data *data;
 struct iso4217format *curfmt;
 
-	DB( g_print("(defpref) chnage default currency\n") );
+	DB( g_print("\n[ui-pref] chnage default currency\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -273,7 +273,7 @@ gchar **path;
 GtkWidget *entry;
 gboolean r;
 
-	DB( g_print("(defpref) path select\n") );
+	DB( g_print("\n[ui-pref] path select\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -324,7 +324,7 @@ gchar buffer[256];
 const gchar *fmt;
 GDate *date;
 
-	DB( g_print("(defpref) date sample\n") );
+	DB( g_print("\n[ui-pref] date sample\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -349,7 +349,7 @@ struct CurrencyFmt cur;
 gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
 gchar  buf[128], *ptr;
 
-	DB( g_print("(defpref) number sample\n") );
+	DB( g_print("\n[ui-pref] number sample\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -393,7 +393,7 @@ struct CurrencyFmt cur;
 gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
 gchar  buf[128], *ptr;
 
-	DB( g_print("(defpref) number sample\n") );
+	DB( g_print("\n[ui-pref] number sample\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -440,7 +440,7 @@ static void defpref_eurotoggle(GtkWidget *widget, gpointer user_data)
 struct defpref_data *data;
 gboolean bool;
 
-	DB( g_print("(defpref) euro toggle\n") );
+	DB( g_print("\n[ui-pref] euro toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -471,7 +471,7 @@ static void defpref_europreset(GtkWidget *widget, gpointer user_data)
 struct defpref_data *data;
 gint country;
 
-	DB( g_print("(defpref) euro preset\n") );
+	DB( g_print("\n[ui-pref] euro preset\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -500,7 +500,7 @@ GdkColor color;
 gint preset;
 gchar *expcol, *inccol, *wrncol;
 
-	DB( g_print("(defpref) color preset\n") );
+	DB( g_print("\n[ui-pref] color preset\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -578,7 +578,7 @@ static void defpref_set(struct defpref_data *data)
 {
 GdkColor color;
 
-	DB( g_print("(defpref) set\n") );
+	DB( g_print("\n[ui-pref] set\n") );
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_toolbar), PREFS->toolbar_style);
 	//gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_image_size), PREFS->image_size);
@@ -701,7 +701,7 @@ static void defpref_get(struct defpref_data *data)
 {
 GdkColor color;
 
-	DB( g_print("(defpref) get\n") );
+	DB( g_print("\n[ui-pref] get\n") );
 
 	PREFS->toolbar_style = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_toolbar));
 	//PREFS->image_size = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_image_size));
@@ -723,7 +723,7 @@ GdkColor color;
 	PREFS->rules_hint= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_ruleshint));
 
 
-	list_opecolumn_get(GTK_TREE_VIEW(data->LV_opecolumns), PREFS->lst_ope_columns);
+	list_txn_colpref_get(GTK_TREE_VIEW(data->LV_opecolumns), PREFS->lst_ope_columns);
 
 	g_free(PREFS->path_hbfile);
 	PREFS->path_hbfile = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_path_hbfile)));
@@ -1401,7 +1401,7 @@ gint row;
 	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	widget = (GtkWidget *)list_opecolumncreate();
+	widget = (GtkWidget *)list_txn_colprefcreate();
 	data->LV_opecolumns = widget;
 	gtk_container_add (GTK_CONTAINER (sw), widget);
 	gtk_widget_set_tooltip_text(widget, _("Drag & drop to change the order"));
@@ -1607,7 +1607,7 @@ GtkTreeIter iter;
 GValue        val = { 0, };
 gint page;
 
-	DB( g_print("(defpref) selection\n") );
+	DB( g_print("\n[ui-pref] selection\n") );
 
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
@@ -1651,7 +1651,7 @@ gint page = GPOINTER_TO_INT(user_data);
 GtkTreeModel *model;
 
 
-	DB( g_print("(defpref) page\n") );
+	DB( g_print("\n[ui-pref] page\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1697,7 +1697,7 @@ gint result;
 GtkWidget *defpref_dialog_new (void)
 {
 struct defpref_data data;
-GtkWidget *window, *mainvbox;
+GtkWidget *window, *content, *mainvbox;
 
 GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 
@@ -1717,8 +1717,9 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 
 	gtk_window_set_icon_name(GTK_WINDOW (window), GTK_STOCK_PREFERENCES);
 
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainvbox = gtk_vbox_new (FALSE, 8);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 
 	gtk_container_set_border_width(GTK_CONTAINER(mainvbox), 8);
 
@@ -2010,53 +2011,56 @@ guint i;
 	gtk_widget_destroy (cellview);
 }
 
-// -------------------------------
-static struct {
-	gchar		*name;
-	gint		id;
-} ope_list_columns[] = {
 
-	{	NULL, LST_DSPOPE_DATAS,		},
-	{	NULL, LST_DSPOPE_STATUS,		},
-	{	NULL, LST_DSPOPE_DATE,		},
-	{	N_("Info"    ), LST_DSPOPE_INFO,		},
-	{	N_("Payee"   ), LST_DSPOPE_PAYEE,		},
-	{	N_("Memo"    ), LST_DSPOPE_WORDING,	},
-	{	N_("Amount"  ), LST_DSPOPE_AMOUNT,		},
-	{	N_("Expense" ), LST_DSPOPE_EXPENSE,	},
-	{	N_("Income"  ), LST_DSPOPE_INCOME,		},
-	{	N_("Category"), LST_DSPOPE_CATEGORY,	},
-	{	N_("Tags"), LST_DSPOPE_TAGS,	},
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+
+
+static gchar *list_txn_column_label[] = {
+	"----", //datas
+	"----", //status
+	"----", //date
+	N_("Info"    ),
+	N_("Payee"   ),
+	N_("Memo"    ),
+	N_("Amount"  ),
+	N_("Expense" ),
+	N_("Income"  ),
+	N_("Category"),
+	N_("Tags"    ),
+	N_("Balance" ),
+	NULL
 };
+
 
 //static gint n_ope_list_columns = G_N_ELEMENTS (ope_list_columns);
 
+
 static void
-fixed_toggled (GtkCellRendererToggle *cell,
+list_txn_colpref_toggled_cell_data_function (GtkCellRendererToggle *cell,
 	       gchar                 *path_str,
 	       gpointer               data)
 {
-  GtkTreeModel *model = (GtkTreeModel *)data;
-  GtkTreeIter  iter;
-  GtkTreePath *path = gtk_tree_path_new_from_string (path_str);
-  gboolean fixed;
+GtkTreeModel *model = (GtkTreeModel *)data;
+GtkTreeIter  iter;
+GtkTreePath *path = gtk_tree_path_new_from_string (path_str);
+gboolean fixed;
 
-  /* get toggled iter */
-  gtk_tree_model_get_iter (model, &iter, path);
-  gtk_tree_model_get (model, &iter, COLUMN_VISIBLE, &fixed, -1);
+	/* get toggled iter */
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, COLUMN_VISIBLE, &fixed, -1);
 
-  /* do something with the value */
-  fixed ^= 1;
+	/* do something with the value */
+	fixed ^= 1;
 
-  /* set new value */
-  gtk_list_store_set (GTK_LIST_STORE (model), &iter, COLUMN_VISIBLE, fixed, -1);
+	/* set new value */
+	gtk_list_store_set (GTK_LIST_STORE (model), &iter, COLUMN_VISIBLE, fixed, -1);
 
-  /* clean up */
-  gtk_tree_path_free (path);
+	/* clean up */
+	gtk_tree_path_free (path);
 }
 
 
-static void list_opecolumn_get(GtkTreeView *treeview, gint *columns)
+static void list_txn_colpref_get(GtkTreeView *treeview, gint *columns)
 {
 GtkTreeModel *model;
 GtkTreeIter	iter;
@@ -2064,6 +2068,9 @@ gboolean valid;
 gboolean visible;
 gint i, id;
 
+	DB( g_print("[lst_txn-colpref] store column order \n") );
+
+	
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
 	i = 0;
@@ -2074,8 +2081,8 @@ gint i, id;
 			COLUMN_ID, &id,
 			-1);
 
-		DB( g_print("list_opecolumn_get %d: %d\n",id, visible) );
-
+		DB( g_print(" - column %d: %d\n",id, visible) );
+		// start at index 2 (status, date always displayed
 		columns[i+2] = visible == TRUE ? id : -id;
 
 		 /* Make iter point to the next row in the list store */
@@ -2087,28 +2094,8 @@ gint i, id;
 
 }
 
-static void list_opecolumn_selection(GtkTreeSelection *treeselection, gpointer user_data)
-{
 
-	DB( g_print("list_opecolumn_selection\n") );
-
-	/*void        gtk_list_store_move_before      (GtkListStore *store,
-                                             GtkTreeIter *iter,
-                                             GtkTreeIter *position);
-
-		//if true there is a selected node
-	selected = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay)), &model, &iter);
-
-	gtk_widget_set_sensitive(data->BT_mod, sensitive);
-	gtk_widget_set_sensitive(data->BT_rem, sensitive);
-
-
-	*/
-
-
-}
-
-GtkWidget *list_opecolumncreate(void)
+GtkWidget *list_txn_colprefcreate(void)
 {
 GtkListStore *store;
 GtkWidget *view;
@@ -2116,6 +2103,9 @@ GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column;
 GtkTreeIter    iter;
 gint i;
+
+	DB( g_print("[lst_txn-colpref] create\n") );
+
 
 	/* create list store */
 	store = gtk_list_store_new(
@@ -2126,66 +2116,58 @@ gint i;
 		);
 
 	/* populate */
-	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )
+	for(i=0 ; i < NUM_LST_DSPOPE-1; i++ )   //-1 cause account column avoid
 	{
-	gint id = ABS(PREFS->lst_ope_columns[i]);
+	gint id;
+	gboolean visible;
 
-		DB( g_print("pos:%d id:%d %s\n", i, id, ope_list_columns[id].name) );
+		DB( g_print("eval %d, %s\n", i, list_txn_column_label[i]) );
+		
+		if(i <= LST_DSPOPE_DATE) // status, date always displayed
+			continue;
 
-		if( id > LST_DSPOPE_DATE )
-		{
-			gtk_list_store_append (store, &iter);
-			gtk_list_store_set (store, &iter,
-				COLUMN_VISIBLE, (PREFS->lst_ope_columns[i] > 0) ? TRUE : FALSE,
-		  		COLUMN_NAME, ope_list_columns[id].name,
-		  		COLUMN_ID  , ope_list_columns[id].id,
-		  		-1);
-		}
-	}
+		//[i-1] here because lst_ope_columns[] do not store LST_DSPOPE_DATAS
+		id = ABS(PREFS->lst_ope_columns[i-1]);  
+		if(id == 0) id = i;	 //if we pass here, new column or weird into pref file
+		visible = (PREFS->lst_ope_columns[i-1] > 0) ? TRUE : FALSE;
 
-
-/* old code
-	for (i = 0; i < n_ope_list_columns; i++)
-	{
-		visible = (PREFS->lst_ope_columns[ope_list_columns[i].id] > 0) ? TRUE : FALSE;
+		
+		DB( g_print(" - pos=%2d, id=%2d - %d '%s'\n", i, id, visible, list_txn_column_label[id]) );
 
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter,
 			COLUMN_VISIBLE, visible,
-      		COLUMN_NAME, ope_list_columns[i].name,
-      		COLUMN_ID  , ope_list_columns[i].id,
-      		-1);
+	  		COLUMN_NAME, list_txn_column_label[id],
+	  		COLUMN_ID  , id,
+	  		-1);
+		
 	}
-*/
-
 
 	//treeview
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-		renderer = gtk_cell_renderer_toggle_new ();
-		column = gtk_tree_view_column_new_with_attributes (_("Visible"),
+
+
+	renderer = gtk_cell_renderer_toggle_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Visible"),
 							     renderer,
 							     "active", COLUMN_VISIBLE,
 							     NULL);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
-		g_signal_connect (renderer, "toggled",
-			    G_CALLBACK (fixed_toggled), store);
+	g_signal_connect (renderer, "toggled",
+			    G_CALLBACK (list_txn_colpref_toggled_cell_data_function), store);
 
-
-		renderer = gtk_cell_renderer_text_new ();
-		column = gtk_tree_view_column_new_with_attributes (_("Column"),
+	
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Column"),
 							     renderer,
 							     "text", COLUMN_NAME,
 							     NULL);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
+	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
-
-
-	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), "changed", G_CALLBACK (list_opecolumn_selection), NULL);
 
 
 	return(view);

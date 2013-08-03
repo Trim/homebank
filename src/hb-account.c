@@ -269,7 +269,7 @@ da_acc_get_by_imp_name(gchar *name)
 Account *
 da_acc_get(guint32 key)
 {
-	DB( g_print("da_acc_get_account\n") );
+	//DB( g_print("da_acc_get\n") );
 
 	return g_hash_table_lookup(GLOBALS->h_acc, &key);
 }
@@ -412,14 +412,34 @@ GList *list;
 	}
 }
 
+static gchar *
+account_get_stripname(gchar *name)
+{
+gchar *stripname = g_strdup(name);
+	g_strstrip(stripname);
+
+	return stripname;
+}
+
+
+gboolean
+account_exists(gchar *name)
+{
+Account *existitem;
+gchar *stripname = account_get_stripname(name);
+
+	existitem = da_acc_get_by_name(stripname);
+	g_free(stripname);
+
+	return existitem == NULL ? FALSE : TRUE;
+}
+
+
 gboolean
 account_rename(Account *item, gchar *newname)
 {
 Account *existitem;
-gchar *stripname;
-
-	stripname = g_strdup(newname);
-	g_strstrip(stripname);
+gchar *stripname = account_get_stripname(newname);
 
 	existitem = da_acc_get_by_name(stripname);
 	if( existitem == NULL )

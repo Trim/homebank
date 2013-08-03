@@ -440,7 +440,7 @@ GtkTreeIter  iter;
 			//filter here
 			if( !(ope->flags & OF_REMIND) && (ope->date >= data->filter->mindate) && (ope->date <= data->filter->maxdate))
 			{
-			gint pos = 0;
+			guint pos = 0;
 			gboolean insert = FALSE;
 
 				if( ope->flags & OF_SPLIT )
@@ -510,8 +510,6 @@ next1:
 		g_object_unref(model);
 
 	}
-	else
-		DB( g_print(" ->nothing done\n") );
 
 }
 
@@ -521,12 +519,12 @@ static void repbudget_compute(GtkWidget *widget, gpointer user_data)
 struct repbudget_data *data;
 
 gint tmpfor, tmpkind, tmpview;
-gint mindate, maxdate;
+guint32 mindate, maxdate;
 
 GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list;
-gint n_result, id, column;
+guint n_result, id, column;
 gdouble *tmp_spent, *tmp_budget, *tmp_hasbudget;
 gint nbmonth = 1;
 

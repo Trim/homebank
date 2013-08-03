@@ -200,8 +200,6 @@ guint32 catkey;
 
 	DB( g_print(" -> active cat is %d\n", catkey) );
 
-	if(catkey == -1) return;
-
 	// clear the glist
 	da_vehiclecost_destroy(data->vehicle_list);
 	data->vehicle_list = NULL;

@@ -196,13 +196,20 @@ guint32 refdate, month, year, qnum;
 			flt->maxdate = g_date_get_julian(date);
 			break;
 			
-		case 4:		// this year
+		case FLT_RANGE_THISYEAR:
 			g_date_set_dmy(date, 1, 1, year);
 			flt->mindate = g_date_get_julian(date);
 			g_date_set_dmy(date, 31, 12, year);
 			flt->maxdate = g_date_get_julian(date);
 			break;
-		
+
+		case FLT_RANGE_LASTYEAR:
+			g_date_set_dmy(date, 1, 1, year-1);
+			flt->mindate = g_date_get_julian(date);
+			g_date_set_dmy(date, 31, 12, year-1);
+			flt->maxdate = g_date_get_julian(date);
+			break;
+
 		// 5 :: separator
 	
 		case 6:		// last 30 days
@@ -364,6 +371,7 @@ gint insert;
 		guint count, i;
 		Split *split;
 
+			insert = 0;	 //fix: 1151259
 			count = da_transaction_splits_count(txn);
 			for(i=0;i<count;i++)
 			{

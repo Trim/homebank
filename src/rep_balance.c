@@ -100,6 +100,8 @@ struct repbalance_data
 
 };
 
+
+
 /* prototypes */
 static void repbalance_action_viewlist(GtkAction *action, gpointer user_data);
 static void repbalance_action_viewline(GtkAction *action, gpointer user_data);
@@ -165,7 +167,7 @@ static void repbalance_range_change(GtkWidget *widget, gpointer user_data);
 static void repbalance_update_info(GtkWidget *widget, gpointer user_data);
 static void repbalance_toggle_minor(GtkWidget *widget, gpointer user_data);
 static void repbalance_compute(GtkWidget *widget, gpointer user_data);
-static void repbalance_setup(struct repbalance_data *data);
+static void repbalance_setup(struct repbalance_data *data, guint32 accnum);
 static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static GtkWidget *create_list_repbalance(void);
 
@@ -371,7 +373,7 @@ guint32 acckey;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	if(data->detail && active != -1)
+	if(data->detail)
 	{
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), NULL); /* Detach model from view */
@@ -409,10 +411,8 @@ guint32 acckey;
 		g_object_unref(model);
 
 	}
-	else
-		DB( g_print(" ->nothing done\n") );
-
 }
+
 
 static void repbalance_update_detail(GtkWidget *widget, gpointer user_data)
 {
@@ -586,7 +586,7 @@ static void repbalance_compute(GtkWidget *widget, gpointer user_data)
 struct repbalance_data *data;
 GtkTreeModel *model;
 GtkTreeIter  iter;
-gint acckey, i;
+guint32 acckey, i;
 gboolean selectall, eachday;
 Account *acc;
 
@@ -734,6 +734,7 @@ gboolean selectall;
 static void repbalance_busy(GtkWidget *widget, gboolean state)
 {
 struct repbalance_data *data;
+GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
@@ -741,12 +742,13 @@ GdkCursor *cursor;
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
+	gdkwindow = gtk_widget_get_window(window);
 
 	// should busy ?
 	if(state == TRUE)
 	{
 		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, cursor);
+		gdk_window_set_cursor(gdkwindow, cursor);
 		gdk_cursor_unref(cursor);
 
 		//gtk_grab_add(data->busy_popup);
@@ -764,7 +766,7 @@ GdkCursor *cursor;
 		gtk_widget_set_sensitive(window, TRUE);
 		gtk_action_group_set_sensitive(data->actions, TRUE);
 
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, NULL);
+		gdk_window_set_cursor(gdkwindow, NULL);
 		//gtk_grab_remove(data->busy_popup);
 	}
 }
@@ -774,7 +776,7 @@ GdkCursor *cursor;
 /*
 **
 */
-static void repbalance_setup(struct repbalance_data *data)
+static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 {
 	DB( g_print("(repbalance) setup\n") );
 
@@ -792,9 +794,8 @@ static void repbalance_setup(struct repbalance_data *data)
 	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
 	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
 
-
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_acc), GLOBALS->h_acc, ACC_LST_INSERT_REPORT);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(data->PO_acc), 0);
+	ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_acc), accnum);
 
 }
 
@@ -831,7 +832,7 @@ struct WinGeometry *wg;
 
 
 // the window creation
-GtkWidget *repbalance_window_new(void)
+GtkWidget *repbalance_window_new(gint accnum)
 {
 struct repbalance_data *data;
 struct WinGeometry *wg;
@@ -1089,7 +1090,7 @@ GError *error = NULL;
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (repbalance_selection), NULL);
 
 	//setup, init and show window
-	repbalance_setup(data);
+	repbalance_setup(data, accnum);
 
 	g_signal_connect (data->CM_selectall, "toggled", G_CALLBACK (repbalance_toggle_selectall), NULL);
 	g_signal_connect (data->CM_eachday, "toggled", G_CALLBACK (repbalance_compute), NULL);

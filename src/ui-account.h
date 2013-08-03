@@ -100,9 +100,7 @@ struct ui_acc_manage_data
 	GtkWidget	*ST_cheque1;
 	GtkWidget	*ST_cheque2;
 
-	GtkWidget	*BT_new, *BT_rem;
-
-	//gulong		handler_id[MAX_ACC_FIELD];
+	GtkWidget	*BT_new, *BT_rem, *BT_name;
 
 };
 

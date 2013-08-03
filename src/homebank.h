@@ -62,14 +62,15 @@
 #define gettext_noop(str) (str)
 #define N_(str) gettext_noop (str)
 
-/* = = = = = = = = = = */
-/* = = = = = = = = = = = = = = = = = = = = */
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+/* = = = = = = = = */
+/* = = = = = = = = = = = = = = = = */
+/* = = = = = = = = = = = = = = = = = = = = = = = = */
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-#define HB_UNSTABLE			TRUE
-#define HB_VERSION			"4.5"
+#define HB_UNSTABLE			FALSE
+#define HB_VERSION			"4.5.1"
 #define FILE_VERSION		0.7
+#define PREF_VERSION		451
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"

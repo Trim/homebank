@@ -507,7 +507,7 @@ GtkTreeIter  iter;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	if(data->detail && active != -1)
+	if(data->detail)
 	{
 		tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 
@@ -532,7 +532,7 @@ GtkTreeIter  iter;
 			{
 				if(filter_test(data->filter, ope) == 1)
 				{
-				gint i, pos = 0;
+				guint i, pos = 0;
 
 					if( tmpfor != STAT_TAG )
 					{
@@ -627,9 +627,6 @@ next1:
 		g_object_unref(model);
 
 	}
-	else
-		DB( g_print(" ->nothing done\n") );
-
 
 }
 
@@ -842,11 +839,12 @@ static void statistic_compute(GtkWidget *widget, gpointer user_data)
 {
 struct statistic_data *data;
 gint tmpfor, tmpkind;
-guint from, to;
+guint32 from, to;
 GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list, *tmplist = NULL;
-gint n_result, i, sortid;
+guint n_result, sortid;
+guint i;
 GDate *date1, *date2;
 gdouble *tmp_income, *tmp_expense;
 gdouble exprate, incrate, balrate;
@@ -927,7 +925,6 @@ gdouble exprate, incrate, balrate;
 			if(acc == NULL) goto next1;
 			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 
-
 			if( !(ope->flags & OF_REMIND) )
 			{
 				if( (filter_test(data->filter, ope) == 1) )
@@ -935,11 +932,8 @@ gdouble exprate, incrate, balrate;
 				guint32 pos = 0;
 				gdouble trn_amount;
 
-
-
 					//trn_amount = to_base_amount(ope->amount, acc->kcur);
 					trn_amount = ope->amount;
-					
 
 					if( tmpfor != STAT_TAG )
 					{
@@ -1006,7 +1000,7 @@ gdouble exprate, incrate, balrate;
 							{
 								pos = *tptr - 1;
 
-								DB( g_print(" -> storing tag %d %.2f\n", pos, trn_amount) );
+								DB( g_print(" -> storing tag %d %s %.2f\n", pos, da_tag_get(*tptr)->name, trn_amount) );
 
 								if(trn_amount > 0.0)
 								{
@@ -1019,8 +1013,15 @@ gdouble exprate, incrate, balrate;
 								tptr++;
 							}
 
-							data->total_income  += trn_amount;
-							data->total_expense += trn_amount;
+							//#1195859
+							if(trn_amount > 0.0)
+							{
+								data->total_income  += trn_amount;
+							}
+							else
+							{
+								data->total_expense += trn_amount;
+							}
 
 						}
 					}
@@ -1363,6 +1364,7 @@ struct statistic_data *data;
 static void statistic_busy(GtkWidget *widget, gboolean state)
 {
 struct statistic_data *data;
+GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
@@ -1370,12 +1372,13 @@ GdkCursor *cursor;
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
+	gdkwindow = gtk_widget_get_window(window);
 
 	// should busy ?
 	if(state == TRUE)
 	{
 		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, cursor);
+		gdk_window_set_cursor(gdkwindow, cursor);
 		gdk_cursor_unref(cursor);
 
 		//gtk_grab_add(data->busy_popup);
@@ -1393,7 +1396,7 @@ GdkCursor *cursor;
 		gtk_widget_set_sensitive(window, TRUE);
 		gtk_action_group_set_sensitive(data->actions, TRUE);
 
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, NULL);
+		gdk_window_set_cursor(gdkwindow, NULL);
 		//gtk_grab_remove(data->busy_popup);
 	}
 }

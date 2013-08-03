@@ -48,7 +48,7 @@ static void defhbfile_get(GtkWidget *widget, gpointer user_data)
 {
 struct defhbfile_data *data;
 gchar	*owner;
-gint	vehicle;
+guint32	vehicle;
 gint	smode, weekday, nbdays;
 
 	DB( g_printf("(ui-hbfile) get\n") );
@@ -165,7 +165,7 @@ static void defhbfile_setup(struct defhbfile_data *data)
 GtkWidget *create_defhbfile_window (void)
 {
 struct defhbfile_data data;
-GtkWidget *window, *mainvbox, *table, *hbox;
+GtkWidget *window, *content, *mainvbox, *table, *hbox;
 GtkWidget *label, *widget, *entry, *combo, *spinner;
 GtkWidget *alignment;
 gint row;
@@ -185,8 +185,9 @@ gint row;
 
 	gtk_window_set_icon_name(GTK_WINDOW (window), GTK_STOCK_PROPERTIES);
 
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainvbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
 
     table = gtk_table_new (6, 3, FALSE);

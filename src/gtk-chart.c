@@ -84,7 +84,7 @@ static GType chart_type = 0;
 		sizeof (GtkChart),
 		0,		/* n_preallocs */
 		(GInstanceInitFunc) gtk_chart_init,
-
+		NULL
 		};
 
 		chart_type = g_type_register_static (GTK_TYPE_HBOX, "GtkChart",
@@ -139,7 +139,7 @@ GtkWidget *widget, *vbox, *frame, *scrollwin, *treeview;
 	
 	widget=GTK_WIDGET(chart);
 
-	GTK_BOX(widget)->homogeneous = FALSE;
+	gtk_box_set_homogeneous(GTK_BOX(widget), FALSE);
 
 	vbox = gtk_vbox_new (FALSE, 0);
     gtk_box_pack_start (GTK_BOX (widget), vbox, TRUE, TRUE, 0);
@@ -541,7 +541,7 @@ static void chart_recompute(GtkChart *chart)
 			barchart_compute_range(chart);
 
 			barchart_calculation(chart);
-			chart->adjustment->value = 0;
+			gtk_adjustment_set_value(chart->adjustment, 0);
 			barchart_scrollbar_setvalues(chart);
 			gtk_widget_show(chart->scrollbar);
 			break;
@@ -598,15 +598,24 @@ gint div;
 static void chart_calculation(GtkChart *chart)
 {
 GtkWidget *drawarea = chart->drawarea;
+gint width, height;
+GtkAllocation allocation;
 	
 	DB( g_print("\n[gtkchart] calculation\n") );
 
+	gtk_widget_get_allocation(drawarea, &allocation);
+	//width  = gtk_widget_get_allocated_width(GTK_WIDGET(drawarea));
+	//height = gtk_widget_get_allocated_height(GTK_WIDGET(drawarea));
+	width = allocation.width;
+	height = allocation.height;
+	
 	chart->l = MARGIN;
 	chart->t = MARGIN;
-	chart->r = drawarea->allocation.width - MARGIN;
-	chart->b = drawarea->allocation.height - MARGIN;
-	chart->w = drawarea->allocation.width - (MARGIN*2);
-	chart->h = drawarea->allocation.height - (MARGIN*2);
+
+	chart->r = width - MARGIN;
+	chart->b = height - MARGIN;
+	chart->w = width - (MARGIN*2);
+	chart->h = height - (MARGIN*2);
 
 	chart->font_h = CHART_FONT_SIZE_NORMAL;
 	//DB( g_print(" + text w=%f h=%f\n", te.width, te.height) );
@@ -664,17 +673,19 @@ gint blkw;
 static void barchart_draw_scale(GtkWidget *widget, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
-gint i;
+GdkWindow *gdkwindow;
 double x, y;
 gdouble curxval;
-gint first;
+gint i, first;
 
 	DB( g_print("----------------------\n(gtkline) draw scale\n") );
 
 cairo_t *cr;
 //static const double dashed3[] = {2.0};
 
-	cr = gdk_cairo_create (widget->window);
+	gdkwindow = gtk_widget_get_window(widget);
+	cr = gdk_cairo_create (gdkwindow);
+	//cr = gdk_cairo_create (widget->window);
 
 	cairo_set_line_width(cr, 1);
 
@@ -687,7 +698,7 @@ cairo_t *cr;
 	{
 		x = chart->ox + 1.5 + (chart->barw/2);
 		y = chart->oy;
-		first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
+		first = gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
 		for(i=first; i<(first+chart->visible) ;i++)
 		{
@@ -710,16 +721,16 @@ cairo_t *cr;
 	for(i=0;i<=chart->div;i++)
 	{
 
-		if(i == 0 || i == chart->div) 	/* top/bottom line */
-		{
+		//if(i == 0 || i == chart->div) 	/* top/bottom line */
+		//{
 			//cairo_set_dash(cr, 0, 0, 0);
 			cairo_user_set_rgbcol(cr, &global_colors[GREY1]);
-		}
-		else /* intermediate line (dotted) */
-		{
+		//}
+		//else /* intermediate line (dotted) */
+		//{
 			//cairo_set_dash(cr, dashed3, 1, 0);
-			cairo_user_set_rgbcol(cr, &global_colors[GREY1]);
-		}
+			//cairo_user_set_rgbcol(cr, &global_colors[GREY1]);
+		//}
 
 		/* x axis ? */
 		if( curxval == 0.0 )
@@ -748,19 +759,21 @@ cairo_t *cr;
 static void barchart_draw_scale_text(GtkWidget *widget, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
-gint i;
 double x, y;
 gdouble curxval;
 gchar *valstr;
-gint first;
+gint i, first;
 
 	DB( g_print("----------------------\n(gtkline) draw scale text\n") );
 
 cairo_t *cr;
 cairo_text_extents_t te;
 
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
 
-	cr = gdk_cairo_create (widget->window);
+	cr = gdk_cairo_create (gdkwindow);
+	//cr = gdk_cairo_create (widget->window);
 
 	cairo_set_line_width(cr, 1);
 
@@ -848,10 +861,10 @@ cairo_text_extents_t te;
 static void barchart_draw_bars(GtkWidget *widget, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
+GdkWindow *gdkwindow;
 cairo_t *cr;
 double x, x2, y2, h;
-gint first;
-gint i;
+gint i, first;
 
 	DB( g_print("\n[gtkchart] bar draw bars\n") );
 
@@ -859,7 +872,10 @@ gint i;
 	//y = chart->oy;
 	first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
-	cr = gdk_cairo_create (widget->window);
+
+	gdkwindow = gtk_widget_get_window(widget);
+	cr = gdk_cairo_create (gdkwindow);
+	//cr = gdk_cairo_create (widget->window);
 
 	/* clip */
 	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
@@ -934,8 +950,9 @@ gint i;
 static gint barchart_get_active(GtkWidget *widget, gint x, gint y, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
-gint retval, first, index, px;
-
+gint retval;
+gint index, first, px;
+		
 	retval = -1;
 
 	if( x <= chart->r && x >= chart->l )
@@ -993,14 +1010,14 @@ gint first;
 		DB( g_print(" entries=%d, visible=%d\n", chart->entries, chart->visible) );
 		DB( g_print(" first=%d, upper=%d, pagesize=%d\n", first, chart->entries, chart->visible) );
 
-		adj->upper = (gdouble)chart->entries;
-		adj->page_size = (gdouble)chart->visible;
-		adj->page_increment = (gdouble)chart->visible;
+		gtk_adjustment_set_upper(adj, (gdouble)chart->entries);
+		gtk_adjustment_set_page_size(adj, (gdouble)chart->visible);
+		gtk_adjustment_set_page_increment(adj, (gdouble)chart->visible);
 
 		if(first+chart->visible > chart->entries)
-			adj->value = (gdouble)chart->entries - chart->visible;
-			//g_object_set(adj1, "value", (gdouble)entries-visible);
-
+		{
+			gtk_adjustment_set_value(adj, (gdouble)chart->entries - chart->visible);
+		}
 		gtk_adjustment_changed (adj);
 
 		//gtk_widget_show(GTK_WIDGET(scrollbar));
@@ -1035,8 +1052,8 @@ static void linechart_draw_lines(GtkWidget *widget, gpointer user_data)
 GtkChart *chart = GTK_CHART(user_data);
 cairo_t *cr;
 double x, y, x2, y2, firstx, lastx, linew;
-gint first;
-gint i;
+gint first, i;
+
 
 	DB( g_print("\n(gtkline) line draw lines\n") );
 
@@ -1044,7 +1061,11 @@ gint i;
 	y = chart->oy;
 	first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
-	cr = gdk_cairo_create (widget->window);
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
+
+	cr = gdk_cairo_create (gdkwindow);
+	//cr = gdk_cairo_create (widget->window);
 
 	/* clip */
 	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
@@ -1152,7 +1173,8 @@ gint i;
 static gint linechart_get_active(GtkWidget *widget, gint x, gint y, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
-gint first, index, px, retval;
+gint retval;
+gint first, index, px;
 
 	retval = -1;
 
@@ -1177,6 +1199,7 @@ gint first, index, px, retval;
 static void piechart_calculation(GtkChart *chart)
 {
 GtkWidget *drawarea = chart->drawarea;
+GtkAllocation allocation;
 gint w, h;
 
 	w = chart->graph_width;
@@ -1184,7 +1207,8 @@ gint w, h;
 
 	chart->rayon = MIN(w, h);
 
-	chart->ox    = drawarea->allocation.width / 2;
+	gtk_widget_get_allocation(drawarea, &allocation);
+	chart->ox    = allocation.width / 2;
 	chart->oy    = chart->graph_y + (chart->rayon / 2) + 1;
 
 }
@@ -1207,12 +1231,16 @@ cairo_t *cr;
 		double cx = chart->ox;
 		double cy = chart->oy;
 		double radius = chart->rayon/2;
-		int i;
+		gint i;
 		double dx, dy;
 		double sum = 0.0;
 		gint color;
 
-		cr = gdk_cairo_create (widget->window);
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
+
+		cr = gdk_cairo_create (gdkwindow);
+		//cr = gdk_cairo_create (widget->window);
 
 		for(i=0; i< chart->entries ;i++)
 		{
@@ -1325,7 +1353,8 @@ cairo_t *cr;
 static gint piechart_get_active(GtkWidget *widget, gint x, gint y, gpointer user_data)
 {
 GtkChart *chart = GTK_CHART(user_data);
-gint retval, index, px, py;
+gint retval, px, py;
+gint index;
 double h;
 
 	px = x - chart->ox;
@@ -1421,11 +1450,26 @@ cairo_text_extents_t te;
 
 	DB( g_print("\n[gtkchart] expose %d\n", chart->type) );
 
-	cr = gdk_cairo_create (widget->window);
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
+
+	cr = gdk_cairo_create (gdkwindow);
+	//cr = gdk_cairo_create (widget->window);
 
 	/* fillin the back in white */
 	cairo_user_set_rgbcol(cr, &global_colors[WHITE]);
 	cairo_paint(cr);
+
+	/* taken from scrolled window
+    gtk_paint_shadow (widget->style, widget->window,
+			GTK_STATE_NORMAL, scrolled_window->shadow_type,
+			area, widget, "scrolled_window",
+			widget->allocation.x + relative_allocation.x,
+			widget->allocation.y + relative_allocation.y,
+			relative_allocation.width,
+			relative_allocation.height);
+	*/
+	
 
 	/*debug help draws */
 #if HELPDRAW == 1
@@ -1489,12 +1533,15 @@ GdkModifierType state;
 
 	//DB( g_print("\n[gtkchart] motion\n") );
 
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
+
 	//todo see this
 	if(event->is_hint)
 	{
 		//DB( g_print("is hint\n") );
 
-		gdk_window_get_pointer(widget->window, &x, &y, &state);
+		gdk_window_get_pointer(gdkwindow, &x, &y, &state);
 	}
 	else
 	{
@@ -1611,16 +1658,20 @@ GtkChart *chart = GTK_CHART(user_data);
 static gboolean
 chart_tooltip_paint_window (GtkWidget *window)
 {
-  gtk_paint_flat_box (window->style,
-		      window->window,
+GdkWindow *gdkwindow;
+gdkwindow = gtk_widget_get_window(window);
+GtkStyle *style = gtk_widget_get_style(GTK_WIDGET(window));
+
+	gtk_paint_flat_box (style,
+		      gdkwindow,
 		      GTK_STATE_NORMAL,
 		      GTK_SHADOW_OUT,
 		      NULL,
 		      window,
 		      "tooltip",
 		      0, 0,
-		      window->allocation.width,
-		      window->allocation.height);
+		      gdk_window_get_width(gdkwindow),
+		      gdk_window_get_height(gdkwindow));
 
   return FALSE;
 }
@@ -1636,11 +1687,13 @@ GtkWidget *widget = GTK_WIDGET(chart);
 
 	DB( g_print("\n[gtkchart] SHOULD TOOLTIP %x\n", (int)chart) );
 
+	GdkWindow *gdkwindow;
+	gdkwindow = gtk_widget_get_window(widget);
 
  	//debug
- 	gdk_window_get_origin (widget->window, &wx, &wy);
+ 	gdk_window_get_origin (gdkwindow, &wx, &wy);
 
-	gdk_window_get_pointer(widget->window, &x, &y, &state);
+	gdk_window_get_pointer(gdkwindow, &x, &y, &state);
  	chart_tooltip_show(chart, wx+x, wy+y);
 	chart->timer_tag = 0;
 
@@ -1692,11 +1745,11 @@ GtkWidget *alignment;
 		gtk_widget_set_name (window, "gtk-tooltip");
 
 		alignment = gtk_alignment_new (0.5, 0.5, 1.0, 1.0);
-		gtk_alignment_set_padding (GTK_ALIGNMENT (alignment),
+		/*gtk_alignment_set_padding (GTK_ALIGNMENT (alignment),
 			     window->style->ythickness,
 			     window->style->ythickness,
 			     window->style->xthickness,
-			     window->style->xthickness);
+			     window->style->xthickness);*/
 		gtk_container_add (GTK_CONTAINER (window), alignment);
 		gtk_widget_show (alignment);
 
@@ -1709,7 +1762,8 @@ GtkWidget *alignment;
 		//gtk_container_set_border_width (GTK_CONTAINER (frame), 4);
 		//gtk_widget_show(frame);
 
-		vbox = gtk_vbox_new (FALSE, window->style->xthickness);
+		//vbox = gtk_vbox_new (FALSE, window->style->xthickness);
+		vbox = gtk_vbox_new (FALSE, 0);
 		//gtk_container_add( GTK_CONTAINER(frame), vbox);
 		gtk_container_add (GTK_CONTAINER (alignment), vbox);
 		gtk_widget_show(vbox);
@@ -2030,7 +2084,7 @@ create_color_pixbuf (GdkColor *col)
 
         int x;
         int num;
-        guchar *pixels, *p;
+        guchar *p;
 
 /*
         if (!gdk_color_parse (color, &col))
@@ -2044,7 +2098,7 @@ create_color_pixbuf (GdkColor *col)
                                  squaredim, squaredim);		//width,height
 
         //rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-        p = pixels = gdk_pixbuf_get_pixels (pixbuf);
+        p = gdk_pixbuf_get_pixels (pixbuf);
 
         num = gdk_pixbuf_get_width (pixbuf) *
                 gdk_pixbuf_get_height (pixbuf);

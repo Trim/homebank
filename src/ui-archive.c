@@ -634,7 +634,7 @@ gint i;
 GtkWidget *ui_arc_manage_dialog (void)
 {
 struct ui_arc_manage_data data;
-GtkWidget *window, *mainbox, *hbox, *vbox, *bbox, *table;
+GtkWidget *window, *content, *mainbox, *hbox, *vbox, *bbox, *table;
 GtkWidget *label, *widget, *treeview, *scrollwin, *notebook;
 GtkWidget *alignment;
 gint row;
@@ -654,8 +654,9 @@ gint row;
 	DB( g_printf("(defarchive) window=%p, inst_data=%p\n", window, &data) );
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
 	//hbox 1 : list | other

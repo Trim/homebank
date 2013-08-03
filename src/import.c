@@ -1231,7 +1231,7 @@ static void import_edit_target_account(GtkWidget *widget, gpointer user_data)
 {
 struct import_data *data;
 struct import_target_data ddata;
-GtkWidget *window, *mainvbox, *table, *label ;
+GtkWidget *dialog, *content, *mainvbox, *table, *label ;
 guint32 key;
 gint row;
 
@@ -1245,7 +1245,7 @@ gint row;
 
 		item = da_acc_get( key );
 
-		window = gtk_dialog_new_with_buttons (_("Change HomeBank account target"),
+		dialog = gtk_dialog_new_with_buttons (_("Change HomeBank account target"),
 						    GTK_WINDOW (data->assistant),
 						    0,
 						    GTK_STOCK_CANCEL,
@@ -1255,10 +1255,12 @@ gint row;
 						    NULL);
 
 		//store our window private data
-		g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&ddata);
+		g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&ddata);
 
+		content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+		
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
 
 		table = gtk_table_new (3, 2, FALSE);
@@ -1315,7 +1317,7 @@ gint row;
 
 
 		//wait for the user
-		gint result = gtk_dialog_run (GTK_DIALOG (window));
+		gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 		if(result == GTK_RESPONSE_ACCEPT)
 		{
@@ -1340,7 +1342,7 @@ gint row;
 					{
 						if( account_rename(item, name) == FALSE )
 						{
-							ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_ERROR,
+							ui_dialog_msg_infoerror(GTK_WINDOW(dialog), GTK_MESSAGE_ERROR,
 								_("Error"),
 								_("Cannot rename this Account,\n"
 								"from '%s' to '%s',\n"
@@ -1368,7 +1370,7 @@ gint row;
 	    }
 
 		// cleanup and destroy
-		gtk_widget_destroy (window);
+		gtk_widget_destroy (dialog);
 	}
 
 }

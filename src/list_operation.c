@@ -320,18 +320,28 @@ Transaction *ope;
 gint column = GPOINTER_TO_INT(user_data);
 gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 gint type;
+gdouble amount;
 gchar *color;
 
 	// get the transaction
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
-
-	type = (ope->flags & OF_INCOME) ? LST_DSPOPE_INCOME : LST_DSPOPE_EXPENSE;
-
-	if( (!(ope->amount) || (column != type)) && column != LST_DSPOPE_AMOUNT )
-	{
-		g_object_set(renderer, "markup", NULL, NULL);
-	}
+	if(column == LST_DSPOPE_BALANCE)
+		amount = ope->balance;
 	else
+		amount = ope->amount;
+
+
+	if(column == LST_DSPOPE_INCOME || column == LST_DSPOPE_EXPENSE)
+	{
+		type = (ope->flags & OF_INCOME) ? LST_DSPOPE_INCOME : LST_DSPOPE_EXPENSE;
+		if( type != column)
+		{
+			g_object_set(renderer, "markup", NULL, NULL);
+			return;
+		}
+	}
+
+	//if(amount != 0)
 	{
 		//mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
 
@@ -339,15 +349,16 @@ gchar *color;
 		//store to a data set to the listview
 		//acc = da_acc_get(ope->kacc);
 		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, acc->kcur);
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
-
-		color = get_normal_color_amount(ope->amount);
+		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->minor);
+		color = get_normal_color_amount(amount);
 
 		g_object_set(renderer,
 			"foreground",  color,
 			"text", buf,
 			NULL);
 	}
+
+	
 }
 
 
@@ -511,26 +522,6 @@ GtkCellRenderer    *renderer;
 	return column;
 }
 
-
-static void list_transaction_sort_column_changed(GtkTreeSortable *sortable, gpointer user_data)
-{
-gint id;
-GtkSortType order;
-
-	gtk_tree_sortable_get_sort_column_id(sortable, &id, &order);
-
-	DB( g_print("list_transaction_columns_changed %d %d\n", id, order) );
-
-	//here save the transaction list columnid and sort order
-	PREFS->lst_ope_sort_id    = id;
-	PREFS->lst_ope_sort_order = order;
-
-
-
-}
-
-
-
 static GtkTreeViewColumn *list_transaction_get_column(GList *list, gint search_id)
 {
 GtkTreeViewColumn *column = NULL;
@@ -550,34 +541,61 @@ gint id;
 	return column;
 }
 
+static void list_transaction_sort_column_changed(GtkTreeSortable *sortable, gpointer user_data)
+{
+struct list_transaction_data *data = user_data;
+gint id;
+GtkSortType order;
+gboolean showBalance;
+	
+	gtk_tree_sortable_get_sort_column_id(sortable, &id, &order);
+
+	DB( g_print("list_transaction_columns_changed %d %d\n", id, order) );
+
+	//here save the transaction list columnid and sort order
+	PREFS->lst_ope_sort_id    = id;
+	PREFS->lst_ope_sort_order = order;
+
+	//manage visibility of balance column
+	//showBalance = (id == LST_DSPOPE_DATE && order == GTK_SORT_ASCENDING) ? TRUE : FALSE;
+	showBalance = (id == LST_DSPOPE_DATE) ? data->tvc_is_visible : FALSE;
+	gtk_tree_view_column_set_visible (data->tvc_balance, showBalance);
+}
+
 
 static void list_transaction_set_columns(GtkTreeView *treeview, gint *visibility)
 {
+struct list_transaction_data *data;
 GtkTreeViewColumn *column, *base;
+gboolean visible;
 GList *list;
 gint i = 0;
 
 	DB( g_print("(list_transaction_set_columns)\n") );
 
-
+	data = g_object_get_data(G_OBJECT(treeview), "inst_data");
+	
 	list = gtk_tree_view_get_columns( treeview );
 
 	base = NULL;
 
-	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )
+	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )   // -1 cause account not to be processed
 	{
-
 		column = list_transaction_get_column(list, ABS(visibility[i]));
 		if( column != NULL )
 		{
-
 			DB( g_print(" - pos:%d col:%d (%s)\n", i, visibility[i], gtk_tree_view_column_get_title(column)) );
 
 			gtk_tree_view_move_column_after(treeview, column, base);
 			base = column;
 
-			gtk_tree_view_column_set_visible (column, visibility[i] < 0 ? FALSE : TRUE);
-
+			visible = visibility[i] < 0 ? FALSE : TRUE;
+			gtk_tree_view_column_set_visible (column, visible);
+			if( ABS(visibility[i]) == LST_DSPOPE_BALANCE)
+			{
+				data->tvc_is_visible = visible;
+			}
+			
 		}
 
 	}
@@ -586,6 +604,18 @@ gint i = 0;
 }
 
 
+static void list_transaction_destroy( GtkWidget *widget, gpointer user_data )
+{
+struct list_transaction_data *data;
+
+	data = g_object_get_data(G_OBJECT(widget), "inst_data");
+
+	DB( g_print ("\n[list_transaction] destroy event occurred\n") );
+
+	
+	DB( g_printf(" - view=%p, inst_data=%p\n", widget, data) );
+	g_free(data);
+}
 
 
 /*
@@ -594,10 +624,15 @@ gint i = 0;
 */
 GtkWidget *create_list_transaction(gint type, gboolean *pref_columns)
 {
+struct list_transaction_data *data;
 GtkListStore *store;
 GtkWidget *view;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column, *col_acc = NULL;
+
+
+	data = g_malloc0(sizeof(struct list_transaction_data));
+	if(!data) return NULL;
 
 	/* create list store */
 	store = gtk_list_store_new(
@@ -608,12 +643,21 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
-		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN
+		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
+	    G_TYPE_BOOLEAN, G_TYPE_BOOLEAN
 		);
 
 	//treeview
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
+
+	//store our window private data
+	g_object_set_data(G_OBJECT(view), "inst_data", (gpointer)data);
+	DB( g_printf(" - view=%p, inst_data=%p\n", view, data) );
+
+	// connect our dispose function
+	g_signal_connect (view, "destroy",
+		G_CALLBACK (list_transaction_destroy), (gpointer)data);
 
 	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
@@ -696,6 +740,14 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	column = tags_list_transaction_column();
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
+	if(type != TRN_LIST_TYPE_DETAIL)
+	{
+		column = amount_list_transaction_column(_("Balance"), LST_DSPOPE_BALANCE);
+		data->tvc_balance = column;
+		gtk_tree_view_column_set_clickable(column, FALSE);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	}
+	
   /* column 9: empty */
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -730,7 +782,7 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 
 	/* signals */
 	if(type == TRN_LIST_TYPE_BOOK)
-		g_signal_connect (GTK_TREE_SORTABLE(store), "sort-column-changed", G_CALLBACK (list_transaction_sort_column_changed), NULL);
+		g_signal_connect (GTK_TREE_SORTABLE(store), "sort-column-changed", G_CALLBACK (list_transaction_sort_column_changed), data);
 
 	return(view);
 }

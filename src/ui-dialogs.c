@@ -412,7 +412,7 @@ gboolean new;
 Transaction *ui_dialog_transaction_xfer_select_child(GList *matchlist)
 {
 struct xfer_data data;
-GtkWidget *window, *mainvbox, *vbox, *sw, *label;
+GtkWidget *window, *content, *mainvbox, *vbox, *sw, *label;
 GtkTreeModel		 *newmodel;
 GtkTreeIter			 newiter;
 Transaction *retval = NULL;
@@ -433,8 +433,9 @@ Transaction *retval = NULL;
 		//gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
 	gtk_window_set_default_size (GTK_WINDOW (window), 400, -1);
 
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
 
 		gtk_window_set_title (GTK_WINDOW (window), _("Select among possible transactions..."));

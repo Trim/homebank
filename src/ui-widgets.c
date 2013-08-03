@@ -62,7 +62,7 @@ gimp_label_set_attributes (GtkLabel *label,
     {
       PangoAttrType attr_type = va_arg (args, PangoAttrType);
 
-      if (attr_type == -1)
+      if (attr_type <= 0)
         attr_type = PANGO_ATTR_INVALID;
 
       switch (attr_type)
@@ -137,8 +137,7 @@ gimp_label_set_attributes (GtkLabel *label,
           break;
 
         default:
-          g_warning ("%s: invalid PangoAttribute type %d",
-                     G_STRFUNC, attr_type);
+          //g_warning ("%s: invalid PangoAttribute type %d", G_STRFUNC, attr_type);
         case PANGO_ATTR_INVALID:
           attr = NULL;
           break;
@@ -171,10 +170,6 @@ void ui_gtk_entry_set_text(GtkWidget *widget, gchar *text)
 }
 
 
-
-
-
-
 /*
 **
 */
@@ -187,6 +182,7 @@ GtkWidget *label;
 
 	return label;
 }
+
 
 /*
 **
@@ -204,6 +200,7 @@ GtkWidget *entry;
 	//gtk_misc_set_alignment(entry, xalign, 0.5);
 	return entry;
 }
+
 
 /*
 **
@@ -308,7 +305,7 @@ const gchar *numtext;
 			goto inserttext;
 
 		if( dcpos < 0 && (text[i]=='.' || text[i]==',') )	/* decimal separator if not in previous string */
-			goto inserttext;
+			result[count++] = '.';
 
 		continue;
 
@@ -334,7 +331,7 @@ GtkWidget *make_amount(GtkWidget *label)
 GtkWidget *spinner;
 GtkAdjustment *adj;
 
-	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.1, 1.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.01, 1.0, 0.0);
 	spinner = gtk_spin_button_new (adj, 1.0, 2);
 	g_object_set(spinner, "xalign", 1.0, NULL);
 
@@ -465,7 +462,7 @@ set_sensitive (GtkCellLayout   *cell_layout,
 
   path = gtk_tree_model_get_path (tree_model, iter);
   indices = gtk_tree_path_get_indices (path);
-  sensitive = indices[0] != 11;
+  sensitive = indices[0] != FLT_RANGE_OTHER;  
   gtk_tree_path_free (path);
 
   g_object_set (cell, "sensitive", sensitive, NULL);
@@ -628,7 +625,7 @@ GtkCellRenderer    *renderer;
  * generic function to free combobox icons
  *
  */
-static void free_combobox_icons(GdkPixbuf **storage, gint max)
+static void free_combobox_icons(GdkPixbuf **storage, guint max)
 {
 guint i;
 
@@ -645,7 +642,7 @@ guint i;
  * generic function to load combobox icons
  *
  */
-static void load_combobox_icons(gchar **filenames, GdkPixbuf **storage, gint max)
+static void load_combobox_icons(gchar **filenames, GdkPixbuf **storage, guint max)
 {
 //GError        *error = NULL;
 GtkWidget *cellview;

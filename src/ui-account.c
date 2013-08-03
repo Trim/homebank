@@ -61,7 +61,7 @@ ui_acc_comboboxentry_get_name(GtkComboBox *entry_box)
 gchar *cbname;
 gchar *name = NULL;
 
-	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	if( cbname != NULL)
 	{
@@ -122,11 +122,11 @@ Account *item;
 		item = da_acc_get(key);
 		if( item != NULL)
 		{
-			gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), item->name);
+			gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), item->name);
 			return TRUE;
 		}
 	}
-	gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), "");
+	gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), "");
 	return FALSE;
 }
 
@@ -207,7 +207,7 @@ struct accPopContext ctx;
     DB( g_print (" -> except is %d\n", except_key) );
 
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(entry_box));
-	completion = gtk_entry_get_completion(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	
 	/* keep our model alive and detach from comboboxentry and completion */
 	g_object_ref(model);
@@ -277,7 +277,7 @@ GtkEntryCompletion *completion;
 */
 
 	comboboxentry = gtk_combo_box_new_with_model_and_entry(GTK_TREE_MODEL(store));
-	gtk_entry_set_completion (GTK_ENTRY (GTK_BIN (comboboxentry)->child), completion);
+	gtk_entry_set_completion (GTK_ENTRY (gtk_bin_get_child(GTK_BIN (comboboxentry))), completion);
 	gtk_combo_box_set_entry_text_column(GTK_COMBO_BOX(comboboxentry), 0);
 
 /*	gtk_cell_layout_clear(GTK_CELL_LAYOUT (comboboxentry));
@@ -653,9 +653,68 @@ gint field = GPOINTER_TO_INT(user_data);
 }
 */
 
+
+static gchar *dialog_get_name(gchar *title, gchar *origname, GtkWindow *parentwindow)
+{
+GtkWidget *dialog, *content, *mainvbox, *getwidget;
+gchar *rettxt = NULL;
+	
+		dialog = gtk_dialog_new_with_buttons (title,
+						    GTK_WINDOW (parentwindow),
+						    0,
+						    GTK_STOCK_CANCEL,
+						    GTK_RESPONSE_REJECT,
+						    GTK_STOCK_OK,
+						    GTK_RESPONSE_ACCEPT,
+						    NULL);
+
+		content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+	
+		mainvbox = gtk_vbox_new (FALSE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
+		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
+
+		getwidget = gtk_entry_new();
+		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
+		gtk_widget_show_all(mainvbox);
+
+		if(origname != NULL)
+			gtk_entry_set_text(GTK_ENTRY(getwidget), origname);
+		gtk_widget_grab_focus (getwidget);
+
+		gtk_entry_set_activates_default (GTK_ENTRY(getwidget), TRUE);
+
+		gtk_dialog_set_default_response(GTK_DIALOG( dialog ), GTK_RESPONSE_ACCEPT);
+
+		//wait for the user
+		gint result = gtk_dialog_run (GTK_DIALOG (dialog));
+
+		if(result == GTK_RESPONSE_ACCEPT)
+		{
+		const gchar *name;
+
+			name = gtk_entry_get_text(GTK_ENTRY(getwidget));
+
+			/* ignore if entry is empty */
+			if (name && *name)
+			{
+				rettxt = g_strdup(name);
+			}
+	    }
+
+		// cleanup and destroy
+		gtk_widget_destroy (dialog);
+	
+
+	return rettxt;
+}
+
+
+
+
+
 static void ui_acc_manage_getlast(struct ui_acc_manage_data *data)
 {
-gchar *txt;
 gboolean bool;
 gdouble value;
 Account *item;
@@ -668,20 +727,6 @@ Account *item;
 	if(item != NULL)
 	{	
 		data->change++;
-
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
-				if (txt && *txt)
-				{
-					bool = account_rename(item, txt);					
-					if(bool)
-					{
-						gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
-					}
-					else
-					{
-						gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
-					}
-				}
 
 			item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
 
@@ -754,6 +799,7 @@ Account *item;
 
 
 		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
+
 		
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_type), item->type );
 
@@ -771,16 +817,16 @@ Account *item;
 			gtk_entry_set_text(GTK_ENTRY(data->ST_number), "");
 
 
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nobudget), item->flags & AF_NOBUDGET);
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nosummary), item->flags & AF_NOSUMMARY);
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_noreport), item->flags & AF_NOREPORT);
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_closed), item->flags & AF_CLOSED);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nobudget), item->flags & AF_NOBUDGET);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nosummary), item->flags & AF_NOSUMMARY);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_noreport), item->flags & AF_NOREPORT);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_closed), item->flags & AF_CLOSED);
 
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_initial), item->initial);
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_minimum), item->minimum);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_initial), item->initial);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_minimum), item->minimum);
 
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque1), item->cheque1);
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque2), item->cheque2);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque1), item->cheque1);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque2), item->cheque2);
 
 	}
 
@@ -859,7 +905,7 @@ guint32 key;
 */
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->ST_name, sensitive);
+	gtk_widget_set_sensitive(data->ST_name, FALSE);
 	gtk_widget_set_sensitive(data->CY_type, sensitive);
 	//gtk_widget_set_sensitive(data->CY_curr, sensitive);
 	gtk_widget_set_sensitive(data->ST_number, sensitive);
@@ -882,6 +928,7 @@ guint32 key;
 	sensitive = (selected == TRUE && data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->BT_mod, sensitive);
 	gtk_widget_set_sensitive(data->BT_rem, sensitive);
+	gtk_widget_set_sensitive(data->BT_name, sensitive);
 
 	if(selected)
 	{
@@ -910,14 +957,30 @@ Account *item;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	DB( g_printf("\n(ui_acc_manage_add) (data=%x)\n", (guint)data) );
 
-	item = da_acc_malloc();
-	item->name = g_strdup_printf( _("(account %d)"), da_acc_length()+1);
-	//item->kcur = GLOBALS->kcur;
+	gchar *name = dialog_get_name(_("Account name"), NULL, GTK_WINDOW(data->window));
+	if(name != NULL)
+	{
+		if(account_exists(name))
+		{
+			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
+				_("Error"),
+				_("Cannot add an account '%s',\n"
+				"this name already exists."),
+				name
+				);
+		}
+		else
+		{
+			item = da_acc_malloc();
+			item->name = name; //g_strdup_printf( _("(account %d)"), da_acc_length()+1);
+			//item->kcur = GLOBALS->kcur;
 
-	da_acc_append(item);
-	ui_acc_listview_add(GTK_TREE_VIEW(data->LV_acc), item);
+			da_acc_append(item);
+			ui_acc_listview_add(GTK_TREE_VIEW(data->LV_acc), item);
 
-	data->change++;
+			data->change++;
+		}
+	}
 }
 
 /*
@@ -957,6 +1020,11 @@ gboolean do_remove;
 	}
 }
 
+
+
+
+
+
 /*
 ** rename the selected account to our treeview and temp GList
 */
@@ -965,7 +1033,6 @@ static void ui_acc_manage_rename(GtkWidget *widget, gpointer user_data)
 struct ui_acc_manage_data *data;
 Account *item;
 guint32 key;
-gchar *txt;
 gboolean bool;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
@@ -975,17 +1042,34 @@ gboolean bool;
 	if( key > 0 )
 	{
 		item = da_acc_get(key);
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
-		if (txt && *txt)
+
+		gchar *name = dialog_get_name(_("Account name"), item->name, GTK_WINDOW(data->window));
+		if(name != NULL)
 		{
-			bool = account_rename(item, txt);					
-			if(bool)
+			if(account_exists(name))
 			{
-				gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
+				ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
+					_("Error"),
+					_("Cannot rename this Account,\n"
+					"from '%s' to '%s',\n"
+					"this name already exists."),
+					item->name,
+					name
+				    );
 			}
+			else
+			{
+				bool = account_rename(item, name);					
+				if(bool)
+				{
+					gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
+					gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
+					data->change++;
+				}
+			}
+
 		}
 		
-		data->change++;
 	}
 }
 
@@ -1011,7 +1095,7 @@ static gboolean ui_acc_manage_cleanup(struct ui_acc_manage_data *data, gint resu
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
-gint i;
+guint32 i;
 guint32 key;
 gboolean doupdate = FALSE;
 
@@ -1077,7 +1161,7 @@ static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 GtkWidget *ui_acc_manage_dialog (void)
 {
 struct ui_acc_manage_data data;
-GtkWidget *window, *mainbox;
+GtkWidget *window, *content, *mainbox;
 GtkWidget *vbox, *table, *label, *entry1, *entry2, *entry3;
 GtkWidget *spinner, *cheque1, *cheque2, *scrollwin;
 GtkWidget *bbox, *widget, *check_button;
@@ -1102,8 +1186,9 @@ gint row;
 	DB( g_printf("(ui_acc_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
 
@@ -1137,8 +1222,8 @@ gint row;
 	data.BT_new = gtk_button_new_from_stock(GTK_STOCK_ADD);
 	gtk_container_add (GTK_CONTAINER (bbox), data.BT_new);
 
-
-
+	data.BT_name = gtk_button_new_with_mnemonic(_("Re_name"));
+	gtk_box_pack_start (GTK_BOX (vbox), data.BT_name, FALSE, FALSE, 0);
 
 
 	//h_paned
@@ -1293,9 +1378,11 @@ gint row;
 	g_signal_connect (window, "destroy", G_CALLBACK (gtk_widget_destroyed), &window);
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_acc)), "changed", G_CALLBACK (ui_acc_manage_selection), NULL);
 
-	g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_acc_manage_rename), NULL);
+	//g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_acc_manage_rename), NULL);
+
 	g_signal_connect (G_OBJECT (data.BT_new), "clicked", G_CALLBACK (ui_acc_manage_add), NULL);
 	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_acc_manage_remove), NULL);
+	g_signal_connect (G_OBJECT (data.BT_name), "clicked", G_CALLBACK (ui_acc_manage_rename), NULL);
 
 	//setup, init and show window
 	ui_acc_manage_setup(&data);

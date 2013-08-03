@@ -708,7 +708,7 @@ static void defbudget_setup(struct defbudget_data *data)
 GtkWidget *create_defbudget_window (void)
 {
 struct defbudget_data data;
-GtkWidget *window, *bbox, *mainbox, *treeview, *scrollwin, *vbox, *radio, *table, *label, *widget;
+GtkWidget *window, *content, *bbox, *mainbox, *treeview, *scrollwin, *vbox, *radio, *table, *label, *widget;
 GtkWidget *spinner;
 GtkWidget *alignment;
 guint i, row;
@@ -733,8 +733,9 @@ guint i, row;
 
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
 	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);

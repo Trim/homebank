@@ -425,7 +425,8 @@ struct trendtime_data *data;
 guint active = GPOINTER_TO_INT(user_data);
 guint tmpfor, tmpslice;
 gboolean showall;
-gint from, to, i;
+guint32 from, to;
+guint i;
 GList *list;
 GtkTreeModel *model;
 GtkTreeIter  iter;
@@ -455,9 +456,6 @@ guint32 selkey;
 
 	//DB( g_print(" for=%d, view by=%d :: key=%d\n", tmpfor, tmpslice, selkey) );
 
-	/* do nothing if selection do not exists */
-	if(selkey == -1) return;
-
 	//get our min max date
 	from = data->filter->mindate;
 	to   = data->filter->maxdate;
@@ -466,7 +464,7 @@ guint32 selkey;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	if(data->detail && active != -1)
+	if(data->detail)
 	{
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), NULL); /* Detach model from view */
@@ -578,9 +576,6 @@ next1:
 		g_object_unref(model);
 
 	}
-	else
-		DB( g_print(" ->nothing done\n") );
-
 
 }
 
@@ -739,7 +734,7 @@ static void trendtime_compute(GtkWidget *widget, gpointer user_data)
 {
 struct trendtime_data *data;
 gint tmpfor, tmpslice;
-gint from, to;
+guint32 from, to;
 gboolean cumul;
 gboolean showall;
 
@@ -748,7 +743,8 @@ gdouble cumulation;
 GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list;
-gint n_result, i, id;
+gint id;
+guint n_result, i;
 GDate *date1, *date2;
 gdouble *tmp_amount;
 guint32 selkey;
@@ -777,9 +773,6 @@ guint32 selkey;
 	}
 
 	DB( g_print(" for=%d, view by=%d :: key=%d\n", tmpfor, tmpslice, selkey) );
-
-	/* do nothing if selection do not exists */
-	if(selkey == -1) return;
 
 	/* do nothing if no transaction */
 	if(g_list_length(GLOBALS->ope_list) == 0) return;
@@ -911,58 +904,55 @@ guint32 selkey;
 				guint32 pos = 0;
 				gdouble trn_amount;
 				
-						switch(tmpslice)
+					switch(tmpslice)
+					{
+						case STAT_DAY:
+							pos = ope->date - from;
+							break;
+
+						case STAT_WEEK:
+							pos = (ope->date - from)/7;
+							break;
+
+						case STAT_MONTH:
+							pos = DateInMonth(from, ope->date);
+							break;
+
+						case STAT_QUARTER:
+							pos = DateInQuarter(from, ope->date);
+							break;
+
+						case STAT_YEAR:
+							pos = DateInYear(from, ope->date);
+							break;
+					}
+
+					acc = da_acc_get(ope->kacc);
+					trn_amount = 0.0;
+					
+					if( tmpfor == REPTIME_FOR_CATEGORY && ope->flags & OF_SPLIT )
+					{
+					guint nbsplit = da_transaction_splits_count(ope);
+					Split *split;
+					Category *catentry;
+					
+						for(i=0;i<nbsplit;i++)
 						{
-							case STAT_DAY:
-								pos = ope->date - from;
-								break;
-
-							case STAT_WEEK:
-								pos = (ope->date - from)/7;
-								break;
-
-							case STAT_MONTH:
-								pos = DateInMonth(from, ope->date);
-								break;
-
-							case STAT_QUARTER:
-								pos = DateInQuarter(from, ope->date);
-								break;
-
-							case STAT_YEAR:
-								pos = DateInYear(from, ope->date);
-								break;
+							split = ope->splits[i];
+							catentry = da_cat_get(split->kcat);
+							if( selkey == catentry->parent || selkey == catentry->key )
+								trn_amount += split->amount;
 						}
+					}
+					else
+						trn_amount = ope->amount;
 
-						acc = da_acc_get(ope->kacc);
-						trn_amount = 0.0;
-						
-						if( tmpfor == REPTIME_FOR_CATEGORY && ope->flags & OF_SPLIT )
-						{
-						guint nbsplit = da_transaction_splits_count(ope);
-						Split *split;
-						Category *catentry;
-						
-							for(i=0;i<nbsplit;i++)
-							{
-								split = ope->splits[i];
-								catentry = da_cat_get(split->kcat);
-								if( selkey == catentry->parent || selkey == catentry->key )
-									trn_amount += split->amount;
-							}
-						}
-						else
-							trn_amount = ope->amount;
+					
+					//trn_amount = to_base_amount(trn_amount, acc->kcur);
 
-						
-						//trn_amount = to_base_amount(trn_amount, acc->kcur);
+					DB( g_print("** pos=%d will add %.2f to \n", pos, trn_amount) );
 
-						DB( g_print("** pos=%d will add %.2f to \n", pos, trn_amount) );
-
-						if(pos >= 0)
-						{
-							tmp_amount[pos] += trn_amount;
-						}
+					tmp_amount[pos] += trn_amount;
 
 				}
 			}
@@ -1206,6 +1196,7 @@ gboolean showall;
 static void trendtime_busy(GtkWidget *widget, gboolean state)
 {
 struct trendtime_data *data;
+GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
@@ -1213,12 +1204,13 @@ GdkCursor *cursor;
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
+	gdkwindow = gtk_widget_get_window(window);
 
 	// should busy ?
 	if(state == TRUE)
 	{
 		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, cursor);
+		gdk_window_set_cursor(gdkwindow, cursor);
 		gdk_cursor_unref(cursor);
 
 		//gtk_grab_add(data->busy_popup);
@@ -1236,7 +1228,7 @@ GdkCursor *cursor;
 		gtk_widget_set_sensitive(window, TRUE);
 		gtk_action_group_set_sensitive(data->actions, TRUE);
 
-		gdk_window_set_cursor(GTK_WIDGET(window)->window, NULL);
+		gdk_window_set_cursor(gdkwindow, NULL);
 		//gtk_grab_remove(data->busy_popup);
 	}
 }
@@ -1244,7 +1236,7 @@ GdkCursor *cursor;
 /*
 **
 */
-static void trendtime_setup(struct trendtime_data *data)
+static void trendtime_setup(struct trendtime_data *data, guint32 accnum)
 {
 	DB( g_print("(trendtime) setup\n") );
 
@@ -1272,7 +1264,7 @@ static void trendtime_setup(struct trendtime_data *data)
 
 	DB( g_print(" populate\n") );
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_acc), GLOBALS->h_acc, ACC_LST_INSERT_REPORT);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(data->PO_acc), 0);
+	ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_acc), accnum);
 
 	ui_pay_comboboxentry_populate(GTK_COMBO_BOX(data->PO_pay), GLOBALS->h_pay);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->PO_pay), 0);
@@ -1338,7 +1330,7 @@ struct WinGeometry *wg;
 }
 
 // the window creation
-GtkWidget *create_trendtime_window(void)
+GtkWidget *create_trendtime_window(guint32 accnum)
 {
 struct trendtime_data *data;
 struct WinGeometry *wg;
@@ -1625,7 +1617,7 @@ GError *error = NULL;
 	data->handler_id[HID_VIEW] = g_signal_connect (data->CY_view, "changed", G_CALLBACK (trendtime_compute), (gpointer)data);
 
 	//setup, init and show window
-	trendtime_setup(data);
+	trendtime_setup(data, accnum);
 
 	g_signal_connect (data->CM_all, "toggled", G_CALLBACK (trendtime_toggle_showall), NULL);
 	g_signal_connect (data->PO_acc, "changed", G_CALLBACK (trendtime_compute), NULL);

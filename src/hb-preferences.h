@@ -55,7 +55,7 @@ struct CurrencyFmt
 
 struct WinGeometry
 {
-	gint		l, t, w, h;
+	gint		l, t, w, h, s;
 };
 
 

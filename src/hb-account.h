@@ -105,6 +105,7 @@ void da_acc_consistency(Account *item);
 
 gboolean account_is_used(guint32 key);
 void account_move(guint32 key1, guint32 key2);
+gboolean account_exists(gchar *name);
 gboolean account_rename(Account *item, gchar *newname);
 void account_compute_balances(void);
 gboolean account_balances_add(Transaction *trn);

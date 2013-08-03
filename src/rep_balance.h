@@ -21,9 +21,6 @@
 #define __HOMEBANK_REPBALANCE_H__
 
 
-
-
-
-GtkWidget *repbalance_window_new(void);
+GtkWidget *repbalance_window_new(gint32 accnum);
 
 #endif

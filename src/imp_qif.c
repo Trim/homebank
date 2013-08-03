@@ -125,6 +125,7 @@ da_qif_tran_append(QifContext *ctx, QIF_Tran *item)
 
 /* = = = = = = = = = = = = = = = = */
 
+
 gdouble
 hb_qif_parser_get_amount(gchar *string)
 {
@@ -134,21 +135,22 @@ gchar *new_str, *p;
 gint  ndcount = 0;
 gchar dc;
 
-	//DB( g_print("(qif) hb_qif_parser_get_amount for '%s'\n", string) );
+	DB( g_print("\n(qif) hb_qif_parser_get_amount\n") );
 
 
 	amount = 0.0;
 	dc = '?';
 
-	l = strlen(string);
+	l = strlen(string) - 1;
 
 	// the first non-digit is a grouping, or a decimal separator
 	// if the non-digit is after a 3 digit serie, it might be a grouping
 
 	for(i=l;i>=0;i--)
 	{
-		if( string[i] == '-') continue;
-		if( string[i] == '+') continue;
+		DB( g_print(" %d :: %c :: ds='%c' ndcount=%d\n", i, string[i], dc, ndcount) );
+		
+		if( string[i] == '-' || string[i] == '+' ) continue;
 
 		if( g_ascii_isdigit( string[i] ))
 		{
@@ -156,18 +158,20 @@ gchar dc;
 		}
 		else
 		{
-			if(ndcount != 3)
+			if( (ndcount != 3) && (string[i] == '.' || string[i]==',') )
+			{	
 				dc = string[i];
+			}
 			ndcount = 0;
 		}
 	}
 
-	DB( g_print(" %s :: ds='%c'\n", string, dc) );
+	DB( g_print(" s='%s' :: ds='%c'\n", string, dc) );
 
 
 	new_str = g_malloc (l+1);
 	p = new_str;
-	for(i=0;i<l;i++)
+	for(i=0;i<=l;i++)
 	{
 		if( g_ascii_isdigit( string[i] ) || string[i] == '-' )
 		{

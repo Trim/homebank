@@ -261,7 +261,7 @@ da_pay_get_by_name(gchar *name)
 Payee *
 da_pay_get(guint32 key)
 {
-	DB( g_print("da_pay_get_payee\n") );
+	//DB( g_print("da_pay_get\n") );
 
 	return g_hash_table_lookup(GLOBALS->h_pay, &key);
 }

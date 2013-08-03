@@ -67,6 +67,7 @@ gchar *CYA_FLT_RANGE[] = {
 	N_("This Quarter"),
 	N_("Last Quarter"),
 	N_("This Year"),
+	N_("Last Year"),
 	"",
 	N_("Last 30 days"),
 	N_("Last 60 days"),
@@ -1293,7 +1294,7 @@ GtkWidget *container, *part;
 gint ui_flt_manage_dialog_new(Filter *filter, gboolean show_account)
 {
 struct ui_flt_manage_data data;
-GtkWidget *window, *mainbox, *notebook, *label, *page;
+GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 	//data = g_malloc0(sizeof(struct ui_flt_manage_data));
 	//if(!data) return NULL;
@@ -1323,8 +1324,9 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
     g_signal_connect (window, "destroy",
 			G_CALLBACK (gtk_widget_destroyed), &window);
 
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
 
@@ -1417,7 +1419,7 @@ GtkWidget *window, *mainbox, *notebook, *label, *page;
 
 
 	//wait for the user
-	gint result = 55;
+	gint result;	// = 55;
 
 	//while( result == 55 )
 	//{

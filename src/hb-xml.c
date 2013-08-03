@@ -65,8 +65,7 @@ ParseContext *ctx = user_data;
 //GtkUIManager *self = ctx->self;
 gint i, j;
 
-	DB( g_print("** start element: %s\n", element_name) );
-
+	//DB( g_print("** start element: %s\n", element_name) );
 
 	switch(element_name[0])
 	{
@@ -94,7 +93,7 @@ gint i, j;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
-					DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
@@ -142,7 +141,7 @@ gint i, j;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
-					DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
@@ -168,7 +167,7 @@ gint i, j;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
-					DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
 					//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
@@ -265,7 +264,7 @@ gint i, j;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
-					DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
 					//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
@@ -330,7 +329,7 @@ gint i, j;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
-					DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "date"       )) { entry->date = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "amount"     )) { entry->amount = g_ascii_strtod(attribute_values[i], NULL); }
@@ -344,7 +343,7 @@ gint i, j;
 					else if(!strcmp (attribute_names[i], "info"       )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->info = g_strdup(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "tags"       ))
 					{
-						if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL)
+						if(attribute_values[i] != NULL && strlen(attribute_values[i]) > 0 && strcmp(attribute_values[i],"(null)") != 0 )
 						{
 							transaction_tags_parse(entry, attribute_values[i]);
 						}
@@ -356,8 +355,8 @@ gint i, j;
 				}
 
 				//bugfix 303886
-				if(entry->kcat < 0)
-					entry->kcat = 0;
+				//if(entry->kcat < 0)
+				//	entry->kcat = 0;
 
 				if(split == TRUE)
 				{
@@ -412,6 +411,8 @@ ParseContext ctx = { 0 };
 GMarkupParseContext *context;
 gboolean rc;
 
+	DB( g_printf("\n[hb-xml] homebank_load_xml\n") );
+
 	retval = XML_OK;
 	if (!g_file_get_contents (filename, &buffer, &length, &error))
 	{
@@ -429,7 +430,7 @@ gboolean rc;
 		if( v_buffer == NULL )
 			return XML_FILE_ERROR;
 
-		DB( g_print("id line: %s", v_buffer) );
+		DB( g_print("- id line: --(%.50s)\n\n", v_buffer) );
 
 		version = g_ascii_strtod(v_buffer+13, NULL);	/* a little hacky, but works ! */
 		if( version == 0.0 )
@@ -439,17 +440,23 @@ gboolean rc;
 
 		if( version > FILE_VERSION )
 		{
-			DB( g_print("failed: version %f is not supported (max is %f)\n", version, FILE_VERSION) );
+			DB( g_print("- failed: version %f is not supported (max is %f)\n", version, FILE_VERSION) );
 			return XML_VERSION_ERROR;
 		}
 		else
 		{
-			DB( g_print("ok file version is: %.1f\n", version) );
+			DB( g_print("- ok : version=%.1f\n", version) );
 
 			/* 1st: validate the file is well in utf-8 */
+			DB( g_print("- ensure UTF-8\n") );
 			buffer = homebank_utf8_ensure(buffer);
 
 			/* then process the buffer */
+			#if MYDEBUG == 1
+				GTimer *t = g_timer_new();
+				g_print("- start parse\n");
+			#endif
+
 			context = g_markup_parse_context_new (&hb_parser, 0, &ctx, NULL);
 
 			error = NULL;
@@ -469,6 +476,9 @@ gboolean rc;
 
 			g_markup_parse_context_free (context);
 			g_free (buffer);
+
+			DB( g_printf("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
+			DB( g_timer_destroy (t) );
 
 			/* file upgrade / bugfix */
 			if( version <= 0.1 )
@@ -506,6 +516,8 @@ static void homebank_upgrade_to_v02(void)
 {
 GList *list;
 
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v02\n") );
+
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
@@ -530,6 +542,8 @@ static void homebank_upgrade_to_v03(void)
 {
 GList *list;
 
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v03\n") );
+	
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
@@ -551,6 +565,8 @@ GList *list;
 
 static void homebank_upgrade_to_v04(void)
 {
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v04\n") );
+
 	GLOBALS->arc_list = da_archive_sort(GLOBALS->arc_list);
 }
 
@@ -561,6 +577,8 @@ static void homebank_upgrade_to_v04(void)
 static void homebank_upgrade_to_v05(void)
 {
 GList *list;
+
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v05\n") );
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -578,6 +596,8 @@ GList *list;
 static void homebank_upgrade_to_v06(void)
 {
 GList *list;
+
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v06\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -602,6 +622,8 @@ static void homebank_upgrade_to_v07(void)
 {
 GList *list;
 
+	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v07\n") );
+
 	list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
@@ -624,7 +646,7 @@ GList *list;
 
 // v0.6 to v0.7 : assign a default currency
 /*
-static void homebank_upgrade_to_v07(void)
+static void homebank_upgrade_to_v08(void)
 {
 
 	// set a base currency to the hbfile if not
@@ -672,6 +694,8 @@ static void homebank_upgrade_lower_v06(void)
 Category *cat;
 Payee *pay;
 GList *list;
+
+	DB( g_printf("\n[hb-xml] homebank_upgrade_lower_v06\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -1080,7 +1104,12 @@ gchar *tagstr;
 			transaction_splits_tostring(item, &cats, &amounts, &memos);
 			g_string_append_printf(node, "scat=\"%s\" ", cats);
 			g_string_append_printf(node, "samt=\"%s\" ", amounts);
-			g_string_append_printf(node, "smem=\"%s\" ", memos);
+
+			//fix #1173910
+			gchar *escaped = g_markup_escape_text(memos, -1);
+			g_string_append_printf(node, "smem=\"%s\" ", escaped);
+			g_free(escaped);
+
 			g_free(cats);
 			g_free(amounts);
 			g_free(memos);

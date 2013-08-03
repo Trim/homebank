@@ -54,6 +54,7 @@ struct _transaction
 
 	/* unsaved datas */
 	GList		*same;		//used for import todo: change this
+	gdouble		balance;
 };
 
 #define OF_VALID	(1<<0)
@@ -76,6 +77,7 @@ void da_transaction_destroy(GList *list);
 
 GList *da_transaction_sort(GList *list);
 gboolean da_transaction_append(Transaction *item);
+gboolean da_transaction_insert_sorted(Transaction *item);
 
 guint32 da_transaction_get_max_kxfer(void);
 
@@ -98,8 +100,8 @@ Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
 guint transaction_splits_parse(Transaction *ope, gchar *cats, gchar *amounts, gchar *memos);
 guint transaction_splits_tostring(Transaction *ope, gchar **cats, gchar **amounts, gchar **memos);
 
-void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, gint accnum);
-void transaction_add(Transaction *ope, GtkWidget *treeview, gint accnum);
+void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);
+void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 
 Transaction *transaction_strong_get_child_transfer(Transaction *src);
 GList *transaction_match_get_child_transfer(Transaction *src);

@@ -49,7 +49,7 @@ ui_pay_comboboxentry_get_name(GtkComboBox *entry_box)
 gchar *cbname;
 gchar *name = NULL;
 
-	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	if( cbname != NULL)
 	{
@@ -128,11 +128,11 @@ Payee *item;
 		item = da_pay_get(key);
 		if( item != NULL)
 		{
-			gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), item->name);
+			gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), item->name);
 			return TRUE;
 		}
 	}
-	gtk_entry_set_text(GTK_ENTRY (GTK_BIN (entry_box)->child), "");
+	gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), "");
 	return FALSE;
 }
 
@@ -199,7 +199,7 @@ struct payPopContext ctx;
     DB( g_print ("ui_pay_comboboxentry_populate\n") );
 
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(entry_box));
-	completion = gtk_entry_get_completion(GTK_ENTRY (GTK_BIN (entry_box)->child));
+	completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	/* keep our model alive and detach from comboboxentry and completion */
 	g_object_ref(model);
@@ -326,7 +326,7 @@ GtkCellRenderer    *renderer;
 
 
 
-	gtk_entry_set_completion (GTK_ENTRY (GTK_BIN (comboboxentry)->child), completion);
+	gtk_entry_set_completion (GTK_ENTRY (gtk_bin_get_child(GTK_BIN (comboboxentry))), completion);
 
 	g_object_unref(store);
 
@@ -644,15 +644,13 @@ gchar *name;
 }
 
 
-
-
 /*
 ** modify
 */
 static void ui_pay_manage_dialog_modify(GtkWidget *widget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
-GtkWidget *window, *mainvbox, *getwidget;
+GtkWidget *window, *content, *mainvbox, *getwidget;
 guint32 key;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
@@ -674,8 +672,9 @@ guint32 key;
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
+		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
 
 		getwidget = gtk_entry_new();
@@ -734,7 +733,7 @@ guint32 key;
 static void ui_pay_manage_dialog_move(GtkWidget *widget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
-GtkWidget *window, *mainvbox;
+GtkWidget *window, *content, *mainvbox;
 GtkWidget *getwidget;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
@@ -761,8 +760,9 @@ GtkTreeIter			 iter;
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
+		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 		mainvbox = gtk_vbox_new (FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
 
 		getwidget = ui_pay_comboboxentry_new(NULL);
@@ -931,7 +931,7 @@ GtkTreeIter			 iter;
 GtkWidget *ui_pay_manage_dialog (void)
 {
 struct ui_pay_manage_dialog_data data;
-GtkWidget *window, *mainvbox, *treeview, *scrollwin, *vbox, *table;
+GtkWidget *window, *content, *mainvbox, *treeview, *scrollwin, *vbox, *table;
 GtkWidget *separator;
 gint row;
 
@@ -957,8 +957,9 @@ gint row;
 			G_CALLBACK (gtk_widget_destroyed), &window);
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainvbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainvbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
 
     //our table

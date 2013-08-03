@@ -27,14 +27,21 @@ AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 AC_CHECK_LIB(m, pow)
 
-# Usual flags
-CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes "
+# general usage flags
+CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
 
-# pre-release #1 - GLib/Gtk deprecated flags
-#CFLAGS="${CFLAGS} -DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+# extended flags
+#CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
 # pre-relase # 2 - error as warning for 
-#CFLAGS="${CFLAGS} -Werror "
+#CFLAGS="${CFLAGS} -Werror"
+
+# GLib/Gtk deprecated flags
+#CFLAGS="${CFLAGS} -DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+
+# gtk3 migration
+#CFLAGS="${CFLAGS} -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE"
+
 
 # Check for libofx
 AC_CHECK_HEADER(libofx/libofx.h,,noofx=true)
@@ -75,7 +82,7 @@ AC_C_VOLATILE
 AC_CHECK_FUNCS([floor localeconv memset modf pow setlocale sqrt strcasecmp strtoul])
 
 # International support
-#ALL_LINGUAS="am ar ast be bg br bs ca cs da de el en_AU en_CA en_GB es et eu fa fi fr gl he hr ht hu id is it ja ka kk kn ko lt lv mi ml ms nb nds nl oc pl pt_BR pt pt_PT ro ru sk sl sn sr sv ta th tr uk ur uz vi zh_CN zh_HK zh_TW"
+#ALL_LINGUAS="af ar ast be bg ca cs cy da de el en_AU en_CA en_GB es et eu fa fi fr ga gl he hr hu id is it ja ka ko lt lv ms nb nds nl oc pl pt_BR pt pt_PT ro ru si sk sl sr sv tr uk vi zh_CN zh_TW"
 
 #AM_GLIB_GNU_GETTEXT
 

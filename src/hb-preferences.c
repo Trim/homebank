@@ -44,14 +44,14 @@ extern struct Preferences *PREFS;
 
 static void homebank_pref_init_monetary(void)
 {
-	DB( g_print("\n** (preferences) monetary\n") );
+	DB( g_print("\n[preferences] monetary\n") );
 
 
 #ifdef G_OS_UNIX
 
 struct lconv *lc = localeconv();
 
-	DB( g_print("\n** (preferences) monetary unix\n") );
+	DB( g_print("\n[preferences] monetary unix\n") );
 
 	DB( g_print("mon_decimal_point is utf8: %d\n", g_utf8_validate(lc->mon_decimal_point, -1, NULL)) );
 	DB( g_print("mon_decimal_point '%s'\n", lc->mon_decimal_point) );
@@ -152,6 +152,7 @@ static void homebank_pref_init_wingeometry(struct WinGeometry *wg, gint l, gint 
 	wg->t = t;
 	wg->w = w;
 	wg->h = h;
+	wg->s = 0;
 }
 
 
@@ -193,7 +194,7 @@ void homebank_pref_init_measurement_units(void)
 
 void homebank_pref_free(void)
 {
-	DB( g_print("\n** (preferences) free\n") );
+	DB( g_print("\n[preferences] free\n") );
 
 
 	g_free(PREFS->date_format);
@@ -225,7 +226,7 @@ void homebank_pref_setdefault(void)
 {
 gint i;
 
-	DB( g_print("\n** (preferences) pref init\n") );
+	DB( g_print("\n[preferences] pref init\n") );
 
 	homebank_pref_free();
 
@@ -282,8 +283,8 @@ gint i;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_CATEGORY;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_TAGS;
 	*/
-	PREFS->lst_ope_columns[i++] = LST_DSPOPE_STATUS;
-	PREFS->lst_ope_columns[i++] = LST_DSPOPE_DATE;
+	PREFS->lst_ope_columns[i++] = LST_DSPOPE_STATUS;  //always displayed
+	PREFS->lst_ope_columns[i++] = LST_DSPOPE_DATE;	  //always displayed
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_INFO;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_PAYEE;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_CATEGORY;
@@ -291,6 +292,7 @@ gint i;
 	PREFS->lst_ope_columns[i++] = -LST_DSPOPE_AMOUNT;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_EXPENSE;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_INCOME;
+	PREFS->lst_ope_columns[i++] = LST_DSPOPE_BALANCE;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_WORDING;
 
 	PREFS->lst_ope_sort_id    = LST_DSPOPE_DATE;
@@ -335,7 +337,7 @@ void homebank_pref_createformat(void)
 struct CurrencyFmt *cur;
 gchar *ptr;
 
-	DB( g_print("\n** (preferences) pref create format\n") );
+	DB( g_print("\n[preferences] pref create format\n") );
 
 /*
 	if(PREFS->base_cur.grouping_char != NULL)
@@ -413,7 +415,7 @@ static void homebank_pref_get_wingeometry(
 	gsize length;
 
 		wg = g_key_file_get_integer_list(key_file, group_name, key, &length, NULL);
-		memcpy(storage, wg, 4*sizeof(gint));
+		memcpy(storage, wg, 5*sizeof(gint));
 		g_free(wg);
 		// #606613 ensure left/top to be > 0
 		if(storage->l < 0)
@@ -531,17 +533,17 @@ gboolean homebank_pref_load(void)
 GKeyFile *keyfile;
 gboolean retval = FALSE;
 gchar *group, *filename;
-gdouble version;
+guint32 version;
 GError *error = NULL;
 
-	DB( g_print("\n** (preferences) pref load\n") );
+	DB( g_print("\n[preferences] pref load\n") );
 
 	keyfile = g_key_file_new();
 	if(keyfile)
 	{
 		filename = g_build_filename(homebank_app_get_config_dir(), "preferences", NULL );
 
-		DB( g_print(" filename: %s\n", filename) );
+		DB( g_print(" - filename: %s\n", filename) );
 
 
 		if(g_key_file_load_from_file (keyfile, filename, G_KEY_FILE_NONE, NULL))
@@ -549,17 +551,26 @@ GError *error = NULL;
 
 			group = "General";
 
-				version = g_key_file_get_double (keyfile, group, "Version", NULL);
-				DB( g_print(" version: %f\n", version) );
+				DB( g_print(" -> ** General\n") );
 
+				//since 4.51 version is integer
+				homebank_pref_get_guint32 (keyfile, group, "Version", &version);
+				if(version == 0)	// old double number
+				{
+					gdouble v = g_key_file_get_double (keyfile, group, "Version", NULL);
+					version = (guint32)(v * 10);
+				}
+			
+				DB( g_print(" - version: %d\n", version) );
+			
 				homebank_pref_get_short(keyfile, group, "BarStyle" , &PREFS->toolbar_style);
 
-				if(version <= 0.6 && PREFS->toolbar_style == 0)	// force system to text beside
+				if(version <= 6 && PREFS->toolbar_style == 0)	// force system to text beside
 				{
 					PREFS->toolbar_style = 4;
 				}
 
-				if(version <= 0.2)	// retrieve old settings
+				if(version <= 2)	// retrieve old settings
 				{
 				guint32 color;
 
@@ -586,9 +597,9 @@ GError *error = NULL;
 					homebank_pref_get_boolean(keyfile, group, "RulesHint", &PREFS->rules_hint);
 				}
 
-				DB( g_print(" color exp: %s\n", PREFS->color_exp) );
-				DB( g_print(" color inc: %s\n", PREFS->color_inc) );
-				DB( g_print(" color wrn: %s\n", PREFS->color_warn) );
+				DB( g_print(" - color exp: %s\n", PREFS->color_exp) );
+				DB( g_print(" - color inc: %s\n", PREFS->color_inc) );
+				DB( g_print(" - color wrn: %s\n", PREFS->color_warn) );
 
 
 				homebank_pref_get_string(keyfile, group, "WalletPath", &PREFS->path_hbfile);
@@ -608,7 +619,7 @@ GError *error = NULL;
 				gint *src, i;
 				gsize length;
 
-					if(version <= 0.2)	//retrieve old 0.1 or 0.2 visibility boolean
+					if(version <= 2)	//retrieve old 0.1 or 0.2 visibility boolean
 					{
 						bsrc = g_key_file_get_boolean_list(keyfile, group, "ColumnsOpe", &length, &error);
 						if( length == NUM_LST_DSPOPE-1 )
@@ -624,8 +635,29 @@ GError *error = NULL;
 					else
 					{
 						src = g_key_file_get_integer_list(keyfile, group, "ColumnsOpe", &length, &error);
+
+						DB( g_print(" - length %d (max=%d)\n", length, NUM_LST_DSPOPE) );
+
 						if( length == NUM_LST_DSPOPE-1 )
+						{
+							DB( g_print(" - copying column order from pref file\n") );
 							memcpy(PREFS->lst_ope_columns, src, length*sizeof(gint));
+						}
+						else
+						{
+							if(version <= 7)
+							{
+								if( length == NUM_LST_DSPOPE-2 )	//1 less column before v4.5.1
+								{
+									DB( g_print(" - upgrade from v7\n") );
+									DB( g_print(" - copying column order from pref file\n") );
+									memcpy(PREFS->lst_ope_columns, src, length*sizeof(gint));
+									PREFS->lst_ope_columns[10] = LST_DSPOPE_BALANCE;
+								}
+							}
+
+						}
+					
 						g_free(src);
 					}
 
@@ -634,10 +666,12 @@ GError *error = NULL;
 				homebank_pref_get_integer(keyfile, group, "OpeSortId", &PREFS->lst_ope_sort_id);
 				homebank_pref_get_integer(keyfile, group, "OpeSortOrder", &PREFS->lst_ope_sort_order);
 
-			    DB( g_print("set sort to %d %d\n", PREFS->lst_ope_sort_id, PREFS->lst_ope_sort_order) );
+			    DB( g_print(" - set sort to %d %d\n", PREFS->lst_ope_sort_id, PREFS->lst_ope_sort_order) );
 
 
 			group = "Windows";
+
+				DB( g_print(" -> ** Windows\n") );
 
 				homebank_pref_get_wingeometry(keyfile, group, "Wal", &PREFS->wal_wg);
 				homebank_pref_get_wingeometry(keyfile, group, "Acc", &PREFS->acc_wg);
@@ -646,7 +680,16 @@ GError *error = NULL;
 				homebank_pref_get_wingeometry(keyfile, group, "Ove", &PREFS->ove_wg);
 				homebank_pref_get_wingeometry(keyfile, group, "Bud", &PREFS->bud_wg);
 				homebank_pref_get_wingeometry(keyfile, group, "Car", &PREFS->cst_wg);
-
+				if(version <= 7)	//set maximize to 0
+				{
+					PREFS->wal_wg.s = 0;
+					PREFS->acc_wg.s = 0;
+					PREFS->sta_wg.s = 0;
+					PREFS->tme_wg.s = 0;
+					PREFS->ove_wg.s = 0;
+					PREFS->bud_wg.s = 0;
+					PREFS->cst_wg.s = 0;
+				}
 				homebank_pref_get_integer(keyfile, group, "WalVPaned", &PREFS->wal_vpaned);
 				homebank_pref_get_integer(keyfile, group, "WalHPaned", &PREFS->wal_hpaned);
 				homebank_pref_get_boolean(keyfile, group, "WalToolbar", &PREFS->wal_toolbar);
@@ -656,9 +699,11 @@ GError *error = NULL;
 
 			group = "Format";
 
+				DB( g_print(" -> ** Format\n") );
+
 				homebank_pref_get_string(keyfile, group, "DateFmt", &PREFS->date_format);
 
-				if(version <= 0.1)
+				if(version <= 1)
 				{
 					//retrieve old 0.1 preferences
 					homebank_pref_get_short(keyfile, group, "NumNbDec", &PREFS->base_cur.frac_digits);
@@ -682,12 +727,28 @@ GError *error = NULL;
 
 			group = "Filter";
 
+				DB( g_print(" -> ** Filter\n") );
+
 				homebank_pref_get_integer(keyfile, group, "DateRangeWal", &PREFS->date_range_wal);
 				homebank_pref_get_integer(keyfile, group, "DateRangeTxn", &PREFS->date_range_txn);
 				homebank_pref_get_integer(keyfile, group, "DateRangeRep", &PREFS->date_range_rep);
 
+				if(version <= 7)
+				{
+					// decay date range >= 5, since we intraduced the 5 value
+					if(PREFS->date_range_wal >= FLT_RANGE_LASTYEAR)
+						PREFS->date_range_wal++;
+					if(PREFS->date_range_txn >= FLT_RANGE_LASTYEAR)
+						PREFS->date_range_txn++;
+					if(PREFS->date_range_rep >= FLT_RANGE_LASTYEAR)
+						PREFS->date_range_rep++;
+				}
+			
 
 			group = "Euro";
+
+				DB( g_print(" -> ** Euro\n") );
+
 				//homebank_pref_get_string(keyfile, group, "DefCurrency" , &PREFS->curr_default);
 
 				homebank_pref_get_boolean(keyfile, group, "Active", &PREFS->euro_active);
@@ -696,7 +757,7 @@ GError *error = NULL;
 				gchar *ratestr = g_key_file_get_string (keyfile, group, "ChangeRate", NULL);
 				if(ratestr != NULL) PREFS->euro_value = g_ascii_strtod(ratestr, NULL);
 
-				if(version <= 0.1)
+				if(version <= 1)
 				{
 					homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->minor_cur.suffix_symbol);
 					PREFS->minor_cur.frac_digits = g_key_file_get_integer (keyfile, group, "NBDec", NULL);
@@ -723,6 +784,8 @@ GError *error = NULL;
 
 			group = "Report";
 
+				DB( g_print(" -> ** Report\n") );
+			
 				homebank_pref_get_boolean(keyfile, group, "StatByAmount", &PREFS->stat_byamount);
 				homebank_pref_get_boolean(keyfile, group, "StatDetail", &PREFS->stat_showdetail);
 				homebank_pref_get_boolean(keyfile, group, "StatRate", &PREFS->stat_showrate);
@@ -730,6 +793,9 @@ GError *error = NULL;
 				homebank_pref_get_integer(keyfile, group, "ColorScheme", &PREFS->report_color_scheme);
 
 			group = "Exchange";
+
+				DB( g_print(" -> ** Exchange\n") );
+
 				homebank_pref_get_integer(keyfile, group, "DateFmt", &PREFS->dtex_datefmt);
 				homebank_pref_get_integer(keyfile, group, "OfxMemo", &PREFS->dtex_ofxmemo);
 
@@ -762,7 +828,7 @@ static void homebank_pref_set_string(
 	gchar *string)
 {
 
-	DB( g_print(" -> homebank_pref_set_string :: group='%s' key='%s' value='%s'\n", group_name, key, string) );
+	DB( g_print(" - homebank_pref_set_string :: group='%s' key='%s' value='%s'\n", group_name, key, string) );
 
 	if( string != NULL && *string != '\0')
 		g_key_file_set_string  (key_file, group_name, key, string);
@@ -782,7 +848,7 @@ gboolean retval = FALSE;
 gchar *group, *filename;
 gsize length;
 
-	DB( g_print("\n** (preferences) pref save\n") );
+	DB( g_print("\n[preferences] pref save\n") );
 
 	keyfile = g_key_file_new();
 	if(keyfile )
@@ -792,7 +858,7 @@ gsize length;
 
 
 		group = "General";
-		g_key_file_set_double  (keyfile, group, "Version", FILE_VERSION);
+		g_key_file_set_integer  (keyfile, group, "Version", PREF_VERSION);
 
 		g_key_file_set_integer (keyfile, group, "BarStyle", PREFS->toolbar_style);
 		//g_key_file_set_integer (keyfile, group, "BarImageSize", PREFS->image_size);
@@ -825,13 +891,13 @@ gsize length;
 		DB( g_print(" -> ** windows\n") );
 
 		group = "Windows";
-		g_key_file_set_integer_list(keyfile, group, "Wal", (gint *)&PREFS->wal_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Acc", (gint *)&PREFS->acc_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Sta", (gint *)&PREFS->sta_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Tme", (gint *)&PREFS->tme_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Ove", (gint *)&PREFS->ove_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Bud", (gint *)&PREFS->bud_wg, 4);
-		g_key_file_set_integer_list(keyfile, group, "Car", (gint *)&PREFS->cst_wg, 4);
+		g_key_file_set_integer_list(keyfile, group, "Wal", (gint *)&PREFS->wal_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Acc", (gint *)&PREFS->acc_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Sta", (gint *)&PREFS->sta_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Tme", (gint *)&PREFS->tme_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Ove", (gint *)&PREFS->ove_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Bud", (gint *)&PREFS->bud_wg, 5);
+		g_key_file_set_integer_list(keyfile, group, "Car", (gint *)&PREFS->cst_wg, 5);
 
 		g_key_file_set_integer (keyfile, group, "WalVPaned" , PREFS->wal_vpaned);
 		g_key_file_set_integer (keyfile, group, "WalHPaned" , PREFS->wal_hpaned);

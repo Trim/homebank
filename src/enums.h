@@ -104,7 +104,8 @@ enum
 	LST_DSPOPE_INCOME,	/* fake column */
 	LST_DSPOPE_CATEGORY,	/* fake column */
 	LST_DSPOPE_TAGS,	/* fake column */
-	/* here we insert accoutn column, only used for detail */
+	LST_DSPOPE_BALANCE,
+	/* here we insert account column, only used for detail */
 	LST_DSPOPE_ACCOUNT,
 	NUM_LST_DSPOPE
 };

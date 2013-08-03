@@ -613,7 +613,7 @@ static void ui_asg_manage_setup(struct ui_asg_manage_data *data)
 GtkWidget *ui_asg_manage_dialog (void)
 {
 struct ui_asg_manage_data data;
-GtkWidget *window, *mainbox;
+GtkWidget *window, *content, *mainbox;
 GtkWidget *vbox, *table, *label, *entry1;
 GtkWidget *scrollwin;
 GtkWidget *bbox;
@@ -638,11 +638,10 @@ gint row;
 	DB( g_printf("(ui_asg_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
 
 	//window contents
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
 	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (GTK_DIALOG (window)->vbox), mainbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
-
-
 
 	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
 	gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
