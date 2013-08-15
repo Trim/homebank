@@ -160,14 +160,14 @@ guint32 refdate, month, year, qnum;
 
 	switch( range )
 	{
-		case 0:		// this month
+		case FLT_RANGE_THISMONTH:
 			g_date_set_day(date, 1);
 			flt->mindate = g_date_get_julian(date);
 			g_date_add_days(date, g_date_get_days_in_month(month, year)-1);
 			flt->maxdate = g_date_get_julian(date);
 			break;
-	
-		case 1:		// last month
+
+		case FLT_RANGE_LASTMONTH:
 			g_date_set_day(date, 1);
 			g_date_subtract_months(date, 1);
 			flt->mindate = g_date_get_julian(date);
@@ -177,7 +177,7 @@ guint32 refdate, month, year, qnum;
 			flt->maxdate = g_date_get_julian(date);
 			break;
 
-		case 2:		// this quarter
+		case FLT_RANGE_THISQUARTER:
 			g_date_set_day(date, 1);
 			g_date_set_month(date, (qnum-1)*3+1);
 			flt->mindate = g_date_get_julian(date);
@@ -185,8 +185,8 @@ guint32 refdate, month, year, qnum;
 			g_date_subtract_days(date, 1);
 			flt->maxdate = g_date_get_julian(date);
 			break;
-			
-		case 3:		// last quarter
+
+		case FLT_RANGE_LASTQUARTER:
 			g_date_set_day(date, 1);
 			g_date_set_month(date, (qnum-1)*3+1);
 			g_date_subtract_months(date, 3);
@@ -195,7 +195,7 @@ guint32 refdate, month, year, qnum;
 			g_date_subtract_days(date, 1);
 			flt->maxdate = g_date_get_julian(date);
 			break;
-			
+
 		case FLT_RANGE_THISYEAR:
 			g_date_set_dmy(date, 1, 1, year);
 			flt->mindate = g_date_get_julian(date);
@@ -210,34 +210,30 @@ guint32 refdate, month, year, qnum;
 			flt->maxdate = g_date_get_julian(date);
 			break;
 
-		// 5 :: separator
-	
-		case 6:		// last 30 days
+		case FLT_RANGE_LAST30DAYS:
 			flt->mindate = refdate - 30;
 			flt->maxdate = refdate;
 			break;
 
-		case 7:		// last 60 days
+		case FLT_RANGE_LAST60DAYS:
 			flt->mindate = refdate - 60;
 			flt->maxdate = refdate;
 			break;
 
-		case 8:		// last 90 days
+		case FLT_RANGE_LAST90DAYS:
 			flt->mindate = refdate - 90;
 			flt->maxdate = refdate;
 			break;
-	
-		case 9:		// last 12 months
+
+		case FLT_RANGE_LAST12MONTHS:
 			g_date_subtract_months(date, 12);
 			flt->mindate = g_date_get_julian(date);
 			flt->maxdate = refdate;
 			break;
 
-		// 10 :: separator
+		// case FLT_RANGE_OTHER:
 
-		// case 11 other
-		
-		// case 12 all date
+		// case FLT_RANGE_ALLDATE:
 
 
 	}
@@ -256,17 +252,17 @@ void filter_preset_type_set(Filter *flt, gint type)
 
 	switch( type )
 	{
-		case 0:		/* expense */
-			flt->option[FILTER_AMOUNT] = 1;		
+		case FLT_TYPE_EXPENSE:
+			flt->option[FILTER_AMOUNT] = 1;
 			flt->minamount = -G_MAXDOUBLE;
 			flt->maxamount = G_MINDOUBLE;
-			break;	
+			break;
 
-		case 1:		/* income */
-			flt->option[FILTER_AMOUNT] = 1;		
+		case FLT_TYPE_INCOME:
+			flt->option[FILTER_AMOUNT] = 1;
 			flt->minamount = G_MINDOUBLE;
 			flt->maxamount = G_MAXDOUBLE;
-			break;	
+			break;
 	}
 
 }
@@ -297,17 +293,17 @@ GList *list;
 
 	switch( status )
 	{
-		case 0:		//uncategorized
+		case FLT_STATUS_UNCATEGORIZED:
 			flt->option[FILTER_CATEGORY] = 1;
 			catitem = da_cat_get(0);	// no category
 			catitem->filter = TRUE;
 			break;
 
-		case 1:		//unreconciled
+		case FLT_STATUS_UNRECONCILED:
 			flt->option[FILTER_STATUS] = 2;
 			flt->reconciled = TRUE;
 			break;
-	}	
+	}
 
 }
 

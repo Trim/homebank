@@ -58,10 +58,22 @@ enum
 };
 
 
-//default settings for account window
-#define FLT_TYPE_ALL 3
-#define FLT_STATUS_ALL 3
+enum
+{
+	FLT_TYPE_EXPENSE = 0,
+	FLT_TYPE_INCOME = 1,
+	// 2 separator
+	FLT_TYPE_ALL = 3
+};
 
+
+enum
+{
+	FLT_STATUS_UNCATEGORIZED = 0,
+	FLT_STATUS_UNRECONCILED = 1,
+	// 2 separator
+	FLT_STATUS_ALL = 3
+};
 
 typedef struct _filter	Filter;
 

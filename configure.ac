@@ -4,7 +4,6 @@
 AC_PREREQ(2.52)
 AC_INIT([homebank], [trunk])
 
-
 AM_CONFIG_HEADER(config.h)
 
 AM_INIT_AUTOMAKE([1.9 foreign])

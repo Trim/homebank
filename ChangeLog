@@ -1,3 +1,11 @@
+
+2013-08-15  Maxime Doyen
+
+ Made 4.5.2 release.
+
+ * bugfix: #1207156 Off-by-one error in range selection box
+
+
 2013-08-03  Maxime Doyen
 
  Made 4.5.1 release.

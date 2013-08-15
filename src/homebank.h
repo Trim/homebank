@@ -68,9 +68,9 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 #define HB_UNSTABLE			FALSE
-#define HB_VERSION			"4.5.1"
+#define HB_VERSION			"4.5.2"
 #define FILE_VERSION		0.7
-#define PREF_VERSION		451
+#define PREF_VERSION		452
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
