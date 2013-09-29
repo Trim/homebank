@@ -34,6 +34,7 @@ struct list_transaction_data
 
 
 GtkWidget *create_list_transaction(gint type, gboolean *pref_columns);
+void list_transaction_sort_force(GtkTreeSortable *sortable, gpointer user_data);
 GtkWidget *create_list_import_transaction(void);
 
 #endif

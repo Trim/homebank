@@ -132,6 +132,10 @@ struct repvehicle_data *data;
 	data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
 	data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
 
+	// set min/max date for both widget
+	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
+	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
+
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), 11);
 	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
@@ -192,17 +196,19 @@ guint32 catkey;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
+	// clear the glist
+	da_vehiclecost_destroy(data->vehicle_list);
+	data->vehicle_list = NULL;
+	
 	/* do nothing if no transaction */
-	if(g_list_length(GLOBALS->ope_list) == 0) return;
+	if(g_list_length(GLOBALS->ope_list) == 0)
+		goto end1;
 
 	// get the category key
 	catkey = ui_cat_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_cat));
 
 	DB( g_print(" -> active cat is %d\n", catkey) );
 
-	// clear the glist
-	da_vehiclecost_destroy(data->vehicle_list);
-	data->vehicle_list = NULL;
 
 	// collect transactions
 	// the purpose here is to collect all cat transaction
@@ -263,6 +269,7 @@ next1:
 	// sort by meter #399170
 	data->vehicle_list = g_list_sort(data->vehicle_list, (GCompareFunc)repvehicle_transaction_compare_func);
 
+end1:
 	repvehicle_update(widget, NULL);
 }
 
@@ -558,7 +565,7 @@ struct WinGeometry *wg;
 	gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
 	gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
 
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
 
 	//enable define windows
 	GLOBALS->define_off--;

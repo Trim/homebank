@@ -437,6 +437,38 @@ void gtk_dateentry_set_date(GtkDateEntry *dateentry, guint32 julian_days)
 /*
 **
 */
+void gtk_dateentry_set_mindate(GtkDateEntry *dateentry, guint32 julian_days)
+{
+	DB( g_print(" \n[dateentry] set date\n") );
+
+	g_return_if_fail (GTK_IS_DATE_ENTRY (dateentry));
+
+	if(g_date_valid_julian(julian_days))
+	{
+		g_date_set_julian (&dateentry->mindate, julian_days);
+	}
+}
+
+
+/*
+**
+*/
+void gtk_dateentry_set_maxdate(GtkDateEntry *dateentry, guint32 julian_days)
+{
+	DB( g_print(" \n[dateentry] set date\n") );
+
+	g_return_if_fail (GTK_IS_DATE_ENTRY (dateentry));
+
+	if(g_date_valid_julian(julian_days))
+	{
+		g_date_set_julian (&dateentry->maxdate, julian_days);
+	}
+}
+
+
+/*
+**
+*/
 guint32 gtk_dateentry_get_date(GtkDateEntry * dateentry)
 {
 	DB( g_print(" \n[dateentry] get date\n") );
@@ -500,6 +532,7 @@ GtkDateEntry *dateentry = GTK_DATE_ENTRY (object);
     }
 }
 */
+
 
 /*
 ** fill in our gtkentry from our GDate

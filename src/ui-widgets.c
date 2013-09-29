@@ -588,7 +588,7 @@ gint i;
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, entry->wording, -1);
 
-		//DB( g_printf(" populate_treeview: %d %08x\n", i, list->data) );
+		//DB( g_print(" populate_treeview: %d %08x\n", i, list->data) );
 
 		i++; list = g_list_next(list);
 	}

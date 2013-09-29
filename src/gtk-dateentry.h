@@ -75,8 +75,10 @@ GType		gtk_dateentry_get_type(void);
 
 GtkWidget	*gtk_dateentry_new(void);
 
-void		gtk_dateentry_set_date(GtkDateEntry * dateentry, guint32 julian_days);
 guint32		gtk_dateentry_get_date(GtkDateEntry * dateentry);
+void		gtk_dateentry_set_date(GtkDateEntry * dateentry, guint32 julian_days);
+void		gtk_dateentry_set_mindate(GtkDateEntry * dateentry, guint32 julian_days);
+void		gtk_dateentry_set_maxdate(GtkDateEntry * dateentry, guint32 julian_days);
 
 #ifdef __cplusplus
 }

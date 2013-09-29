@@ -1007,7 +1007,7 @@ gchar *filename;
 gboolean exists;
 guint i;
 
-	DB( g_printf("** category_find_preset **\n") );
+	DB( g_print("** category_find_preset **\n") );
 
 	langs = (gchar **)g_get_language_names ();
 
@@ -1019,7 +1019,7 @@ guint i;
 		filename = g_strdup_printf("hb-categories-%s.csv", langs[i]);
 		gchar *pathfilename = g_build_filename(homebank_app_get_datas_dir(), filename, NULL);
 		exists = g_file_test(pathfilename, G_FILE_TEST_EXISTS);
-		DB( g_printf(" -> '%s' exists=%d\n", pathfilename, exists) );
+		DB( g_print(" -> '%s' exists=%d\n", pathfilename, exists) );
 		if(exists)
 		{
 			g_free(filename);

@@ -311,9 +311,9 @@ gchar *txt;
 gboolean bool;
 Assign *item;
 
-	DB( g_printf("\n(ui_asg_manage_getlast)\n") );
+	DB( g_print("\n(ui_asg_manage_getlast)\n") );
 
-	DB( g_printf(" -> for assign id=%d\n", data->lastkey) );
+	DB( g_print(" -> for assign id=%d\n", data->lastkey) );
 
 	item = da_asg_get(data->lastkey);
 	if(item != NULL)
@@ -358,7 +358,7 @@ GtkTreeIter			 iter;
 
 Assign *item;
 
-	DB( g_printf("\n(ui_asg_manage_set)\n") );
+	DB( g_print("\n(ui_asg_manage_set)\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -368,7 +368,7 @@ Assign *item;
 	{
 		gtk_tree_model_get(model, &iter, LST_DEFASG_DATAS, &item, -1);
 
-		DB( g_printf(" -> set rul id=%d\n", item->key) );
+		DB( g_print(" -> set rul id=%d\n", item->key) );
 
 
 		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
@@ -404,17 +404,17 @@ guint32 key;
 //todo: for stock assign
 //gboolean is_new;
 
-	DB( g_printf("\n(ui_asg_manage_update)\n") );
+	DB( g_print("\n(ui_asg_manage_update)\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//window = gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW);
-	//DB( g_printf("(defpayee) widget=%08lx, window=%08lx, inst_data=%08lx\n", treeview, window, data) );
+	//DB( g_print("(defpayee) widget=%08lx, window=%08lx, inst_data=%08lx\n", treeview, window, data) );
 
 	//if true there is a selected node
 	selected = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_rul)), &model, &iter);
 	key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
 
-	DB( g_printf(" -> selected = %d  action = %d key = %d\n", selected, data->action, key) );
+	DB( g_print(" -> selected = %d  action = %d key = %d\n", selected, data->action, key) );
 
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
@@ -458,7 +458,7 @@ struct ui_asg_manage_data *data;
 Assign *item;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("\n(ui_asg_manage_add) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_asg_manage_add) (data=%x)\n", (guint)data) );
 
 	item = da_asg_malloc();
 	item->name = g_strdup_printf( _("(assignment %d)"), da_asg_length()+1);
@@ -479,7 +479,7 @@ guint32 key;
 gboolean do_remove;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("\n(ui_asg_manage_remove) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_asg_manage_remove) (data=%x)\n", (guint)data) );
 
 	do_remove = TRUE;
 	key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
@@ -505,7 +505,7 @@ gboolean ok;
 gchar *txt;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("\n(ui_asg_manage_rename) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_asg_manage_rename) (data=%x)\n", (guint)data) );
 
 	key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
 	if( key > 0 )
@@ -548,7 +548,7 @@ static gboolean ui_asg_manage_cleanup(struct ui_asg_manage_data *data, gint resu
 guint32 key;
 gboolean doupdate = FALSE;
 
-	DB( g_printf("\n(ui_asg_manage_cleanup) %x\n", (guint)data) );
+	DB( g_print("\n(ui_asg_manage_cleanup) %x\n", (guint)data) );
 
 		key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
 		if(key > 0)
@@ -570,7 +570,7 @@ gboolean doupdate = FALSE;
 				LST_DEFASG_DATAS, &item,
 				-1);
 
-			DB( g_printf(" -> check rul %d, pos is %d, %s\n", i, item->pos, item->name) );
+			DB( g_print(" -> check rul %d, pos is %d, %s\n", i, item->pos, item->name) );
 
 			if(item->pos != i)
 				data->change++;
@@ -593,7 +593,7 @@ gboolean doupdate = FALSE;
 static void ui_asg_manage_setup(struct ui_asg_manage_data *data)
 {
 
-	DB( g_printf("\n(ui_asg_manage_setup)\n") );
+	DB( g_print("\n(ui_asg_manage_setup)\n") );
 
 	//init GList
 	data->tmp_list = NULL; //hb-glist_clone_list(GLOBALS->rul_list, sizeof(struct _Assign));
@@ -635,7 +635,7 @@ gint row;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_printf("(ui_asg_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
+	DB( g_print("(ui_asg_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
 
 	//window contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (window));

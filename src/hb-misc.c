@@ -446,7 +446,7 @@ guint month, year, qnum;
 	year  = g_date_get_year(date);
 	qnum  = ((month-1)/3)+1;
 
-	DB( g_printf("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
+	DB( g_print("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
 
 	switch( range )
 	{
@@ -619,7 +619,6 @@ guint32 julian = 0;
 	{
 		DB( g_print("-> %d %d %d\n", n1, n2, n3) );
 
-		date = g_date_new();
 		switch(datefmt)
 		{
 			case PRF_DATEFMT_MDY:
@@ -651,11 +650,16 @@ guint32 julian = 0;
 
 		DB( g_print("-> %d %d %d\n", d, m, y) );
 
-		g_date_set_dmy(date, d, m, y);
-		if( g_date_valid (date) )
-			julian = g_date_get_julian (date);
-		
-		g_date_free(date);
+		if(d <= 31 && m <= 12)
+		{
+			date = g_date_new();
+			g_date_set_dmy(date, d, m, y);
+			if( g_date_valid (date) )
+			{
+				julian = g_date_get_julian (date);
+			}
+			g_date_free(date);
+		}
 	}
 
 	return julian;

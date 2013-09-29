@@ -167,7 +167,7 @@ struct account_data *data = user_data;
 
 	DB( g_print("action close\n") );
 
-	DB( g_printf("window %p\n", data->window) );
+	DB( g_print("window %p\n", data->window) );
 
 	gtk_widget_destroy (GTK_WIDGET (data->window));
 
@@ -449,7 +449,7 @@ gint result, count;
 				gtk_tree_model_get_iter(model, &iter, list->data);
 				gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
 
-				DB( g_printf(" create archive %s %.2f\n", ope->wording, ope->amount) );
+				DB( g_print(" create archive %s %.2f\n", ope->wording, ope->amount) );
 
 				item = da_archive_malloc();
 
@@ -573,10 +573,11 @@ static void account_balance_refresh(GtkWidget *view)
 struct account_data *data;
 GList *list;
 gdouble balance;
+GtkTreeModel *model;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(view, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf("\n[account] balance refresh\n") );
+	DB( g_print("\n[account] balance refresh\n") );
 
 	balance = data->acc->initial;
 
@@ -594,6 +595,10 @@ gdouble balance;
 		}
 		list = g_list_next(list);
 	}
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
+	list_transaction_sort_force(GTK_TREE_SORTABLE(model), NULL);
+	
 }
 
 
@@ -607,7 +612,7 @@ GList *list;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(view, GTK_TYPE_WINDOW)), "inst_data");
 
 
-	DB( g_printf("\n[account] populate\n") );
+	DB( g_print("\n[account] populate\n") );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
@@ -638,7 +643,7 @@ GList *list;
 				/* append to our treeview */
 					gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 
-			 		//g_printf(" populate: %s\n", ope->ope_Word);
+			 		//g_print(" populate: %s\n", ope->ope_Word);
 
 			 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					LST_DSPOPE_DATAS, ope,
@@ -752,12 +757,12 @@ struct account_data *data;
 gint action = (gint)user_data;
 gboolean result;
 
-	DB( g_printf("\n[account] action\n") );
+	DB( g_print("\n[account] action\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//data = INST_DATA(widget);
 
-	DB( g_printf(" - action=%d\n", action) );
+	DB( g_print(" - action=%d\n", action) );
 
 	switch(action)
 	{
@@ -772,7 +777,7 @@ gboolean result;
 
 			if(action == ACTION_ACCOUNT_ADD)
 			{
-				DB( g_printf("(transaction) add multiple\n") );
+				DB( g_print("(transaction) add multiple\n") );
 				//date = GLOBALS->today;
 				src_trn = da_transaction_malloc();
 				src_trn->date = GLOBALS->today;
@@ -781,7 +786,7 @@ gboolean result;
 			}
 			else
 			{
-				DB( g_printf("(transaction) inherit multiple\n") );
+				DB( g_print("(transaction) inherit multiple\n") );
 				src_trn = da_transaction_clone(get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
 				type = TRANSACTION_EDIT_INHERIT;
 			}
@@ -853,12 +858,12 @@ gboolean result;
 					Transaction *ct;
 
 						//nota: if kxfer is 0, the user has just changed the paymode to xfer
-						DB( g_printf(" - kxfer = %d\n", ope->kxfer) );
+						DB( g_print(" - kxfer = %d\n", ope->kxfer) );
 
 						//1) search a strong linked child
 						if(ope->kxfer > 0)
 						{
-							DB( g_printf(" - found a strong link ?\n") );
+							DB( g_print(" - found a strong link ?\n") );
 
 							ct = transaction_strong_get_child_transfer(ope);
 							if(ct != NULL)	//should never be the case
@@ -906,7 +911,7 @@ gboolean result;
 		gint result;
 		//gint count;
 
-			DB( g_printf(" - remove\n") );
+			DB( g_print(" - remove\n") );
 
 			//count = gtk_tree_selection_count_selected_rows(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_ope)));
 
@@ -943,7 +948,7 @@ gboolean result;
 				gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_ope), NULL); /* Detach model from view */
 
 
-				DB( g_printf(" remove %d line\n", g_list_length(selection)) );
+				DB( g_print(" remove %d line\n", g_list_length(selection)) );
 
 
 				list = g_list_last(selection);
@@ -955,7 +960,7 @@ gboolean result;
 					gtk_tree_model_get_iter(model, &iter, list->data);
 					gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &entry, -1);
 
-					DB( g_printf(" delete %s %.2f\n", entry->wording, entry->amount) );
+					DB( g_print(" delete %s %.2f\n", entry->wording, entry->amount) );
 
 					account_balances_sub(entry);
 
@@ -997,7 +1002,7 @@ gboolean result;
 			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_ope));
 			gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)reconcile_selected_foreach_func, data);
 
-			DB( g_printf(" - reconcile\n") );
+			DB( g_print(" - reconcile\n") );
 
 			gtk_widget_queue_draw (data->LV_ope);
 			//gtk_widget_queue_resize (data->LV_acc);
@@ -1027,7 +1032,7 @@ gboolean result;
 		//close
 		case ACTION_ACCOUNT_CLOSE:
 		{
-			DB( g_printf(" - close\n") );
+			DB( g_print(" - close\n") );
 
 			//g_signal_emit_by_name(data->window, "delete-event");
 
@@ -1044,7 +1049,7 @@ static void account_toggle(GtkWidget *widget, gpointer user_data)
 {
 struct account_data *data;
 
-	DB( g_printf("\n[account] toggle\n") );
+	DB( g_print("\n[account] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1055,7 +1060,7 @@ struct account_data *data;
 static void account_selection(GtkTreeSelection *treeselection, gpointer user_data)
 {
 
-	DB( g_printf("\n[account] selection changed cb\n") );
+	DB( g_print("\n[account] selection changed cb\n") );
 
 
 	account_update(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(UF_SENSITIVE));
@@ -1070,7 +1075,7 @@ GtkTreeSelection *selection;
 gint flags;
 gint count = 0;
 
-	DB( g_printf("\n[account] update\n") );
+	DB( g_print("\n[account] update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//data = INST_DATA(widget);
@@ -1367,7 +1372,7 @@ gchar *tagstr, *txt;
 				gtk_tree_model_get_iter(model, &iter, list->data);
 				gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
 
-				DB( g_printf(" modifying %s %.2f\n", ope->wording, ope->amount) );
+				DB( g_print(" modifying %s %.2f\n", ope->wording, ope->amount) );
 
 				switch( col_id )
 				{
@@ -1446,7 +1451,7 @@ GtkWidget *window;
 GdkWindow *gdkwindow;
 GdkCursor *cursor;
 
-	DB( g_printf("\n[account] busy %d\n", state) );
+	DB( g_print("\n[account] busy %d\n", state) );
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
@@ -1554,7 +1559,7 @@ account_getgeometry(GtkWidget *widget, GdkEventConfigure *event, gpointer user_d
 //struct account_data *data = user_data;
 struct WinGeometry *wg;
 
-	DB( g_printf("\n[account] get geometry\n") );
+	DB( g_print("\n[account] get geometry\n") );
 
 	//store position and size
 	wg = &PREFS->acc_wg;
@@ -1564,7 +1569,7 @@ struct WinGeometry *wg;
 	GdkWindowState state = gdk_window_get_state(gdk_window);
 	wg->s = (state & GDK_WINDOW_STATE_MAXIMIZED) ? 1 : 0;
 	
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d s=%d, state=%d\n", wg->l, wg->t, wg->w, wg->h, wg->s, state & GDK_WINDOW_STATE_MAXIMIZED) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d s=%d, state=%d\n", wg->l, wg->t, wg->w, wg->h, wg->s, state & GDK_WINDOW_STATE_MAXIMIZED) );
 
 	return FALSE;
 }
@@ -1577,14 +1582,14 @@ static gboolean account_dispose(GtkWidget *widget, GdkEvent *event, gpointer use
 //struct account_data *data = user_data;
 
 
-	DB( g_printf("\n[account] delete-event\n") );
+	DB( g_print("\n[account] delete-event\n") );
 
 
 	return FALSE;
 }
 
 /* Another callback */
-static void account_destroy( GtkWidget *widget,
+static gboolean account_destroy( GtkWidget *widget,
 										 gpointer	 user_data )
 {
 struct account_data *data;
@@ -1604,7 +1609,7 @@ struct account_data *data;
 		data->acc->window = NULL;
 
 	/* free title and filter */
-	DB( g_printf(" user_data=%p to be free\n", user_data) );
+	DB( g_print(" user_data=%p to be free\n", user_data) );
 	g_free(data->wintitle);
 
 
@@ -1616,6 +1621,7 @@ struct account_data *data;
 	//our global list has changed, so update the treeview
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_BALANCE+UF_REFRESHALL));
 
+	return FALSE;
 }
 
 
@@ -1632,7 +1638,7 @@ GtkActionGroup *actions;
 GtkAction *action;
 GError *error = NULL;
 
-	DB( g_printf("\n[account] create_account_window\n") );
+	DB( g_print("\n[account] create_account_window\n") );
 
 	data = g_malloc0(sizeof(struct account_data));
 	if(!data) return NULL;
@@ -1677,7 +1683,7 @@ GError *error = NULL;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_printf(" - new window=%p, inst_data=%p\n", window, data) );
+	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
 
 	//set the window icon
 	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "ope_show.svg");
@@ -1908,7 +1914,7 @@ GError *error = NULL;
 
 	/* setup to moove later */
 	data->filter = da_filter_malloc();
-	DB( g_printf(" - filter ok %x\n", (gint)data->filter) );
+	DB( g_print(" - filter ok %x\n", (gint)data->filter) );
 
 
 	return window;

@@ -85,7 +85,7 @@ gint count;
 guint32 maxdate;
 gint nb_days;
 
-	DB( g_printf("\n[hbfile] insert_scheduled_transactions\n") );
+	DB( g_print("\n[hbfile] insert_scheduled_transactions\n") );
 
 	count = 0;
 	nb_days = archive_add_get_nbdays();
@@ -105,7 +105,7 @@ gint nb_days;
 			date = g_date_new_julian(arc->nextdate);
 			g_date_strftime (buffer1, 128-1, "%x", date);
 			g_date_free(date);
-			g_print("  -> '%s' - every %d %s - next %s limit %d\n", arc->wording, arc->every, CYA_UNIT[arc->unit], buffer1, arc->limit);
+			//g_print("  -> '%s' - every %d %s - next %s limit %d\n", arc->wording, arc->every, CYA_UNIT[arc->unit], buffer1, arc->limit);
 			#endif*/
 
 			if(arc->nextdate < maxdate)
@@ -121,7 +121,7 @@ gint nb_days;
 					date = g_date_new_julian(mydate);
 					g_date_strftime (buffer1, 128-1, "%x", date);
 					g_date_free(date);
-					g_printf("  -> adding '%s' on %s\n", arc->wording, buffer1);
+					//g_print("  -> adding '%s' on %s\n", arc->wording, buffer1);
 				#endif*/
 
 					/* fill in the transaction */
@@ -242,7 +242,7 @@ void hbfile_sanity_check(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hbfile] sanity_check\n") );
+	DB( g_print("\n[hbfile] sanity_check\n") );
 
 
 	list = g_list_first(GLOBALS->ope_list);
@@ -305,7 +305,7 @@ void hbfile_anonymize(void)
 GList *list;
 guint cnt, i;
 
-	DB( g_printf("\n[hbfile] anonymize\n") );
+	DB( g_print("\n[hbfile] anonymize\n") );
 
 	// owner
 	hbfile_change_owner(g_strdup("An0nym0us"));
@@ -450,8 +450,8 @@ guint cnt, i;
 
 void hbfile_cleanup(gboolean file_clear)
 {
-	DB( g_printf("\n[hbfile] cleanup\n") );
-	DB( g_printf("- file clear is %d\n", file_clear) );
+	DB( g_print("\n[hbfile] cleanup\n") );
+	DB( g_print("- file clear is %d\n", file_clear) );
 	
 	// Free data storage
 	//da_cur_destroy();
@@ -475,8 +475,8 @@ void hbfile_cleanup(gboolean file_clear)
 void hbfile_setup(gboolean file_clear)
 {
 
-	DB( g_printf("\n[hbfile] setup\n") );
-	DB( g_printf("- file clear is %d\n", file_clear) );
+	DB( g_print("\n[hbfile] setup\n") );
+	DB( g_print("- file clear is %d\n", file_clear) );
 
 	// Allocate data storage
 	//da_cur_new();
@@ -497,8 +497,8 @@ void hbfile_setup(gboolean file_clear)
 		hbfile_change_filepath(g_build_filename(PREFS->path_hbfile, "untitled.xhb", NULL));
 		GLOBALS->hbfile_is_new = TRUE;
 		
-		DB( g_printf("- path_hbfile is '%s'\n", PREFS->path_hbfile) );
-		DB( g_printf("- xhb_filepath is '%s'\n", GLOBALS->xhb_filepath) );
+		DB( g_print("- path_hbfile is '%s'\n", PREFS->path_hbfile) );
+		DB( g_print("- xhb_filepath is '%s'\n", GLOBALS->xhb_filepath) );
 	}
 	else
 	{

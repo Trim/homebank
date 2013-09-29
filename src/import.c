@@ -393,7 +393,7 @@ ofx_proc_statement_cb(const struct OfxStatementData data, OfxContext *ctx)
 	struct tm temp_tm;
 
 		temp_tm = *localtime(&(data.ledger_balance_date));
-		g_printf("ledger_balance_date : %d%s%d%s%d%s", temp_tm.tm_mday, "/", temp_tm.tm_mon+1, "/", temp_tm.tm_year+1900, "\n");
+		g_print("ledger_balance_date : %d%s%d%s%d%s", temp_tm.tm_mday, "/", temp_tm.tm_mon+1, "/", temp_tm.tm_year+1900, "\n");
 	}
 #endif
 
@@ -605,7 +605,7 @@ ofx_proc_status_cb(const struct OfxStatusData data, OfxContext *ctx)
 	DB( g_print("** ofx_proc_status_cb()\n") );
 
    if(data.ofx_element_name_valid==true){
-     DB( g_printf("    Ofx entity this status is relevent to: '%s'\n", data.ofx_element_name) );
+     DB( g_print("    Ofx entity this status is relevent to: '%s'\n", data.ofx_element_name) );
    }
    if(data.severity_valid==true){
      DB( g_print("    Severity: ") );
@@ -620,10 +620,10 @@ ofx_proc_status_cb(const struct OfxStatusData data, OfxContext *ctx)
      }
    }
    if(data.code_valid==true){
-     DB( g_printf("    Code: %d, name: %s\n    Description: %s\n", data.code, data.name, data.description) );
+     DB( g_print("    Code: %d, name: %s\n    Description: %s\n", data.code, data.name, data.description) );
    }
    if(data.server_message_valid==true){
-     DB( g_printf("    Server Message: %s\n", data.server_message) );
+     DB( g_print("    Server Message: %s\n", data.server_message) );
    }
    DB( g_print("\n") );
 	
@@ -1236,7 +1236,7 @@ guint32 key;
 gint row;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("\n[import] edit target account\n") );
+	DB( g_print("\n[import] edit target account\n") );
 
 	key = ui_acc_affect_listview_get_selected_key(GTK_TREE_VIEW(data->LV_acc));
 	if( key > 0 )

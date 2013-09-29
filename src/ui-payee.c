@@ -579,7 +579,7 @@ gchar *filename = NULL;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf("(ui_pay_manage_dialog) load csv - data %p\n", data) );
+	DB( g_print("(ui_pay_manage_dialog) load csv - data %p\n", data) );
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_OPEN, &filename, NULL) == TRUE )
 	{
@@ -629,7 +629,7 @@ Payee *item;
 gchar *name;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(defayee) add (data=%p)\n", data) );
+	DB( g_print("(defayee) add (data=%p)\n", data) );
 
 	name = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
 
@@ -654,7 +654,7 @@ GtkWidget *window, *content, *mainvbox, *getwidget;
 guint32 key;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(defayee) modify %p\n", data) );
+	DB( g_print("(defayee) modify %p\n", data) );
 
 	key = ui_pay_listview_get_selected_key(GTK_TREE_VIEW(data->LV_pay));
 	if( key > 0 )
@@ -740,7 +740,7 @@ GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(defayee) move %p\n", data) );
+	DB( g_print("(defayee) move %p\n", data) );
 
 	// get selection ...
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay));
@@ -805,7 +805,7 @@ GtkTreeIter			 iter;
 
 				gtk_combo_box_get_active(GTK_COMBO_BOX(getwidget));
 
-				DB( g_printf(" -> should move %d - %s to %d - %s\n", entry->key, entry->name, newpayee, npn ) );
+				DB( g_print(" -> should move %d - %s to %d - %s\n", entry->key, entry->name, newpayee, npn ) );
 
 				payee_move(entry->key, newpayee);
 
@@ -838,7 +838,7 @@ gint result;
 gboolean do_remove;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(ui_pay_manage_dialog) remove (data=%p)\n", data) );
+	DB( g_print("(ui_pay_manage_dialog) remove (data=%p)\n", data) );
 
 	do_remove = TRUE;
 	key = ui_pay_listview_get_selected_key(GTK_TREE_VIEW(data->LV_pay));
@@ -887,7 +887,7 @@ struct ui_pay_manage_dialog_data *data;
 gboolean sensitive;
 guint32 key;
 
-	DB( g_printf("\n(ui_pay_manage_dialog) cursor changed\n") );
+	DB( g_print("\n(ui_pay_manage_dialog) cursor changed\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
 
@@ -951,7 +951,7 @@ gint row;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_printf("(ui_pay_manage_dialog) window=%p, inst_data=%p\n", window, &data) );
+	DB( g_print("(ui_pay_manage_dialog) window=%p, inst_data=%p\n", window, &data) );
 
     g_signal_connect (window, "destroy",
 			G_CALLBACK (gtk_widget_destroyed), &window);

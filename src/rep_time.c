@@ -324,7 +324,7 @@ gint pos;
 
 	pos = (((g_date_get_year(date2) - g_date_get_year(date1)) * 12) + g_date_get_month(date2) - g_date_get_month(date1))/3;
 
-	g_print(" from=%d-%d ope=%d-%d => %d\n", g_date_get_month(date1), g_date_get_year(date1), g_date_get_month(date2), g_date_get_year(date2), pos);
+	DB( g_print(" from=%d-%d ope=%d-%d => %d\n", g_date_get_month(date1), g_date_get_year(date1), g_date_get_month(date2), g_date_get_year(date2), pos) );
 
 	g_date_free(date2);
 	g_date_free(date1);
@@ -356,12 +356,16 @@ static void trendtime_date_change(GtkWidget *widget, gpointer user_data)
 {
 struct trendtime_data *data;
 
-	DB( g_print("(trendtime) date change\n") );
+	DB( g_print("\n[trendtime] date change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
 	data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
+
+	// set min/max date for both widget
+	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
+	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
@@ -379,7 +383,7 @@ static void trendtime_range_change(GtkWidget *widget, gpointer user_data)
 struct trendtime_data *data;
 gint range;
 
-	DB( g_print("(trendtime) range change\n") );
+	DB( g_print("\n[trendtime] range change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -409,7 +413,7 @@ static void trendtime_update_daterange(GtkWidget *widget, gpointer user_data)
 struct trendtime_data *data;
 gchar *daterange;
 
-	DB( g_print("(trendtime) update daterange\n") );
+	DB( g_print("\n[trendtime] update daterange\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -434,7 +438,7 @@ guint32 selkey;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(trendtime) detail\n") );
+	DB( g_print("\n[trendtime] detail\n") );
 
 	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 	tmpslice = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
@@ -588,7 +592,7 @@ GtkTreeModel		 *model;
 gint page, tmpfor, tmpslice, column;
 //gboolean xval;
 
-	DB( g_print("(trendtime) update\n") );
+	DB( g_print("\n[trendtime] update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -658,7 +662,7 @@ GIOChannel *io;
 gchar *outstr, *name;
 gint tmpfor;
 
-	DB( g_print("(trendtime) export csv\n") );
+	DB( g_print("\n[trendtime] export csv\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -719,7 +723,7 @@ static void trendtime_for(GtkWidget *widget, gpointer user_data)
 struct trendtime_data *data;
 gint page;
 
-	DB( g_print("(trendtime) for\n") );
+	DB( g_print("\n[trendtime] for\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -749,7 +753,7 @@ GDate *date1, *date2;
 gdouble *tmp_amount;
 guint32 selkey;
 
-	DB( g_print("(trendtime) compute\n") );
+	DB( g_print("\n[trendtime] compute\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -780,6 +784,7 @@ guint32 selkey;
 	//get our min max date
 	from = data->filter->mindate;
 	to   = data->filter->maxdate;
+	if(to < from) return;
 
 	/* count number or results */
 	switch(tmpslice)
@@ -1072,7 +1077,7 @@ gboolean active;
 gboolean sensitive;
 gint page;
 
-	DB( g_print("(trendtime) sensitive\n") );
+	DB( g_print("\n[trendtime] sensitive\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1142,7 +1147,7 @@ static void trendtime_zoomx_callback(GtkWidget *widget, gpointer user_data)
 struct trendtime_data *data;
 gdouble value;
 
-	DB( g_print("(trendtime) zoomx\n") );
+	DB( g_print("\n[trendtime] zoomx\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1160,7 +1165,7 @@ static void trendtime_toggle_minor(GtkWidget *widget, gpointer user_data)
 {
 struct trendtime_data *data;
 
-	DB( g_print("(trendtime) toggle\n") );
+	DB( g_print("\n[trendtime] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1179,7 +1184,7 @@ static void trendtime_toggle_showall(GtkWidget *widget, gpointer user_data)
 struct trendtime_data *data;
 gboolean showall;
 
-	DB( g_print("(trendtime) toggle\n") );
+	DB( g_print("\n[trendtime] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1200,7 +1205,7 @@ GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
-	DB( g_printf("(trendtime) busy\n") );
+	DB( g_print("\n[trendtime] busy\n") );
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
@@ -1238,7 +1243,7 @@ GdkCursor *cursor;
 */
 static void trendtime_setup(struct trendtime_data *data, guint32 accnum)
 {
-	DB( g_print("(trendtime) setup\n") );
+	DB( g_print("\n[trendtime] setup\n") );
 
 	data->detail = 0;
 
@@ -1284,7 +1289,7 @@ GtkTreeModel *model;
 GtkTreeIter iter;
 guint key = -1;
 
-	DB( g_print("(trendtime) selection\n") );
+	DB( g_print("\n[trendtime] selection\n") );
 
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
@@ -1307,7 +1312,7 @@ static gboolean trendtime_dispose(GtkWidget *widget, GdkEvent *event, gpointer u
 struct trendtime_data *data = user_data;
 struct WinGeometry *wg;
 
-	DB( g_print("(trendtime) dispose\n") );
+	DB( g_print("\n[trendtime] dispose\n") );
 
 	da_filter_free(data->filter);
 
@@ -1318,7 +1323,7 @@ struct WinGeometry *wg;
 	gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
 	gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
 
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
 
 
 
@@ -1345,7 +1350,7 @@ GError *error = NULL;
 	data = g_malloc0(sizeof(struct trendtime_data));
 	if(!data) return NULL;
 
-	DB( g_print("(trendtime) new\n") );
+	DB( g_print("\n[trendtime] new\n") );
 
 
 	//disable define windows

@@ -51,7 +51,7 @@ gchar	*owner;
 guint32	vehicle;
 gint	smode, weekday, nbdays;
 
-	DB( g_printf("(ui-hbfile) get\n") );
+	DB( g_print("(ui-hbfile) get\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -86,11 +86,11 @@ gint	smode, weekday, nbdays;
 	GLOBALS->auto_weekday = weekday;
 	GLOBALS->auto_nbdays  = nbdays;
 
-	DB( g_printf(" -> owner %s\n", GLOBALS->owner) );
-	DB( g_printf(" -> ccgrp %d\n", GLOBALS->vehicle_category) );
-	DB( g_printf(" -> smode %d\n", GLOBALS->auto_smode) );
-	DB( g_printf(" -> weekday %d\n", GLOBALS->auto_weekday) );
-	DB( g_printf(" -> nbdays %d\n", GLOBALS->auto_nbdays) );
+	DB( g_print(" -> owner %s\n", GLOBALS->owner) );
+	DB( g_print(" -> ccgrp %d\n", GLOBALS->vehicle_category) );
+	DB( g_print(" -> smode %d\n", GLOBALS->auto_smode) );
+	DB( g_print(" -> weekday %d\n", GLOBALS->auto_weekday) );
+	DB( g_print(" -> nbdays %d\n", GLOBALS->auto_nbdays) );
 
 }
 
@@ -103,12 +103,12 @@ static void defhbfile_set(GtkWidget *widget, gpointer user_data)
 {
 struct defhbfile_data *data;
 
-	DB( g_printf("(ui-hbfile) set\n") );
+	DB( g_print("(ui-hbfile) set\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf(" -> ccgrp %d\n", GLOBALS->vehicle_category) );
-	DB( g_printf(" -> autoinsert %d\n", GLOBALS->auto_nbdays) );
+	DB( g_print(" -> ccgrp %d\n", GLOBALS->vehicle_category) );
+	DB( g_print(" -> autoinsert %d\n", GLOBALS->auto_nbdays) );
 
 	if(GLOBALS->owner) gtk_entry_set_text(GTK_ENTRY(data->ST_owner), GLOBALS->owner);
 	ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), GLOBALS->vehicle_category);
@@ -127,16 +127,16 @@ static gboolean defhbfile_cleanup(struct defhbfile_data *data, gint result)
 {
 gboolean doupdate = FALSE;
 
-	DB( g_printf("(ui-hbfile) cleanup\n") );
+	DB( g_print("(ui-hbfile) cleanup\n") );
 
 	if(result == GTK_RESPONSE_ACCEPT)
 	{
 		defhbfile_get(data->ST_owner, NULL);
 
 
-		DB( g_printf(" -> GLOBAL change = %d\n", GLOBALS->changes_count) );
+		DB( g_print(" -> GLOBAL change = %d\n", GLOBALS->changes_count) );
 
-		DB( g_printf(" -> we update, change = %d\n", data->change) );
+		DB( g_print(" -> we update, change = %d\n", data->change) );
 
 
 		GLOBALS->changes_count += data->change;
@@ -149,7 +149,7 @@ gboolean doupdate = FALSE;
 */
 static void defhbfile_setup(struct defhbfile_data *data)
 {
-	DB( g_printf("(ui-hbfile) setup\n") );
+	DB( g_print("(ui-hbfile) setup\n") );
 
 	data->change = 0;
 
@@ -181,7 +181,7 @@ gint row;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_printf("(defaccount) window=%p, inst_data=%p\n", window, &data) );
+	DB( g_print("(defaccount) window=%p, inst_data=%p\n", window, &data) );
 
 	gtk_window_set_icon_name(GTK_WINDOW (window), GTK_STOCK_PROPERTIES);
 

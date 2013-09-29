@@ -407,6 +407,10 @@ struct statistic_data *data;
 	data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
 	data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
 
+	// set min/max date for both widget
+	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
+	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
+
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
 	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
@@ -832,9 +836,6 @@ gint tmpfor;
 }
 
 
-
-
-
 static void statistic_compute(GtkWidget *widget, gpointer user_data)
 {
 struct statistic_data *data;
@@ -867,6 +868,7 @@ gdouble exprate, incrate, balrate;
 	//get our min max date
 	from = data->filter->mindate;
 	to   = data->filter->maxdate;
+	if(to < from) return;
 
 	/* count number or results */
 	switch(tmpfor)
@@ -1368,7 +1370,7 @@ GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
-	DB( g_printf("(statistic) busy\n") );
+	DB( g_print("(statistic) busy\n") );
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
@@ -1478,7 +1480,7 @@ struct WinGeometry *wg;
 	gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
 	gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
 
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
 
 
 

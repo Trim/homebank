@@ -128,16 +128,16 @@ gboolean valid[TXN_MAX_SPLIT];
 				break;
 			}
 		}*/
-		DB( g_printf("- split %d : act.=%d val.=%d : amt=%.2f\n", i, active, valid[i], amt[i]) );
+		DB( g_print("- split %d : act.=%d val.=%d : amt=%.2f\n", i, active, valid[i], amt[i]) );
 
 		if(valid[i])
 			nbvalid++;
 
-		DB( g_printf("- nbsplit %d\n", data->nbsplit) );
+		DB( g_print("- nbsplit %d\n", data->nbsplit) );
 
 		if(data->nbsplit == i)
 		{
-			DB( g_printf("- set last split %d\n", i) );
+			DB( g_print("- set last split %d\n", i) );
 
 			if(data->BT_add[i])
 				gtk_widget_set_sensitive(data->BT_add[i], valid[i]);
@@ -147,7 +147,7 @@ gboolean valid[TXN_MAX_SPLIT];
 		}
 		else
 		{
-			DB( g_printf("- set off to %d\n", i) );
+			DB( g_print("- set off to %d\n", i) );
 
 			if(data->BT_add[i])
 				gtk_widget_set_sensitive(data->BT_add[i], FALSE);
@@ -158,7 +158,7 @@ gboolean valid[TXN_MAX_SPLIT];
 	}
 
 	count = i;
-	DB( g_printf("- count=%d, nbvalid=%d\n", count, nbvalid ) );
+	DB( g_print("- count=%d, nbvalid=%d\n", count, nbvalid ) );
 
 	
 	if(data->splittype == TXN_SPLIT_AMOUNT)
@@ -236,7 +236,7 @@ gint line;
 
 	if(data->splittype == TXN_SPLIT_AMOUNT)
 	{
-		DB( g_printf("- line %d :: affect remain\n", line) );
+		DB( g_print("- line %d :: affect remain\n", line) );
 		g_signal_handler_block(data->ST_amount[line], data->handler_id[line]);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount[line]), data->remsplit);
 		g_signal_handler_unblock(data->ST_amount[line], data->handler_id[line]);
@@ -357,7 +357,7 @@ gint row, i;
 	
 	//store our dialog private data
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
-	DB( g_printf("(ui_txn_split_dialog) dialog=%p, inst_data=%p\n", dialog, &data) );
+	DB( g_print("(ui_txn_split_dialog) dialog=%p, inst_data=%p\n", dialog, &data) );
 
     g_signal_connect (dialog, "destroy",
 			G_CALLBACK (gtk_widget_destroyed), &dialog);
@@ -534,7 +534,7 @@ static void deftransaction_update(GtkWidget *widget, gpointer user_data)
 struct deftransaction_data *data;
 gboolean sensitive, bool;
 
-	DB( g_printf("(ui_transaction) update\n") );
+	DB( g_print("(ui_transaction) update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -556,11 +556,11 @@ void deftransaction_set_amount_from_split(GtkWidget *widget, gdouble amount)
 {
 struct deftransaction_data *data;
 
-	DB( g_printf("(ui_transaction) set_amount_from_split\n") );
+	DB( g_print("(ui_transaction) set_amount_from_split\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf("- amount=%.2f\n", amount) );
+	DB( g_print("- amount=%.2f\n", amount) );
 
 	data->ope->amount = amount;
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount);
@@ -574,15 +574,15 @@ struct deftransaction_data *data;
 Transaction *entry;
 gchar *tagstr, *txt;
 
-	DB( g_printf("(ui_transaction) set\n") );
+	DB( g_print("(ui_transaction) set\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	entry = data->ope;
 
-	DB( g_printf(" -> ope=%p data=%p tags:%p\n", data->ope, data, entry->tags) );
+	DB( g_print(" -> ope=%p data=%p tags:%p\n", data->ope, data, entry->tags) );
 
-	//DB( g_printf(" set date to %d\n", entry->date) );
+	//DB( g_print(" set date to %d\n", entry->date) );
 	//g_object_set(GTK_DATE_ENTRY(data->PO_date), "date", (guint32)entry->ope_Date);
 	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_date), (guint)entry->date);
 
@@ -627,15 +627,15 @@ gchar *txt;
 gdouble value;
 gint active;
 
-	DB( g_printf("(ui_transaction) get\n") );
+	DB( g_print("(ui_transaction) get\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	entry = data->ope;
 
-	DB( g_printf(" -> ope = %p\n", entry) );
+	DB( g_print(" -> ope = %p\n", entry) );
 
-	//DB( g_printf(" get date to %d\n", entry->ope_Date) );
+	//DB( g_print(" get date to %d\n", entry->ope_Date) );
 	entry->date = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_date));
 	//g_object_get(GTK_DATE_ENTRY(data->PO_date), "date", entry->ope_Date);
 
@@ -754,7 +754,7 @@ guint count, i;
 Split *split;
 gdouble value;
 
-	DB( g_printf("(ui_transaction) toggleamount\n") );
+	DB( g_print("(ui_transaction) toggleamount\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -781,7 +781,7 @@ static void deftransaction_button_split_cb(GtkWidget *widget, gpointer user_data
 struct deftransaction_data *data;
 gdouble amount;
 
-	DB( g_printf("(ui_transaction) doing split\n") );
+	DB( g_print("(ui_transaction) doing split\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -798,7 +798,7 @@ struct deftransaction_data *data;
 gboolean sensitive;
 guint kacc, kdst;
 
-	DB( g_printf("(ui_transaction) update transfer\n") );
+	DB( g_print("(ui_transaction) update transfer\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -832,7 +832,7 @@ guint kacc, kdst;
 	}
 
 end:
-	DB( g_printf(" sensitive %d\n", sensitive) );
+	DB( g_print(" sensitive %d\n", sensitive) );
 
 	gtk_widget_set_sensitive(gtk_dialog_get_action_area(GTK_DIALOG (data->window)), sensitive);
 
@@ -844,13 +844,13 @@ static void deftransaction_update_accto(GtkWidget *widget, gpointer user_data)
 struct deftransaction_data *data;
 guint kacc;
 
-	DB( g_printf("(ui_transaction) update accto\n") );
+	DB( g_print("(ui_transaction) update accto\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	kacc = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 
-	DB( g_printf(" acc is %d\n", kacc) );
+	DB( g_print(" acc is %d\n", kacc) );
 
 
 	ui_acc_comboboxentry_populate_except(GTK_COMBO_BOX(data->PO_accto), GLOBALS->h_acc, kacc, ACC_LST_INSERT_NORMAL);
@@ -869,7 +869,7 @@ gint payment;
 gint page;
 gboolean sensitive;
 
-	DB( g_printf("(ui_transaction) paymode change\n") );
+	DB( g_print("(ui_transaction) paymode change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -894,7 +894,7 @@ gboolean sensitive;
 			guint cheque;
 			gchar *cheque_str;
 
-				DB( g_printf(" -> should fill cheque number for account %d\n", active) );
+				DB( g_print(" -> should fill cheque number for account %d\n", active) );
 
 				if( active != -1 )
 				{
@@ -945,7 +945,7 @@ gboolean sensitive;
 	}
 */
 
-	DB( g_printf(" payment: %d, page: %d\n", payment, page) );
+	DB( g_print(" payment: %d, page: %d\n", payment, page) );
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->notebook), page);
 
@@ -960,14 +960,14 @@ Transaction *entry;
 Archive *arc;
 gint n_arc;
 
-	DB( g_printf("(ui_transaction) fill from\n") );
+	DB( g_print("(ui_transaction) fill from\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	entry = data->ope;
 
 	n_arc = gtk_combo_box_get_active(GTK_COMBO_BOX(data->PO_arc));
 
-	DB( g_printf(" fill from %d\n", n_arc) );
+	DB( g_print(" fill from %d\n", n_arc) );
 
 	if(n_arc > 0)
 	{
@@ -984,7 +984,7 @@ gint n_arc;
 		entry->wording =	g_strdup(arc->wording);
 		entry->info = NULL;
 
-		DB( g_printf(" calls\n") );
+		DB( g_print(" calls\n") );
 
 		deftransaction_set(widget, NULL);
 		deftransaction_paymode(widget, NULL);
@@ -1003,15 +1003,15 @@ void deftransaction_set_transaction(GtkWidget *widget, Transaction *ope)
 struct deftransaction_data *data;
 
 
-	DB( g_printf("(ui_transaction) set out transaction\n") );
+	DB( g_print("(ui_transaction) set out transaction\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->ope = ope;
 
-	DB( g_printf(" -> ope=%p data=%p\n", data->ope, data) );
+	DB( g_print(" -> ope=%p data=%p\n", data->ope, data) );
 
-	DB( g_printf(" -> call init\n") );
+	DB( g_print(" -> call init\n") );
 
 	deftransaction_set(widget, NULL);
 	deftransaction_paymode(widget, NULL);
@@ -1024,7 +1024,7 @@ void deftransaction_dispose(GtkWidget *widget, gpointer user_data)
 {
 struct deftransaction_data *data;
 
-	DB( g_printf("(ui_transaction) dispose\n") );
+	DB( g_print("(ui_transaction) dispose\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1035,7 +1035,7 @@ struct deftransaction_data *data;
 static void deftransaction_setup(struct deftransaction_data *data)
 {
 
-	DB( g_printf("(ui_transaction) setup\n") );
+	DB( g_print("(ui_transaction) setup\n") );
 
     gtk_window_set_title (GTK_WINDOW (data->window), _(CYA_OPERATION[data->type]));
 
@@ -1216,7 +1216,7 @@ struct deftransaction_data *data;
 GtkWidget *window, *content, *hbox, *mainbox, *table, *label, *widget, *expander;
 GtkWidget *alignment;
 
-	DB( g_printf("(ui_transaction) new\n") );
+	DB( g_print("(ui_transaction) new\n") );
 
 	data = g_malloc0(sizeof(struct deftransaction_data));
 	if(!data) return NULL;
@@ -1230,7 +1230,7 @@ GtkWidget *alignment;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_printf(" -> window=%p, inst_data=%p\n", window, data) );
+	DB( g_print(" -> window=%p, inst_data=%p\n", window, data) );
 
 	data->window = window;
 	data->type = type;

@@ -566,7 +566,7 @@ gint div;
 
 	chart->range = chart->max - chart->min;
 
-	DB(g_print(" initial: min=%.2f, max=%.2f, range=%.2f\n", chart->min, chart->max, chart->range) );
+	DB( g_print(" initial: min=%.2f, max=%.2f, range=%.2f\n", chart->min, chart->max, chart->range) );
 
 	chart->unit  = GetUnit(chart->range);
 
@@ -588,8 +588,8 @@ gint div;
 	chart->range = chart->unit*chart->div;
 	*/
 
-	DB(g_print(" unit=%.2f, div=%d => %d\n", chart->unit, chart->div, (gint)chart->unit*chart->div) );
-	DB(g_print(" min=%.2f, max=%.2f, range=%.2f\n", chart->min, chart->max, chart->range) );
+	DB( g_print(" unit=%.2f, div=%d => %d\n", chart->unit, chart->div, (gint)chart->unit*chart->div) );
+	DB( g_print(" min=%.2f, max=%.2f, range=%.2f\n", chart->min, chart->max, chart->range) );
 
 
 }
@@ -894,7 +894,7 @@ gint i, first;
 	}
 	#endif
 
-	for(i=first; i<=(first+chart->visible) ;i++)
+	for(i=first; i<(first+chart->visible) ;i++)
 	{
 	gint color;
 	gint barw = chart->barw;
@@ -1097,7 +1097,7 @@ gint first, i;
 	cairo_set_line_join(cr, CAIRO_LINE_JOIN_BEVEL);
 	cairo_set_line_width(cr, linew);
 
-	for(i=first; i<=(first+chart->visible) ;i++)
+	for(i=first; i<(first+chart->visible) ;i++)
 	{
 		x2 = x + (chart->blkw)/2;
 		y2 = chart->oy - (chart->datas1[i] / chart->range) * chart->graph_height;
@@ -1384,8 +1384,8 @@ double h;
 			}
 		}
 
-		//DB( g_printf(" inside: x=%d, y=%d\n", x, y) );
-		//DB( g_printf(" inside: b=%f angle=%f, slice is %d\n", b, angle, index) );
+		//DB( g_print(" inside: x=%d, y=%d\n", x, y) );
+		//DB( g_print(" inside: b=%f angle=%f, slice is %d\n", b, angle, index) );
 	}
 	return(retval);
 }
@@ -1834,7 +1834,7 @@ GtkWidget *alignment;
 		//gtk_widget_queue_resize(chart->tooltipwin);
 		gtk_widget_size_request (chart->tooltipwin, &req);
 
-		//DB( g_printf("size is: w%d h%d :: xpos=%d ypos=%d\n", req.width, req.height, xpos,ypos) );
+		//DB( g_print("size is: w%d h%d :: xpos=%d ypos=%d\n", req.width, req.height, xpos,ypos) );
 
 		gtk_window_move(GTK_WINDOW(chart->tooltipwin), xpos - (req.width/2), ypos - req.height);
 

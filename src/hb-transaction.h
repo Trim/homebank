@@ -59,9 +59,9 @@ struct _transaction
 
 #define OF_VALID	(1<<0)
 #define OF_INCOME	(1<<1)
-#define OF_AUTO		(1<<2)	//scheduled
-#define OF_ADDED	(1<<3)
-#define OF_CHANGED	(1<<4)
+#define OF_AUTO		(1<<2)	//tmp flag scheduled
+#define OF_ADDED	(1<<3)  //tmp flag
+#define OF_CHANGED	(1<<4)  //tmp flag
 #define OF_REMIND	(1<<5)
 #define OF_CHEQ2	(1<<6)
 #define OF_LIMIT	(1<<7)	//scheduled

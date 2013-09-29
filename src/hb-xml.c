@@ -411,7 +411,7 @@ ParseContext ctx = { 0 };
 GMarkupParseContext *context;
 gboolean rc;
 
-	DB( g_printf("\n[hb-xml] homebank_load_xml\n") );
+	DB( g_print("\n[hb-xml] homebank_load_xml\n") );
 
 	retval = XML_OK;
 	if (!g_file_get_contents (filename, &buffer, &length, &error))
@@ -477,7 +477,7 @@ gboolean rc;
 			g_markup_parse_context_free (context);
 			g_free (buffer);
 
-			DB( g_printf("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
+			DB( g_print("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
 			DB( g_timer_destroy (t) );
 
 			/* file upgrade / bugfix */
@@ -516,7 +516,7 @@ static void homebank_upgrade_to_v02(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v02\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v02\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -542,7 +542,7 @@ static void homebank_upgrade_to_v03(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v03\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v03\n") );
 	
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -565,7 +565,7 @@ GList *list;
 
 static void homebank_upgrade_to_v04(void)
 {
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v04\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v04\n") );
 
 	GLOBALS->arc_list = da_archive_sort(GLOBALS->arc_list);
 }
@@ -578,7 +578,7 @@ static void homebank_upgrade_to_v05(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v05\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v05\n") );
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -597,7 +597,7 @@ static void homebank_upgrade_to_v06(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v06\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v06\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -622,7 +622,7 @@ static void homebank_upgrade_to_v07(void)
 {
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_to_v07\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v07\n") );
 
 	list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
@@ -695,7 +695,7 @@ Category *cat;
 Payee *pay;
 GList *list;
 
-	DB( g_printf("\n[hb-xml] homebank_upgrade_lower_v06\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_lower_v06\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -1079,7 +1079,7 @@ gchar *tagstr;
 	{
 	Transaction *item = list->data;
 
-		item->flags &= ~(OF_ADDED|OF_CHANGED);	//remove flag
+		item->flags &= ~(OF_AUTO|OF_ADDED|OF_CHANGED);	//remove flag
 		tagstr = transaction_tags_tostring(item);
 
 		g_string_assign(node, "<ope ");

@@ -332,7 +332,7 @@ GtkWidget *dialog;
 gchar *basename;
 gint result;
 
-	DB( g_printf("\n[ui-mainwindow] revert\n") );
+	DB( g_print("\n[ui-mainwindow] revert\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -363,7 +363,7 @@ gint result;
 
 	if( result == 1)
 	{
-		DB( g_printf(" - should revert\n") );
+		DB( g_print(" - should revert\n") );
 		hbfile_change_filepath(homebank_filepath_with_extention(GLOBALS->xhb_filepath, "xhb~"));
 
 		ui_mainwindow_open_internal(widget, NULL);
@@ -948,7 +948,7 @@ static void ui_mainwindow_close_openbooks(void)
 {
 GList *list;
 
-	DB( g_printf("\n[ui-mainwindow] close openbooks\n") );
+	DB( g_print("\n[ui-mainwindow] close openbooks\n") );
 
 	list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
@@ -977,7 +977,7 @@ void ui_mainwindow_clear(GtkWidget *widget, gpointer user_data)
 //struct hbfile_data *data;
 gboolean file_clear = GPOINTER_TO_INT(user_data);
 
-	DB( g_printf("\n[ui-mainwindow] clear\n") );
+	DB( g_print("\n[ui-mainwindow] clear\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1015,7 +1015,7 @@ gint result = 1;
 guint32 date;
 gint account = 1, count;
 
-	DB( g_printf("\n[ui-mainwindow] add transactions\n") );
+	DB( g_print("\n[ui-mainwindow] add transactions\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1039,14 +1039,14 @@ gint account = 1, count;
 
 		result = gtk_dialog_run (GTK_DIALOG (window));
 
-		DB( g_printf(" -> dialog result is %d\n", result) );
+		DB( g_print(" -> dialog result is %d\n", result) );
 
 		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
 		{
 			deftransaction_get(window, NULL);
 			transaction_add(ope, NULL, ope->kacc);
 
-			DB( g_printf(" -> added 1 transaction to %d\n", ope->kacc) );
+			DB( g_print(" -> added 1 transaction to %d\n", ope->kacc) );
 
 			ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 			
@@ -1094,14 +1094,14 @@ GArray *garray;
 gdouble total;
 //Account *acc;
 
-	DB( g_printf("\n[ui-mainwindow] populate_topspending\n") );
+	DB( g_print("\n[ui-mainwindow] populate_topspending\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	range = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
 
-	DB( g_printf(" - range=%d\n", range) );
-	DB( g_printf(" - pref range=%d\n", PREFS->date_range_wal) );
+	DB( g_print(" - range=%d\n", range) );
+	DB( g_print(" - pref range=%d\n", PREFS->date_range_wal) );
 
 	if(range == FLT_RANGE_OTHER)
 		return;
@@ -1112,7 +1112,7 @@ gdouble total;
 	n_result = da_cat_get_max_key() + 1;
 	total = 0.0;
 
-	DB( g_printf(" - max key is %d\n", n_result) );
+	DB( g_print(" - max key is %d\n", n_result) );
 
 	/* allocate some memory */
 	garray = g_array_sized_new(FALSE, FALSE, sizeof(struct tmptop), n_result);
@@ -1121,7 +1121,7 @@ gdouble total;
 	{
 	struct tmptop zero = { .key=0, .value=0.0 };
 		
-		//DB( g_printf(" - array length=%d\n", garray->len) );
+		//DB( g_print(" - array length=%d\n", garray->len) );
 
 		for(i=0 ; i<n_result ; i++)
 		{
@@ -1132,7 +1132,7 @@ gdouble total;
 			//DB( g_print("%4d, %4d %f\n", i, tt->key, tt->value) );
 		}
 
-		//DB( g_printf("\n - end array length=%d\n", garray->len) );
+		//DB( g_print("\n - end array length=%d\n", garray->len) );
 
 		/* compute the results */
 		list = g_list_first(GLOBALS->ope_list);
@@ -1216,7 +1216,7 @@ next1:
 			item = &g_array_index (garray, struct tmptop, i);
 			total += item->value;
 
-			DB( g_printf(" - %d : k='%d' v='%f' t='%f'\n", i, item->key, item->value, total) );
+			DB( g_print(" - %d : k='%d' v='%f' t='%f'\n", i, item->key, item->value, total) );
 		}
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_top));
@@ -1292,11 +1292,11 @@ gdouble total = 0;
 gint count = 0;
 //Account *acc;
 
-	DB( g_printf("\n[ui-mainwindow] refresh upcoming\n") );
+	DB( g_print("\n[ui-mainwindow] refresh upcoming\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf(" - append limit today +%d days\n", archive_add_get_nbdays()) );
+	DB( g_print(" - append limit today +%d days\n", archive_add_get_nbdays()) );
 
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_upc));
@@ -1313,7 +1313,7 @@ gint count = 0;
 			count++;
 			
 			decay = arc->nextdate - GLOBALS->today;
-			DB( g_printf(" - append '%s' : %d\n", arc->wording, decay) );
+			DB( g_print(" - append '%s' : %d\n", arc->wording, decay) );
 
 			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -1327,7 +1327,7 @@ gint count = 0;
 			//total += to_base_amount(arc->amount, acc->kcur);
 			total += arc->amount;
 			
-			DB( g_printf(" - total: %f\n", total) );
+			DB( g_print(" - total: %f\n", total) );
 		}
 		list = g_list_next(list);
 	}
@@ -1355,7 +1355,7 @@ void ui_mainwindow_check_scheduled(GtkWidget *widget, gpointer user_data)
 gint count;
 gint usermode = GPOINTER_TO_INT(user_data);
 
-	DB( g_printf("\n[ui-mainwindow] check scheduled\n") );
+	DB( g_print("\n[ui-mainwindow] check scheduled\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1392,7 +1392,7 @@ void ui_mainwindow_open(GtkWidget *widget, gpointer user_data)
 //struct hbfile_data *data;
 gchar *filename = NULL;
 
-	DB( g_printf("\n[ui-mainwindow] open\n") );
+	DB( g_print("\n[ui-mainwindow] open\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1417,11 +1417,11 @@ void ui_mainwindow_open_internal(GtkWidget *widget, gpointer user_data)
 struct hbfile_data *data;
 gint r;
 
-	DB( g_printf("\n[ui-mainwindow] open internal\n") );
+	DB( g_print("\n[ui-mainwindow] open internal\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_printf(" -> filename: '%s'\n", GLOBALS->xhb_filepath) );
+	DB( g_print(" -> filename: '%s'\n", GLOBALS->xhb_filepath) );
 
 	if( GLOBALS->xhb_filepath != NULL )
 	{
@@ -1431,7 +1431,7 @@ gint r;
 		r = homebank_load_xml(GLOBALS->xhb_filepath);
 		if( r == XML_OK )
 		{
-			DB( g_printf(" -> file loaded ok : rcode=%d\n", r) );
+			DB( g_print(" -> file loaded ok : rcode=%d\n", r) );
 			
 			hbfile_file_hasbackup(GLOBALS->xhb_filepath);
 			
@@ -1491,7 +1491,7 @@ gboolean saveas = GPOINTER_TO_INT(user_data);
 gchar *filename = NULL;
 gint r = XML_UNSET;
 
-	DB( g_printf("\n[ui-mainwindow] save\n") );
+	DB( g_print("\n[ui-mainwindow] save\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1502,7 +1502,7 @@ gint r = XML_UNSET;
 	{
 		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_SAVE, &filename) == TRUE)
 		{
-			DB( g_printf(" + should save as %s\n", GLOBALS->xhb_filepath) );
+			DB( g_print(" + should save as %s\n", GLOBALS->xhb_filepath) );
 			hbfile_change_filepath(filename);
 			homebank_backup_current_file(GLOBALS->xhb_filepath);
 			homebank_file_ensure_xhb();
@@ -1515,7 +1515,7 @@ gint r = XML_UNSET;
 	}
 	else
 	{
-		DB( g_printf(" + should quick save %s\n", GLOBALS->xhb_filepath) );
+		DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
 		homebank_backup_current_file(GLOBALS->xhb_filepath);
 		homebank_file_ensure_xhb();
 		r = homebank_save_xml(GLOBALS->xhb_filepath);
@@ -1553,7 +1553,7 @@ Account *acc;
 guint i, j, nbtype;
 gdouble gtbank, gttoday, gtfuture;
 
-	DB( g_printf("\n[ui-mainwindow] populate accounts\n") );
+	DB( g_print("\n[ui-mainwindow] populate accounts\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1566,7 +1566,7 @@ gdouble gtbank, gttoday, gtfuture;
 		acc = list->data;
 		if( !(acc->flags & (AF_CLOSED|AF_NOREPORT|AF_NOSUMMARY)) )
 		{
-			DB( g_printf(" -> insert %d:%s\n", acc->key, acc->name) );
+			DB( g_print(" -> insert %d:%s\n", acc->key, acc->name) );
 
 			if(typeacc[acc->type] == NULL)
 				typeacc[acc->type] = g_ptr_array_sized_new(da_acc_length ());
@@ -1579,7 +1579,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 	gtbank = gttoday = gtfuture = 0;
 
-	DB( g_printf(" -> populate listview\n") );
+	DB( g_print(" -> populate listview\n") );
 
 
 	/* then populate the listview */
@@ -1596,7 +1596,7 @@ gdouble gtbank, gttoday, gtfuture;
 		{
 			nbtype++;
 			//1: Header: Bank, Cash, ...
-			DB( g_printf(" -> append type '%s'\n", CYA_ACC_TYPE[i]) );
+			DB( g_print(" -> append type '%s'\n", CYA_ACC_TYPE[i]) );
 
 			gtk_tree_store_append (GTK_TREE_STORE(model), &iter1, NULL);
 			gtk_tree_store_set (GTK_TREE_STORE(model), &iter1,
@@ -1624,7 +1624,7 @@ gdouble gtbank, gttoday, gtfuture;
 					tfuture += to_base_amount(acc->bal_future, acc->kcur);
 				}*/
 
-				DB( g_printf(" - insert '%s' :: %.2f %.2f %.2f\n", acc->name, acc->bal_bank, acc->bal_today, acc->bal_future) );
+				DB( g_print(" - insert '%s' :: %.2f %.2f %.2f\n", acc->name, acc->bal_bank, acc->bal_today, acc->bal_future) );
 
 				gtk_tree_store_append (GTK_TREE_STORE(model), &child_iter, &iter1);
 				gtk_tree_store_set (GTK_TREE_STORE(model), &child_iter,
@@ -1638,7 +1638,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 			if(gpa->len > 1)
 			{
-				DB( g_printf(" - type totals :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
+				DB( g_print(" - type totals :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
 
 				// insert the total line
 				gtk_tree_store_append (GTK_TREE_STORE(model), &child_iter, &iter1);
@@ -1667,7 +1667,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 	}
 
-	DB( g_printf(" - grand totals :: %.2f %.2f %.2f\n", gtbank, gttoday, gtfuture) );
+	DB( g_print(" - grand totals :: %.2f %.2f %.2f\n", gtbank, gttoday, gtfuture) );
 
 	// Grand total
 	if( nbtype > 1 )
@@ -1685,7 +1685,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(data->LV_acc));
 
-	DB( g_printf(" -> free ressources\n") );
+	DB( g_print(" -> free ressources\n") );
 
 
 	/* free all temp stuff */
@@ -1706,7 +1706,7 @@ void ui_mainwindow_update(GtkWidget *widget, gpointer user_data)
 struct hbfile_data *data;
 gint flags;
 
-	DB( g_printf("\n[ui-mainwindow] refresh_display\n") );
+	DB( g_print("\n[ui-mainwindow] refresh_display\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//data = INST_DATA(widget);
@@ -1793,6 +1793,7 @@ gint flags;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Account"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Payee"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Category"), sensitive);
+		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/EditMenu/Preferences"), sensitive);
 
@@ -1910,7 +1911,7 @@ GtkWidget *window;
 GdkWindow *gdkwindow;
 GdkCursor *cursor;
 
-	DB( g_printf("\n[ui-mainwindow] busy: %d\n", state) );
+	DB( g_print("\n[ui-mainwindow] busy: %d\n", state) );
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
@@ -1984,7 +1985,7 @@ struct hbfile_data *data = user_data;
 struct WinGeometry *wg;
 gboolean retval = FALSE;
 
-	DB( g_printf("\n[ui-mainwindow] dispose\n") );
+	DB( g_print("\n[ui-mainwindow] dispose\n") );
 
 	//store position and size
 	wg = &PREFS->wal_wg;
@@ -1994,7 +1995,7 @@ gboolean retval = FALSE;
 	GdkWindowState state = gdk_window_get_state(gdk_window);
 	wg->s = (state & GDK_WINDOW_STATE_MAXIMIZED) ? 1 : 0;
 	
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d s=%d, state=%d\n", wg->l, wg->t, wg->w, wg->h, wg->s, state & GDK_WINDOW_STATE_MAXIMIZED) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d s=%d, state=%d\n", wg->l, wg->t, wg->w, wg->h, wg->s, state & GDK_WINDOW_STATE_MAXIMIZED) );
 
  	PREFS->wal_vpaned = gtk_paned_get_position(GTK_PANED(data->vpaned));
  	PREFS->wal_hpaned = gtk_paned_get_position(GTK_PANED(data->hpaned));
@@ -2008,7 +2009,7 @@ gboolean retval = FALSE;
 	}
 	else
 	{
-		DB( g_printf(" free wintitle %x\n", (gint)data->wintitle) );
+		DB( g_print(" free wintitle %x\n", (gint)data->wintitle) );
 
 		gtk_widget_destroy(data->LV_top);
 
@@ -2067,7 +2068,7 @@ static void ui_mainwindow_window_screen_changed_cb (GtkWidget *widget,
 			      struct hbfile_data *data)
 {
 
-	DB( g_printf("\n[ui-mainwindow] screen_changed_cb\n") );
+	DB( g_print("\n[ui-mainwindow] screen_changed_cb\n") );
 
 
 	data->recent_manager = gtk_recent_manager_get_default ();
@@ -2093,9 +2094,9 @@ void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path)
 	gchar *uri;
 	GError *error = NULL;
 
-	DB( g_printf("\n[ui-mainwindow] recent_add\n") );
+	DB( g_print("\n[ui-mainwindow] recent_add\n") );
 
-	DB( g_printf(" - suffix xhb %d", g_str_has_suffix (path, ".xhb") ) );
+	DB( g_print(" - suffix xhb %d", g_str_has_suffix (path, ".xhb") ) );
 
 	if( g_str_has_suffix (path, ".xhb") == FALSE )	//ignore reverted file
 		return;
@@ -2158,7 +2159,7 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 	if (info != TARGET_URI_LIST)
 		return;
 
-	DB( g_printf("\n[ui-mainwindow] drag_data_received\n") );
+	DB( g_print("\n[ui-mainwindow] drag_data_received\n") );
 
 	/* On MS-Windows, it looks like `selection_data->data' is not NULL terminated. */
 	slen = gtk_selection_data_get_length(selection_data);
@@ -2490,7 +2491,7 @@ GtkAction *action;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_printf(" - new window=%x, inst_data=%0x\n", (gint)window, (gint)data) );
+	DB( g_print(" - new window=%x, inst_data=%0x\n", (gint)window, (gint)data) );
 
 	// this is our mainwindow, so store it to GLOBALS data
 	data->window = window;
@@ -2548,7 +2549,7 @@ GtkAction *action;
 
 
 	//todo: move this elsewhere
-	DB( g_printf(" - setup stuff\n") );
+	DB( g_print(" - setup stuff\n") );
 
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
@@ -2582,7 +2583,7 @@ GtkAction *action;
 
 
 	//connect all our signals
-	DB( g_printf(" - connect signals\n") );
+	DB( g_print(" - connect signals\n") );
 
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_acc)), "changed", G_CALLBACK (ui_mainwindow_selection), NULL);

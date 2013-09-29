@@ -169,7 +169,7 @@ gchar dc;
 	DB( g_print(" s='%s' :: ds='%c'\n", string, dc) );
 
 
-	new_str = g_malloc (l+1);
+	new_str = g_malloc (l+3);   //#1214077
 	p = new_str;
 	for(i=0;i<=l;i++)
 	{
@@ -507,7 +507,7 @@ QIF_Tran tran = { 0 };
 						
 						s->amount = hb_qif_parser_get_amount(value);
 						// $ line normally end a split
-						#ifdef MYDEBUG
+						#if MYDEBUG == 1
 						g_print(" -> new split added: [%d] S=%s, E=%s, $=%.2f\n", tran.nb_splits, s->category, s->memo, s->amount);
 						#endif
 						

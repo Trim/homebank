@@ -244,7 +244,7 @@ gchar *dirname;
 	basename = g_path_get_basename(GLOBALS->xhb_filepath);
 	dirname  = g_path_get_dirname (GLOBALS->xhb_filepath);
 
-	DB( g_printf("- ensure .xhb for %s\n", basename) );
+	DB( g_print("- ensure .xhb for %s\n", basename) );
 
 	if( !(g_str_has_suffix(basename, ".xhb")))
 	{
@@ -260,7 +260,7 @@ gchar *dirname;
 		hbfile_change_filepath(newname);
 	}
 
-	DB( g_printf("- out: %s\n", GLOBALS->xhb_filepath) );
+	DB( g_print("- out: %s\n", GLOBALS->xhb_filepath) );
 
 	g_free(basename);
 	g_free(dirname);
@@ -508,7 +508,9 @@ guint i;
 	for(i=0;i<NUM_LST_PIXBUF;i++)
 	{
 		if(GLOBALS->lst_pixbuf[i] != NULL)
+		{
 			g_object_unref(GLOBALS->lst_pixbuf[i]);
+		}
 	}
 }
 
@@ -524,32 +526,32 @@ GtkWidget *cellview;
 
 	/* list added (account/transaction list) */
 	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_NEW, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_ADD] = pixbuf;
 
 	/* list scheduled (archive list) */
 	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_AUTO, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_AUTO] = pixbuf;
 
 	/* list edited (account/transaction list) */
 	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_EDIT, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_EDIT] = pixbuf;
 
 	/* list remind (transaction list) */
 	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_REMIND, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_REMIND] = pixbuf;
 
 	/* list reconciled (transaction list) */
 	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_VALID, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_VALID] = pixbuf;
 
 	/* list warning (import transaction list) */
 	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU, NULL);
-	g_object_unref(pixbuf);
+	//g_object_unref(pixbuf);
 	GLOBALS->lst_pixbuf[LST_PIXBUF_WARNING] = pixbuf;
 
 	GLOBALS->lst_pixbuf_maxwidth = 0;
@@ -1051,7 +1053,7 @@ static void hb_list_locales_available(void)
 
               label = g_strdup_printf ("%s [%s]", lang, dirname);
 
-				DB( g_printf("%s :: %s\n", label, dirname) );
+				DB( g_print("%s :: %s\n", label, dirname) );
 
 
 

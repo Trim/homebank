@@ -69,7 +69,15 @@ static   gint
 			break;
 
 		case LST_DSPOPE_DATE:
- 			ret = ope1->date - ope2->date;
+ 			if(! (ret = ope1->date - ope2->date) )
+			{
+				//g_print("sort on balance d1=%d, d2=%d %f %f\n", ope1->date, ope2->date, ope1->balance , ope2->balance);
+
+				tmpval = ope1->balance - ope2->balance;
+				ret = tmpval > 0 ? 1 : -1;
+
+			}
+			//g_print("ret=%d\n", ret);
 			break;
 
 		case LST_DSPOPE_ACCOUNT:
@@ -541,6 +549,30 @@ gint id;
 	return column;
 }
 
+/* todo: something simpler to sort ? */
+void list_transaction_sort_force(GtkTreeSortable *sortable, gpointer user_data)
+{
+gint id;
+GtkSortType order;
+
+	gtk_tree_sortable_get_sort_column_id(sortable, &id, &order);
+
+	DB( g_print("list_transaction_sort_force %d %d\n", id, order) );
+
+	//sort revert
+	if(order == GTK_SORT_ASCENDING)
+	{
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, GTK_SORT_DESCENDING);
+	}
+	else
+	{
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, GTK_SORT_ASCENDING);
+	}
+	
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, order);
+}
+
+
 static void list_transaction_sort_column_changed(GtkTreeSortable *sortable, gpointer user_data)
 {
 struct list_transaction_data *data = user_data;
@@ -557,8 +589,8 @@ gboolean showBalance;
 	PREFS->lst_ope_sort_order = order;
 
 	//manage visibility of balance column
-	//showBalance = (id == LST_DSPOPE_DATE && order == GTK_SORT_ASCENDING) ? TRUE : FALSE;
-	showBalance = (id == LST_DSPOPE_DATE) ? data->tvc_is_visible : FALSE;
+	showBalance = (id == LST_DSPOPE_DATE && order == GTK_SORT_ASCENDING) ? data->tvc_is_visible : FALSE;
+	//showBalance = (id == LST_DSPOPE_DATE) ? data->tvc_is_visible : FALSE;
 	gtk_tree_view_column_set_visible (data->tvc_balance, showBalance);
 }
 
@@ -613,7 +645,7 @@ struct list_transaction_data *data;
 	DB( g_print ("\n[list_transaction] destroy event occurred\n") );
 
 	
-	DB( g_printf(" - view=%p, inst_data=%p\n", widget, data) );
+	DB( g_print(" - view=%p, inst_data=%p\n", widget, data) );
 	g_free(data);
 }
 
@@ -653,7 +685,7 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(view), "inst_data", (gpointer)data);
-	DB( g_printf(" - view=%p, inst_data=%p\n", view, data) );
+	DB( g_print(" - view=%p, inst_data=%p\n", view, data) );
 
 	// connect our dispose function
 	g_signal_connect (view, "destroy",

@@ -132,7 +132,7 @@ gboolean ui_file_chooser_qif(GtkWindow *parent, gchar **storage_ptr)
 GtkWidget *chooser;
 gboolean retval;
 
-	DB( g_printf("(homebank) chooser open qif\n") );
+	DB( g_print("(homebank) chooser open qif\n") );
 
 	chooser = gtk_file_chooser_dialog_new (
 					_("Export as QIF"),
@@ -172,7 +172,7 @@ gchar *button;
 gboolean retval;
 gchar *path;
 
-	DB( g_printf("(hombank) csvfile chooser %d\n", action) );
+	DB( g_print("(hombank) csvfile chooser %d\n", action) );
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
@@ -224,7 +224,7 @@ gchar *title;
 gchar *button;
 gboolean retval;
 
-	DB( g_printf("(ui-dialog) file chooser %d\n", action) );
+	DB( g_print("(ui-dialog) file chooser %d\n", action) );
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
@@ -286,7 +286,7 @@ gboolean ui_file_chooser_folder(GtkWindow *parent, gchar *title, gchar **storage
 GtkWidget *chooser;
 gboolean retval;
 
-	DB( g_printf("(ui-dialog) folder chooser\n") );
+	DB( g_print("(ui-dialog) folder chooser\n") );
 
 	chooser = gtk_file_chooser_dialog_new (title,
 					parent,
@@ -295,7 +295,7 @@ gboolean retval;
 					GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 					NULL);
 
-	DB( g_printf(" - set folder %s\n", *storage_ptr) );
+	DB( g_print(" - set folder %s\n", *storage_ptr) );
 
 	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER(chooser), *storage_ptr);
 
@@ -307,13 +307,13 @@ gboolean retval;
 		//nb: filename must be freed with g_free
 	    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
 
-		DB( g_printf("- folder %s\n", filename) );
+		DB( g_print("- folder %s\n", filename) );
 
 		//todo: dangerous to do this here, review please !
 		g_free(*storage_ptr);
 		*storage_ptr = filename;
 
-		DB( g_printf("- folder stored: %s\n", *storage_ptr) );
+		DB( g_print("- folder stored: %s\n", *storage_ptr) );
 
 
 		retval = TRUE;
@@ -373,7 +373,7 @@ GtkWidget *dialog = NULL;
 		{
 	  if(result == 2)
 	  {
-		DB( g_printf(" + should quick save %s\n", GLOBALS->xhb_filepath) );
+		DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
 		homebank_save_xml(GLOBALS->xhb_filepath);
 	  }
 		}

@@ -62,7 +62,7 @@ gdouble value;
 		{
 		gchar *error;
 			category_load_csv(data->pathfilename, &error);
-			//DB( g_printf(" -> loaded=%d\n", ok) );
+			//DB( g_print(" -> loaded=%d\n", ok) );
 		}
 	}
 

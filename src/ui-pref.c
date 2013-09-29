@@ -250,7 +250,7 @@ struct iso4217format *curfmt;
 
 	curfmt = ui_cur_select_dialog_new(data->window);
 
-	DB( g_printf("(cur) return  %s\n", curfmt) );
+	DB( g_print("(cur) return  %s\n", curfmt) );
 
 	if( curfmt != NULL )
 	{
@@ -1677,7 +1677,7 @@ struct defpref_data *data;
 gint result;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("\n(defpref_clear) (data=%p)\n", data) );
+	DB( g_print("\n(defpref_clear) (data=%p)\n", data) );
 
 	result = ui_dialog_msg_question(
 		GTK_WINDOW(data->window),

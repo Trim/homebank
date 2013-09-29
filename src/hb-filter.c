@@ -106,7 +106,7 @@ void filter_default_all_set(Filter *flt)
 {
 gint i;
 
-	DB( g_printf("(filter) reset %p\n", flt) );
+	DB( g_print("(filter) reset %p\n", flt) );
 
 	filter_clear(flt);
 
@@ -156,7 +156,7 @@ guint32 refdate, month, year, qnum;
 	year  = g_date_get_year(date);
 	qnum  = ((month - 1) / 3) + 1;
 
-	DB( g_printf("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
+	DB( g_print("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
 
 	switch( range )
 	{
@@ -318,7 +318,7 @@ Payee *payitem;
 Category *catitem;
 gint insert;
 
-	//DB( g_printf("(filter) test\n") );
+	//DB( g_print("(filter) test\n") );
 
 	insert = 1;
 
@@ -471,8 +471,8 @@ gint insert;
 	if(!insert) goto end;
 
 end:
-//	DB( g_printf(" %d :: %d :: %d\n", flt->mindate, txn->date, flt->maxdate) );
-//	DB( g_printf(" [%d] %s => %d (%d)\n", txn->account, txn->wording, insert, count) );
+//	DB( g_print(" %d :: %d :: %d\n", flt->mindate, txn->date, flt->maxdate) );
+//	DB( g_print(" [%d] %s => %d (%d)\n", txn->account, txn->wording, insert, count) );
 	return(insert);
 }
 

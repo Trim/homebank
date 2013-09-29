@@ -808,7 +808,7 @@ GError *error = NULL;
 			#if MYDEBUG == 1
 			gsize length;
 			gchar *contents = g_key_file_to_data (keyfile, &length, NULL);
-			g_print(" keyfile:\n%s\n len=%d\n", contents, length);
+			//g_print(" keyfile:\n%s\n len=%d\n", contents, length);
 			g_free(contents);
 			#endif
 			*/

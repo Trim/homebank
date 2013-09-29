@@ -103,7 +103,7 @@ GtkTreeIter  iter;
 Archive *item;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(defarchive) add\n") );
+	DB( g_print("(defarchive) add\n") );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_arc));
 
@@ -136,7 +136,7 @@ GtkTreeIter			 iter;
 Archive *item;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_printf("(defarchive) remove (data=%p)\n", data) );
+	DB( g_print("(defarchive) remove (data=%p)\n", data) );
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_arc));
 	//if true there is a selected node
@@ -148,7 +148,7 @@ Archive *item;
 		GLOBALS->arc_list = g_list_remove(GLOBALS->arc_list, item);
 
 		data->change++;
-		//DB( g_printf(" remove =%08x (pos=%d)\n", entry, g_list_index(data->tmp_list, entry) ) );
+		//DB( g_print(" remove =%08x (pos=%d)\n", entry, g_list_index(data->tmp_list, entry) ) );
 	}
 }
 
@@ -206,7 +206,7 @@ GtkTreeIter			 iter;
 
 Archive *item;
 
-	DB( g_printf("(defarchive) set\n") );
+	DB( g_print("(defarchive) set\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -338,14 +338,14 @@ static void ui_arc_manage_update_accto(GtkWidget *widget, gpointer user_data)
 struct ui_arc_manage_data *data;
 guint kacc, kdst;
 
-	DB( g_printf("\n(defarchive) update accto\n") );
+	DB( g_print("\n(defarchive) update accto\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	kacc = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 	kdst = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_accto));
 	
-	DB( g_printf(" ksrc=%d, kdst=%d\n", kacc, kdst) );
+	DB( g_print(" ksrc=%d, kdst=%d\n", kacc, kdst) );
 
 	ui_acc_comboboxentry_populate_except(GTK_COMBO_BOX(data->PO_accto), GLOBALS->h_acc, kacc, ACC_LST_INSERT_NORMAL);
 
@@ -366,7 +366,7 @@ struct ui_arc_manage_data *data;
 gint payment;
 gint page;
 
-	DB( g_printf("(defarchive) paymode\n") );
+	DB( g_print("(defarchive) paymode\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -381,7 +381,7 @@ gint page;
 		ui_arc_manage_update_accto(widget, user_data);
 	}
 
-	DB( g_printf(" payment: %d, page: %d\n", payment, page) );
+	DB( g_print(" payment: %d, page: %d\n", payment, page) );
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->notebook), page);
 }
@@ -394,7 +394,7 @@ static void ui_arc_manage_scheduled(GtkWidget *widget, gpointer user_data)
 struct ui_arc_manage_data *data;
 gboolean sensitive;
 
-	DB( g_printf("(defarchive) scheduled\n") );
+	DB( g_print("(defarchive) scheduled\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -424,16 +424,16 @@ gboolean selected, sensitive;
 Archive *arcitem;
 
 
-	DB( g_printf("(defarchive) update\n") );
+	DB( g_print("(defarchive) update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//window = gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW);
-	//DB( g_printf("(defarchive) widget=%08lx, window=%08lx, inst_data=%08lx\n", treeview, window, data) );
+	//DB( g_print("(defarchive) widget=%08lx, window=%08lx, inst_data=%08lx\n", treeview, window, data) );
 
 	//if true there is a selected node
 	selected = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_arc)), &model, &iter);
 
-	DB( g_printf(" selected = %d\n", selected) );
+	DB( g_print(" selected = %d\n", selected) );
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
 	gtk_widget_set_sensitive(data->PO_pay, sensitive);
@@ -489,7 +489,7 @@ static void ui_arc_manage_togglestatus(GtkWidget *widget, gpointer user_data)
 {
 struct ui_arc_manage_data *data;
 
-	DB( g_printf("(defarchive) togglestatus\n") );
+	DB( g_print("(defarchive) togglestatus\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -529,7 +529,7 @@ static void ui_arc_manage_toggleamount(GtkWidget *widget, gpointer user_data)
 struct ui_arc_manage_data *data;
 gdouble value;
 
-	DB( g_printf("(defarchive) toggleamount\n") );
+	DB( g_print("(defarchive) toggleamount\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -562,7 +562,7 @@ static gboolean ui_arc_manage_cleanup(struct ui_arc_manage_data *data, gint resu
 {
 gboolean doupdate = FALSE;
 
-	DB( g_printf("(defarchive) cleanup\n") );
+	DB( g_print("(defarchive) cleanup\n") );
 
 
 	if(data->lastarcitem != NULL)
@@ -588,7 +588,7 @@ GtkTreeIter  iter;
 GList *list;
 gint i;
 
-	DB( g_printf("(defarchive) setup\n") );
+	DB( g_print("(defarchive) setup\n") );
 
 	//init GList
 	data->tmp_list = NULL; //hb-glist_clone_list(GLOBALS->arc_list, sizeof(struct _Archive));
@@ -611,7 +611,7 @@ gint i;
 			LST_DEFARC_OLDPOS, i,		//oldpos
 			-1);
 
-		//DB( g_printf(" populate_treeview: %d %08x\n", i, list->data) );
+		//DB( g_print(" populate_treeview: %d %08x\n", i, list->data) );
 
 		i++; list = g_list_next(list);
 	}
@@ -651,7 +651,7 @@ gint row;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_printf("(defarchive) window=%p, inst_data=%p\n", window, &data) );
+	DB( g_print("(defarchive) window=%p, inst_data=%p\n", window, &data) );
 
 	//window contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (window));

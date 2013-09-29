@@ -1,4 +1,27 @@
 
+2013-09-29  Maxime Doyen
+
+ Made 4.5.4 release.
+
+ * bugfix: #1230401 running balance missordered after insert on same date
+ * bugfix: #1232418 Account, Payees and category, wrongly disabled!
+ * bugfix: scheduled transaction icon was still displayed after a save
+
+
+2013-09-21  Maxime Doyen
+
+ Made 4.5.3 release.
+
+ * bugfix: #1225611 Trend Time report : categories crashes on windows
+ * bugfix: #1221484	End date not checked to be larger than Start date in reports 
+ * bugfix: #1218644	There is a problem of calculating the column balances.
+ * bugfix: #1216321	reversed transactions
+ * bugfix: #1216284	balance report do not exclude account with exclude from report checked
+ * bugfix: #1215521	when importing qif, automatic assignments are not made
+ * bugfix: #1214077	win32: my csv file exported crash when import again
+ * bugfix: #1213569	win32: program not all translated in french since 4.5.1
+
+
 2013-08-15  Maxime Doyen
 
  Made 4.5.2 release.

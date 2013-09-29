@@ -141,12 +141,12 @@ guint archive_add_get_nbdays(void)
 guint nbdays;
 GDate *today, *maxdate;
 
-	DB( g_printf("(archive_add_get_nbdays)") );
+	DB( g_print("(archive_add_get_nbdays)") );
 
 	//add until xx of the next month (excluded)
 	if(GLOBALS->auto_smode == 0)	
 	{
-		DB( g_printf("- set to %d of next month", GLOBALS->auto_weekday) );
+		DB( g_print("- set to %d of next month", GLOBALS->auto_weekday) );
 		
 		today = g_date_new_julian(GLOBALS->today);
 

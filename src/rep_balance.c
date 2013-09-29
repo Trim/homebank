@@ -225,6 +225,10 @@ struct repbalance_data *data;
 	data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
 	data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
 
+	// set min/max date for both widget
+	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
+	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
+	
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
 	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
@@ -521,7 +525,6 @@ GList *list;
 
 	if(data->tmp_income && data->tmp_expense)
 	{
-	//Account *selacc = da_acc_get(selkey);
 
 		/* compute the balance */
 		list = g_list_first(GLOBALS->ope_list);
@@ -530,8 +533,14 @@ GList *list;
 		gint pos;
 		gdouble trn_amount;
 		Transaction *ope = list->data;
+		Account *acc;
 
 			if(ope->flags & OF_REMIND) goto next1;
+
+			acc = da_acc_get(ope->kacc);
+
+			if(acc == NULL) goto next1;
+			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 
 			if(selkey == ope->kacc || selectall == TRUE)
 			{
@@ -540,13 +549,10 @@ GList *list;
 				// deal with account initial balance
 				if(accounts[ope->kacc] == 0)
 				{
-					Account *acc = da_acc_get(ope->kacc);
-
 					//if(selectall)
 					//	trn_amount = to_base_amount(acc->initial, selacc->kcur);
 					//else
 						trn_amount = acc->initial;
-
 
 					if(trn_amount < 0)
 						data->tmp_expense[pos] += trn_amount;
@@ -738,7 +744,7 @@ GdkWindow *gdkwindow;
 GtkWidget *window;
 GdkCursor *cursor;
 
-	DB( g_printf("(repbalance) busy\n") );
+	DB( g_print("(repbalance) busy\n") );
 
 	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
 	data = g_object_get_data(G_OBJECT(window), "inst_data");
@@ -821,7 +827,7 @@ struct WinGeometry *wg;
 	gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
 	gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
 
-	DB( g_printf(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
+	DB( g_print(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
 
 	//enable define windows
 	GLOBALS->define_off--;

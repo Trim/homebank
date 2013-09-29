@@ -255,6 +255,7 @@ GList *da_transaction_sort(GList *list)
 	return( g_list_sort(list, (GCompareFunc)da_transaction_compare_func));
 }
 
+
 static void da_transaction_insert_memo(Transaction *item)
 {
 	// append the memo if new
@@ -268,20 +269,38 @@ static void da_transaction_insert_memo(Transaction *item)
 }
 
 
-gboolean da_transaction_insert_sorted(Transaction *item)
+
+gboolean da_transaction_insert_sorted(Transaction *newitem)
 {
-	GLOBALS->ope_list = g_list_insert_sorted(GLOBALS->ope_list, item, (GCompareFunc)da_transaction_compare_func);
-	da_transaction_insert_memo(item);
+GList *tmplist = g_list_first(GLOBALS->ope_list);
+
+	// find the breaking date
+	while (tmplist != NULL)
+	{
+	Transaction *item = tmplist->data;
+
+		if(item->date > newitem->date)
+			break;
+
+		tmplist = g_list_next(tmplist);
+	}
+
+	// here we're at the insert point, let's insert our new txn just before
+	GLOBALS->ope_list = g_list_insert_before(GLOBALS->ope_list, tmplist, newitem);
+
+	da_transaction_insert_memo(newitem);
 	return TRUE;
 }
 
 
+// nota: this is called only when loading xml file
 gboolean da_transaction_append(Transaction *item)
 {
 	GLOBALS->ope_list = g_list_append(GLOBALS->ope_list, item);
 	da_transaction_insert_memo(item);
 	return TRUE;
 }
+
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
@@ -438,7 +457,7 @@ guint count = g_list_length(matchlist);
 
 	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
 
-	DB( g_printf(" - found result is %d, switching\n", count) );
+	DB( g_print(" - found result is %d, switching\n", count) );
 
 	switch(count)
 	{
@@ -485,7 +504,7 @@ Transaction *child;
 Account *acc;
 gchar swap;
 
-	DB( g_printf("\n[transaction] transaction_xfer_create_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_create_child\n") );
 
 	if( ope->kxferacc > 0 )
 	{
@@ -508,18 +527,18 @@ gchar swap;
 			//strong link
 			guint maxkey = da_transaction_get_max_kxfer();
 
-			DB( g_printf(" + maxkey is %d\n", maxkey) );
+			DB( g_print(" + maxkey is %d\n", maxkey) );
 
 
 			ope->kxfer = maxkey+1;
 			child->kxfer = maxkey+1;
 
-			DB( g_printf(" + strong link to %d\n", ope->kxfer) );
+			DB( g_print(" + strong link to %d\n", ope->kxfer) );
 
 
-			DB( g_printf(" + add transfer, %p\n", child) );
+			DB( g_print(" + add transfer, %p\n", child) );
 
-			da_transaction_append(child);
+			da_transaction_insert_sorted(child);
 
 			account_balances_add (child);
 
@@ -535,7 +554,7 @@ void transaction_xfer_change_to_child(Transaction *ope, Transaction *child)
 {
 Account *acc;
 
-	DB( g_printf("\n[transaction] transaction_xfer_change_to_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_change_to_child\n") );
 
 	child->paymode = PAYMODE_INTXFER;
 
@@ -558,7 +577,7 @@ Account *acc;
 void transaction_xfer_sync_child(Transaction *ope, Transaction *child)
 {
 
-	DB( g_printf("\n[transaction] transaction_xfer_sync_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_sync_child\n") );
 
 	account_balances_sub (child);
 
@@ -584,7 +603,7 @@ void transaction_xfer_delete_child(Transaction *src)
 {
 Transaction *dst;
 
-	DB( g_printf("\n[transaction] transaction_xfer_delete_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_delete_child\n") );
 
 	dst = transaction_strong_get_child_transfer( src );
 
@@ -643,7 +662,7 @@ void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum)
 Transaction *newope;
 Account *acc;
 
-	DB( g_printf("\n[transaction] transaction add\n") );
+	DB( g_print("\n[transaction] transaction add\n") );
 
 	//controls accounts valid (archive scheduled maybe bad)
 	acc = da_acc_get(ope->kacc);
@@ -679,7 +698,7 @@ Account *acc;
 		acc = da_acc_get( newope->kacc);
 		cheque = atol(newope->info);
 
-		//DB( g_printf(" -> should store cheque number %d to %d", cheque, newope->account) );
+		//DB( g_print(" -> should store cheque number %d to %d", cheque, newope->account) );
 		if( newope->flags & OF_CHEQ2 )
 		{
 			acc->cheque2 = MAX(acc->cheque2, cheque);
@@ -696,7 +715,7 @@ Account *acc;
 	{
 		acc->flags |= AF_ADDED;
 
-		DB( g_printf(" + add normal %p\n", newope) );
+		DB( g_print(" + add normal %p\n", newope) );
 		//da_transaction_append(newope);
 		da_transaction_insert_sorted(newope);
 
@@ -722,7 +741,7 @@ GtkTreeIter  iter;
 //GtkTreePath *path;
 //GtkTreeSelection *sel;
 
-	DB( g_printf("\n[transaction] transaction add treeview\n") );
+	DB( g_print("\n[transaction] transaction add treeview\n") );
 
 	if(ope->kacc == accnum)
 	{
@@ -754,7 +773,7 @@ GList *l_ope;
 GList *l_rul, *c_rul;
 gint changes = 0;
 
-	DB( g_printf("\n[transaction] transaction_auto_assign\n") );
+	DB( g_print("\n[transaction] transaction_auto_assign\n") );
 
 	
 	l_ope = g_list_first(ope_list);
@@ -764,14 +783,17 @@ gint changes = 0;
 	{
 	Transaction *ope = l_ope->data;
 
-		//DB( g_print("ope '%s' %d, %d\n", ope->wording, ope->payee, ope->category) );
+		DB( g_print("- eval ope '%s' : acc=%d, pay=%d, cat=%d\n", ope->wording, ope->kacc, ope->kpay, ope->kcat) );
 
-		if( (key == ope->kacc) && !(ope->flags & OF_SPLIT) )
+		//#1215521: added key == -1
+		if( (key == ope->kacc || key == -1) && !(ope->flags & OF_SPLIT) )
 		{
 			if( ope->kpay == 0 || ope->kcat == 0 )
 			{
 			gboolean txn_changed = FALSE;
-				
+
+				DB( g_print("- eval every rules\n") );
+
 				c_rul = g_list_first(l_rul);
 				while (c_rul != NULL)
 				{

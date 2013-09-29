@@ -185,7 +185,7 @@ const gchar *encoding;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
 
-	DB( g_printf("(defbudget) load csv - data %p\n", data) );
+	DB( g_print("(defbudget) load csv - data %p\n", data) );
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_OPEN, &filename, NULL) == TRUE )
 	{

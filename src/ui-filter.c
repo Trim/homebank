@@ -115,7 +115,7 @@ GtkTreeIter	iter;
 gboolean valid;
 gboolean toggle;
 
-	DB( g_printf("(ui_flt_manage) acc select\n") );
+	DB( g_print("(ui_flt_manage) acc select\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -153,7 +153,7 @@ GtkTreeIter	iter;
 gboolean valid;
 gboolean toggle;
 
-	DB( g_printf("(ui_flt_manage) pay select\n") );
+	DB( g_print("(ui_flt_manage) pay select\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -192,7 +192,7 @@ gboolean valid;
 gint n_child;
 gboolean toggle;
 
-	DB( g_printf("(ui_flt_manage) pay select\n") );
+	DB( g_print("(ui_flt_manage) pay select\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -253,7 +253,7 @@ struct ui_flt_manage_data *data;
 gint active, i;
 gboolean sensitive;
 
-	DB( g_printf("(ui_flt_manage) update\n") );
+	DB( g_print("(ui_flt_manage) update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -337,7 +337,7 @@ static void ui_flt_manage_get(struct ui_flt_manage_data *data)
 gint i;
 gchar *txt;
 
-	DB( g_printf("(ui_flt_manage) get\n") );
+	DB( g_print("(ui_flt_manage) get\n") );
 
 	if(data->filter !=NULL)
 	{
@@ -357,12 +357,12 @@ gchar *txt;
 		}
 
 	//date
-		DB( g_printf(" date\n") );
+		DB( g_print(" date\n") );
 		data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
 		data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
 
 	//status
-		DB( g_printf(" status\n") );
+		DB( g_print(" status\n") );
 		data->filter->reconciled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_reconciled));
 		data->filter->reminded  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_reminded));
 
@@ -370,7 +370,7 @@ gchar *txt;
 		data->filter->forcechg = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_forcechg));
 
 	//paymode
-		DB( g_printf(" paymode\n") );
+		DB( g_print(" paymode\n") );
 		for(i=0;i<NUM_PAYMODE_MAX;i++)
 			data->filter->paymode[i] = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_paymode[i]));
 
@@ -424,7 +424,7 @@ gchar *txt;
 	// account
 		if(data->show_account == TRUE)
 		{
-			DB( g_printf(" account\n") );
+			DB( g_print(" account\n") );
 
 			model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc));
 			//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_acc));
@@ -447,7 +447,7 @@ gchar *txt;
 		}
 
 	// payee
-		DB( g_printf(" payee\n") );
+		DB( g_print(" payee\n") );
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_pay));
 		//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay));
@@ -469,7 +469,7 @@ gchar *txt;
 		}
 
 	// category
-		DB( g_printf(" category\n") );
+		DB( g_print(" category\n") );
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_cat));
 		//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_cat));
@@ -524,7 +524,7 @@ gchar *txt;
 static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 {
 
-	DB( g_printf("(ui_flt_manage) set\n") );
+	DB( g_print("(ui_flt_manage) set\n") );
 
 	if(data->filter != NULL)
 	{
@@ -536,7 +536,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 	gboolean valid;
 	gint i;
 
-		DB( g_printf(" options\n") );
+		DB( g_print(" options\n") );
 
 		for(i=0;i<FILTER_MAX;i++)
 		{
@@ -546,10 +546,10 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_option[i]), data->filter->option[i]);
 		}
 
-		//DB( g_printf(" setdate %d to %x\n", data->filter->mindate, data->PO_mindate) );
-		//DB( g_printf(" setdate %d to %x\n", 0, data->PO_mindate) );
+		//DB( g_print(" setdate %d to %x\n", data->filter->mindate, data->PO_mindate) );
+		//DB( g_print(" setdate %d to %x\n", 0, data->PO_mindate) );
 	//date
-		DB( g_printf(" date\n") );
+		DB( g_print(" date\n") );
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 		date = g_date_new_julian(data->filter->maxdate);
@@ -557,7 +557,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 		g_date_free(date);
 
 	//status
-		DB( g_printf(" status\n") );
+		DB( g_print(" status\n") );
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_reconciled), data->filter->reconciled);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_reminded), data->filter->reminded);
 
@@ -565,7 +565,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_forcechg), data->filter->forcechg);
 
 	//paymode
-		DB( g_printf(" paymode\n") );
+		DB( g_print(" paymode\n") );
 
 		for(i=0;i<NUM_PAYMODE_MAX;i++)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_paymode[i]), data->filter->paymode[i]);
@@ -582,7 +582,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 	//account
 		if(data->show_account == TRUE)
 		{
-			DB( g_printf(" account\n") );
+			DB( g_print(" account\n") );
 
 			model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc));
 			//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_acc));
@@ -606,7 +606,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 		}
 
 	// payee
-		DB( g_printf(" payee\n") );
+		DB( g_print(" payee\n") );
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_pay));
 		//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay));
@@ -627,7 +627,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 		}
 
 	// category
-		DB( g_printf(" category\n") );
+		DB( g_print(" category\n") );
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_cat));
 		//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_cat));
@@ -696,7 +696,7 @@ struct ui_flt_manage_data *data;
 static void ui_flt_manage_setup(struct ui_flt_manage_data *data)
 {
 
-	DB( g_printf("(ui_flt_manage) setup\n") );
+	DB( g_print("(ui_flt_manage) setup\n") );
 
 	if(data->show_account == TRUE && data->LV_acc != NULL)
 	{
@@ -1319,7 +1319,7 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_printf("(ui_flt_manage) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
+	DB( g_print("(ui_flt_manage) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
 
     g_signal_connect (window, "destroy",
 			G_CALLBACK (gtk_widget_destroyed), &window);
@@ -1445,13 +1445,13 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 	//ui_flt_manage_cleanup(&data, result);
 
 
-	DB( g_printf(" free\n") );
+	DB( g_print(" free\n") );
 	//g_free(data);
 
-	DB( g_printf(" destroy\n") );
+	DB( g_print(" destroy\n") );
 	gtk_widget_destroy (window);
 
-	DB( g_printf(" all ok\n") );
+	DB( g_print(" all ok\n") );
 
 	return result;
 }
