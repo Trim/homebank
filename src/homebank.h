@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,7 +20,9 @@
 #ifndef __HOMEBANK_H__
 #define __HOMEBANK_H__
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 
 #include <ctype.h> 		/* isprint */
 #include <errno.h>
@@ -68,9 +70,9 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 #define HB_UNSTABLE			FALSE
-#define HB_VERSION			"4.5.4"
+#define HB_VERSION			"4.5.5"
 #define FILE_VERSION		0.7
-#define PREF_VERSION		454
+#define PREF_VERSION		455
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -96,13 +98,19 @@
 #endif
 
 /* container spacing */
-#define HB_GOLDNUMBER 1.61803399
+#define PHI 1.61803399
+
 #define HB_MAINBOX_SPACING	12
 #define HB_BOX_SPACING		6
 
 #define HB_HSPACE_SPACING	18
 #define HB_TABROW_SPACING	6
 #define HB_TABCOL_SPACING	12
+
+/* widget minimum width */
+#define HB_MINWIDTH_LIST	161
+#define HB_MINWIDTH_COMBO	80
+
 
 /* for transaction dialog */
 #define GTK_RESPONSE_ADD	 1

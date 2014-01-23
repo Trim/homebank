@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -32,6 +32,6 @@ struct defhbfile_data
 };
 
 
-GtkWidget *create_defhbfile_window (void);
+GtkWidget *create_defhbfile_dialog (void);
 
 #endif

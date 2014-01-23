@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,6 +20,7 @@
 #ifndef __HB_WIDGETS_GTK_H__
 #define __HB_WIDGETS_GTK_H__
 
+
 GtkWidget *make_label(char *str, gfloat xalign, gfloat yalign);
 GtkWidget *make_text(gfloat xalign);
 GtkWidget *make_string(GtkWidget *label);
@@ -39,6 +40,7 @@ void
 gimp_label_set_attributes (GtkLabel *label,
                            ...);
 
+void hb_widget_visible(GtkWidget *widget, gboolean visible);
 void ui_gtk_entry_set_text(GtkWidget *widget, gchar *text);
 
 guint make_popaccount_populate(GtkComboBox *combobox, GList *srclist);

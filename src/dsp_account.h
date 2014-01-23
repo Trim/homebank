@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -66,8 +66,10 @@ struct account_data
 	Transaction *cur_ope;
 
 	guint32		accnum;
-	Account *acc;
+	Account		*acc;
 
+	gboolean	do_sort;
+	
 	/* status counters */
 	gint	hidden, total;
 	gdouble		totalsum;

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -45,6 +45,7 @@ struct _transaction
 	gchar		*wording;
 
 	guint32		date;
+	gushort		pos;
 	gchar		*info;
 	guint32		*tags;
 	guint32		kxfer;		//internal xfer key
@@ -69,6 +70,7 @@ struct _transaction
 
 
 Transaction *da_transaction_malloc(void);
+Transaction *da_transaction_copy(Transaction *src_txn, Transaction *dst_txn);
 Transaction *da_transaction_clone(Transaction *src_item);
 void da_transaction_free(Transaction *item);
 

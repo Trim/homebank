@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -401,7 +401,7 @@ GtkCellRenderer    *renderer;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request (comboboxentry, 10, -1);
+	gtk_widget_set_size_request (comboboxentry, HB_MINWIDTH_COMBO, -1);
 
 	return comboboxentry;
 }

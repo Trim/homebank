@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -111,19 +111,21 @@ N_("Tango dark"),
 NULL
 };
 
-gchar *CYA_IMPORT_OFXMEMO[] = {
-N_("Ignore"),
-N_("Add to info"),
-N_("Add to description"),
-NULL
-};
-
 gchar *CYA_IMPORT_DATEORDER[] = {
 N_("m-d-y"),
 N_("d-m-y"),
 N_("y-m-d"),
 NULL
 };
+
+
+gchar *CYA_IMPORT_OFXMEMO[] = {
+N_("Ignore"),
+N_("Append to Info"),
+N_("Append to Memo"),
+NULL
+};
+
 
 extern gchar *CYA_CHART_COLORSCHEME[];
 
@@ -965,7 +967,7 @@ gint row;
 	label = make_label(_("Color Scheme:"), 0, 0.5);
 	//----------------------------------------- l, r, t, b
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_cycle(label, chart_colors);
+	widget = make_cycle(label, (gchar **)chart_colors);
 	data->CY_color_scheme = widget;
 	//gtk_table_attach_defaults (GTK_TABLE (table), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);

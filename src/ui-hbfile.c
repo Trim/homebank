@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -160,17 +160,15 @@ static void defhbfile_setup(struct defhbfile_data *data)
 }
 
 
-
-// the window creation
-GtkWidget *create_defhbfile_window (void)
+GtkWidget *create_defhbfile_dialog (void)
 {
 struct defhbfile_data data;
-GtkWidget *window, *content, *mainvbox, *table, *hbox;
+GtkWidget *dialog, *content, *mainvbox, *table, *hbox;
 GtkWidget *label, *widget, *entry, *combo, *spinner;
 GtkWidget *alignment;
 gint row;
 
-	window = gtk_dialog_new_with_buttons (_("HomeBank file properties"),
+	dialog = gtk_dialog_new_with_buttons (_("HomeBank file properties"),
 				GTK_WINDOW(GLOBALS->mainwindow),
 				0,
 				GTK_STOCK_CANCEL,
@@ -179,13 +177,13 @@ gint row;
 				GTK_RESPONSE_ACCEPT,
 				NULL);
 
-	//store our window private data
-	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_print("(defaccount) window=%p, inst_data=%p\n", window, &data) );
+	//store our dialog private data
+	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
+	DB( g_print("(defaccount) dialog=%p, inst_data=%p\n", dialog, &data) );
 
-	gtk_window_set_icon_name(GTK_WINDOW (window), GTK_STOCK_PROPERTIES);
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
 
-	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
+	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 	mainvbox = gtk_vbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
@@ -264,20 +262,20 @@ gint row;
 
 
 	//connect all our signals
-	g_signal_connect (window, "destroy", G_CALLBACK (gtk_widget_destroyed), &window);
+	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	//setup, init and show window
 	defhbfile_setup(&data);
 	//defhbfile_update(data.LV_arc, NULL);
 
-	gtk_widget_show_all (window);
+	gtk_widget_show_all (dialog);
 
 	//wait for the user
-	gint result = gtk_dialog_run (GTK_DIALOG (window));
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 	// cleanup and destroy
 	defhbfile_cleanup(&data, result);
-	gtk_widget_destroy (window);
+	gtk_widget_destroy (dialog);
 
-	return window;
+	return dialog;
 }

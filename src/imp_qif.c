@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2013 Maxime DOYEN
+ *	Copyright (C) 1995-2014 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -124,7 +124,6 @@ da_qif_tran_append(QifContext *ctx, QIF_Tran *item)
 
 
 /* = = = = = = = = = = = = = = = = */
-
 
 gdouble
 hb_qif_parser_get_amount(gchar *string)
@@ -637,6 +636,7 @@ GList *list = NULL;
 
 	// allocate our GLists
 	da_qif_tran_new(&ctx);
+	ctx.is_ccard = FALSE;
 
 	// parse !!
 	hb_qif_parser_parse(&ctx, filename, ictx->encoding);
@@ -674,6 +674,9 @@ GList *list = NULL;
 		newope->info		 = g_strdup(item->info);
 		newope->amount		 = item->amount;
 
+		//#773282 invert amount for ccard accounts
+		if(ctx.is_ccard)
+			newope->amount *= -1;
 
 		// payee + append
 		if( item->payee != NULL )
@@ -824,170 +827,6 @@ GList *list = NULL;
 
 
 	return list;
-}
-
-/* = = = = = = = = = = = = = = = = = = = = */
-
-void test_qif_export (void)
-{
-FILE *fp;
-GString *buffer;
-GList *list, *list2;
-GDate *date;
-char amountbuf[G_ASCII_DTOSTR_BUF_SIZE];
-gchar *filename = NULL;
-gchar *newname = NULL;
-gint count, i;
-
-	DB( g_print("(qif) test qif export\n\n") );
-
-	if( ui_file_chooser_qif(NULL, &filename) == TRUE )
-	{
-		//filename = g_strdup("/home/max/Desktop/export.qif");
-
-
-		buffer = g_string_new (NULL);
-
-		//todo: save accounts in order
-		//todo: save transfer transaction once
-
-		list = g_hash_table_get_values(GLOBALS->h_acc);
-		while (list != NULL)
-		{
-		Account *item = list->data;
-		gchar *qift;
-
-			// account export
-			//#987144 fixed account type
-			switch(item->type)
-			{
-				case ACC_TYPE_BANK : qift = "Bank"; break;
-				case ACC_TYPE_CASH : qift = "Cash"; break;
-				case ACC_TYPE_ASSET : qift = "Oth A"; break;
-				case ACC_TYPE_CREDITCARD : qift = "CCard"; break;
-				case ACC_TYPE_LIABILITY : qift = "Oth L"; break;
-				default : qift = "Bank"; break;
-			}
-			
-			g_string_append (buffer, "!Account\n");
-			g_string_append_printf (buffer, "N%s\n", item->name);
-			g_string_append_printf (buffer, "T%s\n", qift);
-			g_string_append (buffer, "^\n");
-			g_string_append_printf (buffer, "!Type:%s\n", qift);
-
-			// transaction export
-			list2 = g_list_first(GLOBALS->ope_list);
-			while (list2 != NULL)
-			{
-			Transaction *txn = list2->data;
-			Payee *payee;
-			Category *cat;
-			gchar *txt;
-
-				if( txn->kacc == item->key )
-				{
-					date = g_date_new_julian (txn->date);
-					g_string_append_printf (buffer, "D%02d/%02d/%04d\n",
-						g_date_get_day(date),
-						g_date_get_month(date),
-						g_date_get_year(date)
-						);
-					g_date_free(date);
-
-					//g_ascii_dtostr (amountbuf, sizeof (amountbuf), txn->amount);
-					g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", txn->amount);
-					g_string_append_printf (buffer, "T%s\n", amountbuf);
-
-					g_string_append_printf (buffer, "C%s\n", txn->flags & OF_VALID ? "R" : "");
-
-					if( txn->paymode == PAYMODE_CHECK)
-						g_string_append_printf (buffer, "N%s\n", txn->info);
-
-					payee = da_pay_get(txn->kpay);
-					if(payee)
-						g_string_append_printf (buffer, "P%s\n", payee->name);
-
-					g_string_append_printf (buffer, "M%s\n", txn->wording);
-
-					// category/transfer
-
-						// LCategory of transaction
-						// L[Transfer account name]
-						// LCategory of transaction/Class of transaction
-						// L[Transfer account]/Class of transaction
-
-					if( txn->paymode == PAYMODE_INTXFER && txn->kacc == item->key)
-					{
-					//#579260
-						Account *dstacc = da_acc_get(txn->kxferacc);
-						if(dstacc)
-							g_string_append_printf (buffer, "L[%s]\n", dstacc->name);
-					}
-					else
-					{
-						cat = da_cat_get(txn->kcat);
-						if(cat)
-						{
-							txt = da_cat_get_fullname(cat);
-							g_string_append_printf (buffer, "L%s\n", txt);
-							g_free(txt);
-						}
-					}
-
-					// splits
-					count = da_transaction_splits_count(txn);
-					for(i=0;i<count;i++)
-					{
-					Split *s = txn->splits[i];
-							
-						cat = da_cat_get(s->kcat);
-						if(cat)
-						{
-							txt = da_cat_get_fullname(cat);
-							g_string_append_printf (buffer, "S%s\n", txt);
-							g_free(txt);
-						}	
-							
-						g_string_append_printf (buffer, "E%s\n", s->memo);
-						
-						g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", s->amount);
-						g_string_append_printf (buffer, "$%s\n", amountbuf);
-					}
-					
-					buffer = g_string_append (buffer, "^\n");
-				}
-
-				list2 = g_list_next(list2);
-			}
-
-			list = g_list_next(list);
-		}
-		g_list_free(list);
-
-		/* ensure .qif extension */
-		newname = homebank_filepath_with_extention(filename, "qif");
-		g_free( filename );
-		
-		if ((fp = fopen(newname, "w")) == NULL)
-		{
-			g_message("file error on: %s", newname);
-		}
-		else
-		{
-			fwrite (buffer->str, buffer->len, 1, fp);
-
-			//g_print( buffer->str );
-
-			fclose(fp);
-		}
-
-
-
-		g_string_free (buffer, TRUE);
-	}
-
-	g_free( newname );
-
 }
 
 

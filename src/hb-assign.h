@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -51,6 +51,8 @@ gboolean	da_asg_append(Assign *asg);
 guint32		da_asg_get_max_key(void);
 Assign		*da_asg_get_by_name(gchar *name);
 Assign		*da_asg_get(guint32 key);
+
+GList *assign_glist_sorted(gint column);
 
 #endif
 

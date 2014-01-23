@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2013 Maxime DOYEN
+ *	Copyright (C) 1995-2014 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -631,9 +631,6 @@ ofx_proc_status_cb(const struct OfxStatusData data, OfxContext *ctx)
 }
 
 
-
-
-
 static GList *homebank_ofx_import(gchar *filename, ImportContext *ictx)
 {
 OfxContext ctx = { 0 };
@@ -684,10 +681,8 @@ GList *list = NULL;
 
 	DB( g_print("\n[import] homebank QIF\n") );
 
-
 	//todo: context ?
 	list = account_import_qif(filename, ictx);
-
 
 	return list;
 }
@@ -754,7 +749,7 @@ GtkTreeModel *model;
 	data->ictx.cnt_err_date  = 0;
 	data->ictx.cnt_new_pay = 0;
 	data->ictx.cnt_new_cat = 0;
-	
+
 	data->ictx.datefmt = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dateorder));
 
 	data->ictx.cnt_initial_acc = da_acc_length();
@@ -2354,6 +2349,7 @@ gint row;
 }
 
 
+/* starting point of import */
 GtkWidget *ui_import_window_new (void)
 {
 struct import_data *data;

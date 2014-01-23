@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -159,6 +159,22 @@ gimp_label_set_attributes (GtkLabel *label,
 }
 
 
+void hb_widget_visible(GtkWidget *widget, gboolean visible)
+{
+	if(!GTK_IS_WIDGET(widget))
+		return;
+
+	if(visible)
+	{
+		gtk_widget_show(widget);
+	}
+	else
+	{
+		gtk_widget_hide(widget);
+	}
+}
+
+
 void ui_gtk_entry_set_text(GtkWidget *widget, gchar *text)
 {
 	DB( g_print(" set text to '%s'\n", text) );
@@ -261,8 +277,6 @@ GList *list;
 }
 
 
-
-
 /*
 **
 */
@@ -331,7 +345,7 @@ GtkWidget *make_amount(GtkWidget *label)
 GtkWidget *spinner;
 GtkAdjustment *adj;
 
-	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.01, 1.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXINT32, G_MAXINT32, 0.01, 1.0, 0.0);
 	spinner = gtk_spin_button_new (adj, 1.0, 2);
 	g_object_set(spinner, "xalign", 1.0, NULL);
 
@@ -351,7 +365,7 @@ GtkWidget *make_euro(GtkWidget *label)
 GtkWidget *spinner;
 GtkAdjustment *adj;
 
-	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.1, 1.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXINT32, G_MAXINT32, 0.01, 1.0, 0.0);
 	spinner = gtk_spin_button_new (adj, 1.0, 6);
 	//gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), TRUE);
 	gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (spinner), TRUE);
@@ -666,7 +680,6 @@ guint i;
 
 
 
-
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 enum
@@ -723,6 +736,25 @@ char *paymode_label_names[NUM_PAYMODE_MAX] =
 9	dépôt              / deposit
 10	frais bancaires    / FI fee
 	autre
+
+OFX_CREDIT 	Generic credit
+OFX_DEBIT 	Generic debit
+OFX_INT 	Interest earned or paid (Note: Depends on signage of amount)
+OFX_DIV 	Dividend
+OFX_FEE 	FI fee
+OFX_SRVCHG 	Service charge
+OFX_DEP 	Deposit
+OFX_ATM 	ATM debit or credit (Note: Depends on signage of amount)
+OFX_POS 	Point of sale debit or credit (Note: Depends on signage of amount)
+OFX_XFER 	Transfer
+OFX_CHECK 	Check
+OFX_PAYMENT 	Electronic payment
+OFX_CASH 	Cash withdrawal
+OFX_DIRECTDEP 	Direct deposit
+OFX_DIRECTDEBIT 	Merchant initiated debit
+OFX_REPEATPMT 	Repeating payment/standing order
+OFX_OTHER 	Somer other type of transaction 
+
 
 */
 

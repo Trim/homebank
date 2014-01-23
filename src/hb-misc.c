@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -391,6 +391,8 @@ gchar *color = NULL;
 	{
 		color = get_normal_color_amount(value);
 
+		//g_print("color: %s\n", color);
+		
 		if(color)
 		{
 			markuptxt = g_strdup_printf("<span color='%s'>%s</span>", color, strbuffer);

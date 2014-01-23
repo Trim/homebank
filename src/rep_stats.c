@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -111,9 +111,6 @@ static void statistic_action_rate(GtkAction *action, gpointer user_data);
 static void statistic_action_filter(GtkAction *action, gpointer user_data);
 static void statistic_action_refresh(GtkAction *action, gpointer user_data);
 static void statistic_action_export(GtkAction *action, gpointer user_data);
-
-
-static void statistic_busy(GtkWidget *widget, gboolean state);
 
 
 static GtkActionEntry entries[] = {
@@ -1171,6 +1168,8 @@ next1:
 			g_free(fullcatname);
 		}
 
+		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_report));
+		
 		/* Re-attach model to view */
   		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_report), model);
 		g_object_unref(model);
@@ -1362,46 +1361,6 @@ struct statistic_data *data;
 	gtk_chart_show_minor(GTK_CHART(data->RE_pie), GLOBALS->minor);
 }
 
-
-static void statistic_busy(GtkWidget *widget, gboolean state)
-{
-struct statistic_data *data;
-GdkWindow *gdkwindow;
-GtkWidget *window;
-GdkCursor *cursor;
-
-	DB( g_print("(statistic) busy\n") );
-
-	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
-	data = g_object_get_data(G_OBJECT(window), "inst_data");
-	gdkwindow = gtk_widget_get_window(window);
-
-	// should busy ?
-	if(state == TRUE)
-	{
-		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(gdkwindow, cursor);
-		gdk_cursor_unref(cursor);
-
-		//gtk_grab_add(data->busy_popup);
-
-		gtk_widget_set_sensitive(window, FALSE);
-		gtk_action_group_set_sensitive(data->actions, FALSE);
-
-		  /* make sure chnages is up */
-		  while (gtk_events_pending ())
-		    gtk_main_iteration ();
-	}
-	// unbusy
-	else
-	{
-		gtk_widget_set_sensitive(window, TRUE);
-		gtk_action_group_set_sensitive(data->actions, TRUE);
-
-		gdk_window_set_cursor(gdkwindow, NULL);
-		//gtk_grab_remove(data->busy_popup);
-	}
-}
 
 /*
 **
@@ -1713,7 +1672,6 @@ GError *error = NULL;
 	gtk_widget_show(notebook);
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(notebook), FALSE);
-
     gtk_box_pack_start (GTK_BOX (vbox), notebook, TRUE, TRUE, 0);
 
 	//page: list
@@ -1805,7 +1763,7 @@ GError *error = NULL;
 
 	gtk_widget_show_all (window);
 
-	statistic_busy(window, TRUE);
+
 
 	//minor ?
 	if( PREFS->euro_active )
@@ -1826,8 +1784,6 @@ GError *error = NULL;
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_rep);
 	else
 		statistic_compute(window, NULL);
-
-	statistic_busy(window, FALSE);
 
 
 	return window;
@@ -1856,7 +1812,7 @@ static void stat_list_rate_cell_data_function (GtkTreeViewColumn *col,
 
 	if(tmp != 0.0)
 	{
-		g_snprintf(buf, sizeof(buf), "(%.2f)", tmp);
+		g_snprintf(buf, sizeof(buf), "%.2f %%", tmp);
 		g_object_set(renderer, "text", buf, NULL);
 	}
 	else
@@ -1919,7 +1875,8 @@ GtkCellRenderer    *renderer;
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, "%");
 	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, "xalign", 1.0, NULL);
+	g_object_set(renderer, "xalign", 1.0, "yalign", 1.0, "scale", 0.8, "scale-set", TRUE, NULL);
+	
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", id);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, stat_list_rate_cell_data_function, GINT_TO_POINTER(id), NULL);

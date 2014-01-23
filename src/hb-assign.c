@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -232,6 +232,23 @@ da_asg_get(guint32 key)
 	return g_hash_table_lookup(GLOBALS->h_rul, &key);
 }
 
+
+static gint
+assign_glist_key_compare_func(Assign *a, Assign *b)
+{
+	return a->key - b->key;
+}
+
+
+GList *assign_glist_sorted(gint column)
+{
+GList *list = g_hash_table_get_values(GLOBALS->h_rul);
+
+	//if(column == 0)
+		return g_list_sort(list, (GCompareFunc)assign_glist_key_compare_func);
+	//else
+	//	return g_list_sort(list, (GCompareFunc)assign_glist_name_compare_func);
+}
 
 
 

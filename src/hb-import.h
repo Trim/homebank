@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -19,8 +19,6 @@
 
 #ifndef __HB_IMPORT_H__
 #define __HB_IMPORT_H__
-
-
 
 
 

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -106,8 +106,6 @@ static void trendtime_action_detail(GtkAction *action, gpointer user_data);
 //static void trendtime_action_filter(GtkAction *action, gpointer user_data);
 static void trendtime_action_refresh(GtkAction *action, gpointer user_data);
 static void trendtime_action_export(GtkAction *action, gpointer user_data);
-
-static void trendtime_busy(GtkWidget *widget, gboolean state);
 
 //static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur);
 
@@ -1198,45 +1196,7 @@ gboolean showall;
 
 }
 
-static void trendtime_busy(GtkWidget *widget, gboolean state)
-{
-struct trendtime_data *data;
-GdkWindow *gdkwindow;
-GtkWidget *window;
-GdkCursor *cursor;
 
-	DB( g_print("\n[trendtime] busy\n") );
-
-	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
-	data = g_object_get_data(G_OBJECT(window), "inst_data");
-	gdkwindow = gtk_widget_get_window(window);
-
-	// should busy ?
-	if(state == TRUE)
-	{
-		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(gdkwindow, cursor);
-		gdk_cursor_unref(cursor);
-
-		//gtk_grab_add(data->busy_popup);
-
-		gtk_widget_set_sensitive(window, FALSE);
-		gtk_action_group_set_sensitive(data->actions, FALSE);
-
-		  /* make sure chnages is up */
-		  while (gtk_events_pending ())
-		    gtk_main_iteration ();
-	}
-	// unbusy
-	else
-	{
-		gtk_widget_set_sensitive(window, TRUE);
-		gtk_action_group_set_sensitive(data->actions, TRUE);
-
-		gdk_window_set_cursor(gdkwindow, NULL);
-		//gtk_grab_remove(data->busy_popup);
-	}
-}
 
 /*
 **
@@ -1651,8 +1611,6 @@ GError *error = NULL;
 
 	gtk_widget_show_all (window);
 
-	trendtime_busy(window, TRUE);
-
 	//minor ?
 	if( PREFS->euro_active )
 		gtk_widget_show(data->CM_minor);
@@ -1672,9 +1630,6 @@ GError *error = NULL;
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_rep);
 	else
 		trendtime_compute(window, NULL);
-
-	trendtime_busy(window, FALSE);
-
 
 	return window;
 }

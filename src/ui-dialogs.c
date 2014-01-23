@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -74,6 +74,8 @@ gint result;
       g_free (msg);
     }
 
+	gtk_dialog_set_default_response(GTK_DIALOG (dialog), GTK_RESPONSE_NO);
+	
 	result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 	gtk_widget_destroy (dialog);
@@ -389,23 +391,43 @@ GtkWidget *dialog = NULL;
 
 struct xfer_data
 {
+	GtkWidget   *window;
 	GtkWidget	*radio[2];
 	GtkWidget	*treeview;
 };
 
-static void transaction_on_action_toggled(GtkRadioButton *radiobutton, gpointer user_data)
+
+static void ui_dialog_transaction_xfer_select_child_cb(GtkWidget *radiobutton, gpointer user_data)
 {
 struct xfer_data *data;
-gboolean new;
+GtkTreeSelection *selection;
+gboolean btnew, sensitive;
+gint count;
+	
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(radiobutton), GTK_TYPE_WINDOW)), "inst_data");
 
 	DB( g_print("(import) account type toggle\n") );
 
-	new = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->radio[0]));
+	btnew = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->radio[0]));
+	gtk_widget_set_sensitive(data->treeview, btnew^1);
 
-	gtk_widget_set_sensitive(data->treeview, new^1);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->treeview));
+	count = gtk_tree_selection_count_selected_rows(selection);
 
+	
+	sensitive = (btnew || count > 0) ? TRUE : FALSE;
+
+	DB( g_print("test count %d btnew %d sensitive %d\n", count, btnew, sensitive) );
+
+	
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(data->window), GTK_RESPONSE_ACCEPT, sensitive);
+
+}
+
+static void ui_dialog_transaction_xfer_select_child_selection_cb(GtkTreeSelection *treeselection, gpointer user_data)
+{
+	ui_dialog_transaction_xfer_select_child_cb(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
 }
 
 
@@ -428,7 +450,7 @@ Transaction *retval = NULL;
 						    NULL);
 
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-
+	data.window = window;
 
 		//gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
 	gtk_window_set_default_size (GTK_WINDOW (window), 400, -1);
@@ -464,9 +486,6 @@ Transaction *retval = NULL;
 	data.radio[1] = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON (data.radio[0]), _("select an existing transaction"));
 	gtk_box_pack_start (GTK_BOX (vbox), data.radio[1], FALSE, FALSE, 0);
 
-	g_signal_connect (data.radio[0], "toggled", G_CALLBACK (transaction_on_action_toggled), NULL);
-
-
 	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -474,9 +493,11 @@ Transaction *retval = NULL;
 	data.treeview = create_list_transaction(TRN_LIST_TYPE_BOOK, PREFS->lst_ope_columns);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), GTK_SELECTION_SINGLE);
 	gtk_container_add (GTK_CONTAINER (sw), data.treeview);
-
 	gtk_box_pack_start (GTK_BOX (mainvbox), sw, TRUE, TRUE, 0);
 
+	g_signal_connect (data.radio[0], "toggled", G_CALLBACK (ui_dialog_transaction_xfer_select_child_cb), NULL);
+	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), "changed", G_CALLBACK (ui_dialog_transaction_xfer_select_child_selection_cb), NULL);
+	
 	/* populate */
 	newmodel = gtk_tree_view_get_model(GTK_TREE_VIEW(data.treeview));
 

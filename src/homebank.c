@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -54,7 +54,7 @@ static gchar *help_dir     = NULL;
 static gchar *datas_dir    = NULL;
 
 
-#define MARKUP_STRING "<span size='small'>%s</span>"
+//#define MARKUP_STRING "<span size='small'>%s</span>"
 
 
 /* Application arguments */
@@ -71,8 +71,6 @@ static GOptionEntry option_entries[] =
 
 	{ NULL }
 };
-
-
 
 
 /*
@@ -629,6 +627,23 @@ homebank_register_stock_icons()
 	gtk_icon_factory_add_default (factory);
 	g_object_unref (factory);
 
+	#if MYDEBUG == 1
+	GtkIconTheme *ic = gtk_icon_theme_get_default();
+	gchar **paths;
+
+		DB( g_print(" -> get default icon theme\n") );
+	
+		gtk_icon_theme_get_search_path(ic, &paths, NULL);
+		for(i=0;i<g_strv_length(paths);i++)
+		{
+			g_print("-> path %d: %s\n", i, paths[i]);
+		}
+	
+		g_strfreev(paths);
+
+	#endif
+
+	
 
 	DB( g_print(" -> adding theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
 	gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (), homebank_app_get_pixmaps_dir());
@@ -972,107 +987,31 @@ gchar *pathfilename;
 	return window;
 }
 
-/*
-GHashTable *langmap;
-
-static const gchar *
-gimp_translation_store_map(const gchar          *locale)
+static void
+homebank_init_i18n (void)
 {
-  const gchar *lang;
+  /*  We may change the locale later if the user specifies a language
+   *  in the gimprc file. Here we are just initializing the locale
+   *  according to the environment variables and set up the paths to
+   *  the message catalogs.
+   */
 
-	DB( g_print("[hb_list_locales_available]\n") );
+	setlocale (LC_ALL, "");
+	
+	bindtextdomain (GETTEXT_PACKAGE, homebank_app_get_locale_dir ());
+#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+#endif
 
+	textdomain (GETTEXT_PACKAGE);
 
-
-
-  // A locale directory name is typically of the form language[_territory]
-  lang = g_hash_table_lookup (langmap, locale);
-
-	DB( g_print("- look '%s' into map lang='%s'\n", locale, lang) );
-
-  if (! lang)
-    {
-      //  strip off the territory suffix
-      const gchar *delimiter = strchr (locale, '_');
-
-      if (delimiter)
-        {
-          gchar *copy;
-
-          copy = g_strndup (locale, delimiter - locale);
-          
-          	DB( g_print("- copy=%s\n", copy) );
-
-          
-          lang = g_hash_table_lookup (langmap, copy);
-          g_free (copy);
-        }
-    }
-
-  return lang;
-}
-
-
-static void hb_list_locales_available(void)
-{
-
-	DB( g_print("[hb_list_locales_available]\n") );
-
-	// langmap doit etre initialisé avec la table iso des langues !!
-
-  langmap = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                      (GDestroyNotify) g_free,
-                                      (GDestroyNotify) g_free);
-
-
-  //  FIXME: this should better be done asynchronously 
-  GDir        *dir = g_dir_open (homebank_app_get_locale_dir (), 0, NULL);
-  const gchar *dirname;
-
-  if (! dir)
-    return;
-
-  while ((dirname = g_dir_read_name (dir)) != NULL)
-    {
-      gchar *filename = g_build_filename (homebank_app_get_locale_dir (),
-                                          dirname,
-                                          "LC_MESSAGES",
-                                          GETTEXT_PACKAGE ".mo",
-                                          NULL);
-	//DB( g_print("- %s\n", filename) );
-                                          
-      if (g_file_test (filename, G_FILE_TEST_EXISTS))
-        {
-          const gchar *lang = gimp_translation_store_map (dirname);
-
-	DB( g_print("- file exists %s :: lang=%s\n", filename, lang) );
-
-          if (lang)
-            {
-              gchar             *label;
-
-              label = g_strdup_printf ("%s [%s]", lang, dirname);
-
-				DB( g_print("%s :: %s\n", label, dirname) );
-
-
-
-               g_free (label);
-            }
-        }
-
-      g_free (filename);
-    }
-
-  g_dir_close (dir);
-
-  g_hash_table_unref (langmap);
-  langmap = NULL;
-
+	/*#ifdef G_OS_WIN32
+	gchar *wl = g_win32_getlocale ();
+	DB( g_print(" -> win32 locale is '%s'\n", wl) );
+	g_free(wl);
+	#endif*/
 
 }
-*/
-
 
 
 int
@@ -1090,30 +1029,7 @@ gboolean openlast;
 
 	build_package_paths();
 
-#ifdef G_OS_WIN32
-	gchar *wl = g_win32_getlocale ();
-	DB( g_print(" -> win32 locale is '%s'\n", wl) );
-	g_free(wl);
-#endif
-	
-	/* Initialize i18n support */
-#ifdef ENABLE_NLS
-	DB( g_print(" -> enable nls for '%s'\n", GETTEXT_PACKAGE ) );
-
-	setlocale (LC_ALL, "");
-	
-	DB( g_print(" -> unix locale is '%s'\n", setlocale (LC_ALL, "") ) );
-
-	//hb_list_locales_available();
-
-	bindtextdomain (GETTEXT_PACKAGE, locale_dir);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-#endif
-
-	/*  change the locale if a language is specified  */
-	language_init (NULL);
-
+	homebank_init_i18n ();
 
 	/* Set up option groups */
 	option_context = g_option_context_new (NULL);
@@ -1296,7 +1212,7 @@ gboolean openlast;
 
     homebank_cleanup();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 #ifdef G_OS_WIN32

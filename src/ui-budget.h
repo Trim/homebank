@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -34,7 +34,7 @@ enum {
 
 #define FIELD_TYPE 15
 
-struct defbudget_data
+struct ui_bud_manage_data
 {
 	GList		*tmp_list;
 	gint		change;
@@ -59,6 +59,6 @@ struct defbudget_data
 
 
 
-GtkWidget *create_defbudget_window (void);
+GtkWidget *ui_bud_manage_dialog (void);
 
 #endif

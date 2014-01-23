@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2013 Maxime DOYEN
+ *	Copyright (C) 1995-2014 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -27,11 +27,12 @@ typedef struct _qif_tran	QIF_Tran;
 
 struct _QifContext
 {
-	GList *q_acc;
-	GList *q_cat;
-	GList *q_pay;
-	GList *q_tra;
+	GList   *q_acc;
+	GList   *q_cat;
+	GList   *q_pay;
+	GList   *q_tra;
 
+	gboolean	is_ccard;
 };
 
 struct _qif_split
@@ -74,7 +75,6 @@ enum QIF_Type
 GList *account_import_qif(gchar *filename, ImportContext *ictx);
 gdouble hb_qif_parser_get_amount(gchar *string);
 
-void test_qif_export (void);
 
 
 #endif

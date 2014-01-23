@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2013 Maxime DOYEN
+ *	Copyright (C) 1995-2014 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -226,7 +226,6 @@ struct account_data *data = user_data;
 
 	account_make_archive(data->window, NULL);
 }
-
 
 
 
@@ -574,14 +573,23 @@ struct account_data *data;
 GList *list;
 gdouble balance;
 GtkTreeModel *model;
-
+guint32 ldate = 0;
+gushort lpos = 1;
+	
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(view, GTK_TYPE_WINDOW)), "inst_data");
 
 	DB( g_print("\n[account] balance refresh\n") );
 
 	balance = data->acc->initial;
 
-	//list = da_transaction_sort(GLOBALS->ope_list);
+	//#1270687: sort if date changed
+	if(data->do_sort)
+	{
+		DB( g_print(" - complete txn sort\n") );
+		GLOBALS->ope_list = da_transaction_sort(GLOBALS->ope_list);
+		data->do_sort = FALSE;
+	}
+
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
@@ -590,12 +598,26 @@ GtkTreeModel *model;
 		ope = list->data;
 		if(ope->kacc == data->accnum)
 		{	
-			balance += ope->amount;
+			//#1267344
+			if(!(ope->flags & OF_REMIND))
+				balance += ope->amount;
+
 			ope->balance = balance;
 		}
+
+		if(ope->date == ldate)
+		{
+			ope->pos = ++lpos;	
+		}
+		else
+		{
+			ope->pos = lpos = 1;
+		}
+		ldate = ope->date;
+
 		list = g_list_next(list);
 	}
-
+	
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
 	list_transaction_sort_force(GTK_TREE_SORTABLE(model), NULL);
 	
@@ -772,22 +794,22 @@ gboolean result;
 		case ACTION_ACCOUNT_INHERIT:
 		{
 		GtkWidget *dialog;
-		Transaction *src_trn;
+		Transaction *src_txn;
 		gint type = 0;
 
 			if(action == ACTION_ACCOUNT_ADD)
 			{
 				DB( g_print("(transaction) add multiple\n") );
 				//date = GLOBALS->today;
-				src_trn = da_transaction_malloc();
-				src_trn->date = GLOBALS->today;
-				src_trn->kacc = data->accnum;
+				src_txn = da_transaction_malloc();
+				src_txn->date = GLOBALS->today;
+				src_txn->kacc = data->accnum;
 				type = TRANSACTION_EDIT_ADD;
 			}
 			else
 			{
 				DB( g_print("(transaction) inherit multiple\n") );
-				src_trn = da_transaction_clone(get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
+				src_txn = da_transaction_clone(get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
 				type = TRANSACTION_EDIT_INHERIT;
 			}
 
@@ -796,7 +818,7 @@ gboolean result;
 			while(result == GTK_RESPONSE_ADD)
 			{
 				/* clone source transaction */
-				data->cur_ope = da_transaction_clone (src_trn);
+				data->cur_ope = da_transaction_clone (src_txn);
 
 				if( PREFS->heritdate == FALSE ) //fix: 318733
 					data->cur_ope->date = GLOBALS->today;
@@ -811,12 +833,14 @@ gboolean result;
 					account_update(widget, GINT_TO_POINTER(UF_BALANCE));
 					data->acc->flags |= AF_ADDED;
 					GLOBALS->changes_count++;
+					//store last date
+					src_txn->date = data->cur_ope->date;
 				}
 
 				da_transaction_free (data->cur_ope);
 			}
 			deftransaction_dispose(dialog, NULL);
-			da_transaction_free (src_trn);
+			da_transaction_free (src_txn);
 
 			gtk_widget_destroy (dialog);
 		}
@@ -824,73 +848,102 @@ gboolean result;
 
 		case ACTION_ACCOUNT_EDIT:
 			{
-		Transaction *ope;
+		Transaction *old_txn;
 		GtkWidget *dialog;
 
-			ope = get_active_transaction(GTK_TREE_VIEW(data->LV_ope));
-			if(ope)
+			old_txn = get_active_transaction(GTK_TREE_VIEW(data->LV_ope));
+			if(old_txn)
 			{
 				dialog = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_MODIFY);
 
-				data->cur_ope = da_transaction_clone (ope); // to keep old datas, just in case
-				deftransaction_set_transaction(dialog, ope);
-
+				data->cur_ope = da_transaction_clone (old_txn); // to keep old datas, just in case
+				deftransaction_set_transaction(dialog, data->cur_ope);
+				
 				result = gtk_dialog_run (GTK_DIALOG (dialog));
 				if(result == GTK_RESPONSE_ACCEPT)
 				{
-					//sub the old amount to balances
-					account_balances_sub(ope);
-
-					// get the new value into ope here
 					deftransaction_get(dialog, NULL);
 
-					//add our new amount to balances if ope->account == this account
-					account_balances_add(ope);
+					account_balances_sub(old_txn);
+					account_balances_add(data->cur_ope);
 
 					// different accoutn : remove from the display
-					if( ope->kacc != data->accnum )
+					if( data->cur_ope->kacc != data->accnum )
 					{
 						remove_active_transaction(GTK_TREE_VIEW(data->LV_ope));
 					}
 
-					if( ope->paymode == PAYMODE_INTXFER )
+					if( data->cur_ope->paymode == PAYMODE_INTXFER )
 					{
-					Transaction *ct;
+					Transaction *ltxn;
 
 						//nota: if kxfer is 0, the user has just changed the paymode to xfer
-						DB( g_print(" - kxfer = %d\n", ope->kxfer) );
+						DB( g_print(" - kxfer = %d\n", data->cur_ope->kxfer) );
 
 						//1) search a strong linked child
-						if(ope->kxfer > 0)
+						if(data->cur_ope->kxfer > 0)
 						{
 							DB( g_print(" - found a strong link ?\n") );
 
-							ct = transaction_strong_get_child_transfer(ope);
-							if(ct != NULL)	//should never be the case
-								transaction_xfer_sync_child(ope, ct);
+							ltxn = transaction_strong_get_child_transfer(data->cur_ope);
+							if(ltxn != NULL) //should never be the case
+							{
+								DB( g_print(" - yes, sync the linked txn\n") );
+								transaction_xfer_sync_child(data->cur_ope, ltxn);
+							}
+							else
+							{
+								DB( g_print(" - no, somethin' went wrong here...\n") );
+							}
 						}
 						else
 						{
 							//2) any standard transaction that match ?
-							transaction_xfer_search_or_add_child(ope, data->LV_ope);
+							transaction_xfer_search_or_add_child(data->cur_ope, data->LV_ope);
 						}
 					}
+
+					//#1250061 : manage ability to break an internal xfer
+					if(old_txn->paymode == PAYMODE_INTXFER && data->cur_ope->paymode != PAYMODE_INTXFER)
+					{
+					GtkWidget *p_dialog;
+						
+						DB( g_print(" - should break internal xfer\n") );
+
+						p_dialog = gtk_message_dialog_new
+						(
+							NULL,
+							GTK_DIALOG_MODAL,
+							GTK_MESSAGE_WARNING,
+							GTK_BUTTONS_YES_NO,
+							_("Do you want to break the internal transfer ?\n\n"
+							  "Proceeding will delete the target transaction.")
+						);
+
+						result = gtk_dialog_run( GTK_DIALOG( p_dialog ) );
+						gtk_widget_destroy( p_dialog );
+
+						if(result == GTK_RESPONSE_YES)
+						{
+							transaction_xfer_delete_child(data->cur_ope);
+						}
+						else	//force paymode to internal xfer
+						{
+							data->cur_ope->paymode = PAYMODE_INTXFER;
+						}
+					}
+					
+					//#1270687: sort if date changed
+					if(old_txn->date != data->cur_ope->date)
+						data->do_sort = TRUE;
+					
+					da_transaction_copy(data->cur_ope, old_txn);
 
 					account_update(widget, GINT_TO_POINTER(UF_BALANCE));
 
 					data->acc->flags |= AF_CHANGED;
 					GLOBALS->changes_count++;
 
-				}
-				else	//restore old split
-				{
-					if(data->cur_ope->flags &= OF_SPLIT)
-					{
-						DB( g_print(" - restore old split \n") );
-
-						da_transaction_splits_free(ope);
-						da_transaction_splits_clone(data->cur_ope, ope);
-					}
 				}
 
 				da_transaction_free (data->cur_ope);
@@ -1245,18 +1298,18 @@ gint count = 0;
 }
 
 
-
 void account_onRowActivated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer userdata)
 {
-//struct account_data *data;
+struct account_data *data;
 GtkTreeModel *model;
 GtkTreeIter iter;
 gint col_id, count;
 GList *selection, *list;
 Transaction *ope;
 gchar *tagstr, *txt;
+gboolean refreshbalance;
 
-	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
 
 	col_id = gtk_tree_view_column_get_sort_column_id (col);
 
@@ -1363,6 +1416,8 @@ gchar *tagstr, *txt;
 		{
 			selection = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(treeview), &model);
 
+			refreshbalance = FALSE;
+			
 			list = g_list_first(selection);
 			while(list != NULL)
 			{
@@ -1378,6 +1433,8 @@ gchar *tagstr, *txt;
 				{
 					case LST_DSPOPE_DATE:
 						ope->date = gtk_dateentry_get_date(GTK_DATE_ENTRY(widget1));
+						data->do_sort = TRUE;
+						refreshbalance = TRUE;
 						break;
 					case LST_DSPOPE_INFO:
 						ope->paymode = gtk_combo_box_get_active(GTK_COMBO_BOX(widget1));
@@ -1406,6 +1463,7 @@ gchar *tagstr, *txt;
 						ope->flags &= ~(OF_INCOME);	//remove flag
 						ope->amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget1));
 						if(ope->amount > 0) ope->flags |= OF_INCOME;
+						refreshbalance = TRUE;
 						break;
 					case LST_DSPOPE_CATEGORY:
 						if(!(ope->flags & OF_SPLIT))
@@ -1434,6 +1492,10 @@ gchar *tagstr, *txt;
 				list = g_list_next(list);
 			}
 
+			if(refreshbalance)
+				account_update(GTK_WIDGET(treeview), GINT_TO_POINTER(UF_BALANCE));
+
+
 			g_list_foreach(selection, (GFunc)gtk_tree_path_free, NULL);
 			g_list_free(selection);
 		}
@@ -1443,50 +1505,6 @@ gchar *tagstr, *txt;
 
 	}
 }
-
-void account_busy(GtkWidget *widget, gboolean state)
-{
-struct account_data *data;
-GtkWidget *window;
-GdkWindow *gdkwindow;
-GdkCursor *cursor;
-
-	DB( g_print("\n[account] busy %d\n", state) );
-
-	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
-	data = g_object_get_data(G_OBJECT(window), "inst_data");
-	gdkwindow = gtk_widget_get_window(window);
-	
-	// should busy ?
-	if(state == TRUE)
-	{
-		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(gdkwindow, cursor);
-		gdk_cursor_unref(cursor);
-
-		//gtk_grab_add(data->busy_popup);
-
-		gtk_widget_set_sensitive(window, FALSE);
-		gtk_action_group_set_sensitive(data->actions, FALSE);
-
-			// make sure changes is up
-			while (gtk_events_pending ())
-				gtk_main_iteration ();
-
-
-	}
-	// unbusy
-	else
-	{
-		gtk_widget_set_sensitive(window, TRUE);
-		gtk_action_group_set_sensitive(data->actions, TRUE);
-
-		gdk_window_set_cursor(gdkwindow, NULL);
-		//gtk_grab_remove(data->busy_popup);
-	}
-}
-
-
 
 
 
@@ -1532,8 +1550,6 @@ void account_init_window(GtkWidget *widget, gpointer user_data)
 
 	DB( g_print("\n[account] init window\n") );
 
-	account_busy(widget, TRUE);
-
 	DB( g_print(" - sort transactions\n") );
 	GLOBALS->ope_list = da_transaction_sort(GLOBALS->ope_list);
 
@@ -1545,8 +1561,6 @@ void account_init_window(GtkWidget *widget, gpointer user_data)
 	DB( g_print(" - set range or populate+update sensitive+balance\n") );
 	
 	account_cb_filter_reset(widget, user_data);
-
-	account_busy(widget, FALSE);
 
 }
 

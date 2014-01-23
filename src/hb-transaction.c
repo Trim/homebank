@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -165,27 +165,46 @@ gint i, count;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-void
-da_transaction_free(Transaction *item)
+static void
+da_transaction_clean(Transaction *item)
 {
 	if(item != NULL)
 	{
 		if(item->wording != NULL)
+		{
 			g_free(item->wording);
+			item->wording = NULL;
+		}
 		if(item->info != NULL)
+		{
 			g_free(item->info);
-		
+			item->info = NULL;
+		}
 		if(item->tags != NULL)
 		{
 			DB( g_print(" -> item->tags %p\n", item->tags) );
 			g_free(item->tags);
+			item->tags = NULL;
 		}
 
 		da_transaction_splits_free(item);
 
 		if(item->same != NULL)
+		{
 			g_list_free(item->same);
+			item->same = NULL;
+		}
+	}
+}
 
+
+
+void
+da_transaction_free(Transaction *item)
+{
+	if(item != NULL)
+	{
+		da_transaction_clean(item);
 		g_free(item);
 	}
 }
@@ -197,6 +216,31 @@ da_transaction_malloc(void)
 	return g_malloc0(sizeof(Transaction));
 }
 
+
+Transaction *da_transaction_copy(Transaction *src_txn, Transaction *dst_txn)
+{
+guint count;
+
+	DB( g_print("da_transaction_copy\n") );
+
+	da_transaction_clean (dst_txn);
+
+	g_memmove(dst_txn, src_txn, sizeof(Transaction));
+	
+	//duplicate the string
+	dst_txn->wording = g_strdup(src_txn->wording);
+	dst_txn->info = g_strdup(src_txn->info);
+
+	//duplicate tags
+	dst_txn->tags = NULL;
+	count = transaction_tags_count(src_txn);
+	if(count > 0)
+		dst_txn->tags = g_memdup(src_txn->tags, count*sizeof(guint32));
+
+	da_transaction_splits_clone(src_txn, dst_txn);
+
+	return dst_txn;
+}
 
 Transaction *da_transaction_clone(Transaction *src_item)
 {
@@ -402,7 +446,9 @@ GList *list;
 	while (list != NULL)
 	{
 		Transaction *item = list->data;
-		if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
+		//#1252230
+		//if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
+		if( item->paymode == PAYMODE_INTXFER && item->kxfer == src->kxfer && item->kxferacc == src->kacc )
 		{
 			//DB( g_print(" - found : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
 			return item;
@@ -412,6 +458,7 @@ GList *list;
 	DB( g_print(" - not found...\n") );
 	return NULL;
 }
+
 
 /*
  * this function retrieve into a glist the potential child transfer
@@ -513,6 +560,9 @@ gchar swap;
 		child->amount = -child->amount;
 		child->flags ^= (OF_INCOME);	// invert flag
 		child->flags &= ~(OF_REMIND);	// remove flag
+		//#1268026
+		child->flags &= ~(OF_VALID);	// remove reconcile state
+		
 
 		swap = child->kacc;
 		child->kacc = child->kxferacc;
@@ -574,24 +624,35 @@ Account *acc;
 }
 
 
-void transaction_xfer_sync_child(Transaction *ope, Transaction *child)
+void transaction_xfer_sync_child(Transaction *s_txn, Transaction *child)
 {
 
 	DB( g_print("\n[transaction] transaction_xfer_sync_child\n") );
 
 	account_balances_sub (child);
 
-	child->date			= ope->date;
-	child->amount		= -ope->amount;
-	child->flags		= child->flags | OF_CHANGED;
-	child->kpay		= ope->kpay;
-	child->kcat	= ope->kcat;
+	child->date		= s_txn->date;
+	child->amount   = -s_txn->amount;
+	child->flags	= child->flags | OF_CHANGED;
+	child->kpay		= s_txn->kpay;
+	child->kcat		= s_txn->kcat;
 	if(child->wording)
 		g_free(child->wording);
-	child->wording		= g_strdup(ope->wording);
+	child->wording	= g_strdup(s_txn->wording);
 	if(child->info)
 		g_free(child->info);
-	child->info		= g_strdup(ope->info);
+	child->info		= g_strdup(s_txn->info);
+
+	DB( g_print(" - source: kacc=%d kxferacc=%d\n", s_txn->kacc, s_txn->kxferacc) );
+	DB( g_print(" - child: kacc=%d kxferacc=%d\n", child->kacc, child->kxferacc) );
+
+	//#1252230 sync account also
+	child->kacc		= s_txn->kxferacc;
+	child->kxferacc = s_txn->kacc;
+
+	DB( g_print(" - source: kacc=%d kxferacc=%d\n", s_txn->kacc, s_txn->kxferacc) );
+	DB( g_print(" - child: kacc=%d kxferacc=%d\n", child->kacc, child->kxferacc) );
+	
 
 	account_balances_add (child);
 	//todo: synchronise tags here also ?
@@ -612,6 +673,8 @@ Transaction *dst;
 	if( dst != NULL )
 	{
 		DB( g_print("deleting...") );
+		src->kxfer = 0;
+		src->kxferacc = 0;
 		account_balances_sub(dst);
 		GLOBALS->ope_list = g_list_remove(GLOBALS->ope_list, dst);
 	}
@@ -766,16 +829,97 @@ GtkTreeIter  iter;
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+static gboolean misc_text_match(gchar *text, gchar *searchtext, gboolean exact)
+{
+gboolean match = FALSE;
+
+	if(text == NULL)
+		return FALSE;
+	
+	//DB( g_print("search %s in %s\n", rul->name, ope->wording) );
+	if( searchtext != NULL )
+	{
+		if( exact == TRUE )
+		{
+			if( g_strrstr(text, searchtext) != NULL )
+			{
+				DB( g_print(" found case '%s'\n", searchtext) );
+				match = TRUE;
+			}
+		}
+		else
+		{
+		gchar *word   = g_utf8_casefold(text, -1);
+		gchar *needle = g_utf8_casefold(searchtext, -1);
+
+			if( g_strrstr(word, needle) != NULL )
+			{
+				DB( g_print(" found nocase '%s'\n", searchtext) );
+				match = TRUE;
+			}
+			g_free(word);
+			g_free(needle);
+		}
+	}
+
+	return match;
+}
+
+
+static Assign *transaction_auto_assign_eval_txn(GList *l_rul, Transaction *txn)
+{
+Assign *rule = NULL;
+GList *list;
+	
+	DB( g_print("- eval every rules, and return the last that match\n") );
+
+	list = g_list_first(l_rul);
+	while (list != NULL)
+	{
+	Assign *rul = list->data;
+	gchar *text;
+
+		text = txn->wording;
+		if( misc_text_match(text, rul->name, rul->exact))
+			rule = rul;
+
+		list = g_list_next(list);
+	}
+
+	return rule;
+}
+
+
+static Assign *transaction_auto_assign_eval(GList *l_rul, gchar *text)
+{
+Assign *rule = NULL;
+GList *list;
+	
+	DB( g_print("- eval every rules, and return the last that match\n") );
+
+	list = g_list_first(l_rul);
+	while (list != NULL)
+	{
+	Assign *rul = list->data;
+
+		if( misc_text_match(text, rul->name, rul->exact))
+			rule = rul;
+
+		list = g_list_next(list);
+	}
+
+	return rule;
+}
+
 
 gint transaction_auto_assign(GList *ope_list, guint32 key)
 {
 GList *l_ope;
-GList *l_rul, *c_rul;
+GList *l_rul;
 gint changes = 0;
 
 	DB( g_print("\n[transaction] transaction_auto_assign\n") );
 
-	
 	l_ope = g_list_first(ope_list);
 	l_rul = g_hash_table_get_values(GLOBALS->h_rul);
 
@@ -786,68 +930,63 @@ gint changes = 0;
 		DB( g_print("- eval ope '%s' : acc=%d, pay=%d, cat=%d\n", ope->wording, ope->kacc, ope->kpay, ope->kcat) );
 
 		//#1215521: added key == -1
-		if( (key == ope->kacc || key == -1) && !(ope->flags & OF_SPLIT) )
+		if( (key == ope->kacc || key == -1) )
 		{
-			if( ope->kpay == 0 || ope->kcat == 0 )
+		Assign *rul;
+
+			if( !(ope->flags & OF_SPLIT) && (ope->kpay == 0 || ope->kcat == 0) )
 			{
-			gboolean txn_changed = FALSE;
-
-				DB( g_print("- eval every rules\n") );
-
-				c_rul = g_list_first(l_rul);
-				while (c_rul != NULL)
+				rul = transaction_auto_assign_eval_txn(l_rul, ope);
+				if( rul != NULL )
 				{
-				Assign *rul = c_rul->data;
-
-					//DB( g_print("search %s in %s\n", rul->name, ope->wording) );
-					if( rul->name != NULL )
+					if( ope->kpay == 0 )
 					{
-						if( rul->exact )
-						{
-							if( g_strrstr(ope->wording, rul->name) != NULL )
-							{
-								DB( g_print(" found case '%s'\n", rul->name) );
-								txn_changed = TRUE;
-							}
-						}
-						else
-						{
-						gchar *word   = g_utf8_casefold(ope->wording, -1);
-						gchar *needle = g_utf8_casefold(rul->name, -1);
-
-							if( g_strrstr(word, needle) != NULL )
-							{
-								DB( g_print(" found nocase '%s'\n", rul->name) );
-								txn_changed = TRUE;
-							}
-
-							g_free(word);
-							g_free(needle);
-
-						}
-
-						if( txn_changed == TRUE )
-						{
-							if( ope->kpay == 0 && rul->kpay > 0 )
-							{
-								ope->kpay = rul->kpay;
-								ope->flags |= OF_CHANGED;
-								changes++;
-							}
-							if( ope->kcat == 0 && rul->kcat > 0 )
-							{
-								ope->kcat = rul->kcat;
-								ope->flags |= OF_CHANGED;
-								changes++;
-							}
-						}
-						
+						ope->kpay = rul->kpay;
+						ope->flags |= OF_CHANGED;
+						changes++;
 					}
-
-					c_rul = g_list_next(c_rul);
+					if( ope->kcat == 0 )
+					{
+						ope->kcat = rul->kcat;
+						ope->flags |= OF_CHANGED;
+						changes++;
+					}
+					
 				}
 			}
+			else if( ope->flags & OF_SPLIT )
+			{
+			guint i, nbsplit = da_transaction_splits_count(ope);
+			Split *split;
+			gboolean split_change = FALSE;
 
+				for(i=0;i<nbsplit;i++)
+				{
+					split = ope->splits[i];
+
+					DB( g_print("- eval split '%s'\n", split->memo) );
+
+					if(split->kcat == 0)
+					{
+						rul = transaction_auto_assign_eval(l_rul, split->memo);
+						if( rul != NULL )
+						{
+							if( split->kcat == 0 && rul->kcat > 0 )
+							{
+								split->kcat = rul->kcat;
+								ope->flags |= OF_CHANGED;
+								split_change = TRUE;
+							}
+						}
+					}
+
+				}
+
+				if(split_change == TRUE)
+					changes++;
+
+			}
+			
 		}
 
 		l_ope = g_list_next(l_ope);
@@ -857,12 +996,6 @@ gint changes = 0;
 
 	return changes;
 }
-
-
-
-
-
-
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */

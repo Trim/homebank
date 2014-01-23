@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -21,7 +21,10 @@
 #define __HB_EXPORT_H__
 
 
+void hb_export_qif_account_all(gchar *filename);
+void hb_export_qif_account_single(gchar *filename, Account *acc);
 
+void test_qif_export (void);
 
 
 #endif

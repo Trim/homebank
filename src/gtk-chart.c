@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -27,6 +27,8 @@
 #include "gtk-chart.h"
 
 
+#define HELPDRAW 0
+
 #define MYDEBUG 0
 
 #if MYDEBUG
@@ -34,8 +36,6 @@
 #else
 #define DB(x);
 #endif
-
-#define HELPDRAW 0
 
 static void         gtk_chart_class_init      (GtkChartClass *klass);
 static void         gtk_chart_init            (GtkChart      *chart);
@@ -1247,7 +1247,8 @@ cairo_t *cr;
 			a1 = ((360 * (sum / chart->total)) - 90) * (M_PI / 180);
 			sum += ABS(chart->datas1[i]);
 			a2 = ((360 * (sum / chart->total)) - 90) * (M_PI / 180);
-
+			if(i < chart->entries-1) a2 += 0.0175;
+			
 			dx = cx;
 			dy = cy;
 
@@ -1332,7 +1333,7 @@ cairo_t *cr;
 #if CHART_PIE_DONUT == 1
 	a1 = 0;
 	a2 = 2 * M_PI;
-	radius = chart->rayon/4;
+	radius = (gint)((chart->rayon/3) * (1 / PHI));
 
 	cairo_arc(cr, cx, cy, radius, a1, a2);
 	cairo_user_set_rgbcol(cr, &global_colors[WHITE]);
@@ -1391,6 +1392,7 @@ double h;
 }
 
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
 
@@ -1400,7 +1402,7 @@ static void chart_sizeallocate(GtkWidget *widget, GtkAllocation *allocation, gpo
 GtkChart *chart = GTK_CHART(user_data);
 
 	DB( g_print("\n[gtkchart] sizeallocate\n") );
-	DB( g_print("w=%d h=%d\n", widget->allocation.width, widget->allocation.height) );
+	DB( g_print("w=%d h=%d\n", allocation->width, allocation->height) );
 
 	chart_calculation(chart);
 	

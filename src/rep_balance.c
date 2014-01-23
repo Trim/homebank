@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -171,7 +171,6 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum);
 static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static GtkWidget *create_list_repbalance(void);
 
-static void repbalance_busy(GtkWidget *widget, gboolean state);
 
 
 /* action functions -------------------- */
@@ -603,8 +602,6 @@ Account *acc;
 	/* do nothing if no transaction */
 	if(g_list_length(GLOBALS->ope_list) == 0) return;
 
-	//repbalance_busy(data->window, TRUE);
-
 	selectall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_selectall));
 	eachday = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_eachday));
 
@@ -714,7 +711,6 @@ Account *acc;
 	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_OVER_BALANCE, NULL);
 	//gtk_chart_set_line_datas(GTK_CHART(data->RE_line), model, LST_OVER_BALANCE, LST_OVER_DATE);
 
-	//repbalance_busy(data->window, FALSE);
 
 }
 
@@ -736,46 +732,6 @@ gboolean selectall;
 
 }
 
-
-static void repbalance_busy(GtkWidget *widget, gboolean state)
-{
-struct repbalance_data *data;
-GdkWindow *gdkwindow;
-GtkWidget *window;
-GdkCursor *cursor;
-
-	DB( g_print("(repbalance) busy\n") );
-
-	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
-	data = g_object_get_data(G_OBJECT(window), "inst_data");
-	gdkwindow = gtk_widget_get_window(window);
-
-	// should busy ?
-	if(state == TRUE)
-	{
-		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(gdkwindow, cursor);
-		gdk_cursor_unref(cursor);
-
-		//gtk_grab_add(data->busy_popup);
-
-		gtk_widget_set_sensitive(window, FALSE);
-		gtk_action_group_set_sensitive(data->actions, FALSE);
-
-		  /* make sure chnages is up */
-		  while (gtk_events_pending ())
-		    gtk_main_iteration ();
-	}
-	// unbusy
-	else
-	{
-		gtk_widget_set_sensitive(window, TRUE);
-		gtk_action_group_set_sensitive(data->actions, TRUE);
-
-		gdk_window_set_cursor(gdkwindow, NULL);
-		//gtk_grab_remove(data->busy_popup);
-	}
-}
 
 
 
@@ -1124,8 +1080,6 @@ GError *error = NULL;
 
 	gtk_widget_show_all (window);
 
-	repbalance_busy(window, TRUE);
-
 	//minor ?
 	if( PREFS->euro_active )
 		gtk_widget_show(data->CM_minor);
@@ -1136,8 +1090,6 @@ GError *error = NULL;
 	repbalance_update_detail(window, NULL);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_rep);
-
-	repbalance_busy(window, FALSE);
 
 
 	return(window);

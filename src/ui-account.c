@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -129,8 +129,6 @@ Account *item;
 	gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), "");
 	return FALSE;
 }
-
-
 
 
 /**
@@ -291,8 +289,8 @@ GtkEntryCompletion *completion;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request (comboboxentry, 10, -1);
-
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
+	
 	return comboboxentry;
 }
 
@@ -728,45 +726,47 @@ Account *item;
 	{	
 		data->change++;
 
-			item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
+		item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
 
-			//account_set_currency(item, ui_cur_combobox_get_key(GTK_COMBO_BOX(data->CY_curr)) );
+		//account_set_currency(item, ui_cur_combobox_get_key(GTK_COMBO_BOX(data->CY_curr)) );
 
-			g_free(item->bankname);
-			item->bankname = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_bank)));
+		g_free(item->bankname);
+		item->bankname = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_bank)));
 
-			g_free(item->number);
-			item->number = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_number)));
+		g_free(item->number);
+		item->number = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_number)));
 
-				item->flags &= ~(AF_CLOSED);
-				bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_closed));
-				if(bool) item->flags |= AF_CLOSED;
+		item->flags &= ~(AF_CLOSED);
+		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_closed));
+		if(bool) item->flags |= AF_CLOSED;
 
-				item->flags &= ~(AF_NOBUDGET);
-				bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_nobudget));
-				if(bool) item->flags |= AF_NOBUDGET;
+		item->flags &= ~(AF_NOBUDGET);
+		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_nobudget));
+		if(bool) item->flags |= AF_NOBUDGET;
 
-				item->flags &= ~(AF_NOSUMMARY);
-				bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_nosummary));
-				if(bool) item->flags |= AF_NOSUMMARY;
+		item->flags &= ~(AF_NOSUMMARY);
+		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_nosummary));
+		if(bool) item->flags |= AF_NOSUMMARY;
 
-				item->flags &= ~(AF_NOREPORT);
-				bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_noreport));
-				if(bool) item->flags |= AF_NOREPORT;
+		item->flags &= ~(AF_NOREPORT);
+		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_noreport));
+		if(bool) item->flags |= AF_NOREPORT;
 
-				gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_initial));
-				value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_initial));
-				item->initial = value;
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_initial));
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_initial));
+		item->initial = value;
 
-				gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_minimum));
-				value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_minimum));
-				item->minimum = value;
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_minimum));
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_minimum));
+		item->minimum = value;
 
-				gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque1));
-				item->cheque1 = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->ST_cheque1));
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque1));
+		item->cheque1 = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->ST_cheque1));
 
-				gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque2));
-				item->cheque2 = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->ST_cheque2));
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque2));
+		item->cheque2 = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->ST_cheque2));
+
+		
 	}
 
 }
@@ -796,7 +796,6 @@ Account *item;
 		gtk_tree_model_get(model, &iter, LST_DEFACC_DATAS, &item, -1);
 
 		DB( g_print(" -> set acc id=%d\n", item->key) );
-
 
 		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
 

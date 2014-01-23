@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -288,13 +288,14 @@ gchar *txt;
 	{
 		ui_txn_split_dialog_line_sensitive(i, FALSE, data);
 		ui_cat_comboboxentry_populate(GTK_COMBO_BOX(data->PO_cat[i]), GLOBALS->h_cat);
-		if( data->splittype == TXN_SPLIT_AMOUNT )
-		{
-			if(data->amount > 0.0)
-				gtk_spin_button_set_range(GTK_SPIN_BUTTON(data->ST_amount[i]), 0.0, G_MAXDOUBLE);
-			else
-				gtk_spin_button_set_range(GTK_SPIN_BUTTON(data->ST_amount[i]), -G_MAXDOUBLE, 0.0);
-		}
+		//#1258821		
+		//if( data->splittype == TXN_SPLIT_AMOUNT )
+		//{
+			//if(data->amount > 0.0)
+			//	gtk_spin_button_set_range(GTK_SPIN_BUTTON(data->ST_amount[i]), 0.0, G_MAXDOUBLE);
+			//else
+			//	gtk_spin_button_set_range(GTK_SPIN_BUTTON(data->ST_amount[i]), -G_MAXDOUBLE, 0.0);
+		//}
 	}
 
 	
@@ -348,7 +349,8 @@ gint row, i;
 	gtk_dialog_add_button(GTK_DIALOG(dialog), GTK_STOCK_REMOVE, GTK_RESPONSE_SPLIT_REM);
 
 	/* sum button must appear only when new split add */
-	if(data.splittype == TXN_SPLIT_NEW)
+	//#1258821
+	//if(data.splittype == TXN_SPLIT_NEW)
 		gtk_dialog_add_button(GTK_DIALOG(dialog), _("Sum"), GTK_RESPONSE_SPLIT_SUM);
 
 
@@ -446,7 +448,7 @@ gint row, i;
 	if( data.splittype == TXN_SPLIT_AMOUNT )
 	{
 		row++;
-		label = gtk_label_new(_("Remaining:"));
+		label = gtk_label_new(_("Unassigned:"));
 		gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
 		gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 		label = gtk_label_new(NULL);
@@ -454,6 +456,10 @@ gint row, i;
 		gtk_misc_set_padding(GTK_MISC(label), 20, 0);
 		data.LB_remain = label;
 		gtk_table_attach (GTK_TABLE (table), label, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+		row++;
+		widget = gtk_hseparator_new();
+		gtk_table_attach (GTK_TABLE (table), widget, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 		row++;
 		label = gtk_label_new(_("Transaction amount:"));
@@ -493,12 +499,12 @@ gint row, i;
 	   break;
 	case GTK_RESPONSE_SPLIT_REM:
 		da_transaction_splits_free(ope);
-	  		deftransaction_update(parent, NULL);
+	  	deftransaction_update(parent, NULL);
 		break;
 	case GTK_RESPONSE_SPLIT_SUM:	// sum split and alter txn amount   
 	   ui_txn_split_dialog_get(&data);
-	   deftransaction_set_amount_from_split(parent, data.sumsplit);
-  		deftransaction_update(parent, NULL);
+		deftransaction_set_amount_from_split(parent, data.sumsplit);
+		deftransaction_update(parent, NULL);
 	   break;
 	default:
 	   //do_nothing_since_dialog_was_cancelled ();
@@ -1084,6 +1090,7 @@ gint row;
 	widget = gtk_button_new_with_label("+/-");
 	data->BT_amount = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	gtk_widget_set_tooltip_text(widget, _("Toggle amount sign"));
 
 	widget = gtk_button_new_with_label("S");
 	data->BT_split = widget;
@@ -1120,7 +1127,7 @@ gint row;
 
 		hbox = gtk_hbox_new(FALSE, HB_BOX_SPACING);
 		gtk_notebook_append_page (GTK_NOTEBOOK (notebook), hbox, NULL);
-		label = make_label(_("_To account:"), 0, 0.5);
+		label = make_label(_("To acc_ount:"), 0, 0.5);
 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 		widget = ui_acc_comboboxentry_new(label);
 		data->PO_accto = widget;
@@ -1136,7 +1143,7 @@ gint row;
 	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("A_ccount:"));
+	label = gtk_label_new_with_mnemonic (_("Acc_ount:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 0,1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = ui_acc_comboboxentry_new(label);
@@ -1179,7 +1186,7 @@ gint row;
 	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Memo:"));
+	label = gtk_label_new_with_mnemonic (_("M_emo:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 0,1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	//widget = make_string(label);
@@ -1189,7 +1196,7 @@ gint row;
 
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Tags:"));
+	label = gtk_label_new_with_mnemonic (_("Ta_gs:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 0,1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_string(label);

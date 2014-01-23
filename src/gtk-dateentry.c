@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -702,7 +702,7 @@ GtkDateEntry *dateentry = user_data;
 
 	DB( g_print("\n[dateentry] entry key pressed: state=%04x, keyval=%04x\n", event->state, event->keyval) );
 
-	if( event->keyval == GDK_Up )
+	if( event->keyval == GDK_KEY_Up )
 	{
 		if( !(event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK)) )
 		{
@@ -724,7 +724,7 @@ GtkDateEntry *dateentry = user_data;
 		return TRUE;
 	}
 	else
-	if( event->keyval == GDK_Down )
+	if( event->keyval == GDK_KEY_Down )
 	{
 		if( !(event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK)) )
 		{
@@ -876,7 +876,7 @@ GtkDateEntry *dateentry = user_data;
 
 	DB( g_print("\n[dateentry] key pressed%d\n", event->keyval) );
 
-	if (event->keyval != GDK_Escape)
+	if (event->keyval != GDK_KEY_Escape)
 		return FALSE;
 
 	g_signal_stop_emission_by_name (widget, "key_press_event");

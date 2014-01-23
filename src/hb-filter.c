@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -129,7 +129,7 @@ void filter_preset_daterange_set(Filter *flt, gint range)
 {
 GDate *date;
 GList *list;
-guint32 refdate, month, year, qnum;
+guint32 refjuliandate, month, year, qnum;
 
 	// any date :: todo : get date of current accout only when account 
 	flt->range = range;
@@ -145,13 +145,13 @@ guint32 refdate, month, year, qnum;
 		filter_default_date_set(flt);
 	
 	
-	// by default refdate is today
+	// by default refjuliandate is today
 	// but we adjust if to max transaction date found
-	refdate = GLOBALS->today;
-	if(flt->maxdate < refdate)
-		refdate = flt->maxdate;
+	refjuliandate = GLOBALS->today;
+	if(flt->maxdate < refjuliandate)
+		refjuliandate = flt->maxdate;
 
-	date  = g_date_new_julian(refdate);
+	date  = g_date_new_julian(refjuliandate);
 	month = g_date_get_month(date);
 	year  = g_date_get_year(date);
 	qnum  = ((month - 1) / 3) + 1;
@@ -211,24 +211,24 @@ guint32 refdate, month, year, qnum;
 			break;
 
 		case FLT_RANGE_LAST30DAYS:
-			flt->mindate = refdate - 30;
-			flt->maxdate = refdate;
+			flt->mindate = refjuliandate - 30;
+			flt->maxdate = refjuliandate;
 			break;
 
 		case FLT_RANGE_LAST60DAYS:
-			flt->mindate = refdate - 60;
-			flt->maxdate = refdate;
+			flt->mindate = refjuliandate - 60;
+			flt->maxdate = refjuliandate;
 			break;
 
 		case FLT_RANGE_LAST90DAYS:
-			flt->mindate = refdate - 90;
-			flt->maxdate = refdate;
+			flt->mindate = refjuliandate - 90;
+			flt->maxdate = refjuliandate;
 			break;
 
 		case FLT_RANGE_LAST12MONTHS:
 			g_date_subtract_months(date, 12);
 			flt->mindate = g_date_get_julian(date);
-			flt->maxdate = refdate;
+			flt->maxdate = refjuliandate;
 			break;
 
 		// case FLT_RANGE_OTHER:
@@ -306,9 +306,6 @@ GList *list;
 	}
 
 }
-
-
-
 
 
 gint filter_test(Filter *flt, Transaction *txn)

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -129,8 +129,6 @@ void ui_mainwindow_action(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_toggle_minor(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_clear(GtkWidget *widget, gpointer user_data);
 
-void ui_mainwindow_busy(GtkWidget *widget, gboolean state);
-
 gboolean ui_dialog_msg_savechanges(GtkWidget *widget, gpointer user_data);
 
 void ui_mainwindow_update(GtkWidget *widget, gpointer user_data);
@@ -234,13 +232,13 @@ static const gchar *ui_info =
 "      <menuitem action='Save'/>"
 "      <menuitem action='SaveAs'/>"
 "      <menuitem action='Revert'/>"
+"        <separator/>"
+"      <menuitem action='FileImport'/>"
+"      <menuitem action='ExportQIF'/>"
 //"        <separator/>"
 // print to come here
 "        <separator/>"
 "      <menuitem action='Properties'/>"
-"        <separator/>"
-"      <menuitem action='FileImport'/>"
-"      <menuitem action='ExportQIF'/>"
 "      <menuitem action='Anonymize'/>"
 "        <separator/>"
 "      <menuitem action='Close'/>"
@@ -425,7 +423,7 @@ GdkPixbuf *pixbuf;
 		  "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
 		  "MA 02110-1301, USA.";
 
-	static const gchar *copyright = "Copyright \xc2\xa9 1995-2013 - Maxime DOYEN";
+	static const gchar *copyright = "Copyright \xc2\xa9 1995-2014 - Maxime DOYEN";
 
 
 	pathfilename = g_build_filename(homebank_app_get_images_dir(), "splash.png", NULL);
@@ -539,7 +537,7 @@ gboolean result;
 
 static void ui_mainwindow_action_properties(void)
 {
-	create_defhbfile_window();
+	create_defhbfile_dialog();
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
 }
 
@@ -617,7 +615,7 @@ GtkTreeModel *model;
 
 static void ui_mainwindow_action_defbudget(void)
 {
-	create_defbudget_window();
+	ui_bud_manage_dialog();
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
 }
 
@@ -993,12 +991,10 @@ gboolean file_clear = GPOINTER_TO_INT(user_data);
 
 	if(file_clear == TRUE)
 	{
-		//ui_start_assistant();
+		ui_start_assistant();
 		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 		ui_mainwindow_populate_upcoming(GLOBALS->mainwindow, NULL);
 		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
-
-		ui_mainwindow_action_help_welcome();
 	}
 
 }
@@ -1035,6 +1031,9 @@ gint account = 1, count;
 		ope->date    = date;
 		ope->kacc = account;
 
+		if( PREFS->heritdate == FALSE ) //fix: 318733
+			ope->date = GLOBALS->today;
+
 		deftransaction_set_transaction(window, ope);
 
 		result = gtk_dialog_run (GTK_DIALOG (window));
@@ -1051,6 +1050,8 @@ gint account = 1, count;
 			ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 			
 			count++;
+			//store last date
+			date = ope->date;
 		}
 
 		da_transaction_free(ope);
@@ -1089,11 +1090,13 @@ GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list;
 gint range;
-guint n_result, i;
+guint n_result, i, n_items;
 GArray *garray;
-gdouble total;
+gdouble total, other;
 //Account *acc;
 
+#define MAX_TOPSPENDING 5
+	
 	DB( g_print("\n[ui-mainwindow] populate_topspending\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
@@ -1209,12 +1212,17 @@ next1:
 		// we need to sort this and limit before
 		g_array_sort(garray, (GCompareFunc)tmptop_compare_func);
 
-		for(i=0 ; i<MIN(garray->len,5) ; i++)
+		n_items = MIN(garray->len,MAX_TOPSPENDING);
+		other = 0;
+		for(i=0 ; i<garray->len ; i++)
 		{
 		struct tmptop *item;
 		
 			item = &g_array_index (garray, struct tmptop, i);
 			total += item->value;
+
+			if(i >= n_items)
+				other += item->value;
 
 			DB( g_print(" - %d : k='%d' v='%f' t='%f'\n", i, item->key, item->value, total) );
 		}
@@ -1225,7 +1233,7 @@ next1:
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_top), NULL); /* Detach model from view */
 
 		/* insert into the treeview */
-		for(i=0 ; i<MIN(garray->len,5) ; i++)
+		for(i=0 ; i<MIN(garray->len,MAX_TOPSPENDING) ; i++)
 		{
 		gchar *name;
 		Category *entry;
@@ -1254,6 +1262,19 @@ next1:
 
 		}
 
+		// append test
+		if(ABS(other) > 0)
+		{
+			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				  LST_TOPSPEND_ID, n_items,
+				  LST_TOPSPEND_KEY, 0,
+				  LST_TOPSPEND_NAME, _("Other"),
+				  LST_TOPSPEND_AMOUNT, other,
+				  LST_TOPSPEND_RATE, (gint)(((ABS(other)*100)/ABS(total)) + 0.5),
+				  -1);
+		}
+			
 		/* Re-attach model to view */
   		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_top), model);
 		g_object_unref(model);
@@ -1359,11 +1380,7 @@ gint usermode = GPOINTER_TO_INT(user_data);
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	ui_mainwindow_busy(widget, TRUE);
-
 	count = hbfile_insert_scheduled_transactions();
-
-	ui_mainwindow_busy(widget, FALSE);
 
 	//inform the user
 	if(usermode == TRUE)
@@ -1904,45 +1921,6 @@ gint flags;
 
 }
 
-void ui_mainwindow_busy(GtkWidget *widget, gboolean state)
-{
-struct hbfile_data *data;
-GtkWidget *window;
-GdkWindow *gdkwindow;
-GdkCursor *cursor;
-
-	DB( g_print("\n[ui-mainwindow] busy: %d\n", state) );
-
-	window = gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW);
-	data = g_object_get_data(G_OBJECT(window), "inst_data");
-	gdkwindow = gtk_widget_get_window(window);
-
-	// should busy ?
-	if(state == TRUE)
-	{
-		cursor = gdk_cursor_new(GDK_WATCH);
-		gdk_window_set_cursor(gdkwindow, cursor);
-		gdk_cursor_unref(cursor);
-
-		//gtk_grab_add(data->busy_popup);
-
-		gtk_widget_set_sensitive(window, FALSE);
-		gtk_action_group_set_sensitive(data->actions, FALSE);
-
-		  /* make sure chnages is up */
-		  while (gtk_events_pending ())
-		    gtk_main_iteration ();
-	}
-	// unbusy
-	else
-	{
-		gtk_widget_set_sensitive(window, TRUE);
-		gtk_action_group_set_sensitive(data->actions, TRUE);
-
-		gdk_window_set_cursor(gdkwindow, NULL);
-		//gtk_grab_remove(data->busy_popup);
-	}
-}
 
 
 static void
@@ -2440,7 +2418,6 @@ GtkWidget *label, *align, *widget;
 		data->TX_topamount = label;
 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 	
-		
 		data->CY_range = make_daterange(label, FALSE);
 		gtk_box_pack_end (GTK_BOX (hbox), data->CY_range, FALSE, FALSE, 0);
 

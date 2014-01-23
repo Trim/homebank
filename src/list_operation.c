@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -73,7 +73,7 @@ static   gint
 			{
 				//g_print("sort on balance d1=%d, d2=%d %f %f\n", ope1->date, ope2->date, ope1->balance , ope2->balance);
 
-				tmpval = ope1->balance - ope2->balance;
+				tmpval = ope1->pos - ope2->pos;
 				ret = tmpval > 0 ? 1 : -1;
 
 			}
@@ -589,8 +589,8 @@ gboolean showBalance;
 	PREFS->lst_ope_sort_order = order;
 
 	//manage visibility of balance column
-	showBalance = (id == LST_DSPOPE_DATE && order == GTK_SORT_ASCENDING) ? data->tvc_is_visible : FALSE;
-	//showBalance = (id == LST_DSPOPE_DATE) ? data->tvc_is_visible : FALSE;
+	//showBalance = (id == LST_DSPOPE_DATE && order == GTK_SORT_ASCENDING) ? data->tvc_is_visible : FALSE;
+	showBalance = (id == LST_DSPOPE_DATE) ? data->tvc_is_visible : FALSE;
 	gtk_tree_view_column_set_visible (data->tvc_balance, showBalance);
 }
 

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -21,7 +21,7 @@
 
 #include "gtk-chart-colors.h"
 
-char *chart_colors[] =
+const char *chart_colors[] =
 {
 	"HomeBank",
 	"Money", 
@@ -32,8 +32,6 @@ char *chart_colors[] =
 	"Analytics", 
 	NULL
 };
-
-
 
 
 struct rgbcol money_colors[] =

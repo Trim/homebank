@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,20 +20,22 @@
 #ifndef __GTK_COLORS_H__
 #define __GTK_COLORS_H__
 
+#include <cairo.h>
+
 #define MASKCOL 255
 #define COLTO16(col8) ( (col8 | col8<<8 ) )
 #define COLTOOVER(col8) ( (col8 + MASKCOL) / 2 )
 
 
-#define OVER_ALPHA .33
+#define OVER_ALPHA .15
 #define OVER_COLOR (MASKCOL * OVER_ALPHA)
 #define COLTOCAIRO(col8) 	 ( (col8 / 255.0) )
 #define COLTOCAIROOVER(col8) ( ((col8 * (1 - OVER_ALPHA)) + OVER_COLOR ) / 255.0 )
 
 /* new stuff */
 #define CHART_FONT_SIZE_NORMAL  10
-#define CHART_FONT_SIZE_TITLE   16
-#define CHART_FONT_SIZE_PERIOD  12
+#define CHART_FONT_SIZE_TITLE   18
+#define CHART_FONT_SIZE_PERIOD  11
 
 
 //typedef struct _rgbcol RgbCol;
@@ -64,7 +66,7 @@ enum colmap
 	CHART_COLMAP_ANALYTICS,
 };
 
-extern char *chart_colors[];
+extern const char *chart_colors[];
 
 extern struct rgbcol global_colors[];
 extern struct rgbcol money_colors[];

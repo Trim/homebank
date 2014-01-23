@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2013 Maxime DOYEN
+ *  Copyright (C) 1995-2014 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -57,20 +57,152 @@ gchar *months[] = {
 "Dec"
 };
 
-static gchar *defbudget_getcsvbudgetstr(Category *item);
-static void defbudget_update(GtkWidget *treeview, gpointer user_data);
-static void defbudget_set(GtkWidget *widget, gpointer user_data);
-static void defbudget_getlast(struct defbudget_data *data);
-static void defbudget_selection_change(GtkWidget *treeview, gpointer user_data);
-static void defbudget_toggle(GtkRadioButton *radiobutton, gpointer user_data);
-static void defbudget_selection(GtkTreeSelection *treeselection, gpointer user_data);
+static gchar *ui_bud_manage_getcsvbudgetstr(Category *item);
+static void ui_bud_manage_update(GtkWidget *treeview, gpointer user_data);
+static void ui_bud_manage_set(GtkWidget *widget, gpointer user_data);
+static void ui_bud_manage_getlast(struct ui_bud_manage_data *data);
+static void ui_bud_manage_selection_change(GtkWidget *treeview, gpointer user_data);
+static void ui_bud_manage_toggle(GtkRadioButton *radiobutton, gpointer user_data);
+static void ui_bud_manage_selection(GtkTreeSelection *treeselection, gpointer user_data);
 
-GtkWidget *defbudget_list_new(void);
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+/*
+**
+** The function should return:
+** a negative integer if the first value comes before the second,
+** 0 if they are equal,
+** or a positive integer if the first value comes after the second.
+*/
+static gint ui_bud_listview_compare_funct (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
+{
+gint result = 0;
+Category *entry1, *entry2;
+gchar *name1, *name2;
+
+	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
+	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
+
+	result = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
+	if(!result)
+	{
+		name1 = entry1->name;
+		name2 = entry2->name;
+        if (name1 == NULL || name2 == NULL)
+        {
+          //if (name1 == NULL && name2 == NULL)
+          result = (name1 == NULL) ? -1 : 1;
+        }
+        else
+        {
+          result = g_utf8_collate(name1,name2);
+        }
+	}
+
+    return result;
+}
+
+/*
+** draw some text from the stored data structure
+*/
+static void ui_bud_listview_cell_data_function_text (GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer user_data)
+{
+Category *entry;
+gchar *name;
+gchar *string;
+gchar type;
+
+	gtk_tree_model_get(model, iter, LST_DEFCAT_DATAS, &entry, -1);
+
+	if(entry->key == 0)
+		name = g_strdup(_("(no category)"));
+	else
+		name = entry->name;
+
+type = (entry->flags & GF_INCOME) ? '+' : '-';
+
+	#if MYDEBUG
+		string = g_markup_printf_escaped("%s ::(f=%d, %c)", name, entry->flags, type );
+	#else
+	if(entry->key == 0)
+		string = g_strdup(name);
+	else
+	{
+		if(entry->flags & GF_BUDGET)
+		{
+			if( entry->parent == 0 )
+				string = g_markup_printf_escaped("<b>%s</b> [%c]", name, type);
+			else
+				string = g_markup_printf_escaped(" %c <b><i>%s</i></b>", type, name);
+		}
+		else
+		{
+			if( entry->parent == 0 )
+				string = g_markup_printf_escaped("%s [%c]", name, type);
+			else
+				string = g_markup_printf_escaped(" %c <i>%s</i>", type, name);
+		}
+	}
+	#endif
+
+	g_object_set(renderer, "markup", string, NULL);
+
+	g_free(string);
+}
+
+/*
+**
+*/
+static GtkWidget *ui_bud_listview_new(void)
+{
+GtkTreeStore *store;
+GtkWidget *view;
+GtkCellRenderer    *renderer;
+GtkTreeViewColumn  *column;
+
+	//store
+	store = gtk_tree_store_new (
+		3,
+		//NUM_LST_DEFCAT,
+		G_TYPE_BOOLEAN,
+		G_TYPE_POINTER,
+		G_TYPE_UINT
+		);
+
+	//sortable
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, ui_bud_listview_compare_funct, NULL, NULL);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, GTK_SORT_ASCENDING);
+
+
+	//treeview
+	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	g_object_unref(store);
+
+	/* column 1 */
+	column = gtk_tree_view_column_new();
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start(column, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_bud_listview_cell_data_function_text, GINT_TO_POINTER(1), NULL);
+	//gtk_tree_view_column_set_sort_column_id (column, LST_DEFACC_NAME);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(view), FALSE);
+	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
+
+	return(view);
+}
+
+
 
 /*
 ** index 0 is all month, then 1 -> 12 are months
 */
-static gchar *defbudget_getcsvbudgetstr(Category *item)
+static gchar *ui_bud_manage_getcsvbudgetstr(Category *item)
 {
 gchar *retval = NULL;
 char buf[G_ASCII_DTOSTR_BUF_SIZE];
@@ -117,7 +249,7 @@ char buf[G_ASCII_DTOSTR_BUF_SIZE];
 }
 
 
-static gint defbudget_category_exists (GtkTreeModel *model, gchar *level, gchar *type, gchar *name, GtkTreeIter *return_iter)
+static gint ui_bud_manage_category_exists (GtkTreeModel *model, gchar *level, gchar *type, gchar *name, GtkTreeIter *return_iter)
 {
 GtkTreeIter  iter, child;
 gboolean     valid;
@@ -174,9 +306,9 @@ gint pos = 0;
 }
 
 
-static void defbudget_load_csv( GtkWidget *widget, gpointer user_data)
+static void ui_bud_manage_load_csv( GtkWidget *widget, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 gchar *filename = NULL;
 GIOChannel *io;
 const gchar *encoding;
@@ -185,7 +317,7 @@ const gchar *encoding;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
 
-	DB( g_print("(defbudget) load csv - data %p\n", data) );
+	DB( g_print("(ui_bud_manage) load csv - data %p\n", data) );
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_OPEN, &filename, NULL) == TRUE )
 	{
@@ -235,7 +367,7 @@ const gchar *encoding;
 
 						DB( g_print(" csv read '%s : %s : %s ...'\n", str_array[0], str_array[1], str_array[2]) );
 
-						gint pos = defbudget_category_exists(model, str_array[0], str_array[1], str_array[2], &iter);
+						gint pos = ui_bud_manage_category_exists(model, str_array[0], str_array[1], str_array[2], &iter);
 
 						DB( g_print(" pos=%d\n", pos) );
 
@@ -318,16 +450,16 @@ const gchar *encoding;
 /*
 **
 */
-static void defbudget_save_csv( GtkWidget *widget, gpointer user_data)
+static void ui_bud_manage_save_csv( GtkWidget *widget, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 gchar *filename = NULL;
 GtkTreeModel *model;
 GtkTreeIter	iter, child;
 gboolean valid;
 GIOChannel *io;
 
-	DB( g_print("(defbudget) save csv\n") );
+	DB( g_print("(ui_bud_manage) save csv\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -360,7 +492,7 @@ GIOChannel *io;
 					{
 						type = (category->flags & GF_CUSTOM) ? ' ' : '*';
 
-						outvalstr = defbudget_getcsvbudgetstr(category);
+						outvalstr = ui_bud_manage_getcsvbudgetstr(category);
 						outstr = g_strdup_printf("1;%c;%s;%s\n", type, category->name, outvalstr);
 						DB( g_print("%s", outstr) );
 						g_io_channel_write_chars(io, outstr, -1, NULL, NULL);
@@ -378,7 +510,7 @@ GIOChannel *io;
 
 						type = (category->flags & GF_CUSTOM) ? ' ' : '*';
 
-						outvalstr = defbudget_getcsvbudgetstr(category);
+						outvalstr = ui_bud_manage_getcsvbudgetstr(category);
 						if( outvalstr )
 						{
 							outstr = g_strdup_printf("2;%c;%s;%s\n", type, category->name, outvalstr);
@@ -413,21 +545,23 @@ GIOChannel *io;
 /*
 **
 */
-static void defbudget_update(GtkWidget *treeview, gpointer user_data)
+static void ui_bud_manage_update(GtkWidget *treeview, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 gboolean name, custom, sensitive;
 gint i;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("\n(defbudget) update %x\n", (gint)data) );
+	DB( g_print("\n(ui_bud_manage) update %x\n", (gint)data) );
 
 
 	name = FALSE;
 	if(data->cat != NULL)
+	{
 		name = data->cat->name == NULL ? FALSE : TRUE;
-
+	}
+	
 	sensitive = name;
 	gtk_widget_set_sensitive(data->CM_type[0], sensitive);
 	gtk_widget_set_sensitive(data->CM_type[1], sensitive);
@@ -456,14 +590,14 @@ gint i;
 /*
 **
 */
-static void defbudget_clear(GtkWidget *widget, gpointer user_data)
+static void ui_bud_manage_clear(GtkWidget *widget, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 gint i;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(defbudget) clear\n") );
+	DB( g_print("(ui_bud_manage) clear\n") );
 
 	//g_signal_handler_block(data->CM_type[0], data->handler_id[HID_CUSTOM]);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_type[0]), TRUE);
@@ -489,15 +623,15 @@ gint i;
 /*
 **
 */
-static void defbudget_set(GtkWidget *widget, gpointer user_data)
+static void ui_bud_manage_set(GtkWidget *widget, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 gint active;
 gint i;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(defbudget) set\n") );
+	DB( g_print("(ui_bud_manage) set\n") );
 
 	active = data->cat->flags & GF_CUSTOM ? 1 : 0;
 	//data->custom = active;
@@ -525,7 +659,7 @@ gint i;
 /*
 **
 */
-static void defbudget_getlast(struct defbudget_data *data)
+static void ui_bud_manage_getlast(struct ui_bud_manage_data *data)
 {
 gboolean budget, change;
 gint i;
@@ -535,7 +669,7 @@ gdouble oldvalue;
 
 	item = data->lastcatitem;
 
-	DB( g_print("****\n(defbudget) getlast for '%s'\n", item->name ) );
+	DB( g_print("****\n(ui_bud_manage) getlast for '%s'\n", item->name ) );
 
 	if( item != NULL )
 	{
@@ -592,15 +726,15 @@ gdouble oldvalue;
 /*
 **
 */
-static void defbudget_selection_change(GtkWidget *treeview, gpointer user_data)
+static void ui_bud_manage_selection_change(GtkWidget *treeview, gpointer user_data)
 {
-struct defbudget_data *data;
+struct ui_bud_manage_data *data;
 GtkTreeModel *model;
 GtkTreeIter iter;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(defbudget) changed\n") );
+	DB( g_print("(ui_bud_manage) changed\n") );
 
 	data->cat = NULL;
 
@@ -617,60 +751,60 @@ GtkTreeIter iter;
 		if(data->lastcatitem != NULL && item != data->lastcatitem)
 		{
 			DB( g_print(" -> should do a get for last selected (%s)\n", data->lastcatitem->name) );
-			defbudget_getlast(data);
+			ui_bud_manage_getlast(data);
 		}
 
 
 		data->cat = item;
 		data->lastcatitem = item;
 
-		defbudget_set(treeview, NULL);
+		ui_bud_manage_set(treeview, NULL);
 	}
 	else
 	{
 		data->lastcatitem = NULL;
 	}
 
-	defbudget_update(treeview, NULL);
+	ui_bud_manage_update(treeview, NULL);
 
 }
 
-static void defbudget_toggle(GtkRadioButton *radiobutton, gpointer user_data)
+static void ui_bud_manage_toggle(GtkRadioButton *radiobutton, gpointer user_data)
 {
-//struct defbudget_data *data;
+//struct ui_bud_manage_data *data;
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(radiobutton), GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(defbudget) toggle\n") );
+	DB( g_print("(ui_bud_manage) toggle\n") );
 
-	//defbudget_get(GTK_WIDGET(radiobutton), GINT_TO_POINTER(FIELD_TYPE));
+	//ui_bud_manage_get(GTK_WIDGET(radiobutton), GINT_TO_POINTER(FIELD_TYPE));
 
 	//data->custom ^= 1;
-	defbudget_update(GTK_WIDGET(radiobutton), NULL);
+	ui_bud_manage_update(GTK_WIDGET(radiobutton), NULL);
 }
 
 /*
 **
 */
-void defbudget_selection(GtkTreeSelection *treeselection, gpointer user_data)
+void ui_bud_manage_selection(GtkTreeSelection *treeselection, gpointer user_data)
 {
-	defbudget_selection_change(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
+	ui_bud_manage_selection_change(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
 }
 
 /*
 **
 */
-static gboolean defbudget_cleanup(struct defbudget_data *data, gint result)
+static gboolean ui_bud_manage_cleanup(struct ui_bud_manage_data *data, gint result)
 {
 gboolean doupdate = FALSE;
 
-	DB( g_print("(defbudget) cleanup\n") );
+	DB( g_print("(ui_bud_manage) cleanup\n") );
 
 
 		if(data->lastcatitem != NULL)
 		{
 			DB( g_print(" -> should do a get for last selected (%s)\n", data->lastcatitem->name) );
-			defbudget_getlast(data);
+			ui_bud_manage_getlast(data);
 		}
 
 
@@ -688,10 +822,10 @@ gboolean doupdate = FALSE;
 /*
 **
 */
-static void defbudget_setup(struct defbudget_data *data)
+static void ui_bud_manage_setup(struct ui_bud_manage_data *data)
 {
 
-	DB( g_print("(defbudget) setup\n") );
+	DB( g_print("(ui_bud_manage) setup\n") );
 
 	data->tmp_list = NULL;
 	data->change = 0;
@@ -705,15 +839,15 @@ static void defbudget_setup(struct defbudget_data *data)
 
 
 // the window creation
-GtkWidget *create_defbudget_window (void)
+GtkWidget *ui_bud_manage_dialog (void)
 {
-struct defbudget_data data;
+struct ui_bud_manage_data data;
 GtkWidget *window, *content, *bbox, *mainbox, *treeview, *scrollwin, *vbox, *radio, *table, *label, *widget;
 GtkWidget *spinner;
 GtkWidget *alignment;
 guint i, row;
 
-	memset(&data, 0, sizeof(struct defbudget_data));
+	memset(&data, 0, sizeof(struct ui_bud_manage_data));
 
       window = gtk_dialog_new_with_buttons (_("Manage Budget"),
 					    GTK_WINDOW(GLOBALS->mainwindow),
@@ -729,7 +863,7 @@ guint i, row;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_print("(defbudget) window=%p, inst_data=%p\n", window, &data) );
+	DB( g_print("(ui_bud_manage) window=%p, inst_data=%p\n", window, &data) );
 
 
 	//window contents
@@ -747,7 +881,7 @@ guint i, row;
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
- 	treeview = (GtkWidget *)defbudget_list_new();
+ 	treeview = (GtkWidget *)ui_bud_listview_new();
  	data.LV_cat = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 
@@ -820,7 +954,7 @@ guint i, row;
 		data.spinner[i+1] = spinner;
 		gtk_table_attach_defaults (GTK_TABLE (table), spinner, col+1, col+2, row, row+1);
 
-		DB( g_print("(defbudget) %s, col=%d, row=%d", months[i], col, row) );
+		DB( g_print("(ui_bud_manage) %s, col=%d, row=%d", months[i], col, row) );
 	}
 
 	row++;
@@ -849,23 +983,23 @@ guint i, row;
 			G_CALLBACK (gtk_widget_destroyed), &window);
 
 
-	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_cat)), "changed", G_CALLBACK (defbudget_selection), NULL);
-	//g_signal_connect (GTK_TREE_VIEW(data.LV_cat), "row-activated", G_CALLBACK (defbudget_onRowActivated), NULL);
+	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_cat)), "changed", G_CALLBACK (ui_bud_manage_selection), NULL);
+	//g_signal_connect (GTK_TREE_VIEW(data.LV_cat), "row-activated", G_CALLBACK (ui_bud_manage_onRowActivated), NULL);
 
-	data.handler_id[HID_CUSTOM] = g_signal_connect (data.CM_type[0], "toggled", G_CALLBACK (defbudget_toggle), NULL);
+	data.handler_id[HID_CUSTOM] = g_signal_connect (data.CM_type[0], "toggled", G_CALLBACK (ui_bud_manage_toggle), NULL);
 
 
-	g_signal_connect (G_OBJECT (data.BT_clear), "clicked", G_CALLBACK (defbudget_clear), NULL);
+	g_signal_connect (G_OBJECT (data.BT_clear), "clicked", G_CALLBACK (ui_bud_manage_clear), NULL);
 
-	g_signal_connect (G_OBJECT (data.BT_import), "clicked", G_CALLBACK (defbudget_load_csv), NULL);
-	g_signal_connect (G_OBJECT (data.BT_export), "clicked", G_CALLBACK (defbudget_save_csv), NULL);
+	g_signal_connect (G_OBJECT (data.BT_import), "clicked", G_CALLBACK (ui_bud_manage_load_csv), NULL);
+	g_signal_connect (G_OBJECT (data.BT_export), "clicked", G_CALLBACK (ui_bud_manage_save_csv), NULL);
 
 	//data.custom = FALSE;
 	//gtk_widget_set_sensitive(data.table, FALSE);
 
 	//setup, init and show window
-	defbudget_setup(&data);
-	defbudget_update(window, NULL);
+	ui_bud_manage_setup(&data);
+	ui_bud_manage_update(window, NULL);
 
 
 
@@ -884,142 +1018,9 @@ guint i, row;
     }
 
 	// cleanup and destroy
-	defbudget_cleanup(&data, result);
+	ui_bud_manage_cleanup(&data, result);
 	gtk_widget_destroy (window);
 
 	return NULL;
 }
-
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
-
-/*
-**
-** The function should return:
-** a negative integer if the first value comes before the second,
-** 0 if they are equal,
-** or a positive integer if the first value comes after the second.
-*/
-static gint defbudget_list_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
-{
-gint result = 0;
-Category *entry1, *entry2;
-gchar *name1, *name2;
-
-	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
-	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
-
-	result = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
-	if(!result)
-	{
-		name1 = entry1->name;
-		name2 = entry2->name;
-        if (name1 == NULL || name2 == NULL)
-        {
-          //if (name1 == NULL && name2 == NULL)
-          result = (name1 == NULL) ? -1 : 1;
-        }
-        else
-        {
-          result = g_utf8_collate(name1,name2);
-        }
-	}
-
-    return result;
-}
-
-/*
-** draw some text from the stored data structure
-*/
-static void defbudget_text_cell_data_function (GtkTreeViewColumn *col,
-				GtkCellRenderer *renderer,
-				GtkTreeModel *model,
-				GtkTreeIter *iter,
-				gpointer user_data)
-{
-Category *entry;
-gchar *name;
-gchar *string;
-gchar type;
-
-	gtk_tree_model_get(model, iter, LST_DEFCAT_DATAS, &entry, -1);
-
-	if(entry->key == 0)
-		name = g_strdup(_("(no category)"));
-	else
-		name = entry->name;
-
-type = (entry->flags & GF_INCOME) ? '+' : '-';
-
-	#if MYDEBUG
-		string = g_markup_printf_escaped("%s ::(f=%d, %c)", name, entry->flags, type );
-	#else
-	if(entry->key == 0)
-		string = g_strdup(name);
-	else
-	{
-		if(entry->flags & GF_BUDGET)
-		{
-			if( entry->parent == 0 )
-				string = g_markup_printf_escaped("<b>%s</b> [%c]", name, type);
-			else
-				string = g_markup_printf_escaped(" %c <b><i>%s</i></b>", type, name);
-		}
-		else
-		{
-			if( entry->parent == 0 )
-				string = g_markup_printf_escaped("%s [%c]", name, type);
-			else
-				string = g_markup_printf_escaped(" %c <i>%s</i>", type, name);
-		}
-	}
-	#endif
-
-	g_object_set(renderer, "markup", string, NULL);
-
-	g_free(string);
-}
-
-/*
-**
-*/
-GtkWidget *defbudget_list_new(void)
-{
-GtkTreeStore *store;
-GtkWidget *view;
-GtkCellRenderer    *renderer;
-GtkTreeViewColumn  *column;
-
-	//store
-	store = gtk_tree_store_new (
-		3,
-		//NUM_LST_DEFCAT,
-		G_TYPE_BOOLEAN,
-		G_TYPE_POINTER,
-		G_TYPE_UINT
-		);
-
-	//sortable
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, defbudget_list_compare_func, NULL, NULL);
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, GTK_SORT_ASCENDING);
-
-
-	//treeview
-	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-	g_object_unref(store);
-
-	/* column 1 */
-	column = gtk_tree_view_column_new();
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, defbudget_text_cell_data_function, GINT_TO_POINTER(1), NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DEFACC_NAME);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(view), FALSE);
-	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
-
-	return(view);
-}
-
-
 
