@@ -875,20 +875,19 @@ gboolean result;
 
 					if( data->cur_ope->paymode == PAYMODE_INTXFER )
 					{
-					Transaction *ltxn;
-
-						//nota: if kxfer is 0, the user has just changed the paymode to xfer
+						//nota: if kxfer is 0, the user may have just changed the paymode to xfer
 						DB( g_print(" - kxfer = %d\n", data->cur_ope->kxfer) );
 
-						//1) search a strong linked child
-						if(data->cur_ope->kxfer > 0)
+						if(data->cur_ope->kxfer > 0)	//1) search a strong linked child
 						{
-							DB( g_print(" - found a strong link ?\n") );
+						Transaction *ltxn;
 
-							ltxn = transaction_strong_get_child_transfer(data->cur_ope);
+							DB( g_print(" - old_txn: kacc=%d kxferacc=%d\n", old_txn->kacc, old_txn->kxferacc) );
+							
+							ltxn = transaction_strong_get_child_transfer(old_txn);
 							if(ltxn != NULL) //should never be the case
 							{
-								DB( g_print(" - yes, sync the linked txn\n") );
+								DB( g_print(" - strong link found, do sync\n") );
 								transaction_xfer_sync_child(data->cur_ope, ltxn);
 							}
 							else

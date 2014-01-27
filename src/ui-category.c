@@ -1026,6 +1026,17 @@ gboolean type;
 	}
 }
 
+
+static void ui_cat_manage_dialog_modify_entry_cb(GtkEditable *editable, gpointer user_data)
+{
+GtkDialog *window = user_data;
+const gchar *buffer;
+
+	buffer = gtk_entry_get_text(GTK_ENTRY(editable));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, strlen(buffer) > 0 ? TRUE : FALSE);
+}
+
+
 /*
 **
 */
@@ -1080,6 +1091,8 @@ GtkTreeIter			 iter;
 
 		gtk_widget_show_all(mainvbox);
 
+		g_signal_connect (G_OBJECT (w_name), "changed", G_CALLBACK (ui_cat_manage_dialog_modify_entry_cb), window);
+		
 		gtk_dialog_set_default_response(GTK_DIALOG( window ), GTK_RESPONSE_ACCEPT);
 
 		//wait for the user
@@ -1153,6 +1166,17 @@ GtkTreeIter			 iter;
 
 }
 
+
+static void ui_cat_manage_dialog_move_entry_cb(GtkComboBox *widget, gpointer user_data)
+{
+GtkDialog *window = user_data;
+guint dstkey;
+
+	dstkey = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(widget));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, dstkey != 0 ? TRUE : FALSE);
+}
+
+
 /*
 **
 */
@@ -1192,8 +1216,12 @@ GtkTreeIter			 iter;
 		getwidget = ui_cat_comboboxentry_new(NULL);
 		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
 
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, FALSE);
+		
 		gtk_widget_show_all(mainvbox);
 
+		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_cat_manage_dialog_move_entry_cb), window);
+		
 		ui_cat_comboboxentry_populate_except(GTK_COMBO_BOX(getwidget), GLOBALS->h_cat, item->key);
 		gtk_widget_grab_focus (getwidget);
 

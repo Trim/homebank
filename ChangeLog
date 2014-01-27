@@ -1,4 +1,32 @@
 
+2014-01-26  Maxime Doyen
+
+ Made 4.5.5 release.
+
+ * change: extended number of split from 6 to 10
+ * wish  : #1242274 balance when date descending 
+ * wish  : #1238575 total percentages in "Top 5" and ordering statistics
+ * wish  : #1231120 record discount on splitted item (mix exp/inc)
+ * wish  : #1202503 clarify when move a subcategory to category
+ * wish  : #953695  sorting by date tracks the order transactions are entered
+ * wish  : #735350  ability to change language
+ * bugfix: #1272760 qif split transaction import with >6 parts fails
+ * bugfix: #1270876 QIF export date does not follow settings
+ * bugfix: #1270687 balance doesn't recalculate if dates are changed
+ * bugfix: #1270457 duplicate hotkeys in Modify Transaction window
+ * bugfix: #1268026 internal xfer: do not copy the reconcile state
+ * bugfix: #1267344 remind transactions affecting running balance displayed
+ * bugfix: #1258821 existing Split transaction can't be summed again when modified
+ * bugfix: #1254544 date get back to today in add transaction dialog after adding a transaction
+ * bugfix: #1253004 rework the create new file from welcome dialog
+ * bugfix: #1252230 editing the account of an internal transfer transaction changes only one transaction (out of two)
+ * bugfix: #1250061 change internal payment connection
+ * bugfix: #1250057 select linked internal txn create a same txn when no selection
+ * bugfix: #1235465 auto assignment doesn't search the memo field of split transactions, so doesn't work
+ * bugfix: #1234879 running balance problem after sorting transactions by ascending date
+ * bugfix: #773282  QIF Credit Card import shows reverse Expense and Income
+
+
 2013-09-29  Maxime Doyen
 
  Made 4.5.4 release.
@@ -13,8 +41,8 @@
  Made 4.5.3 release.
 
  * bugfix: #1225611 Trend Time report : categories crashes on windows
- * bugfix: #1221484	End date not checked to be larger than Start date in reports 
- * bugfix: #1218644	There is a problem of calculating the column balances.
+ * bugfix: #1221484	end date not checked to be larger than Start date in reports 
+ * bugfix: #1218644	there is a problem of calculating the column balances.
  * bugfix: #1216321	reversed transactions
  * bugfix: #1216284	balance report do not exclude account with exclude from report checked
  * bugfix: #1215521	when importing qif, automatic assignments are not made

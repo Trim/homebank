@@ -35,11 +35,11 @@ CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
 # pre-relase # 2 - error as warning for 
 #CFLAGS="${CFLAGS} -Werror"
 
-# GLib/Gtk deprecated flags
-#CFLAGS="${CFLAGS} -DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
-
 # gtk3 migration
 #CFLAGS="${CFLAGS} -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE"
+
+# GLib/Gtk deprecated flags
+#CFLAGS="${CFLAGS} -DG_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
 
 
 # Check for libofx
@@ -81,7 +81,7 @@ AC_C_VOLATILE
 AC_CHECK_FUNCS([floor localeconv memset modf pow setlocale sqrt strcasecmp strtoul])
 
 # International support
-#ALL_LINGUAS="af ar ast be bg ca cs cy da de el en_AU en_CA en_GB es et eu fa fi fr ga gl he hr hu id is it ja ka ko lt lv ms nb nds nl oc pl pt_BR pt pt_PT ro ru si sk sl sr sv tr uk vi zh_CN zh_TW"
+#ALL_LINGUAS="af ar ast be bg ca cs cy da de el en_AU en_CA en_GB es et eu fa fi fr ga gl he hr hu id is it ja ka kn ko lt lv mr ms nb nds nl oc pl pt_BR pt pt_PT ro ru si sk sl sr sv tr uk vi zh_CN zh_TW" 
 
 #AM_GLIB_GNU_GETTEXT
 

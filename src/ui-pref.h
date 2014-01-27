@@ -32,6 +32,7 @@ struct defpref_data
 	GtkWidget	*image;
 	GtkWidget   *BT_clear;
 
+	GtkWidget	*CY_language;
 	GtkWidget	*CY_toolbar;
 	GtkWidget	*CY_colors;
 	GtkWidget	*CM_custom_colors;

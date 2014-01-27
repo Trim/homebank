@@ -437,6 +437,7 @@ Transaction *newope;
 		newope->date = g_date_get_julian(date);
 		g_date_free(date);
 	}
+
 // amount
 	if(data.amount_valid==true)
 	{

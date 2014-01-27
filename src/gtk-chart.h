@@ -20,10 +20,13 @@
 #ifndef __GTK_CHART_H__
 #define __GTK_CHART_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#include <glib.h>
+#include <gdk/gdk.h>
+#include <gtk/gtk.h>
+#include <cairo.h>
+#include <math.h>
 
+G_BEGIN_DECLS
 #define GTK_TYPE_CHART            (gtk_chart_get_type ())
 #define GTK_CHART(obj)			  (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_CHART, GtkChart))
 #define GTK_CHART_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GTK_TYPE_CHART, GtkChartClass)
@@ -33,6 +36,7 @@ extern "C" {
 
 typedef struct _GtkChart		GtkChart;
 typedef struct _GtkChartClass	GtkChartClass;
+//typedef struct _GtkChartPrivate	GtkChartPrivate;
 
 typedef gchar (* GtkChartPrintIntFunc)    (gint value, gboolean minor);
 typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
@@ -171,7 +175,7 @@ struct _GtkChartClass {
   void (*_gtk_reserved4) (void);
 };
 
-GType      gtk_chart_get_type              (void);
+GType gtk_chart_get_type (void) G_GNUC_CONST;
 
 /* public function */
 GtkWidget *gtk_chart_new(gint type);
@@ -194,9 +198,5 @@ void gtk_chart_show_overdrawn(GtkChart * chart, gboolean visible);
 void gtk_chart_show_xval(GtkChart * chart, gboolean visible);
 void gtk_chart_show_minor(GtkChart * chart, gboolean minor);
 
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
+G_END_DECLS
 #endif /* __GTK_CHART_H__ */

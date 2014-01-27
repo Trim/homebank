@@ -999,9 +999,9 @@ homebank_init_i18n (void)
 	setlocale (LC_ALL, "");
 	
 	bindtextdomain (GETTEXT_PACKAGE, homebank_app_get_locale_dir ());
-#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
+//#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-#endif
+//#endif
 
 	textdomain (GETTEXT_PACKAGE);
 
@@ -1084,6 +1084,8 @@ gboolean openlast;
 
 	if( homebank_setup() )
 	{
+		/*  change the locale if a language is specified  */
+		language_init (PREFS->language);
 
 		if( PREFS->showsplash == TRUE )
 		{

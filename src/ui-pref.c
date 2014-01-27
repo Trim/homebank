@@ -196,6 +196,437 @@ GtkWidget *list_txn_colprefcreate(void);
 
 static void list_txn_colpref_get(GtkTreeView *treeview, gboolean *columns);
 
+
+
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+typedef struct 
+{
+	gchar   *locale;
+	gchar   *name;
+	
+} LangName;
+
+static LangName languagenames[] =
+{
+// af ar ast be bg ca cs cy da de el en_AU en_CA en_GB es et eu fa fi fr ga gl he hr hu id is it 
+//ja ka ko lt lv ms nb nds nl oc pl pt_BR pt pt_PT ro ru si sk sl sr sv tr uk vi zh_CN zh_TW
+	
+	{ "aa", "Afar" },
+	{ "ab", "Abkhazian" },
+	{ "ae", "Avestan" },
+	{ "af", "Afrikaans" },
+	{ "ak", "Akan" },
+	{ "am", "Amharic" },
+	{ "an", "Aragonese" },
+	{ "ar", "Arabic" },
+	{ "as", "Assamese" },
+		{ "ast", "Asturian, Bable, Leonese, Asturleonese" },
+	{ "av", "Avaric" },
+	{ "ay", "Aymara" },
+	{ "az", "Azerbaijani" },
+	{ "ba", "Bashkir" },
+	{ "be", "Belarusian" },
+	{ "bg", "Bulgarian" },
+	{ "bh", "Bihari" },
+	{ "bi", "Bislama" },
+	{ "bm", "Bambara" },
+	{ "bn", "Bengali" },
+	{ "bo", "Tibetan" },
+	{ "br", "Breton" },
+	{ "bs", "Bosnian" },
+	{ "ca", "Catalan" },
+	{ "ce", "Chechen" },
+	{ "ch", "Chamorro" },
+	{ "co", "Corsican" },
+	{ "cr", "Cree" },
+	{ "cs", "Czech" },
+	{ "cu", "Old Church Slavonic" },
+	{ "cv", "Chuvash" },
+	{ "cy", "Welsh" },
+	{ "da", "Danish" },
+	{ "de", "German" },
+	{ "dv", "Divehi" },
+	{ "dz", "Dzongkha" },
+	{ "ee", "Ewe" },
+	{ "el", "Greek" },
+	{ "en", "English" },
+	{ "eo", "Esperanto" },
+	{ "es", "Spanish" },
+	{ "et", "Estonian" },
+	{ "eu", "Basque" },
+	{ "fa", "Persian" },
+	{ "ff", "Fulah" },
+	{ "fi", "Finnish" },
+	{ "fj", "Fijian" },
+	{ "fo", "Faroese" },
+	{ "fr", "French" },
+	{ "fy", "Western Frisian" },
+	{ "ga", "Irish" },
+	{ "gd", "Scottish Gaelic" },
+	{ "gl", "Galician" },
+	{ "gn", "Guarani" },
+	{ "gu", "Gujarati" },
+	{ "gv", "Manx" },
+	{ "ha", "Hausa" },
+	{ "he", "Hebrew" },
+	{ "hi", "Hindi" },
+	{ "ho", "Hiri Motu" },
+	{ "hr", "Croatian" },
+	{ "ht", "Haitian" },
+	{ "hu", "Hungarian" },
+	{ "hy", "Armenian" },
+	{ "hz", "Herero" },
+	{ "ia", "Interlingua" },
+	{ "id", "Indonesian" },
+	{ "ie", "Interlingue" },
+	{ "ig", "Igbo" },
+	{ "ii", "Sichuan Yi" },
+	{ "ik", "Inupiaq" },
+	{ "io", "Ido" },
+	{ "is", "Icelandic" },
+	{ "it", "Italian" },
+	{ "iu", "Inuktitut" },
+	{ "ja", "Japanese" },
+	{ "jv", "Javanese" },
+	{ "ka", "Georgian" },
+	{ "kg", "Kongo" },
+	{ "ki", "Kikuyu" },
+	{ "kj", "Kwanyama" },
+	{ "kk", "Kazakh" },
+	{ "kl", "Kalaallisut" },
+	{ "km", "Khmer" },
+	{ "kn", "Kannada" },
+	{ "ko", "Korean" },
+	{ "kr", "Kanuri" },
+	{ "ks", "Kashmiri" },
+	{ "ku", "Kurdish" },
+	{ "kv", "Komi" },
+	{ "kw", "Cornish" },
+	{ "ky", "Kirghiz" },
+	{ "la", "Latin" },
+	{ "lb", "Luxembourgish" },
+	{ "lg", "Ganda" },
+	{ "li", "Limburgish" },
+	{ "ln", "Lingala" },
+	{ "lo", "Lao" },
+	{ "lt", "Lithuanian" },
+	{ "lu", "Luba-Katanga" },
+	{ "lv", "Latvian" },
+	{ "mg", "Malagasy" },
+	{ "mh", "Marshallese" },
+	{ "mi", "Māori" },
+	{ "mk", "Macedonian" },
+	{ "ml", "Malayalam" },
+	{ "mn", "Mongolian" },
+	{ "mo", "Moldavian" },
+	{ "mr", "Marathi" },
+	{ "ms", "Malay" },
+	{ "mt", "Maltese" },
+	{ "my", "Burmese" },
+	{ "na", "Nauru" },
+	{ "nb", "Norwegian Bokmål" },
+	{ "nd", "North Ndebele" },
+		{ "nds", "Low German, Low Saxon" },
+	{ "ne", "Nepali" },
+	{ "ng", "Ndonga" },
+	{ "nl", "Dutch" },
+	{ "nn", "Norwegian Nynorsk" },
+	{ "no", "Norwegian" },
+	{ "nr", "South Ndebele" },
+	{ "nv", "Navajo" },
+	{ "ny", "Chichewa" },
+	{ "oc", "Occitan" },
+	{ "oj", "Ojibwa" },
+	{ "om", "Oromo" },
+	{ "or", "Oriya" },
+	{ "os", "Ossetian" },
+	{ "pa", "Panjabi" },
+	{ "pi", "Pāli" },
+	{ "pl", "Polish" },
+	{ "ps", "Pashto" },
+	{ "pt", "Portuguese" },
+	{ "qu", "Quechua" },
+	{ "rm", "Romansh" },
+	{ "rn", "Kirundi" },
+	{ "ro", "Romanian" },
+	{ "ru", "Russian" },
+	{ "rw", "Kinyarwanda" },
+	{ "sa", "Sanskrit" },
+	{ "sc", "Sardinian" },
+	{ "sd", "Sindhi" },
+	{ "se", "Northern Sami" },
+	{ "sg", "Sango" },
+	{ "si", "Sinhalese" },
+	{ "sk", "Slovak" },
+	{ "sl", "Slovene" },
+	{ "sm", "Samoan" },
+	{ "sn", "Shona" },
+	{ "so", "Somali" },
+	{ "sq", "Albanian" },
+	{ "sr", "Serbian" },
+	{ "ss", "Swati" },
+	{ "st", "Sotho" },
+	{ "su", "Sundanese" },
+	{ "sv", "Swedish" },
+	{ "sw", "Swahili" },
+	{ "ta", "Tamil" },
+	{ "te", "Telugu" },
+	{ "tg", "Tajik" },
+	{ "th", "Thai" },
+	{ "ti", "Tigrinya" },
+	{ "tk", "Turkmen" },
+	{ "tl", "Tagalog" },
+	{ "tn", "Tswana" },
+	{ "to", "Tonga" },
+	{ "tr", "Turkish" },
+	{ "ts", "Tsonga" },
+	{ "tt", "Tatar" },
+	{ "tw", "Twi" },
+	{ "ty", "Tahitian" },
+	{ "ug", "Uighur" },
+	{ "uk", "Ukrainian" },
+	{ "ur", "Urdu" },
+	{ "uz", "Uzbek" },
+	{ "ve", "Venda" },
+	{ "vi", "Viêt Namese" },
+	{ "vo", "Volapük" },
+	{ "wa", "Walloon" },
+	{ "wo", "Wolof" },
+	{ "xh", "Xhosa" },
+	{ "yi", "Yiddish" },
+	{ "yo", "Yoruba" },
+	{ "za", "Zhuang" },
+	{ "zh", "Chinese" },
+	{ "zu", "Zulu" }
+
+};
+
+
+static gint
+ui_language_combobox_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata)
+{
+gint ret = 0;
+gchar *name1, *name2;
+
+    gtk_tree_model_get(model, a, 0, &name1, -1);
+    gtk_tree_model_get(model, b, 0, &name2, -1);
+
+    if (name1 == NULL || name2 == NULL)
+    {
+        if (name1 == NULL && name2 == NULL)
+        goto end;
+
+        ret = (name1 == NULL) ? -1 : 1;
+    }
+    else
+    {
+        ret = g_utf8_collate(name1,name2);
+    }
+
+
+  end:
+
+    g_free(name1);
+    g_free(name2);
+
+  	return ret;
+}
+
+
+static gchar *languagename_get(const gchar *locale)
+{
+guint i;
+
+	for (i = 0; i < G_N_ELEMENTS (languagenames); i++)
+	{
+		if( g_ascii_strncasecmp(locale, languagenames[i].locale, -1) == 0 )
+			return languagenames[i].name;
+	}
+
+	return NULL;
+}
+
+
+static const gchar *
+ui_language_combobox_get_name(const gchar *locale)
+{
+const gchar *lang;
+
+	DB( g_print("[ui_language_combobox_get_name]\n") );
+
+	// A locale directory name is typically of the form language[_territory]
+	lang = languagename_get (locale);
+	if (! lang)
+	{
+	const gchar *delimiter = strchr (locale, '_'); //  strip off the territory suffix
+
+		if (delimiter)
+		{
+		gchar *copy = g_strndup (locale, delimiter - locale);
+			lang = languagename_get (copy);
+			g_free (copy);
+		}
+
+		if(! lang)
+		{
+			g_warning(" locale name not found '%s'", locale);
+			lang = locale;
+		}
+		
+	}
+
+	return lang;
+}
+
+
+static void
+ui_language_combobox_populate(GtkWidget *combobox)
+{
+GtkTreeModel *model;
+GtkTreeIter  iter;
+
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 
+	                    0, NULL,
+	                    1, _("System Language"),
+	                    -1);
+
+	GDir *dir = g_dir_open (homebank_app_get_locale_dir (), 0, NULL);
+const gchar *dirname;
+
+	if (! dir)
+		return;
+
+	while ((dirname = g_dir_read_name (dir)) != NULL)
+	{
+	gchar *filename = g_build_filename (homebank_app_get_locale_dir (),
+		                      dirname,
+		                      "LC_MESSAGES",
+		                      GETTEXT_PACKAGE ".mo",
+		                      NULL);
+		//DB( g_print("- seek for '%s'\n", filename) );
+		if (g_file_test (filename, G_FILE_TEST_EXISTS))
+		{
+		const gchar *lang;
+		gchar *label;
+			
+			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+
+			lang = ui_language_combobox_get_name(dirname);
+			label = g_strdup_printf ("%s [%s]", lang, dirname);
+
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter, 
+					            0, dirname,
+					            1, label,
+					            -1);
+			g_free(label);
+
+		}
+		g_free (filename);
+
+	}
+	g_dir_close (dir);
+
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
+
+}
+
+static gchar *ui_language_combobox_get_active_id(GtkComboBox *combobox)
+{
+GtkTreeModel *model;
+GtkTreeIter  iter;
+gchar *id = 0;
+
+	if( gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter) )
+	{
+		model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+		gtk_tree_model_get (GTK_TREE_MODEL(model), &iter, 
+				            0, &id,
+				            -1);
+	}
+
+	return id;
+}
+
+
+static gint ui_language_combobox_set_active_id(GtkComboBox *combobox, gchar *id)
+{
+GtkTreeModel *model;
+GtkTreeIter  iter;
+gboolean valid;
+gchar *tmp_id;
+gint i;
+
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
+	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
+	i = 0;
+	while (valid)
+	{
+		gtk_tree_model_get(GTK_TREE_MODEL(model), &iter,
+			0, &tmp_id,
+			-1);
+
+		if( tmp_id != NULL)
+		{
+			if( g_ascii_strncasecmp(id, tmp_id, -1) == 0 )
+			{
+				gtk_combo_box_set_active_iter(combobox, &iter);
+				return i;
+			}
+		}	
+		
+		valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
+		i++;
+	}
+	return i;
+}
+
+
+
+static GtkWidget *
+ui_language_combobox_new(GtkWidget *label)
+{
+GtkListStore *store;
+GtkWidget *combobox;
+GtkCellRenderer *renderer;
+
+	store = gtk_list_store_new (2,
+		G_TYPE_STRING,
+		G_TYPE_STRING
+		);
+	gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(store), ui_language_combobox_compare_func, NULL, NULL);
+
+	combobox = gtk_combo_box_new_with_model(GTK_TREE_MODEL(store));
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combobox), renderer, TRUE);
+	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combobox), renderer, "text", 1, NULL);
+
+	g_object_unref(store);
+
+	if(label)
+		gtk_label_set_mnemonic_widget (GTK_LABEL(label), combobox);
+
+	//gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
+	ui_language_combobox_populate(combobox);
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+	
+	return combobox;
+}
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+
+
+
+
+
 /*
 **
 */
@@ -582,6 +1013,11 @@ GdkColor color;
 
 	DB( g_print("\n[ui-pref] set\n") );
 
+	if(PREFS->language != NULL)
+		ui_language_combobox_set_active_id(GTK_COMBO_BOX(data->CY_language), PREFS->language);
+	else
+		gtk_combo_box_set_active (GTK_COMBO_BOX(data->CY_language), 0);
+
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_toolbar), PREFS->toolbar_style);
 	//gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_image_size), PREFS->image_size);
 
@@ -702,9 +1138,18 @@ const gchar *text;
 static void defpref_get(struct defpref_data *data)
 {
 GdkColor color;
+const gchar *lang;
 
 	DB( g_print("\n[ui-pref] get\n") );
 
+	g_free(PREFS->language);
+	PREFS->language = NULL;
+	lang = ui_language_combobox_get_active_id(GTK_COMBO_BOX(data->CY_language));
+	if(lang != NULL)
+	{
+		PREFS->language = g_strdup(lang);
+	}
+	
 	PREFS->toolbar_style = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_toolbar));
 	//PREFS->image_size = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_image_size));
 
@@ -1431,6 +1876,18 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (container), table, FALSE, FALSE, 0);
 
 	row = 0;
+	label = make_label(_("Language"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+
+	row++;
+	label = make_label(_("_Language:"), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = ui_language_combobox_new(label);
+	data->CY_language = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	
+	row++;
 	label = make_label(NULL, 0.0, 0.0);
 	gtk_label_set_markup (GTK_LABEL(label), _("<b>General</b>"));
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
@@ -1695,6 +2152,7 @@ gint result;
 	
 }
 
+
 // the window creation
 GtkWidget *defpref_dialog_new (void)
 {
@@ -1891,6 +2349,7 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	gtk_widget_show_all (window);
 
 	gint result;
+	gchar *old_lang;
 
 
 		//wait for the user
@@ -1899,9 +2358,23 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 		switch( result )
 		{
 			case GTK_RESPONSE_ACCEPT:
+				old_lang = g_strdup(PREFS->language);
 				defpref_get(&data);
 				ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_BALANCE+UF_VISUAL));
 				homebank_pref_save();
+
+				DB( g_print("old='%s' new='%s'\n", old_lang, PREFS->language) );
+				
+				if(g_ascii_strncasecmp(old_lang == NULL ? "" : old_lang, PREFS->language == NULL ? "" : PREFS->language, -1) != 0)
+				{
+					ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_INFO,
+						_("Info"),
+						_("You will have to restart HomeBank\nfor the language change to take effect."),
+						NULL);
+			
+				}
+
+				g_free(old_lang);
 				break;
 		}
 	

@@ -644,6 +644,16 @@ gchar *name;
 }
 
 
+static void ui_pay_manage_dialog_modify_entry_cb(GtkEditable *editable, gpointer user_data)
+{
+GtkDialog *window = user_data;
+const gchar *buffer;
+
+	buffer = gtk_entry_get_text(GTK_ENTRY(editable));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, strlen(buffer) > 0 ? TRUE : FALSE);
+}
+
+
 /*
 ** modify
 */
@@ -680,6 +690,8 @@ guint32 key;
 		getwidget = gtk_entry_new();
 		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
 		gtk_widget_show_all(mainvbox);
+
+		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_modify_entry_cb), window);
 
 		gtk_entry_set_text(GTK_ENTRY(getwidget), item->name);
 		gtk_widget_grab_focus (getwidget);
@@ -727,6 +739,17 @@ guint32 key;
 
 }
 
+
+static void ui_pay_manage_dialog_move_entry_cb(GtkComboBox *widget, gpointer user_data)
+{
+GtkDialog *window = user_data;
+guint dstkey;
+
+	dstkey = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(widget));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, dstkey != 0 ? TRUE : FALSE);
+}
+
+
 /*
 ** move
 */
@@ -769,8 +792,11 @@ GtkTreeIter			 iter;
 		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
 
 		//gtk_combo_box_set_active(GTK_COMBO_BOX(getwidget), oldpos);
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, FALSE);
 
 		gtk_widget_show_all(mainvbox);
+
+		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_move_entry_cb), window);
 
 		//data->tmp_list = g_list_sort(data->tmp_list, (GCompareFunc)ui_pay_manage_dialog_list_sort);
 		ui_pay_comboboxentry_populate_except(GTK_COMBO_BOX(getwidget), GLOBALS->h_pay, entry->key);

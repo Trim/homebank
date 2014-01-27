@@ -440,7 +440,7 @@ GList *list;
 
 	DB( g_print("\n[transaction] transaction_strong_get_child_transfer\n") );
 
-	//DB( g_print(" - search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
+	DB( g_print(" - search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->kacc, src->kxferacc) );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -448,9 +448,9 @@ GList *list;
 		Transaction *item = list->data;
 		//#1252230
 		//if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
-		if( item->paymode == PAYMODE_INTXFER && item->kxfer == src->kxfer && item->kxferacc == src->kacc )
+		if( item->paymode == PAYMODE_INTXFER && item->kxfer == src->kxfer && item != src )
 		{
-			//DB( g_print(" - found : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
+			DB( g_print(" - found : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->kacc, item->kxferacc) );
 			return item;
 		}
 		list = g_list_next(list);
@@ -643,18 +643,12 @@ void transaction_xfer_sync_child(Transaction *s_txn, Transaction *child)
 		g_free(child->info);
 	child->info		= g_strdup(s_txn->info);
 
-	DB( g_print(" - source: kacc=%d kxferacc=%d\n", s_txn->kacc, s_txn->kxferacc) );
-	DB( g_print(" - child: kacc=%d kxferacc=%d\n", child->kacc, child->kxferacc) );
-
 	//#1252230 sync account also
 	child->kacc		= s_txn->kxferacc;
 	child->kxferacc = s_txn->kacc;
 
-	DB( g_print(" - source: kacc=%d kxferacc=%d\n", s_txn->kacc, s_txn->kxferacc) );
-	DB( g_print(" - child: kacc=%d kxferacc=%d\n", child->kacc, child->kxferacc) );
-	
-
 	account_balances_add (child);
+	
 	//todo: synchronise tags here also ?
 
 }

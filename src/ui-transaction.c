@@ -1102,7 +1102,7 @@ gint row;
 
 
 		row++;
-	label = gtk_label_new_with_mnemonic (_("Pay_ment:"));
+	label = gtk_label_new_with_mnemonic (_("Pa_yment:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 0,1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_paymode(label);
@@ -1324,7 +1324,7 @@ GtkWidget *alignment;
 	}
 
 	//connect all our signals
-	g_signal_connect (GTK_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), data);
+	g_signal_connect (G_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), data);
 	g_signal_connect (G_OBJECT (data->BT_amount), "clicked", G_CALLBACK (deftransaction_toggleamount), NULL);
 	g_signal_connect (G_OBJECT (data->BT_split), "clicked", G_CALLBACK (deftransaction_button_split_cb), NULL);
 

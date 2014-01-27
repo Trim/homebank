@@ -208,6 +208,8 @@ void homebank_pref_free(void)
 	g_free(PREFS->path_export);
 	//g_free(PREFS->path_navigator);
 
+	g_free(PREFS->language);
+
 	g_free(PREFS->base_cur.prefix_symbol);
 	g_free(PREFS->base_cur.suffix_symbol);
 	g_free(PREFS->base_cur.decimal_char);	
@@ -230,6 +232,8 @@ gint i;
 
 	homebank_pref_free();
 
+	PREFS->language = NULL;
+	
 	PREFS->date_format = g_strdup(DEFAULT_FORMAT_DATE);
 
 	PREFS->path_hbfile = g_strdup_printf("%s", g_get_home_dir ());
@@ -562,6 +566,8 @@ GError *error = NULL;
 				}
 			
 				DB( g_print(" - version: %d\n", version) );
+
+				homebank_pref_get_string(keyfile, group, "Language", &PREFS->language);
 			
 				homebank_pref_get_short(keyfile, group, "BarStyle" , &PREFS->toolbar_style);
 
@@ -859,6 +865,8 @@ gsize length;
 
 		group = "General";
 		g_key_file_set_integer  (keyfile, group, "Version", PREF_VERSION);
+
+		homebank_pref_set_string  (keyfile, group, "Language", PREFS->language);
 
 		g_key_file_set_integer (keyfile, group, "BarStyle", PREFS->toolbar_style);
 		//g_key_file_set_integer (keyfile, group, "BarImageSize", PREFS->image_size);

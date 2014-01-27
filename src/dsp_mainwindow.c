@@ -1257,7 +1257,7 @@ next1:
 				  LST_TOPSPEND_KEY, 0,
 				  LST_TOPSPEND_NAME, name,
 				  LST_TOPSPEND_AMOUNT, value,
-				  LST_TOPSPEND_RATE, (gint)(((ABS(value)*100)/ABS(total)) + 0.5),
+				  //LST_TOPSPEND_RATE, (gint)(((ABS(value)*100)/ABS(total)) + 0.5),
 				  -1);
 
 		}
@@ -1271,7 +1271,7 @@ next1:
 				  LST_TOPSPEND_KEY, 0,
 				  LST_TOPSPEND_NAME, _("Other"),
 				  LST_TOPSPEND_AMOUNT, other,
-				  LST_TOPSPEND_RATE, (gint)(((ABS(other)*100)/ABS(total)) + 0.5),
+				  //LST_TOPSPEND_RATE, (gint)(((ABS(other)*100)/ABS(total)) + 0.5),
 				  -1);
 		}
 			

@@ -20,7 +20,7 @@
 #ifndef __HB_TRANSACTION_H__
 #define __HB_TRANSACTION_H__
 
-#define TXN_MAX_SPLIT 6
+#define TXN_MAX_SPLIT 10
 
 typedef struct _split Split;
 typedef struct _transaction	Transaction;

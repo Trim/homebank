@@ -66,6 +66,8 @@ struct Preferences
 	gboolean	loadlast;
 	gboolean	appendscheduled;
 
+	gchar	   *language;
+	
 	gchar		*path_hbfile;
 	gchar		*path_import;
 	gchar		*path_export;

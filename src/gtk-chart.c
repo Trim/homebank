@@ -491,24 +491,17 @@ GdkColor colour;
 		valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(chart->legend), &iter);
 		while (valid)
 		{
-		gdouble amount, ramount;
-		gint rate;
+		gdouble amount, rate;
 		
 			gtk_tree_model_get(GTK_TREE_MODEL(chart->legend), &iter,
 				LST_LEGEND_AMOUNT, &amount,
 			-1);
 
-			ramount = floor((amount * 100) + 0.5) / 100;
-			if(ramount == 0.0)
-				rate = 0;
-			else
-				rate = (gint)((ABS(amount)*100)/ABS(chart->total)) + 0.5;
-
+			rate = ABS( amount*100/chart->total);
 
 			gtk_list_store_set(GTK_LIST_STORE(chart->legend), &iter,
 				LST_LEGEND_RATE, rate,
 			-1);
-
 	
 			valid = gtk_tree_model_iter_next (GTK_TREE_MODEL(chart->legend), &iter);
 		}
@@ -2175,14 +2168,14 @@ static void legend_list_rate_cell_data_function (GtkTreeViewColumn *col,
                            GtkTreeIter       *iter,
                            gpointer           user_data)
 {
-gint rate;
+gdouble rate;
 gchar buf[8];
 
 	gtk_tree_model_get(model, iter,
 		LST_LEGEND_RATE, &rate,
 		-1);
 
-	g_snprintf(buf, sizeof(buf), "%d %%", rate);
+	g_snprintf(buf, sizeof(buf), "%.02f %%", rate);
 	g_object_set(renderer, "text", buf, NULL);
 
 }
@@ -2200,7 +2193,7 @@ GtkTreeViewColumn  *column;
 		GDK_TYPE_PIXBUF,
 		G_TYPE_STRING,
 		G_TYPE_DOUBLE,
-		G_TYPE_INT
+		G_TYPE_DOUBLE
 		);
 
 	//treeview
@@ -2208,7 +2201,7 @@ GtkTreeViewColumn  *column;
 	g_object_unref(store);
 
 #if MYDEBUG == 1
-	GtkStyle *style;
+/*	GtkStyle *style;
 	PangoFontDescription *font_desc;
 
 	style = gtk_widget_get_style(GTK_WIDGET(view));
@@ -2216,6 +2209,7 @@ GtkTreeViewColumn  *column;
 
 	g_print("family: %s\n", pango_font_description_get_family(font_desc) );
 	g_print("size: %d (%d)\n", pango_font_description_get_size (font_desc), pango_font_description_get_size (font_desc )/PANGO_SCALE );
+*/
 #endif
 
 	// change the font size to a smaller one

@@ -474,43 +474,48 @@ QIF_Tran tran = { 0 };
 					}
 					else
 
-				// split category
-					if(g_str_has_prefix(tmpstr, "S"))
+					if(tran.nb_splits < TXN_MAX_SPLIT)
 					{
-					QIFSplit *s = &tran.splits[tran.nb_splits];
-						if(*value != '\0')
-						{
-							g_free(s->category);
-							g_strstrip(value);
-							s->category = g_strdup(value);
-						}
-					}
-					else
 
-				// split memo
-					if(g_str_has_prefix(tmpstr, "E"))
-					{
-					QIFSplit *s = &tran.splits[tran.nb_splits];
-						if(*value != '\0')
+					// split category
+						if(g_str_has_prefix(tmpstr, "S"))
 						{
-							g_free(s->memo);
-							s->memo = g_strdup(value);
+						QIFSplit *s = &tran.splits[tran.nb_splits];
+							if(*value != '\0')
+							{
+								g_free(s->category);
+								g_strstrip(value);
+								s->category = g_strdup(value);
+							}
 						}
-					}
-					else
+						else
 
-				// split amount
-					if(g_str_has_prefix(tmpstr, "$"))
-					{
-					QIFSplit *s = &tran.splits[tran.nb_splits];
+					// split memo
+						if(g_str_has_prefix(tmpstr, "E"))
+						{
+						QIFSplit *s = &tran.splits[tran.nb_splits];
+							if(*value != '\0')
+							{
+								g_free(s->memo);
+								s->memo = g_strdup(value);
+							}
+						}
+						else
+
+					// split amount
+						if(g_str_has_prefix(tmpstr, "$"))
+						{
+						QIFSplit *s = &tran.splits[tran.nb_splits];
 						
-						s->amount = hb_qif_parser_get_amount(value);
-						// $ line normally end a split
-						#if MYDEBUG == 1
-						g_print(" -> new split added: [%d] S=%s, E=%s, $=%.2f\n", tran.nb_splits, s->category, s->memo, s->amount);
-						#endif
+							s->amount = hb_qif_parser_get_amount(value);
+							// $ line normally end a split
+							#if MYDEBUG == 1
+							g_print(" -> new split added: [%d] S=%s, E=%s, $=%.2f\n", tran.nb_splits, s->category, s->memo, s->amount);
+							#endif
 						
-						tran.nb_splits++;						
+							tran.nb_splits++;						
+						}
+					// end split
 					}
 					else
 
