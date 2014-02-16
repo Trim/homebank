@@ -249,9 +249,7 @@ static const gchar *ui_info =
 "    </menu>"
 "    <menu action='ViewMenu'>"
 "      <menuitem action='Toolbar'/>"
-"        <separator/>"
 "      <menuitem action='Spending'/>"
-"        <separator/>"
 "      <menuitem action='Upcoming'/>"
 "        <separator/>"
 "      <menuitem action='AsMinor'/>"
@@ -1387,6 +1385,12 @@ gint usermode = GPOINTER_TO_INT(user_data);
 	{
 	gchar *txt;
 
+		//#125534
+		if( count > 0 )
+		{
+			ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_REFRESHALL));
+		}
+		
 		if(count == 0)
 			txt = _("No transaction to add");
 		else

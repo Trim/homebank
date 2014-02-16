@@ -261,71 +261,71 @@ Transaction *item;
 
 
 static gint
-hb_qif_parser_get_block_type(gchar *tmpstr)
+hb_qif_parser_get_block_type(gchar *qif_line)
 {
 gchar **typestr;
 gint type = QIF_NONE;
 
 	DB( g_print("--------\n(account) block type\n") );
 
-	//DB( g_print(" -> str: %s type: %d\n", tmpstr, type) );
+	//DB( g_print(" -> str: %s type: %d\n", qif_line, type) );
 
 
-	if(g_str_has_prefix(tmpstr, "!Account") || g_str_has_prefix(tmpstr, "!account"))
+	if(g_str_has_prefix(qif_line, "!Account") || g_str_has_prefix(qif_line, "!account"))
 	{
 		type = QIF_ACCOUNT;
 	}
 	else
 	{
-		typestr = g_strsplit(tmpstr, ":", 2);
+		typestr = g_strsplit(qif_line, ":", 2);
 
 		if( g_strv_length(typestr) == 2 )
 		{
-			gchar *tmpstr = g_utf8_casefold(typestr[1], -1);
+			gchar *qif_line = g_utf8_casefold(typestr[1], -1);
 
 			//DB( g_print(" -> str[1]: %s\n", typestr[1]) );
 
-			if( g_str_has_prefix(tmpstr, "bank") )
+			if( g_str_has_prefix(qif_line, "bank") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "cash") )
+			if( g_str_has_prefix(qif_line, "cash") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "ccard") )
+			if( g_str_has_prefix(qif_line, "ccard") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "invst") )
+			if( g_str_has_prefix(qif_line, "invst") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "oth a") )
+			if( g_str_has_prefix(qif_line, "oth a") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "oth l") )
+			if( g_str_has_prefix(qif_line, "oth l") )
 			{
 				type = QIF_TRANSACTION;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "security") )
+			if( g_str_has_prefix(qif_line, "security") )
 			{
 				type = QIF_SECURITY;
 			}
 			else
-			if( g_str_has_prefix(tmpstr, "prices") )
+			if( g_str_has_prefix(qif_line, "prices") )
 			{
 				type = QIF_PRICES;
 			}
 
-			g_free(tmpstr);
+			g_free(qif_line);
 		}
 		g_strfreev(typestr);
 	}
@@ -347,7 +347,7 @@ QIF_Tran tran = { 0 };
 	io = g_io_channel_new_file(filename, "r", NULL);
 	if(io != NULL)
 	{
-	gchar *tmpstr;
+	gchar *qif_line;
 	GError *err = NULL;
 	gint io_stat;
 	gint type = QIF_NONE;
@@ -360,17 +360,13 @@ QIF_Tran tran = { 0 };
 			g_io_channel_set_encoding(io, encoding, NULL);
 		}
 
-
 		DB( g_print(" -> encoding is %s\n", g_io_channel_get_encoding(io)) );
-
-		//g_io_channel_set_encoding(io, NULL, NULL);
 
 		cur_acc = g_strdup(QIF_UNKNOW_ACCOUNT_NAME);
 
 		for(;;)
 		{
-			io_stat = g_io_channel_read_line(io, &tmpstr, NULL, NULL, &err);
-
+			io_stat = g_io_channel_read_line(io, &qif_line, NULL, NULL, &err);
 
 			if( io_stat == G_IO_STATUS_EOF )
 				break;
@@ -381,246 +377,238 @@ QIF_Tran tran = { 0 };
 			}
 			if( io_stat == G_IO_STATUS_NORMAL )
 			{
+				hb_string_strip_crlf(qif_line);
 
-				hb_string_strip_crlf(tmpstr);
-
-				//DB (g_print("** new QIF line: '%s' **\n", tmpstr));
-
+				//DB (g_print("** new QIF line: '%s' **\n", qif_line));
 
 				//start qif parsing
-				if(g_str_has_prefix(tmpstr, "!")) /* !Type: or !Option: or !Account otherwise ignore */
+				if(g_str_has_prefix(qif_line, "!")) /* !Type: or !Option: or !Account otherwise ignore */
 				{
-					type = hb_qif_parser_get_block_type(tmpstr);
-					DB ( g_print("-> ---- QIF block: '%s' (type = %d) ----\n", tmpstr, type) );
+					type = hb_qif_parser_get_block_type(qif_line);
+					DB ( g_print("-> ---- QIF block: '%s' (type = %d) ----\n", qif_line, type) );
 				}
 
-				value = &tmpstr[1];
+				value = &qif_line[1];
 
 				if( type == QIF_ACCOUNT )
 				{
-
-					// Name
-					if(g_str_has_prefix(tmpstr, "N"))
+					switch(qif_line[0])
 					{
+						case 'N':   // Name
+						{
+							g_free(cur_acc);
+							g_strstrip(value);
+							cur_acc = g_strdup(value);
+							DB ( g_print(" name: '%s'\n", value) );
+							break;
+						}
 
-						g_free(cur_acc);
-						g_strstrip(value);
-						cur_acc = g_strdup(value);
+						case 'T':   // Type of account
+						{
 
+							DB ( g_print(" type: '%s'\n", value) );
+							break;
+						}
+						
+						case 'L':   // Credit limit (only for credit card accounts)
+						if(g_str_has_prefix(qif_line, "L"))
+						{
 
-						DB ( g_print(" name: '%s'\n", value) );
+							DB ( g_print(" credit limit: '%s'\n", value) );
+							break;
+						}
+
+						case '$':   // Statement balance amount
+						{
+
+							DB ( g_print(" balance: '%s'\n", value) );
+							break;
+						}
+
+						case '^':   // end
+						{
+							DB ( g_print("should create account '%s' here\n", cur_acc) );
+
+							DB ( g_print(" ----------------\n") );
+							break;
+						}
 					}
-					else
-
-					// Type of account
-					if(g_str_has_prefix(tmpstr, "T"))
-					{
-
-						DB ( g_print(" type: '%s'\n", value) );
-					}
-					else
-
-					// Credit limit (only for credit card accounts)
-					if(g_str_has_prefix(tmpstr, "L"))
-					{
-
-						DB ( g_print(" credit limit: '%s'\n", value) );
-					}
-					else
-
-					// Statement balance amount
-					if(g_str_has_prefix(tmpstr, "$"))
-					{
-
-						DB ( g_print(" balance: '%s'\n", value) );
-					}
-					else
-
-					// end
-					if(g_str_has_prefix(tmpstr, "^"))
-					{
-						DB ( g_print("should create account '%s' here\n", cur_acc) );
-
-						DB ( g_print(" ----------------\n") );
-					}
-
 				}
 
-		/* transaction */
 				if( type == QIF_TRANSACTION )
 				{
-				//date
-					if(g_str_has_prefix(tmpstr, "D"))
+					switch(qif_line[0])
 					{
-					gchar *ptr;
-
-						// US Quicken seems to be using the ' to indicate post-2000 two-digit years
-						//(such as 01/01'00 for Jan 1 2000)
-						ptr = g_strrstr (value, "\'");
-						if(ptr != NULL) { *ptr = '/'; }
-
-						ptr = g_strrstr (value, " ");
-						if(ptr != NULL) { *ptr = '0'; }
-
-						g_free(tran.date);
-						tran.date = g_strdup(value);
-					}
-					else
-
-				// amount
-					if(g_str_has_prefix(tmpstr, "T"))
-					{
-						tran.amount = hb_qif_parser_get_amount(value);
-					}
-					else
-
-					if(tran.nb_splits < TXN_MAX_SPLIT)
-					{
-
-					// split category
-						if(g_str_has_prefix(tmpstr, "S"))
+						case 'D':   //date
 						{
-						QIFSplit *s = &tran.splits[tran.nb_splits];
-							if(*value != '\0')
-							{
-								g_free(s->category);
-								g_strstrip(value);
-								s->category = g_strdup(value);
-							}
-						}
-						else
+						gchar *ptr;
 
-					// split memo
-						if(g_str_has_prefix(tmpstr, "E"))
-						{
-						QIFSplit *s = &tran.splits[tran.nb_splits];
-							if(*value != '\0')
-							{
-								g_free(s->memo);
-								s->memo = g_strdup(value);
-							}
-						}
-						else
+							// US Quicken seems to be using the ' to indicate post-2000 two-digit years
+							//(such as 01/01'00 for Jan 1 2000)
+							ptr = g_strrstr (value, "\'");
+							if(ptr != NULL) { *ptr = '/'; }
 
-					// split amount
-						if(g_str_has_prefix(tmpstr, "$"))
-						{
-						QIFSplit *s = &tran.splits[tran.nb_splits];
-						
-							s->amount = hb_qif_parser_get_amount(value);
-							// $ line normally end a split
-							#if MYDEBUG == 1
-							g_print(" -> new split added: [%d] S=%s, E=%s, $=%.2f\n", tran.nb_splits, s->category, s->memo, s->amount);
-							#endif
-						
-							tran.nb_splits++;						
-						}
-					// end split
-					}
-					else
+							ptr = g_strrstr (value, " ");
+							if(ptr != NULL) { *ptr = '0'; }
 
-				// cleared status
-					if(g_str_has_prefix(tmpstr, "C"))
-					{
-						if(g_str_has_prefix(value, "X") || g_str_has_prefix(value, "R") )
-						{
-							tran.reconciled = TRUE;
+							g_free(tran.date);
+							tran.date = g_strdup(value);
+							break;
 						}
-						else
+
+						case 'T':   // amount
+						{
+							tran.amount = hb_qif_parser_get_amount(value);
+							break;
+						}
+
+						case 'C':   // cleared status
+						{
 							tran.reconciled = FALSE;
-					}
-					else
-
-				// check num or reference number
-					if(g_str_has_prefix(tmpstr, "N"))
-					{
-						if(*value != '\0')
-						{
-							g_free(tran.info);
-							g_strstrip(value);
-							tran.info = g_strdup(value);
-						}
-					}
-					else
-
-				// payee
-					if(g_str_has_prefix(tmpstr, "P"))
-					{
-						if(*value != '\0')
-						{
-							g_free(tran.payee);
-							g_strstrip(value);
-							tran.payee = g_strdup(value);
-						}
-					}
-					else
-
-				// memo
-					if(g_str_has_prefix(tmpstr, "M"))
-					{
-						if(*value != '\0')
-						{
-							g_free(tran.memo);
-							tran.memo = g_strdup(value);
-						}
-					}
-					else
-
-				// category
-					if(g_str_has_prefix(tmpstr, "L"))
-					{
-						// LCategory of transaction
-						// L[Transfer account name]
-						// LCategory of transaction/Class of transaction
-						// L[Transfer account]/Class of transaction
-						// this is managed at insertion
-
-						if(*value != '\0')
-						{
-							g_free(tran.category);
-							g_strstrip(value);
-							tran.category = g_strdup(value);
-						}
-					}
-					else
-
-				// end
-					if(g_str_has_prefix(tmpstr, "^"))
-					{
-					QIF_Tran *newitem;
-
-						//fix: 380550
-						if( tran.date )
-						{
-							tran.account = g_strdup(cur_acc);
-
-							DB ( g_print(" -> store qif txn: dat:'%s' amt:%.2f pay:'%s' mem:'%s' cat:'%s' acc:'%s' nbsplit:%d\n", tran.date, tran.amount, tran.payee, tran.memo, tran.category, tran.account, tran.nb_splits) );
-
-							newitem = da_qif_tran_malloc();
-							da_qif_tran_move(&tran, newitem);
-							da_qif_tran_append(ctx, newitem);
+							if(g_str_has_prefix(value, "X") || g_str_has_prefix(value, "R") )
+							{
+								tran.reconciled = TRUE;
+							}								
+							break;
 						}
 
-						//unvalid tran
-						tran.date = 0;
-						//todo: should clear mem alloc here
+						case 'N':   // check num or reference number
+						{
+							if(*value != '\0')
+							{
+								g_free(tran.info);
+								g_strstrip(value);
+								tran.info = g_strdup(value);
+							}
+							break;
+						}
+
+						case 'P':   // payee
+						{
+							if(*value != '\0')
+							{
+								g_free(tran.payee);
+								g_strstrip(value);
+								tran.payee = g_strdup(value);
+							}
+							break;
+						}
+
+						case 'M':   // memo
+						{
+							if(*value != '\0')
+							{
+								g_free(tran.memo);
+								tran.memo = g_strdup(value);
+							}
+							break;
+						}
+
+						case 'L':   // category
+						{
+							// LCategory of transaction
+							// L[Transfer account name]
+							// LCategory of transaction/Class of transaction
+							// L[Transfer account]/Class of transaction
+							// this is managed at insertion
+							if(*value != '\0')
+							{
+								g_free(tran.category);
+								g_strstrip(value);
+								tran.category = g_strdup(value);
+							}
+							break;
+						}
+
+						case 'S':
+						case 'E':
+						case '$':
+						{
+							if(tran.nb_splits < TXN_MAX_SPLIT)
+							{
+								switch(qif_line[0])
+								{
+									case 'S':   // split category
+									{
+									QIFSplit *s = &tran.splits[tran.nb_splits];
+										if(*value != '\0')
+										{
+											g_free(s->category);
+											g_strstrip(value);
+											s->category = g_strdup(value);
+										}
+										break;
+									}
+									
+									case 'E':   // split memo
+									{
+									QIFSplit *s = &tran.splits[tran.nb_splits];
+										if(*value != '\0')
+										{
+											g_free(s->memo);
+											s->memo = g_strdup(value);
+										}
+										break;
+									}
+
+									case '$':   // split amount
+									{
+									QIFSplit *s = &tran.splits[tran.nb_splits];
+					
+										s->amount = hb_qif_parser_get_amount(value);
+										// $ line normally end a split
+										#if MYDEBUG == 1
+										g_print(" -> new split added: [%d] S=%s, E=%s, $=%.2f\n", tran.nb_splits, s->category, s->memo, s->amount);
+										#endif
+					
+										tran.nb_splits++;						
+										break;
+									}
+								}
+								
+							}
+							// end split
+							break;
+						}
+							
+						case '^':   // end of line
+						{
+						QIF_Tran *newitem;
+
+							//fix: 380550
+							if( tran.date )
+							{
+								tran.account = g_strdup(cur_acc);
+
+								DB ( g_print(" -> store qif txn: dat:'%s' amt:%.2f pay:'%s' mem:'%s' cat:'%s' acc:'%s' nbsplit:%d\n", tran.date, tran.amount, tran.payee, tran.memo, tran.category, tran.account, tran.nb_splits) );
+
+								newitem = da_qif_tran_malloc();
+								da_qif_tran_move(&tran, newitem);
+								da_qif_tran_append(ctx, newitem);
+							}
+
+							//unvalid tran
+							tran.date = 0;
+							//todo: should clear mem alloc here
 						
-						tran.nb_splits = 0;
+							tran.nb_splits = 0;
+							break;
+						}
 
 					}
-				}
+					// end of switch
+
+				}   
 				// end QIF_TRANSACTION
-
-
 			}
-			g_free(tmpstr);
+			// end of stat normal
+			g_free(qif_line);
 		}
-		g_io_channel_unref (io);
+		// end of for loop
 
 		g_free(cur_acc);
-
+		g_io_channel_unref (io);
 	}
-
 
 }
 

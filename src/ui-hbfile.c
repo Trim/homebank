@@ -240,7 +240,7 @@ gint row;
 
 	hbox = gtk_hbox_new(FALSE, HB_BOX_SPACING);
 	gtk_table_attach (GTK_TABLE (table), hbox, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	spinner = make_numeric(NULL, 0, 92);
+	spinner = make_numeric(NULL, 0, 365);
 	data.NU_nbdays = spinner;
     gtk_box_pack_start (GTK_BOX (hbox), spinner, FALSE, FALSE, 0);
 	//TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
