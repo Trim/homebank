@@ -936,21 +936,6 @@ gboolean sensitive;
 	}
 
 	deftransaction_update_accto(widget, user_data);
-
-	/*
-	if( payment == PAYMODE_INTXFER && data->type == TRANSACTION_EDIT_ADD )
-	{
-		// #617936 : for internal trn: value must be seized > 0
-		gtk_spin_button_set_range(data->ST_amount, 0, G_MAXDOUBLE);
-		gtk_widget_set_sensitive(data->BT_amount, FALSE);
-	}
-	else
-	{
-		gtk_spin_button_set_range(data->ST_amount, -G_MAXDOUBLE, G_MAXDOUBLE);
-		gtk_widget_set_sensitive(data->BT_amount, TRUE);
-	}
-*/
-
 	DB( g_print(" payment: %d, page: %d\n", payment, page) );
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->notebook), page);
@@ -1150,7 +1135,27 @@ gint row;
 	data->PO_acc = widget;
 	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
+	//fill from
+	row++;
+	if( data->type != TRANSACTION_EDIT_MODIFY && da_archive_length() > 0)
+	{
+	GtkWidget *expander;
 
+		expander = gtk_expander_new (_("Fill in with a template"));
+		gtk_table_attach (GTK_TABLE (table), expander, 0, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+		hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
+		gtk_container_add (GTK_CONTAINER (expander), hbox);
+
+		label = make_label(_("_Template:"), 0, 0.5);
+		widget = make_poparchive(label);
+		data->PO_arc = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+		gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
+
+		g_signal_connect (data->PO_arc, "changed", G_CALLBACK (deftransaction_fillfrom), NULL);
+	}
+	
 	return table;
 }
 
@@ -1220,7 +1225,7 @@ gint row;
 GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type)
 {
 struct deftransaction_data *data;
-GtkWidget *window, *content, *hbox, *mainbox, *table, *label, *widget, *expander;
+GtkWidget *window, *content, *hbox, *mainbox, *table;
 GtkWidget *alignment;
 
 	DB( g_print("(ui_transaction) new\n") );
@@ -1304,24 +1309,7 @@ GtkWidget *alignment;
 	gtk_container_add(GTK_CONTAINER(alignment), table);
 	gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
 
-	//fill from
-	if( type != TRANSACTION_EDIT_MODIFY && da_archive_length() > 0)
-	{
-		/* Create the expander */
-		expander = gtk_expander_new (_("Fill in with a template"));
-		gtk_box_pack_start (GTK_BOX (mainbox), expander, FALSE, FALSE, 0);
 
-		hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-		gtk_container_add (GTK_CONTAINER (expander), hbox);
-
-		label = make_label(_("_Template:"), 0, 0.5);
-		widget = make_poparchive(label);
-		data->PO_arc = widget;
-		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-
-		g_signal_connect (data->PO_arc, "changed", G_CALLBACK (deftransaction_fillfrom), NULL);
-	}
 
 	//connect all our signals
 	g_signal_connect (G_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), data);

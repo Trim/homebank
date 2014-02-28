@@ -2141,8 +2141,7 @@ gint result;
 	result = ui_dialog_msg_question(
 		GTK_WINDOW(data->window),
 		_("Clear every preferences ?"),
-		_("This will revert the preferences\nto its default values"),
-		NULL
+		_("This will revert the preferences\nto its default values")
 		);
 	if( result == GTK_RESPONSE_YES )
 	{
@@ -2369,8 +2368,8 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 				{
 					ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_INFO,
 						_("Info"),
-						_("You will have to restart HomeBank\nfor the language change to take effect."),
-						NULL);
+						_("You will have to restart HomeBank\nfor the language change to take effect.")
+					);
 			
 				}
 

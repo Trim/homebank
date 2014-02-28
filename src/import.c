@@ -278,12 +278,12 @@ static gint csvtype[7] = {
 
 static Account * ofx_get_account_by_id(gchar *id)
 {
-GList *list;
+GList *lacc, *list;
 
 	DB( g_print("\n[import] ofx_get_account_by_id\n") );
 	DB( g_print(" -> searching for '%s'\n",id) );
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *accitem = list->data;
@@ -301,7 +301,7 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 	return NULL;
 }
 
@@ -691,7 +691,7 @@ GList *list = NULL;
 
 static void import_clearall(struct import_data *data)
 {
-GList *list;
+GList *lxxx, *list;
 GtkTreeModel *model;
 
 	DB( g_print("\n[import] clear all\n") );
@@ -701,7 +701,7 @@ GtkTreeModel *model;
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
 	// 1: remove imported accounts
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -713,10 +713,10 @@ GtkTreeModel *model;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	// 2: remove imported payees
-	list = g_hash_table_get_values(GLOBALS->h_pay);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_pay);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -728,10 +728,10 @@ GtkTreeModel *model;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	// 3: remove imported category
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -743,7 +743,7 @@ GtkTreeModel *model;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	da_transaction_destroy(data->ictx.trans_list);
 	data->ictx.trans_list  = NULL;
@@ -850,7 +850,7 @@ guint decay;
 
 static void ui_import_populate_account(struct import_data *data)
 {
-GList *list;
+GList *lacc, *list;
 
 	DB( g_print("\n[import] populate account\n") );
 
@@ -858,7 +858,7 @@ GList *list;
 	gtk_list_store_clear (GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc))));
 
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -869,7 +869,7 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 }
 
@@ -879,7 +879,7 @@ GList *list;
 /* count account to be imported */
 static void import_analysis_count(struct import_data *data)
 {
-GList *list;
+GList *lacc, *list;
 
 	DB( g_print("\n[import] count_new_account\n") );
 
@@ -887,7 +887,7 @@ GList *list;
 	data->ictx.cnt_new_ope = 0;
 
 	/* count account */
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -898,7 +898,7 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 	/* count transaction */
 	data->ictx.cnt_new_ope = g_list_length(data->ictx.trans_list);
@@ -910,7 +910,7 @@ GList *list;
 /* count transaction with checkbox 'import'  */
 static void import_count_changes(struct import_data *data)
 {
-GList *list;
+GList *lacc, *list;
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
@@ -919,7 +919,7 @@ gboolean valid;
 
 	data->imp_cnt_acc = 0;
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -930,7 +930,7 @@ gboolean valid;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 
 	// then import transactions
@@ -966,12 +966,12 @@ static void import_apply(struct import_data *data)
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
-GList *list;
+GList *lxxx, *list;
 
 	DB( g_print("\n[import] apply\n") );
 
 	// 1: persist imported accounts
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -989,10 +989,10 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	// 2: persist imported payees
-	list = g_hash_table_get_values(GLOBALS->h_pay);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_pay);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -1004,10 +1004,10 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	// 3: persist imported categories
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -1019,7 +1019,7 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	// 4: insert every transactions
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->imported_ope));
@@ -1653,7 +1653,7 @@ gchar *title;
 			DB( g_print(" -> post load actions\n") );
 
 			//todo: should be optional
-			data->imp_cnt_asg = transaction_auto_assign(data->ictx.trans_list, -1);
+			data->imp_cnt_asg = transaction_auto_assign(data->ictx.trans_list, 0);
 
 			import_find_duplicate_transactions(data);
 			

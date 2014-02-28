@@ -241,7 +241,7 @@ GtkWidget *make_memo_entry(GtkWidget *label)
 GtkListStore *store;
 GtkWidget *entry;
 GtkEntryCompletion *completion;
-GList *list;
+GList *lmem, *list;
 
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 
@@ -257,7 +257,7 @@ GList *list;
 	//populate
 	//gtk_list_store_clear (GTK_LIST_STORE(store));
 
-	list = g_hash_table_get_keys(GLOBALS->h_memo);
+	lmem = list = g_hash_table_get_keys(GLOBALS->h_memo);
 	while (list != NULL)
 	{
 	GtkTreeIter  iter;
@@ -268,7 +268,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	g_list_free(list);
+	g_list_free(lmem);
 
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), entry);
@@ -296,7 +296,7 @@ static void hb_amount_insert_text_handler (GtkEntry *entry, const gchar *text, g
 {
 GtkEditable *editable = GTK_EDITABLE(entry);
 int i, count=0, dcpos=-1;
-gchar *result = g_new (gchar, length);
+gchar *result = g_new0 (gchar, length+1);
 const gchar *numtext;
 
 	//g_message("insert_text-handler: text:%s - pos:%d - length:%d", text, *position, length);

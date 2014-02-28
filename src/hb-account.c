@@ -563,14 +563,14 @@ gboolean account_balances_add(Transaction *trn)
 
 void account_compute_balances(void)
 {
-GList *list;
+GList *lacc, *list;
 Account *acc;
 Transaction *trn;
 
 	DB( g_print("\naccount_compute_balances start\n") );
 
-	/* set initail amount */
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	/* set initial amount */
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 		acc = list->data;
@@ -579,7 +579,7 @@ Transaction *trn;
 		acc->bal_future = acc->initial;
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 
 	/* compute every transaction */

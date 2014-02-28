@@ -308,13 +308,13 @@ gint pos = 0;
 
 static void ui_bud_manage_load_csv( GtkWidget *widget, gpointer user_data)
 {
-struct ui_bud_manage_data *data;
+struct ui_bud_manage_data *data = user_data;
 gchar *filename = NULL;
 GIOChannel *io;
 const gchar *encoding;
 
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
 
 	DB( g_print("(ui_bud_manage) load csv - data %p\n", data) );
@@ -452,7 +452,7 @@ const gchar *encoding;
 */
 static void ui_bud_manage_save_csv( GtkWidget *widget, gpointer user_data)
 {
-struct ui_bud_manage_data *data;
+struct ui_bud_manage_data *data = user_data;
 gchar *filename = NULL;
 GtkTreeModel *model;
 GtkTreeIter	iter, child;
@@ -461,7 +461,7 @@ GIOChannel *io;
 
 	DB( g_print("(ui_bud_manage) save csv\n") );
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, NULL) == TRUE )
 	{
@@ -883,6 +883,7 @@ guint i, row;
 	gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
  	treeview = (GtkWidget *)ui_bud_listview_new();
  	data.LV_cat = treeview;
+	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 
 	// clear button

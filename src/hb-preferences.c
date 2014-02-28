@@ -192,6 +192,7 @@ void homebank_pref_init_measurement_units(void)
 
 }
 
+
 void homebank_pref_free(void)
 {
 	DB( g_print("\n[preferences] free\n") );

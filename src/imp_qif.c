@@ -791,8 +791,6 @@ GList *list = NULL;
 		if( item->reconciled )
 			newope->flags |= OF_VALID;
 
-		child = NULL;
-
 		child = account_qif_get_child_transfer(newope, list);
 		if( child != NULL)
 		{

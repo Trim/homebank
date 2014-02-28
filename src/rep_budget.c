@@ -1366,7 +1366,10 @@ GError *error = NULL;
 	//check for any account included into the budget or warn
 	{
 	guint count =0;
-		GList *list = g_hash_table_get_values(GLOBALS->h_acc);
+	GList *lacc, *list;
+
+		lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
+
 		while (list != NULL)
 		{
 		Account *acc;
@@ -1377,14 +1380,13 @@ GError *error = NULL;
 		next1:
 			list = g_list_next(list);
 		}
-		g_list_free(list);
+		g_list_free(lacc);
 
 		if(count <= 0)
 		{
 			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_WARNING,
 				_("No account is defined to be part of the budget."),
-				_("You should include some accounts from the account dialog."),
-				NULL
+				_("You should include some accounts from the account dialog.")
 				);
 		}
 

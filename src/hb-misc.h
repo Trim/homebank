@@ -32,6 +32,7 @@ gint mystrfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 //gint hb_strfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 
+gchar *hb_filepath_ensure_extension(gchar *filepath, const gchar *ext);
 
 gchar *get_normal_color_amount(gdouble value);
 gchar *get_minimum_color_amount(gdouble value, gdouble minvalue);

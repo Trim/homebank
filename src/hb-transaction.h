@@ -118,7 +118,7 @@ Transaction *transaction_old_get_child_transfer(Transaction *src);
 guint transaction_tags_count(Transaction *ope);
 guint transaction_tags_parse(Transaction *ope, const gchar *tagstring);
 gchar *transaction_tags_tostring(Transaction *ope);
-gint transaction_auto_assign(GList *ope_list, guint key);
+gint transaction_auto_assign(GList *ope_list, guint32 key);
 
 void da_transaction_consistency(Transaction *item);
 

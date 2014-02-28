@@ -280,7 +280,7 @@ gboolean usermode = TRUE;
 static void account_export_csv(GtkWidget *widget, gpointer user_data)
 {
 struct account_data *data;
-gchar *filename = NULL;
+gchar *filename = NULL, *tmp;
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
@@ -292,7 +292,10 @@ GIOChannel *io;
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, NULL) == TRUE )
 	{
-
+		tmp = hb_filepath_ensure_extension(filename, ".csv");
+		g_free(filename);
+		filename = tmp;
+		
 		DB( g_print(" + filename is %s\n", filename) );
 
 		io = g_io_channel_new_file(filename, "w", NULL);
@@ -776,7 +779,7 @@ GList *list;
 static void account_action(GtkWidget *widget, gpointer user_data)
 {
 struct account_data *data;
-gint action = (gint)user_data;
+gint action = GPOINTER_TO_INT(user_data);
 gboolean result;
 
 	DB( g_print("\n[account] action\n") );
@@ -1124,7 +1127,7 @@ static void account_update(GtkWidget *widget, gpointer user_data)
 {
 struct account_data *data;
 GtkTreeSelection *selection;
-gint flags;
+gint flags = GPOINTER_TO_INT(user_data);
 gint count = 0;
 
 	DB( g_print("\n[account] update\n") );
@@ -1132,9 +1135,7 @@ gint count = 0;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//data = INST_DATA(widget);
 
-	flags = (gint)user_data;
-
-		GLOBALS->minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
+	GLOBALS->minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
 
 
 	/* set window title */

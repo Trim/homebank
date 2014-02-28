@@ -46,13 +46,9 @@ typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-enum
-{
-	CHART_BAR_TYPE,
-	CHART_LINE_TYPE,
-	CHART_PIE_TYPE,
-	CHART_TYPE_MAX
-};
+/* phi value */
+#define PHI 1.61803399
+
 
 /* default zoomx for charts */
 #define GTK_CHART_BARW 		24
@@ -72,13 +68,19 @@ enum
 
 
 /* new stuff */
-
-
-#define MARGIN 8
+#define CHART_MARGIN	18 //standard a4 margin
+#define CHART_SPACING   6
 
 //#define PROP_SHOW_MINOR		6
 //#define PROP_SHOW_LEGEND	7
 
+enum
+{
+	CHART_BAR_TYPE,
+	CHART_LINE_TYPE,
+	CHART_PIE_TYPE,
+	CHART_TYPE_MAX
+};
 
 /* end */
 
@@ -111,7 +113,7 @@ struct _GtkChart
 	GtkWidget		*ttlabel;
 
 	/* data storage */
-	guint		entries;
+	guint		nb_items;
 	gchar		*title;
 	gchar		**titles;
 	gdouble		*datas1;

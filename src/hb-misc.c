@@ -668,6 +668,44 @@ guint32 julian = 0;
 }
 
 
+
+gchar *hb_filepath_ensure_extension(gchar *filepath, const gchar *ext)
+{
+gchar *dirname;
+gchar *basename;
+gchar *newfilepath = NULL;
+
+	DB( g_print("hb_filepath_ensure_extension\n") );
+
+	dirname  = g_path_get_dirname (filepath);
+	basename = g_path_get_basename(filepath);
+
+	DB( g_print("- ensure '%s' for '%s'\n", ext, basename) );
+
+	if( !(g_str_has_suffix(basename, ext)))
+	{
+	gchar **str_array;
+	gchar *filename;
+
+		str_array = g_strsplit(basename, ".", 0);
+		filename = g_strdup_printf("%s%s", str_array[0], ext);
+		g_strfreev(str_array);
+		newfilepath = g_build_filename(dirname, filename, NULL);
+	}
+	else
+		newfilepath = filepath;
+
+	DB( g_print("- out: '%s'\n", newfilepath) );
+
+	g_free(basename);
+	g_free(dirname);
+
+	return newfilepath;
+}
+
+
+
+
 static gboolean hb_string_isdate(gchar *str)
 {
 gint d, m, y;

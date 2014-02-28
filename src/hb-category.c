@@ -582,12 +582,9 @@ da_cat_debug_list(void)
 gboolean
 category_is_used(guint32 key)
 {
-GList *list;
+GList *lrul, *list;
 
 	//todo: add budget use here
-
-
-
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
@@ -606,7 +603,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *entry = list->data;
@@ -615,7 +612,7 @@ GList *list;
 			return TRUE;
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 
 	return FALSE;
 }
@@ -623,7 +620,7 @@ GList *list;
 void
 category_move(guint32 key1, guint32 key2)
 {
-GList *list;
+GList *lrul, *list;
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -648,7 +645,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *entry = list->data;
@@ -659,7 +656,7 @@ GList *list;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 
 }
 
@@ -908,13 +905,13 @@ category_save_csv(gchar *filename, gchar **error)
 gboolean retval = FALSE;
 GIOChannel *io;
 gchar *outstr;
-GList *list;
+GList *lcat, *list;
 
 
 	io = g_io_channel_new_file(filename, "w", NULL);
 	if(io != NULL)
 	{
-		list = category_glist_sorted(1);
+		lcat = list = category_glist_sorted(1);
 
 		while (list != NULL)
 		{
@@ -948,7 +945,7 @@ GList *list;
 
 		retval = TRUE;
 
-		g_list_free(list);
+		g_list_free(lcat);
 
 		g_io_channel_unref (io);
 	}
@@ -961,14 +958,14 @@ GList *list;
 gint category_change_type(Category *item, gboolean isIncome)
 {
 gint changes = 1;
-GList *list;
+GList *lcat, *list;
 
 	item->flags &= ~(GF_INCOME);	//remove flag
 	if(isIncome == TRUE)
 		item->flags |= GF_INCOME;
 
 	// change also childs
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *child = list->data;
@@ -983,7 +980,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	g_list_free(list);
+	g_list_free(lcat);
 
 	return changes;
 }

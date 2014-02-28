@@ -198,7 +198,7 @@ void ui_asg_listview_populate(GtkWidget *view)
 {
 GtkTreeModel *model;
 GtkTreeIter	iter;
-GList *list;
+GList *lrul, *list;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
@@ -209,7 +209,7 @@ GList *list;
 
 	/* populate */
 	//g_hash_table_foreach(GLOBALS->h_rul, (GHFunc)ui_asg_listview_populate_ghfunc, model);
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 
 	//list = g_list_sort(list, (GCompareFunc)ui_asg_glist_compare_func);
 	while (list != NULL)
@@ -226,7 +226,7 @@ GList *list;
 
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 
 	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model); /* Re-attach model to view */
 	g_object_unref(model);
@@ -355,7 +355,6 @@ struct ui_asg_manage_data *data;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
-
 Assign *item;
 
 	DB( g_print("\n(ui_asg_manage_set)\n") );
@@ -653,6 +652,7 @@ gint row;
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 
 	data.LV_rul = ui_asg_listview_new(FALSE);
+	gtk_widget_set_size_request(data.LV_rul, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_rul);
 
 	// tools buttons

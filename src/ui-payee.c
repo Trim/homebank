@@ -1011,6 +1011,7 @@ gint row;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
  	//treeview = (GtkWidget *)ui_pay_manage_dialog_list_new(FALSE);
 	treeview = ui_pay_listview_new(FALSE);
+	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
  	data.LV_pay = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 

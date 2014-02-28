@@ -240,7 +240,7 @@ void hbfile_change_filepath(gchar *filepath)
 
 void hbfile_sanity_check(void)
 {
-GList *list;
+GList *lxxx, *list;
 
 	DB( g_print("\n[hbfile] sanity_check\n") );
 
@@ -265,7 +265,7 @@ GList *list;
 	}
 
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -273,10 +273,10 @@ GList *list;
 		da_acc_consistency(item);
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	
-	list = g_hash_table_get_values(GLOBALS->h_pay);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_pay);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -284,10 +284,10 @@ GList *list;
 		da_pay_consistency(item);
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -295,14 +295,14 @@ GList *list;
 		da_cat_consistency(item);
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 	
 }
 
 
 void hbfile_anonymize(void)
 {
-GList *list;
+GList *lxxx, *list;
 guint cnt, i;
 
 	DB( g_print("\n[hbfile] anonymize\n") );
@@ -316,7 +316,7 @@ guint cnt, i;
 	hbfile_change_filepath(g_build_filename(PREFS->path_hbfile, "anonymized.xhb", NULL));
 
 	// accounts
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -330,10 +330,10 @@ guint cnt, i;
 		GLOBALS->changes_count++;
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	//payees
-	list = g_hash_table_get_values(GLOBALS->h_pay);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_pay);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -346,10 +346,10 @@ guint cnt, i;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	//categories
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -362,10 +362,10 @@ guint cnt, i;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	//tags
-	list = g_hash_table_get_values(GLOBALS->h_tag);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_tag);
 	while (list != NULL)
 	{
 	Tag *item = list->data;
@@ -378,10 +378,10 @@ guint cnt, i;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	//assigns
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lxxx = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *item = list->data;
@@ -394,7 +394,7 @@ guint cnt, i;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lxxx);
 
 	//archives
 	cnt = 0;

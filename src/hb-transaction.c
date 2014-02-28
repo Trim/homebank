@@ -923,8 +923,8 @@ gint changes = 0;
 
 		DB( g_print("- eval ope '%s' : acc=%d, pay=%d, cat=%d\n", ope->wording, ope->kacc, ope->kpay, ope->kcat) );
 
-		//#1215521: added key == -1
-		if( (key == ope->kacc || key == -1) )
+		//#1215521: added key == 0
+		if( (key == ope->kacc || key == 0) )
 		{
 		Assign *rul;
 

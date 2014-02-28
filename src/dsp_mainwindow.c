@@ -547,8 +547,7 @@ gint result;
 		GTK_WINDOW(GLOBALS->mainwindow),
 		_("Anonymize the file ?"),
 		_("Proceeding will changes name/memo to anonymous datas,\n"
-		"please confirm."),
-		NULL
+		"please confirm.")
 		);
 
 	if( result == GTK_RESPONSE_NO )
@@ -942,14 +941,14 @@ static void ui_mainwindow_selection(GtkTreeSelection *treeselection, gpointer us
 
 static void ui_mainwindow_close_openbooks(void)
 {
-GList *list;
+GList *lacc, *elt;
 
 	DB( g_print("\n[ui-mainwindow] close openbooks\n") );
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
-	while (list != NULL)
+	lacc = elt = g_hash_table_get_values(GLOBALS->h_acc);
+	while (elt != NULL)
 	{
-	Account *item = list->data;
+	Account *item = elt->data;
 
 		if(item->window)
 		{
@@ -957,9 +956,9 @@ GList *list;
 			item->window = NULL;
 		}
 
-		list = g_list_next(list);
+		elt = g_list_next(elt);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 }
 
@@ -1569,7 +1568,7 @@ void ui_mainwindow_populate_accounts(GtkWidget *widget, gpointer user_data)
 struct hbfile_data *data;
 GtkTreeModel *model;
 GtkTreeIter  iter1, child_iter;
-GList *list;
+GList *lacc, *elt;
 Account *acc;
 guint i, j, nbtype;
 gdouble gtbank, gttoday, gtfuture;
@@ -1581,10 +1580,10 @@ gdouble gtbank, gttoday, gtfuture;
 	/* here we create a count and a list of every account pointer by type */
 
 	GPtrArray *typeacc[ACC_TYPE_MAXVALUE] = {0};
-	list = g_hash_table_get_values(GLOBALS->h_acc);
-	while (list != NULL)
+	lacc = elt = g_hash_table_get_values(GLOBALS->h_acc);
+	while (elt != NULL)
 	{
-		acc = list->data;
+		acc = elt->data;
 		if( !(acc->flags & (AF_CLOSED|AF_NOREPORT|AF_NOSUMMARY)) )
 		{
 			DB( g_print(" -> insert %d:%s\n", acc->key, acc->name) );
@@ -1594,9 +1593,9 @@ gdouble gtbank, gttoday, gtfuture;
 
 			g_ptr_array_add(typeacc[acc->type], (gpointer)acc);
 		}
-		list = g_list_next(list);
+		elt = g_list_next(elt);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 	gtbank = gttoday = gtfuture = 0;
 

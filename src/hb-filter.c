@@ -271,7 +271,7 @@ void filter_preset_type_set(Filter *flt, gint type)
 void filter_preset_status_set(Filter *flt, gint status)
 {
 Category *catitem;
-GList *list;
+GList *lcat, *list;
 
 	/* any status */
 	flt->status = status;
@@ -282,14 +282,14 @@ GList *list;
 	flt->forcechg = FALSE;
 
 	flt->option[FILTER_CATEGORY] = 0;
-	list = g_hash_table_get_values(GLOBALS->h_cat);
+	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
 	{
 		catitem = list->data;
 		catitem->filter = FALSE;
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lcat);
 
 	switch( status )
 	{

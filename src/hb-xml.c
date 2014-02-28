@@ -619,11 +619,11 @@ GList *list;
 // v0.7 AF_BUDGET removed instead of AF_NOBUDGET
 static void homebank_upgrade_to_v07(void)
 {
-GList *list;
+GList *lacc, *list;
 
 	DB( g_print("\n[hb-xml] homebank_upgrade_to_v07\n") );
 
-	list = g_hash_table_get_values(GLOBALS->h_acc);
+	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
 	{
 	Account *acc = list->data;
@@ -639,7 +639,7 @@ GList *list;
 
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 }
 
@@ -692,7 +692,7 @@ static void homebank_upgrade_lower_v06(void)
 {
 Category *cat;
 Payee *pay;
-GList *list;
+GList *lrul, *list;
 
 	DB( g_print("\n[hb-xml] homebank_upgrade_lower_v06\n") );
 
@@ -717,7 +717,7 @@ GList *list;
 	}
 
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *entry = list->data;
@@ -739,7 +739,7 @@ GList *list;
 
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 
 
 }
@@ -853,12 +853,12 @@ char buf1[G_ASCII_DTOSTR_BUF_SIZE];
 */
 static void homebank_save_xml_acc(GIOChannel *io)
 {
-GList *list;
+GList *lacc, *list;
 GString *node;
 
 	node = g_string_sized_new(255);
 
-	list = account_glist_sorted(0);
+	lacc = list = account_glist_sorted(0);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -885,7 +885,7 @@ GString *node;
 		g_io_channel_write_chars(io, node->str, -1, NULL, NULL);
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 	g_string_free(node, TRUE);
 }
 
@@ -894,10 +894,10 @@ GString *node;
 */
 static void homebank_save_xml_pay(GIOChannel *io)
 {
-GList *list;
+GList *lpay, *list;
 gchar *tmpstr;
 
-	list = payee_glist_sorted(0);
+	lpay = list = payee_glist_sorted(0);
 	while (list != NULL)
 	{
 	Payee *item = list->data;
@@ -915,7 +915,7 @@ gchar *tmpstr;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lpay);
 }
 
 /*
@@ -923,14 +923,14 @@ gchar *tmpstr;
 */
 static void homebank_save_xml_cat(GIOChannel *io)
 {
-GList *list;
+GList *lcat, *list;
 GString *node;
 char buf[G_ASCII_DTOSTR_BUF_SIZE];
 guint i;
 
 	node = g_string_sized_new(255);
 
-	list = category_glist_sorted(0);
+	lcat = list = category_glist_sorted(0);
 	while (list != NULL)
 	{
 	Category *item = list->data;
@@ -958,7 +958,7 @@ guint i;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lcat);
 	g_string_free(node, TRUE);
 }
 
@@ -967,17 +967,17 @@ guint i;
 */
 static void homebank_save_xml_tag(GIOChannel *io)
 {
-GList *list;
+GList *ltag, *list;
 gchar *tmpstr;
 
-	list = tag_glist_sorted(0);
+	ltag = list = tag_glist_sorted(0);
 	while (list != NULL)
 	{
 	Tag *item = list->data;
 
 		if(item->key != 0)
 		{
-			tmpstr = g_markup_printf_escaped("<tag key=\"%d\" name=\"%s\"/>\n",
+			tmpstr = g_markup_printf_escaped("<tag key=\"%d\" name=\"%s\" />\n",
 				item->key,
 				item->name
 			);
@@ -988,7 +988,7 @@ gchar *tmpstr;
 		}
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(ltag);
 }
 
 
@@ -997,10 +997,10 @@ gchar *tmpstr;
 */
 static void homebank_save_xml_asg(GIOChannel *io)
 {
-GList *list;
+GList *lasg, *list;
 gchar *tmpstr;
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lasg = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *item = list->data;
@@ -1018,9 +1018,8 @@ gchar *tmpstr;
 
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lasg);
 }
-
 
 
 /*

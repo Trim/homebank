@@ -221,7 +221,7 @@ void hb_export_qif_account_all(gchar *filename)
 {
 GIOChannel *io;
 gchar *newname;
-GList *list;
+GList *lacc, *list;
 
 	newname = homebank_filepath_with_extention(filename, "qif");
 	
@@ -236,7 +236,7 @@ GList *list;
 		//todo: save accounts in order
 		//todo: save transfer transaction once
 
-		list = g_hash_table_get_values(GLOBALS->h_acc);
+		lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
 		while (list != NULL)
 		{
 		Account *item = list->data;
@@ -246,7 +246,7 @@ GList *list;
 
 			list = g_list_next(list);
 		}
-		g_list_free(list);
+		g_list_free(lacc);
 
 		g_io_channel_unref (io);
 	}

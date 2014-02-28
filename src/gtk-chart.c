@@ -120,7 +120,7 @@ GtkWidget *widget, *vbox, *frame, *scrollwin, *treeview;
 
 	DB( g_print("\n[gtkchart] init\n") );
 
- 	chart->entries = 0;
+ 	chart->nb_items = 0;
  	chart->title = NULL;
  	chart->titles = NULL;
  	chart->datas1 = NULL;
@@ -154,6 +154,20 @@ GtkWidget *widget, *vbox, *frame, *scrollwin, *treeview;
 	gtk_widget_set_size_request(chart->drawarea, 150, 150 );
 	gtk_widget_show(chart->drawarea);
 
+#if MYDEBUG == 1
+	GtkStyle *style;
+	PangoFontDescription *font_desc;
+
+	g_print("draw_area font\n");
+	
+	style = gtk_widget_get_style(GTK_WIDGET(chart->drawarea));
+	font_desc = style->font_desc;
+
+	g_print("family: %s\n", pango_font_description_get_family(font_desc) );
+	g_print("size: %d (%d)\n", pango_font_description_get_size (font_desc), pango_font_description_get_size (font_desc )/PANGO_SCALE );
+
+#endif
+	
 	/* scrollbar */
     chart->adjustment = GTK_ADJUSTMENT(gtk_adjustment_new (0.0, 0.0, 1.0, 1.0, 1.0, 1.0));
     chart->scrollbar = gtk_hscrollbar_new (GTK_ADJUSTMENT (chart->adjustment));
@@ -336,7 +350,7 @@ guint i;
 
 	if(chart->titles != NULL)
 	{
-		for(i=0;i<chart->entries;i++)
+		for(i=0;i<chart->nb_items;i++)
 		{
 			g_free(chart->titles[i]);
 		}
@@ -361,7 +375,7 @@ guint i;
 		gtk_list_store_clear (GTK_LIST_STORE(chart->legend));
 	}
 
-	chart->entries = 0;
+	chart->nb_items = 0;
 
 	chart->total = 0;
 	chart->range = 0;
@@ -387,13 +401,13 @@ GdkColor colour;
 
 	chart_clear(chart, TRUE);
 
-	chart->entries = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list_store), NULL);
+	chart->nb_items = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list_store), NULL);
 
-	DB( g_print(" nb=%d\n", chart->entries) );
+	DB( g_print(" nb=%d\n", chart->nb_items) );
 
-	chart->titles = g_malloc0(chart->entries * sizeof(gchar *));
-	chart->datas1 = g_malloc0(chart->entries * sizeof(gdouble));
-	chart->datas2 = g_malloc0(chart->entries * sizeof(gdouble));
+	chart->titles = g_malloc0(chart->nb_items * sizeof(gchar *));
+	chart->datas1 = g_malloc0(chart->nb_items * sizeof(gdouble));
+	chart->datas2 = g_malloc0(chart->nb_items * sizeof(gdouble));
 
 	/* dual mode ? */
 	if( chart->type == CHART_BAR_TYPE )
@@ -437,7 +451,7 @@ GdkColor colour;
 		//todo: remove this (was a test)
 		if(id < 0)
 		{
-			chart->entries--;
+			chart->nb_items--;
 	     	 //DB( g_print ("ignoring Row %d: (%s, %2.f)\n", id, title, value) );
 		}
 		else
@@ -591,24 +605,19 @@ gint div;
 static void chart_calculation(GtkChart *chart)
 {
 GtkWidget *drawarea = chart->drawarea;
-gint width, height;
 GtkAllocation allocation;
 	
 	DB( g_print("\n[gtkchart] calculation\n") );
 
 	gtk_widget_get_allocation(drawarea, &allocation);
-	//width  = gtk_widget_get_allocated_width(GTK_WIDGET(drawarea));
-	//height = gtk_widget_get_allocated_height(GTK_WIDGET(drawarea));
-	width = allocation.width;
-	height = allocation.height;
 	
-	chart->l = MARGIN;
-	chart->t = MARGIN;
+	chart->l = CHART_MARGIN;
+	chart->t = CHART_MARGIN;
+	chart->r = allocation.width - CHART_MARGIN;
+	chart->b = allocation.height - CHART_MARGIN;
+	chart->w = allocation.width - (CHART_MARGIN*2);
+	chart->h = allocation.height - (CHART_MARGIN*2);
 
-	chart->r = width - MARGIN;
-	chart->b = height - MARGIN;
-	chart->w = width - (MARGIN*2);
-	chart->h = height - (MARGIN*2);
 
 	chart->font_h = CHART_FONT_SIZE_NORMAL;
 	//DB( g_print(" + text w=%f h=%f\n", te.width, te.height) );
@@ -617,7 +626,7 @@ GtkAllocation allocation;
 	chart->title_zh = 0;
 	if(chart->title != NULL)
 	{
-		chart->title_zh = CHART_FONT_SIZE_TITLE + (MARGIN*2);
+		chart->title_zh = CHART_FONT_SIZE_TITLE;
 		//DB( g_print(" - title: %s w=%f h=%f\n", chart->title, te.width, te.height) );
 	}
 
@@ -626,9 +635,15 @@ GtkAllocation allocation;
 	chart->graph_width  = chart->w; // - chart->legend_w;
 	chart->graph_height = chart->h - chart->title_zh;
 
-	if(chart->type != CHART_PIE_TYPE)
-		chart->graph_height -= chart->font_h + 4; // -4 is for line plot
-	
+
+	if(chart->title_zh > 0)
+	{
+		chart->graph_y += CHART_MARGIN;
+		chart->graph_height -= CHART_MARGIN;
+	}
+
+	if(chart->type != CHART_PIE_TYPE && chart->show_xval)
+		chart->graph_height -= (chart->font_h + CHART_SPACING);	
 }
 
 
@@ -640,7 +655,7 @@ gint blkw;
 
 
 	//if expand : we compute available space
-	//chart->barw = MAX(32, (chart->graph_width)/chart->entries);
+	//chart->barw = MAX(32, (chart->graph_width)/chart->nb_items);
 	//chart->barw = 32; // usr setted or defaut to BARW
 
 	blkw = chart->barw + 3;
@@ -650,7 +665,7 @@ gint blkw;
 
 	chart->blkw = blkw;
 	chart->visible = chart->graph_width / blkw;
-	chart->visible = MIN(chart->visible, chart->entries);
+	chart->visible = MIN(chart->visible, chart->nb_items);
 
 	chart->ox = chart->l;
 	chart->oy = floor(chart->graph_y + (chart->max/chart->range) * chart->graph_height);
@@ -683,13 +698,13 @@ cairo_t *cr;
 	cairo_set_line_width(cr, 1);
 
 	/* clip */
-	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
-	cairo_clip(cr);
+	//cairo_rectangle(cr, CHART_MARGIN, 0, chart->w, chart->h + CHART_MARGIN);
+	//cairo_clip(cr);
 
 	/* draw vertical lines + legend */
 	if(chart->show_xval)
 	{
-		x = chart->ox + 1.5 + (chart->barw/2);
+		x = chart->graph_x + 1.5 + (chart->barw/2);
 		y = chart->oy;
 		first = gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
@@ -736,13 +751,12 @@ cairo_t *cr;
 
 		DB( g_print(" + i=%d :: y=%f (%f / %f) * %f\n", i, y, i*chart->unit, chart->range, chart->graph_height) );
 
-		cairo_move_to(cr, chart->l, y);
-		cairo_line_to(cr, chart->l + chart->w, y);
+		cairo_move_to(cr, chart->graph_x, y);
+		cairo_line_to(cr, chart->graph_x + chart->graph_width, y);
 		cairo_stroke(cr);
 
 		curxval -= chart->unit;
 	}
-
 
 	cairo_destroy(cr);
 
@@ -771,8 +785,8 @@ cairo_text_extents_t te;
 	cairo_set_line_width(cr, 1);
 
 	/* clip */
-	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
-	cairo_clip(cr);
+	//cairo_rectangle(cr, CHART_MARGIN, 0, chart->w, chart->h + CHART_MARGIN);
+	//cairo_clip(cr);
 
 	//cairo_set_operator(cr, CAIRO_OPERATOR_SATURATE);
 
@@ -861,18 +875,13 @@ gint i, first;
 
 	DB( g_print("\n[gtkchart] bar draw bars\n") );
 
-	x = chart->ox;
-	//y = chart->oy;
+	x = chart->graph_x;
 	first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
 
 	gdkwindow = gtk_widget_get_window(widget);
 	cr = gdk_cairo_create (gdkwindow);
-	//cr = gdk_cairo_create (widget->window);
 
-	/* clip */
-	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
-	cairo_clip(cr);
 
 	#if HELPDRAW == 1
 	x2 = x + 0.5;
@@ -881,7 +890,7 @@ gint i, first;
 	for(i=first; i<=(first+chart->visible) ;i++)
 	{
 		cairo_move_to(cr, x2, chart->graph_y);
-		cairo_line_to(cr, x2, chart->b);
+		cairo_line_to(cr, x2, chart->graph_x + chart->graph_height);
 		cairo_stroke(cr);
 		x2 += chart->blkw;
 	}
@@ -948,14 +957,14 @@ gint index, first, px;
 		
 	retval = -1;
 
-	if( x <= chart->r && x >= chart->l )
+	if( x <= chart->r && x >= chart->graph_x && y >= chart->graph_y && y <= chart->b )
 	{
-		px = (x - chart->ox);
+		px = (x - chart->graph_x);
 		//py = (y - chart->oy);
 		first = gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 		index = first + (px / chart->blkw);
 
-		if(index < chart->entries)
+		if(index < chart->nb_items)
 			retval = index;
 	}
 
@@ -1000,16 +1009,16 @@ gint first;
 	//{
 		first = gtk_adjustment_get_value(GTK_ADJUSTMENT(adj));
 
-		DB( g_print(" entries=%d, visible=%d\n", chart->entries, chart->visible) );
-		DB( g_print(" first=%d, upper=%d, pagesize=%d\n", first, chart->entries, chart->visible) );
+		DB( g_print(" entries=%d, visible=%d\n", chart->nb_items, chart->visible) );
+		DB( g_print(" first=%d, upper=%d, pagesize=%d\n", first, chart->nb_items, chart->visible) );
 
-		gtk_adjustment_set_upper(adj, (gdouble)chart->entries);
+		gtk_adjustment_set_upper(adj, (gdouble)chart->nb_items);
 		gtk_adjustment_set_page_size(adj, (gdouble)chart->visible);
 		gtk_adjustment_set_page_increment(adj, (gdouble)chart->visible);
 
-		if(first+chart->visible > chart->entries)
+		if(first+chart->visible > chart->nb_items)
 		{
-			gtk_adjustment_set_value(adj, (gdouble)chart->entries - chart->visible);
+			gtk_adjustment_set_value(adj, (gdouble)chart->nb_items - chart->visible);
 		}
 		gtk_adjustment_changed (adj);
 
@@ -1026,7 +1035,7 @@ gint first;
 /*
 ** draw all visible lines
 */
-static void draw_plot(cairo_t *cr, double x, double y, double r, GtkChart *chart)
+static void linechart_draw_plot(cairo_t *cr, double x, double y, double r, GtkChart *chart)
 {
 	cairo_set_line_width(cr, r / 2);
 
@@ -1050,7 +1059,7 @@ gint first, i;
 
 	DB( g_print("\n(gtkline) line draw lines\n") );
 
-	x = chart->ox;
+	x = chart->graph_x;
 	y = chart->oy;
 	first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
@@ -1061,18 +1070,18 @@ gint first, i;
 	//cr = gdk_cairo_create (widget->window);
 
 	/* clip */
-	cairo_rectangle(cr, MARGIN, 0, chart->w, chart->h + MARGIN);
-	cairo_clip(cr);
+	//cairo_rectangle(cr, CHART_MARGIN, 0, chart->w, chart->h + CHART_MARGIN);
+	//cairo_clip(cr);
 
 
 	#if HELPDRAW == 1
 	x2 = x + 0.5;
 	cairo_set_line_width(cr, 1.0);
-	cairo_set_source_rgb(cr, 0.0, 0.0, 1.0); // blue
+	cairo_set_source_rgb(cr, 1.0, 0.0, 1.0); // violet
 	for(i=first; i<=(first+chart->visible) ;i++)
 	{
 		cairo_move_to(cr, x2, chart->graph_y);
-		cairo_line_to(cr, x2, chart->b);
+		cairo_line_to(cr, x2, chart->graph_x + chart->graph_height);
 		cairo_stroke(cr);
 		x2 += chart->blkw;
 	}
@@ -1101,7 +1110,7 @@ gint first, i;
 		}
 		else
 		{
-			if( i < (chart->entries) )
+			if( i < (chart->nb_items) )
 			{
 				cairo_line_to(cr, x2, y2);
 				lastx = x2;
@@ -1123,17 +1132,16 @@ gint first, i;
 	cairo_user_set_rgbacol(cr, &chart->colors[chart->cs_blue], 0.15);
 	cairo_fill(cr);
 
-	x = chart->ox;
+	x = chart->graph_x;
 	y = chart->oy;
 	first = (gint)gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 
 	// draw plots
-
 	for(i=first; i<(first+chart->visible) ;i++)
 	{
 		x2 = x + (chart->blkw)/2;
 		y2 = chart->oy - (chart->datas1[i] / chart->range) * chart->graph_height;
-		draw_plot(cr,  x2, y2, i == chart->active ? linew+1 : linew, chart);
+		linechart_draw_plot(cr,  x2, y2, i == chart->active ? linew+1 : linew, chart);
 		x += chart->blkw;
 	}
 
@@ -1147,7 +1155,7 @@ gint first, i;
 
 			DB( g_print(" draw over: %f, %f, %f, %f\n", chart->l, y, chart->w, chart->b - y) );
 
-			cairo_rectangle(cr, chart->l, y, chart->w, chart->b - y);
+			cairo_rectangle(cr, chart->graph_x, y, chart->graph_width, chart->b - y);
 			cairo_fill(cr);
 		}
 	}
@@ -1173,12 +1181,12 @@ gint first, index, px;
 
 	if( x <= chart->r && x >= chart->l )
 	{
-		px = (x - chart->ox);
+		px = (x - chart->graph_x);
 		//py = (y - chart->oy);
 		first = gtk_adjustment_get_value(GTK_ADJUSTMENT(chart->adjustment));
 		index = first + (px / (chart->blkw));
 
-		if(index < chart->entries)
+		if(index < chart->nb_items)
 			retval = index;
 	}
 
@@ -1201,8 +1209,9 @@ gint w, h;
 	chart->rayon = MIN(w, h);
 
 	gtk_widget_get_allocation(drawarea, &allocation);
-	chart->ox    = allocation.width / 2;
-	chart->oy    = chart->graph_y + (chart->rayon / 2) + 1;
+	
+	chart->ox    = chart->graph_x + (chart->graph_width / 2);
+	chart->oy    = chart->graph_y + (chart->rayon / 2);
 
 }
 
@@ -1212,8 +1221,10 @@ static void piechart_draw_slices(GtkWidget *widget, gpointer user_data)
 GtkChart *chart = GTK_CHART(user_data);
 cairo_t *cr;
 
-	if(chart->entries)
-	{
+	if(chart->nb_items <= 0)
+		return;
+
+
 		//cairo drawing
 
 		double a1 = 0 * (M_PI / 180);
@@ -1235,47 +1246,26 @@ cairo_t *cr;
 		cr = gdk_cairo_create (gdkwindow);
 		//cr = gdk_cairo_create (widget->window);
 
-		for(i=0; i< chart->entries ;i++)
+		for(i=0; i< chart->nb_items ;i++)
 		{
 			a1 = ((360 * (sum / chart->total)) - 90) * (M_PI / 180);
 			sum += ABS(chart->datas1[i]);
 			a2 = ((360 * (sum / chart->total)) - 90) * (M_PI / 180);
-			if(i < chart->entries-1) a2 += 0.0175;
+			if(i < chart->nb_items-1) a2 += 0.0175;
 			
 			dx = cx;
 			dy = cy;
 
-			// move slice away if active
-			/*
-			if(i == chart->active)
-			{
-			gchar *txt;
-			double ac = a1 + (a2 - a1) / 2;
-
-				txt = "test";
-				cairo_text_extents(cr, txt, &te);
-
-				dx = cx + (cos(ac)*(radius + te.width));
-				dy = cy + (sin(ac)*(radius + te.height));
-
-				cairo_set_source_rgb(cr, .0, .0, .0);
-				cairo_move_to(cr, dx, dy);
-				cairo_show_text(cr, txt);
-
-				dx = cx + (cos(ac)*8);
-				dy = cy + (sin(ac)*8);
-
-			}*/
-
 			cairo_move_to(cr, dx, dy);
 			cairo_arc(cr, dx, dy, radius, a1, a2);
 
-#if PIE_LINE_SLICE == 1
-			cairo_set_line_width(cr, 1.0);
-			cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-			cairo_line_to(cr, cx, cy);
-			cairo_stroke_preserve(cr);
-#endif
+			#if PIE_LINE_SLICE == 1
+				cairo_set_line_width(cr, 1.0);
+				cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+				cairo_line_to(cr, cx, cy);
+				cairo_stroke_preserve(cr);
+			#endif
+
 			DB( g_print("%d: %.2f%% %.2f %.2f\n", i, sum / chart->total, a1, a2) );
 
 			//g_print("color : %f %f %f\n", COLTOCAIRO(colors[i].r), COLTOCAIRO(colors[i].g), COLTOCAIRO(colors[i].b));
@@ -1284,7 +1274,6 @@ cairo_t *cr;
 			cairo_user_set_rgbcol_over(cr, &chart->colors[color], i == chart->active);
 			cairo_fill(cr);
 		}
-
 
 #if SOFT_LIGHT == 1
 	cairo_pattern_t *pat1;
@@ -1338,8 +1327,8 @@ cairo_t *cr;
 		
 		
 
-		cairo_destroy(cr);
-	}
+	cairo_destroy(cr);
+
 
 }
 
@@ -1368,7 +1357,7 @@ double h;
 
 		//todo optimize
 		gdouble cumul = 0;
-		for(index=0; index< chart->entries ;index++)
+		for(index=0; index< chart->nb_items ;index++)
 		{
 			cumul += (ABS(chart->datas1[index])/chart->total)*360;
 			if( cumul > angle )
@@ -1399,7 +1388,7 @@ GtkChart *chart = GTK_CHART(user_data);
 
 	chart_calculation(chart);
 	
-	if(chart->entries == 0)
+	if(chart->nb_items == 0)
 		return;
 
 
@@ -1451,6 +1440,29 @@ cairo_text_extents_t te;
 	cr = gdk_cairo_create (gdkwindow);
 	//cr = gdk_cairo_create (widget->window);
 
+#if MYDEBUG == 1
+cairo_font_face_t *ff;
+cairo_scaled_font_t *sf;
+
+	ff = cairo_get_font_face(cr);
+	sf = cairo_get_scaled_font(cr);
+	
+	g_print("cairo ff = '%s'\n", cairo_toy_font_face_get_family(ff) );
+
+	ff = cairo_scaled_font_get_font_face(sf);
+	g_print("cairo sf = '%s'\n", cairo_toy_font_face_get_family(ff) );
+
+
+	//cairo_set_font_face(cr, ff);
+
+
+	
+
+#endif
+
+
+
+	
 	/* fillin the back in white */
 	cairo_user_set_rgbcol(cr, &global_colors[WHITE]);
 	cairo_paint(cr);
@@ -1480,9 +1492,12 @@ cairo_text_extents_t te;
 
 	// draw title
 	cairo_set_font_size(cr, CHART_FONT_SIZE_TITLE);
-	cairo_user_set_rgbcol(cr, &global_colors[BLACK]);
 	cairo_text_extents(cr, chart->title, &te);
-	cairo_move_to(cr, chart->l + (chart->w/2) - ((te.width - te.x_bearing) / 2), chart->t - te.y_bearing);
+
+	//center title
+	//cairo_move_to(cr, chart->l + (chart->w/2) - ((te.width - te.x_bearing) / 2), chart->t - te.y_bearing);
+	cairo_move_to(cr, chart->l, chart->t - te.y_bearing);
+	cairo_user_set_rgbcol(cr, &global_colors[BLACK]);
 	cairo_show_text(cr, chart->title);
 
 	cairo_destroy(cr);
@@ -1490,12 +1505,9 @@ cairo_text_extents_t te;
 	if (event->count > 0)
 		return FALSE;
 
-	if(chart->entries == 0)
+	if(chart->nb_items == 0)
 		return FALSE;
 
-
-
-	
 	switch(chart->type)
 	{
 		case CHART_BAR_TYPE:
@@ -1523,7 +1535,7 @@ GtkChart *chart = GTK_CHART(user_data);
 gint x, y;
 GdkModifierType state;
 
-	if(chart->entries == 0)
+	if(chart->nb_items == 0)
 		return FALSE;
 
 	//DB( g_print("\n[gtkchart] motion\n") );
@@ -1596,7 +1608,7 @@ static gboolean chart_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer
 GtkChart *chart = GTK_CHART(user_data);
 gint x, y;
 
-	if(chart->entries == 0)
+	if(chart->nb_items == 0)
 		return FALSE;
 
 	DB( g_print("++++++++++++++++\n[gtkchart] enter\n") );
@@ -1626,7 +1638,7 @@ static gboolean chart_leave(GtkWidget *widget, GdkEventCrossing *event, gpointer
 {
 GtkChart *chart = GTK_CHART(user_data);
 
-	if(chart->entries == 0)
+	if(chart->nb_items == 0)
 		return FALSE;
 
 	chart->active = -1;
@@ -2201,15 +2213,17 @@ GtkTreeViewColumn  *column;
 	g_object_unref(store);
 
 #if MYDEBUG == 1
-/*	GtkStyle *style;
+	GtkStyle *style;
 	PangoFontDescription *font_desc;
 
+	g_print("legend_list_new font\n");
+	
 	style = gtk_widget_get_style(GTK_WIDGET(view));
 	font_desc = style->font_desc;
 
 	g_print("family: %s\n", pango_font_description_get_family(font_desc) );
 	g_print("size: %d (%d)\n", pango_font_description_get_size (font_desc), pango_font_description_get_size (font_desc )/PANGO_SCALE );
-*/
+
 #endif
 
 	// change the font size to a smaller one
@@ -2264,7 +2278,8 @@ GtkTreeViewColumn  *column;
 
 	//g_object_set(view, "vertical-separator", 1);
 
-//	g_object_set(view, "vertical_separator", 0, NULL);
+	//g_object_set(view, "vertical-separator", 0, NULL);
+	//g_object_set(view, "horizontal-separator", 0, NULL);
 
 /*
 	GValue value = { 0, };

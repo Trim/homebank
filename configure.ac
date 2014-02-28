@@ -32,6 +32,9 @@ CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
 # extended flags
 #CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
+#valgrind flags
+#CFLAGS="${CFLAGS} -g -O0"
+
 # pre-relase # 2 - error as warning for 
 #CFLAGS="${CFLAGS} -Werror"
 

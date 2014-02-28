@@ -234,34 +234,14 @@ gchar **str_array;
 */
 void homebank_file_ensure_xhb(void)
 {
-gchar *basename;
-gchar *dirname;
-
+gchar *newfilepath;
+	
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
 
-	basename = g_path_get_basename(GLOBALS->xhb_filepath);
-	dirname  = g_path_get_dirname (GLOBALS->xhb_filepath);
-
-	DB( g_print("- ensure .xhb for %s\n", basename) );
-
-	if( !(g_str_has_suffix(basename, ".xhb")))
-	{
-	gchar **str_array;
-	gchar *filename;
-	gchar *newname;
-
-		str_array = g_strsplit(basename, ".", 0);
-		filename = g_strdup_printf("%s.xhb", str_array[0]);
-		g_strfreev(str_array);
-		newname = g_build_filename(dirname, filename, NULL);
-		g_free(filename);
-		hbfile_change_filepath(newname);
-	}
+	newfilepath = hb_filepath_ensure_extension(GLOBALS->xhb_filepath, ".xhb");
+	hbfile_change_filepath(newfilepath);
 
 	DB( g_print("- out: %s\n", GLOBALS->xhb_filepath) );
-
-	g_free(basename);
-	g_free(dirname);
 }
 
 

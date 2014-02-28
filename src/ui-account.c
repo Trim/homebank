@@ -455,7 +455,7 @@ void ui_acc_listview_populate(GtkWidget *view, gint insert_type)
 {
 GtkTreeModel *model;
 GtkTreeIter	iter;
-GList *list;
+GList *lacc, *list;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
@@ -468,7 +468,7 @@ GList *list;
 	//g_hash_table_foreach(GLOBALS->h_acc, (GHFunc)ui_acc_listview_populate_ghfunc, model);
 	list = g_hash_table_get_values(GLOBALS->h_acc);
 	
-	list = g_list_sort(list, (GCompareFunc)ui_acc_glist_compare_func);
+	lacc = list = g_list_sort(list, (GCompareFunc)ui_acc_glist_compare_func);
 	while (list != NULL)
 	{
 	Account *item = list->data;
@@ -490,7 +490,7 @@ GList *list;
 next1:
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lacc);
 
 	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model); /* Re-attach model to view */
 	g_object_unref(model);
@@ -798,12 +798,10 @@ Account *item;
 		DB( g_print(" -> set acc id=%d\n", item->key) );
 
 		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
-
 		
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_type), item->type );
 
 		//ui_cur_combobox_set_active(GTK_COMBO_BOX(data->CY_curr), item->kcur);
-
 		
 		if(item->bankname != NULL)
 			gtk_entry_set_text(GTK_ENTRY(data->ST_bank), item->bankname);
@@ -1005,8 +1003,8 @@ gboolean do_remove;
 			do_remove = FALSE;
 			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_INFO,
 				_("Remove not allowed"),
-				_("This account is used and cannot be removed."),
-				NULL);
+				_("This account is used and cannot be removed.")
+			);
 			
 		}
 
@@ -1201,6 +1199,7 @@ gint row;
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 
 	data.LV_acc = ui_acc_listview_new(FALSE);
+	gtk_widget_set_size_request(data.LV_acc, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_acc);
 
 	gtk_widget_set_tooltip_text(data.LV_acc, _("Drag & drop to change the order"));

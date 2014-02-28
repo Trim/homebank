@@ -312,7 +312,7 @@ da_pay_debug_list(void)
 gboolean
 payee_is_used(guint32 key)
 {
-GList *list;
+GList *lrul, *list;
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -332,7 +332,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *entry = list->data;
@@ -341,7 +341,7 @@ GList *list;
 			return TRUE;
 		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 
 
 	return FALSE;
@@ -350,7 +350,7 @@ GList *list;
 void
 payee_move(guint32 key1, guint32 key2)
 {
-GList *list;
+GList *lrul, *list;
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -375,7 +375,7 @@ GList *list;
 		list = g_list_next(list);
 	}
 
-	list = g_hash_table_get_values(GLOBALS->h_rul);
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
 	Assign *entry = list->data;
@@ -384,7 +384,7 @@ GList *list;
 		{
 			entry->kpay = key2;
 		}
-		list = g_list_next(list);
+		list = g_list_next(lrul);
 	}
 	g_list_free(list);
 }
@@ -539,13 +539,13 @@ void
 payee_save_csv(gchar *filename)
 {
 GIOChannel *io;
-GList *list;
+GList *lpay, *list;
 gchar *outstr;
 
 	io = g_io_channel_new_file(filename, "w", NULL);
 	if(io != NULL)
 	{
-		list = payee_glist_sorted(1);
+		lpay = list = payee_glist_sorted(1);
 
 		while (list != NULL)
 		{
@@ -562,7 +562,7 @@ gchar *outstr;
 			}
 			list = g_list_next(list);
 		}
-		g_list_free(list);
+		g_list_free(lpay);
 
 		g_io_channel_unref (io);
 	}
