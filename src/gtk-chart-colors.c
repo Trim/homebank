@@ -21,7 +21,7 @@
 
 #include "gtk-chart-colors.h"
 
-const char *chart_colors[] =
+char *chart_colors[] =
 {
 	"HomeBank",
 	"Money", 

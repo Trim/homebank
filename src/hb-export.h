@@ -24,8 +24,6 @@
 void hb_export_qif_account_all(gchar *filename);
 void hb_export_qif_account_single(gchar *filename, Account *acc);
 
-void test_qif_export (void);
-
 
 #endif
 

@@ -195,14 +195,11 @@ gchar *type;
 void hb_export_qif_account_single(gchar *filename, Account *acc)
 {
 GIOChannel *io;
-gchar *newname;
-
-	newname = homebank_filepath_with_extention(filename, "qif");
 	
-	io = g_io_channel_new_file(newname, "w", NULL);
+	io = g_io_channel_new_file(filename, "w", NULL);
 	if(io == NULL)
 	{
-		g_message("file error on: %s", newname);
+		g_message("file error on: %s", filename);
 		//retval = XML_IO_ERROR;
 	}
 	else
@@ -211,24 +208,18 @@ gchar *newname;
 		hb_export_qif_elt_txn(io, acc);	
 		g_io_channel_unref (io);
 	}
-
-	g_free(newname);
-
 }
 
 
 void hb_export_qif_account_all(gchar *filename)
 {
 GIOChannel *io;
-gchar *newname;
 GList *lacc, *list;
 
-	newname = homebank_filepath_with_extention(filename, "qif");
-	
-	io = g_io_channel_new_file(newname, "w", NULL);
+	io = g_io_channel_new_file(filename, "w", NULL);
 	if(io == NULL)
 	{
-		g_message("file error on: %s", newname);
+		g_message("file error on: %s", filename);
 		//retval = XML_IO_ERROR;
 	}
 	else
@@ -251,25 +242,9 @@ GList *lacc, *list;
 		g_io_channel_unref (io);
 	}
 
-	g_free(newname);
-
-}
-
-
-void test_qif_export (void)
-{
-gchar *filename;
-
-	DB( g_print("(qif) test qif export\n\n") );
-
-	if( ui_file_chooser_qif(NULL, &filename) == TRUE )
-	{
-		hb_export_qif_account_all(filename);
-
-		g_free( filename );
-	}
-
 }
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+
+

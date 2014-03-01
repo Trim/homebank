@@ -280,7 +280,7 @@ gboolean usermode = TRUE;
 static void account_export_csv(GtkWidget *widget, gpointer user_data)
 {
 struct account_data *data;
-gchar *filename = NULL, *tmp;
+gchar *filename = NULL;
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
@@ -292,10 +292,7 @@ GIOChannel *io;
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, NULL) == TRUE )
 	{
-		tmp = hb_filepath_ensure_extension(filename, ".csv");
-		g_free(filename);
-		filename = tmp;
-		
+
 		DB( g_print(" + filename is %s\n", filename) );
 
 		io = g_io_channel_new_file(filename, "w", NULL);

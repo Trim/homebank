@@ -45,6 +45,16 @@ extern GdkPixbuf *paymode_icons[];
 /* This is not pretty. Of course you can also use a
    *  separate compare function for each sort ID value */
 
+static gint ope_sort_iter_compare_strings(gchar *s1, gchar *s2)
+{
+gint ret = 0;
+
+	ret = g_utf8_collate(s1 != NULL ? s1 : "", s2 != NULL ? s2 : "");
+
+	return ret;
+}
+
+
 static   gint
   ope_sort_iter_compare_func (GtkTreeModel *model,
                           GtkTreeIter  *a,
@@ -75,28 +85,27 @@ static   gint
 
 				tmpval = ope1->pos - ope2->pos;
 				ret = tmpval > 0 ? 1 : -1;
-
 			}
 			//g_print("ret=%d\n", ret);
 			break;
 
 		case LST_DSPOPE_ACCOUNT:
 			{
-			Account *p1, *p2;
+			Account *a1, *a2;
 
-				p1 = da_acc_get(ope1->kacc);
-				p2 = da_acc_get(ope2->kacc);
-
-				if( p1->name && p2->name )
-					ret = g_utf8_collate(p1->name, p2->name);
+				a1 = da_acc_get(ope1->kacc);
+				a2 = da_acc_get(ope2->kacc);
+				if( a1 != NULL && a2 != NULL )
+				{
+					ret = ope_sort_iter_compare_strings(a1->name, a2->name);
+				}
 			}
 			break;
 
 		case LST_DSPOPE_INFO:
 			if(!(ret = ope1->paymode - ope2->paymode))
 			{
-				if(ope1->info != NULL && ope2->info != NULL)
-					ret = g_utf8_collate(ope1->info, ope2->info);
+				ret = ope_sort_iter_compare_strings(ope1->info, ope2->info);
 			}
 			break;
 
@@ -108,15 +117,13 @@ static   gint
 				p2 = da_pay_get(ope2->kpay);
 				if( p1 != NULL && p2 != NULL )
 				{
-					if( p1->name && p2->name )
-						ret = g_utf8_collate(p1->name, p2->name);
+					ret = ope_sort_iter_compare_strings(p1->name, p2->name);
 				}
 			}
 			break;
 
 		case LST_DSPOPE_WORDING:
-			if(ope1->wording != NULL && ope2->wording != NULL)
-				ret = g_utf8_collate(ope1->wording, ope2->wording);
+				ret = ope_sort_iter_compare_strings(ope1->wording, ope2->wording);
 			break;
 
 		case LST_DSPOPE_AMOUNT:
@@ -137,10 +144,7 @@ static   gint
 				{
 					name1 = da_cat_get_fullname(c1);
 					name2 = da_cat_get_fullname(c2);
-
-					if(name1 != NULL && name2 != NULL)
-						ret = g_utf8_collate(name1, name2);
-
+					ret = ope_sort_iter_compare_strings(name1, name2);
 					g_free(name2);
 					g_free(name1);
 				}
@@ -153,10 +157,7 @@ static   gint
 
 			t1 = transaction_tags_tostring(ope1);
 			t2 = transaction_tags_tostring(ope2);
-			if( t1 != NULL && t2 != NULL )
-			{
-				ret = g_utf8_collate(t1, t2);
-			}
+			ret = ope_sort_iter_compare_strings(t1, t2);
 			g_free(t1);
 			g_free(t2);
 		}
@@ -167,7 +168,7 @@ static   gint
     }
 
     return ret;
-  }
+}
 
 /*
 ** date cell function

@@ -134,7 +134,7 @@ gboolean ui_file_chooser_qif(GtkWindow *parent, gchar **storage_ptr)
 GtkWidget *chooser;
 gboolean retval;
 
-	DB( g_print("(homebank) chooser open qif\n") );
+	DB( g_print("(homebank) chooser save qif\n") );
 
 	chooser = gtk_file_chooser_dialog_new (
 					_("Export as QIF"),
@@ -144,7 +144,7 @@ gboolean retval;
 					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 					NULL);
 
-	//todo chnage this ?
+	//todo: change this ?
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(chooser), PREFS->path_export);
 	ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("QIF files"), "*.[Qq][Ii][Ff]");
 	ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("All files"), "*");
@@ -152,7 +152,10 @@ gboolean retval;
 	retval = FALSE;
 	if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_ACCEPT)
 	{
-		*storage_ptr = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+	gchar *tmpfilename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+	
+		*storage_ptr = hb_filename_new_with_extention(tmpfilename, "qif");
+		g_free(tmpfilename);
 		retval = TRUE;
 	}
 
@@ -174,7 +177,7 @@ gchar *button;
 gboolean retval;
 gchar *path;
 
-	DB( g_print("(hombank) csvfile chooser %d\n", action) );
+	DB( g_print("(hombank) csvfile chooser csv %d\n", action) );
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
@@ -207,7 +210,17 @@ gchar *path;
 	retval = FALSE;
 	if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_ACCEPT)
 	{
-		*storage_ptr = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+	gchar *tmpfilename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+	
+		if( action == GTK_FILE_CHOOSER_ACTION_SAVE )
+		{
+			*storage_ptr = hb_filename_new_with_extention(tmpfilename, "csv");
+			g_free(tmpfilename);
+		}
+		else
+		{
+			*storage_ptr = tmpfilename;
+		}
 		retval = TRUE;
 	}
 
@@ -226,7 +239,7 @@ gchar *title;
 gchar *button;
 gboolean retval;
 
-	DB( g_print("(ui-dialog) file chooser %d\n", action) );
+	DB( g_print("(ui-dialog) file chooser xhb %d\n", action) );
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{

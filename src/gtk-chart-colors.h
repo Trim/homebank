@@ -66,7 +66,7 @@ enum colmap
 	CHART_COLMAP_ANALYTICS,
 };
 
-extern const char *chart_colors[];
+extern char *chart_colors[];
 
 extern struct rgbcol global_colors[];
 extern struct rgbcol money_colors[];

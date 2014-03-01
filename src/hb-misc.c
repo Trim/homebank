@@ -609,6 +609,7 @@ gchar **str_array;
 	return retval;
 }
 
+
 guint32 hb_date_get_julian(gchar *string, gint datefmt)
 {
 GDate *date;
@@ -668,42 +669,54 @@ guint32 julian = 0;
 }
 
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-gchar *hb_filepath_ensure_extension(gchar *filepath, const gchar *ext)
+
+gchar *hb_filename_new_with_extention(gchar *filename, const gchar *extension)
 {
 gchar *dirname;
 gchar *basename;
-gchar *newfilepath = NULL;
+gchar *newbasename;
+gchar *newfilename;
+gchar **str_array;
 
-	DB( g_print("hb_filepath_ensure_extension\n") );
+	dirname  = g_path_get_dirname (filename);
+	basename = g_path_get_basename(filename);
+	str_array = g_strsplit(basename, ".", 0);
+	newbasename = g_strdup_printf("%s.%s", str_array[0], extension);
+	newfilename = g_build_filename(dirname, newbasename, NULL);
 
-	dirname  = g_path_get_dirname (filepath);
-	basename = g_path_get_basename(filepath);
-
-	DB( g_print("- ensure '%s' for '%s'\n", ext, basename) );
-
-	if( !(g_str_has_suffix(basename, ext)))
-	{
-	gchar **str_array;
-	gchar *filename;
-
-		str_array = g_strsplit(basename, ".", 0);
-		filename = g_strdup_printf("%s%s", str_array[0], ext);
-		g_strfreev(str_array);
-		newfilepath = g_build_filename(dirname, filename, NULL);
-	}
-	else
-		newfilepath = filepath;
-
-	DB( g_print("- out: '%s'\n", newfilepath) );
-
+	g_strfreev(str_array);
 	g_free(basename);
 	g_free(dirname);
+	g_free(newbasename);
 
-	return newfilepath;
+	return newfilename;
 }
 
 
+/* file backup, qif export */
+
+
+/*gchar *homebank_filename_without_extention(gchar *path)
+{
+gchar *basename;
+gchar *newname;
+gchar **str_array;
+
+	basename = g_path_get_basename(path);
+
+	str_array = g_strsplit(basename, ".", 0);
+
+	newname = g_strdup(str_array[0]);
+
+	g_strfreev(str_array);
+	g_free(basename);
+
+	return newname;
+}*/
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
 static gboolean hb_string_isdate(gchar *str)

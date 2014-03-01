@@ -360,11 +360,10 @@ gint result;
 	if( result == 1)
 	{
 		DB( g_print(" - should revert\n") );
-		hbfile_change_filepath(homebank_filepath_with_extention(GLOBALS->xhb_filepath, "xhb~"));
-
+		
+		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb~"));
 		ui_mainwindow_open_internal(widget, NULL);
-
-		//todo: error here after, we must set the filename bak to .xhb
+		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb"));
 
 	}
 
@@ -762,10 +761,13 @@ static void ui_mainwindow_action_about(void)
 
 static void ui_mainwindow_action_export(void)
 {
-	test_qif_export();
+gchar *filename;
 
-
-	//create_import_window();
+	if( ui_file_chooser_qif(NULL, &filename) == TRUE )
+	{
+		hb_export_qif_account_all(filename);
+		g_free( filename );
+	}
 }
 
 static void ui_mainwindow_action_help(void)
@@ -1528,7 +1530,6 @@ gint r = XML_UNSET;
 			homebank_file_ensure_xhb();
 			r = homebank_save_xml(GLOBALS->xhb_filepath);
 			GLOBALS->hbfile_is_new = FALSE;
-
 		}
 		else
 			return;

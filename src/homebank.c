@@ -183,49 +183,7 @@ static gint csvtype[7] = {
 
 
 /* = = = = = = = = = = = = = = = = = = = = */
-/* file backup, qif export */
-gchar *homebank_filepath_with_extention(gchar *path, gchar *extension)
-{
-gchar *basename;
-gchar *dirname;
-gchar *filename;
-gchar *newname;
-gchar **str_array;
 
-	basename = g_path_get_basename(path);
-	dirname  = g_path_get_dirname (path);
-
-	str_array = g_strsplit(basename, ".", 0);
-
-	filename = g_strdup_printf("%s.%s", str_array[0], extension);
-
-	newname = g_build_filename(dirname, filename, NULL);
-
-	g_strfreev(str_array);
-	g_free(basename);
-	g_free(dirname);
-	g_free(filename);
-
-	return newname;
-}
-
-gchar *homebank_filename_without_extention(gchar *path)
-{
-gchar *basename;
-gchar *newname;
-gchar **str_array;
-
-	basename = g_path_get_basename(path);
-
-	str_array = g_strsplit(basename, ".", 0);
-
-	newname = g_strdup(str_array[0]);
-
-	g_strfreev(str_array);
-	g_free(basename);
-
-	return newname;
-}
 
 
 
@@ -238,7 +196,7 @@ gchar *newfilepath;
 	
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
 
-	newfilepath = hb_filepath_ensure_extension(GLOBALS->xhb_filepath, ".xhb");
+	newfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, ".xhb");
 	hbfile_change_filepath(newfilepath);
 
 	DB( g_print("- out: %s\n", GLOBALS->xhb_filepath) );
