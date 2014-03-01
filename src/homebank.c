@@ -196,7 +196,7 @@ gchar *newfilepath;
 	
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
 
-	newfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, ".xhb");
+	newfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb");
 	hbfile_change_filepath(newfilepath);
 
 	DB( g_print("- out: %s\n", GLOBALS->xhb_filepath) );
