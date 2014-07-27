@@ -37,13 +37,15 @@ enum {
 	HID_RANGE,
 	HID_TYPE,
 	HID_STATUS,
+	HID_SEARCH,
 	MAX_HID
 };
 
-struct account_data
+struct register_panel_data
 {
 	GtkWidget	*window;
 	GtkWidget	*TB_bar;
+	GtkWidget   *TB_tools;
 
 	GtkWidget	*CY_range;
 	GtkWidget	*CY_type;
@@ -52,9 +54,12 @@ struct account_data
 	GtkWidget	*BT_reset;
 	GtkWidget	*TX_selection;
 
+	GtkWidget   *ST_search;
+	
 	GtkWidget	*CM_minor;
 	GtkWidget	*TX_balance[3];
 
+	GPtrArray   *gpatxn;
 	GtkWidget	*LV_ope;
 
 	gint	busy;
@@ -76,17 +81,18 @@ struct account_data
 
 	Filter		*filter;
 
+	guint		timer_tag;
+	
 	gulong		handler_id[MAX_HID];
 
 	//gint change;	/* change shouldbe done directly */
 
 };
 
+#define DEFAULT_DELAY 750           /* Default delay in ms */
 
-GtkWidget *create_account_window(guint32 accnum, Account *acc);
+GtkWidget *register_panel_window_new(guint32 accnum, Account *acc);
+void register_panel_window_init(GtkWidget *widget, gpointer user_data);
 
-
-void account_init_window(GtkWidget *widget, gpointer user_data);
-void account_busy(GtkWidget *widget, gboolean state);
 
 #endif /* __HOMEBANK_DSPACCOUNT_H__ */

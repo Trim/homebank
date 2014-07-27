@@ -17,10 +17,90 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __HOMEBANK_REPSTATS_H__
-#define __HOMEBANK_REPSTATS_H__
+#ifndef __HOMEBANK_REPDIST_H__
+#define __HOMEBANK_REPDIST_H__
+
+enum {
+	HID_REPDIST_MINDATE,
+	HID_REPDIST_MAXDATE,
+	HID_REPDIST_RANGE,
+	HID_REPDIST_VIEW,
+	MAX_REPDIST_HID
+};
 
 
-GtkWidget *create_statistic_window(void);
+enum
+{
+	LST_REPDIST_POS,
+	LST_REPDIST_KEY,
+	LST_REPDIST_NAME,
+	LST_REPDIST_EXPENSE,
+	LST_REPDIST_EXPRATE,
+	LST_REPDIST_INCOME,
+	LST_REPDIST_INCRATE,
+	LST_REPDIST_BALANCE,
+	LST_REPDIST_BALRATE,
+	NUM_LST_REPDIST
+};
+
+enum
+{
+	BY_REPDIST_CATEGORY,
+	BY_REPDIST_SUBCATEGORY,
+	BY_REPDIST_PAYEE,
+	BY_REPDIST_TAG,
+	BY_REPDIST_MONTH,
+	BY_REPDIST_YEAR,
+};
+
+struct ui_repdist_data
+{
+	GtkWidget	*window;
+
+	gint	busy;
+
+	GtkUIManager	*ui;
+	GtkActionGroup *actions;
+
+	GtkWidget	*TB_bar;
+
+	GtkWidget	*TX_info;
+	GtkWidget	*CM_minor;
+	GtkWidget	*CY_by;
+	GtkWidget	*CY_view;
+	GtkWidget	*RG_zoomx;
+	GtkWidget	*LV_report;
+	GtkWidget	*CM_byamount;
+
+	GtkWidget	*PO_mindate, *PO_maxdate;
+
+	GtkWidget	*CY_range;
+	GtkWidget	*GR_result;
+
+	GtkWidget	*TX_daterange;
+	GtkWidget	*TX_total[3];
+
+	GtkWidget	*RE_chart;
+
+	GtkWidget	*GR_detail;
+	GtkWidget	*LV_detail;
+
+	gdouble		total_expense;
+	gdouble		total_income;
+	gdouble		total_balance;
+
+	gboolean	detail;
+	gboolean	legend;
+	gboolean	rate;
+
+	gulong		handler_id[MAX_REPDIST_HID];
+
+	Filter		*filter;
+
+};
+
+
+
+GtkWidget *ui_repdist_window_new(void);
 
 #endif

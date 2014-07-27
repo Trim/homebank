@@ -47,77 +47,26 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-enum {
-	HID_MINDATE,
-	HID_MAXDATE,
-	HID_RANGE,
-	HID_VIEW,
-	MAX_HID
-};
-
-struct trendtime_data
-{
-	GtkWidget	*window;
-
-	gint	busy;
-
-	GtkUIManager	*ui;
-	GtkActionGroup *actions;
-
-	GtkWidget	*TB_bar;
-
-	GtkWidget	*TX_info;
-	GtkWidget	*TX_daterange;
-	GtkWidget	*CY_for;
-	GtkWidget	*CY_view;
-	GtkWidget	*RG_zoomx;
-	GtkWidget	*CM_minor;
-	GtkWidget	*CM_cumul;
-	GtkWidget	*LV_report;
-
-
-	GtkWidget	*GR_select;
-	GtkWidget	*CM_all;
-	GtkWidget	*PO_acc;
-	GtkWidget	*PO_cat;
-	GtkWidget	*PO_pay;
-
-	GtkWidget	*PO_mindate, *PO_maxdate;
-
-	GtkWidget	*CY_range;
-	GtkWidget	*GR_result;
-
-	GtkWidget	*RE_line;
-
-	GtkWidget	*GR_detail;
-	GtkWidget	*LV_detail;
-
-	gboolean	detail;
-
-	gulong		handler_id[MAX_HID];
-
-	Filter		*filter;
-};
 
 /* prototypes */
-static void trendtime_action_viewlist(GtkAction *action, gpointer user_data);
-static void trendtime_action_viewline(GtkAction *action, gpointer user_data);
-static void trendtime_action_detail(GtkAction *action, gpointer user_data);
-//static void trendtime_action_filter(GtkAction *action, gpointer user_data);
-static void trendtime_action_refresh(GtkAction *action, gpointer user_data);
-static void trendtime_action_export(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_viewlist(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_viewline(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_detail(GtkAction *action, gpointer user_data);
+//static void ui_reptime_action_filter(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_refresh(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_export(GtkAction *action, gpointer user_data);
 
 //static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur);
 
 
 static GtkActionEntry entries[] = {
-  { "List"    , "hb-view-list" , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (trendtime_action_viewlist) },
-  { "Line"    , "hb-view-line" , N_("Line")   , NULL,   N_("View results as lines"), G_CALLBACK (trendtime_action_viewline) },
+  { "List"    , "hb-view-list" , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (ui_reptime_action_viewlist) },
+  { "Line"    , "hb-view-line" , N_("Line")   , NULL,   N_("View results as lines"), G_CALLBACK (ui_reptime_action_viewline) },
 
-//  { "Filter"  , "hb-filter"    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (trendtime_action_filter) },
-  { "Refresh" , GTK_STOCK_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (trendtime_action_refresh) },
+//  { "Filter"  , "hb-filter"    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_reptime_action_filter) },
+  { "Refresh" , GTK_STOCK_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_reptime_action_refresh) },
 
-  { "Export" , "hb-file-export", N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (trendtime_action_export) },
+  { "Export" , "hb-file-export", N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_reptime_action_export) },
 };
 static guint n_entries = G_N_ELEMENTS (entries);
 
@@ -125,7 +74,7 @@ static GtkToggleActionEntry toggle_entries[] = {
   { "Detail", "hb-ope-show",                    /* name, stock id */
      N_("Detail"), NULL,                    /* label, accelerator */
     N_("Toggle detail"),                                    /* tooltip */
-    G_CALLBACK (trendtime_action_detail),
+    G_CALLBACK (ui_reptime_action_detail),
     FALSE },                                    /* is_active */
 
 };
@@ -147,49 +96,20 @@ static const gchar *ui_info =
 "  </toolbar>"
 "</ui>";
 
-/* list stat */
-enum
-{
-	LST_STAT_POS,
-	LST_STAT_KEY,
-	LST_STAT_TITLE,
-	LST_STAT_AMOUNT,
-	NUM_LST_STAT
-};
 
-/* for choose options */
-enum
-{
-	REPTIME_FOR_ACCOUNT,
-	REPTIME_FOR_CATEGORY,
-	REPTIME_FOR_PAYEE,
-	NUM_REPTIME_FOR
-};
+static void ui_reptime_date_change(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_range_change(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_detail(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_update(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_export_csv(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_compute(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_sensitive(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_toggle_detail(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_toggle_minor(GtkWidget *widget, gpointer user_data);
+static void ui_reptime_update_daterange(GtkWidget *widget, gpointer user_data);
+static GtkWidget *ui_list_reptime_create(void);
 
-
-/* view by choose options */
-enum
-{
-	STAT_DAY,
-	STAT_WEEK,
-	STAT_MONTH,
-	STAT_QUARTER,
-	STAT_YEAR,
-};
-
-static void trendtime_date_change(GtkWidget *widget, gpointer user_data);
-static void trendtime_range_change(GtkWidget *widget, gpointer user_data);
-static void trendtime_detail(GtkWidget *widget, gpointer user_data);
-static void trendtime_update(GtkWidget *widget, gpointer user_data);
-static void trendtime_export_csv(GtkWidget *widget, gpointer user_data);
-static void trendtime_compute(GtkWidget *widget, gpointer user_data);
-static void trendtime_sensitive(GtkWidget *widget, gpointer user_data);
-static void trendtime_toggle_detail(GtkWidget *widget, gpointer user_data);
-static void trendtime_toggle_minor(GtkWidget *widget, gpointer user_data);
-static void trendtime_update_daterange(GtkWidget *widget, gpointer user_data);
-static GtkWidget *create_list_statistic(void);
-
-static gint stat_list_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata);
+static gint ui_list_reptime_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata);
 
 
 
@@ -220,56 +140,65 @@ N_("Dec"),
 
 /* action functions -------------------- */
 
-static void trendtime_action_viewlist(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_viewlist(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 0);
-	trendtime_sensitive(data->window, NULL);
+	ui_reptime_sensitive(data->window, NULL);
 }
 
-static void trendtime_action_viewline(GtkAction *action, gpointer user_data)
+
+
+
+
+
+
+
+
+
+static void ui_reptime_action_viewline(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 1);
-	trendtime_sensitive(data->window, NULL);
+	ui_reptime_sensitive(data->window, NULL);
 
 }
 
 
-static void trendtime_action_detail(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_detail(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
-	trendtime_toggle_detail(data->window, NULL);
+	ui_reptime_toggle_detail(data->window, NULL);
 }
 
 /*
-static void trendtime_action_filter(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_filter(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
 	//debug
 	//create_deffilter_window(data->filter, TRUE);
 
 	if(create_deffilter_window(data->filter, TRUE) != GTK_RESPONSE_REJECT)
-		trendtime_compute(data->window, NULL);
+		ui_reptime_compute(data->window, NULL);
 }
 */
 
-static void trendtime_action_refresh(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_refresh(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
-	trendtime_compute(data->window, NULL);
+	ui_reptime_compute(data->window, NULL);
 }
 
-static void trendtime_action_export(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_export(GtkAction *action, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 
-	trendtime_export_csv(data->window, NULL);
+	ui_reptime_export_csv(data->window, NULL);
 }
 
 
@@ -350,11 +279,11 @@ gint year_from, year_ope, pos;
 	return(pos);
 }
 
-static void trendtime_date_change(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_date_change(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 
-	DB( g_print("\n[trendtime] date change\n") );
+	DB( g_print("\n[reptime] date change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -365,23 +294,23 @@ struct trendtime_data *data;
 	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
 	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 
-	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_block(data->CY_range, data->handler_id[HID_REPTIME_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
-	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_REPTIME_RANGE]);
 
-	trendtime_compute(widget, NULL);
-	trendtime_update_daterange(widget, NULL);
+	ui_reptime_compute(widget, NULL);
+	ui_reptime_update_daterange(widget, NULL);
 
 }
 
 
 
-static void trendtime_range_change(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_range_change(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gint range;
 
-	DB( g_print("\n[trendtime] range change\n") );
+	DB( g_print("\n[reptime] range change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -391,27 +320,27 @@ gint range;
 	{
 		filter_preset_daterange_set(data->filter, range);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
 		
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
 		
-		trendtime_compute(widget, NULL);
-		trendtime_update_daterange(widget, NULL);
+		ui_reptime_compute(widget, NULL);
+		ui_reptime_update_daterange(widget, NULL);
 	}
 	
 }
 
-static void trendtime_update_daterange(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_update_daterange(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gchar *daterange;
 
-	DB( g_print("\n[trendtime] update daterange\n") );
+	DB( g_print("\n[reptime] update daterange\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -421,9 +350,9 @@ gchar *daterange;
 }
 
 
-static void trendtime_detail(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_detail(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 guint active = GPOINTER_TO_INT(user_data);
 guint tmpfor, tmpslice;
 gboolean showall;
@@ -436,7 +365,7 @@ guint32 selkey;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("\n[trendtime] detail\n") );
+	DB( g_print("\n[reptime] detail\n") );
 
 	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 	tmpslice = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
@@ -445,13 +374,13 @@ guint32 selkey;
 
 	switch(tmpfor)
 	{
-		case REPTIME_FOR_ACCOUNT:
+		case FOR_REPTIME_ACCOUNT:
 			selkey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 			break;
-		case REPTIME_FOR_CATEGORY:
+		case FOR_REPTIME_CATEGORY:
 			selkey = ui_cat_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_cat));
 			break;
-		case REPTIME_FOR_PAYEE:
+		case FOR_REPTIME_PAYEE:
 			selkey = ui_pay_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_pay));
 			break;
 	}
@@ -492,11 +421,11 @@ guint32 selkey;
 
 				switch(tmpfor)
 				{
-					case REPTIME_FOR_ACCOUNT:
+					case FOR_REPTIME_ACCOUNT:
 						if( selkey == ope->kacc )
 							include = TRUE;
 						break;
-					case REPTIME_FOR_CATEGORY:
+					case FOR_REPTIME_CATEGORY:
 					{
 					Category *catentry;
 					
@@ -509,20 +438,27 @@ guint32 selkey;
 							{
 								split = ope->splits[i];
 								catentry = da_cat_get(split->kcat);
-								if( selkey == catentry->parent || selkey == catentry->key )
-									include = TRUE;
+								if(catentry != NULL)	//#1340142
+								{
+									if( selkey == catentry->parent || selkey == catentry->key )
+										include = TRUE;
+
+								}
 							}
 						}
 						else
 						{							
 							catentry = da_cat_get(ope->kcat);
-							if( selkey == catentry->parent || selkey == catentry->key )
-								include = TRUE;
+							if(catentry != NULL)	//#1340142
+							{
+								if( selkey == catentry->parent || selkey == catentry->key )
+									include = TRUE;
+
+							}
 						}
-						
 					}
 						break;
-					case REPTIME_FOR_PAYEE:
+					case FOR_REPTIME_PAYEE:
 						if( selkey == ope->kpay )
 							include = TRUE;
 						break;
@@ -533,23 +469,23 @@ guint32 selkey;
 
 					switch(tmpslice)
 					{
-						case STAT_DAY:
+						case GROUPBY_REPTIME_DAY:
 							pos = ope->date - from;
 							break;
 
-						case STAT_WEEK:
+						case GROUPBY_REPTIME_WEEK:
 							pos = (ope->date - from)/7;
 							break;
 
-						case STAT_MONTH:
+						case GROUPBY_REPTIME_MONTH:
 							pos = DateInMonth(from, ope->date);
 							break;
 
-						case STAT_QUARTER:
+						case GROUPBY_REPTIME_QUARTER:
 							pos = DateInQuarter(from, ope->date);
 							break;
 
-						case STAT_YEAR:
+						case GROUPBY_REPTIME_YEAR:
 							pos = DateInYear(from, ope->date);
 							break;
 					}
@@ -582,76 +518,49 @@ next1:
 }
 
 
-static void trendtime_update(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_update(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
-gboolean byamount;
-GtkTreeModel		 *model;
-gint page, tmpfor, tmpslice, column;
+struct ui_reptime_data *data;
+GtkTreeModel *model;
+gint tmpfor;
+gchar *title;
 //gboolean xval;
 
-	DB( g_print("\n[trendtime] update\n") );
+	DB( g_print("\n[reptime] update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_report));
-	byamount = 0;
+	//byamount = 0;
 	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
-	tmpslice = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
+	//tmpslice = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 
 	// ensure not exp & inc for piechart
-	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(data->GR_result));
+	//page = gtk_notebook_get_current_page(GTK_NOTEBOOK(data->GR_result));
 
-	if( page == 2 && tmpslice == 0 )
-	{
-		g_signal_handler_block(data->CY_view, data->handler_id[HID_VIEW]);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_view), 1);
-		g_signal_handler_unblock(data->CY_view, data->handler_id[HID_VIEW]);
-		tmpslice = 1;
-	}
+	//DB( g_print(" page %d\n\n", page) );
+	//DB( g_print(" tmpslice %d\n\n", tmpslice) );
 
 
-	DB( g_print(" tmpslice %d\n\n", tmpslice) );
+	//column = LST_REPTIME_POS;
+	//DB( g_print(" sort on column %d\n\n", column) );
+	//gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), column, GTK_SORT_DESCENDING);
 
-
-	column = LST_STAT_POS;
-	DB( g_print(" sort on column %d\n\n", column) );
-
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), column, GTK_SORT_DESCENDING);
-
-
-
-	/* show xval for month/year and no by amount display */
-	//xval = FALSE;
-
-
-	if( !byamount && (tmpfor == STAT_MONTH || tmpfor == STAT_YEAR) )
-	{
-		//xval = TRUE;
-		switch( tmpfor)
-		{
-			case STAT_MONTH:
-				//gtk_chart_set_decy_xval(GTK_CHART(data->RE_bar), 4);
-				break;
-			case STAT_YEAR:
-				//gtk_chart_set_decy_xval(GTK_CHART(data->RE_bar), 2);
-				break;
-
-		}
-
-
-	}
-
-	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_STAT_AMOUNT, NULL);
-	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE);
+	//gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_STAT_AMOUNT, NULL);
+	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE, FALSE);
 	gtk_chart_show_xval(GTK_CHART(data->RE_line), TRUE);
+
+	////TRANSLATORS: example 'Expense by Category'
+	title = g_strdup_printf(_("%s Over Time"), _(CYA_TIMESELECT[tmpfor]) );
+	gtk_chart_set_datas(GTK_CHART(data->RE_line), model, LST_REPTIME_AMOUNT, title);
+	g_free(title);
 
 }
 
-static void trendtime_export_csv(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_export_csv(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
@@ -660,13 +569,13 @@ GIOChannel *io;
 gchar *outstr, *name;
 gint tmpfor;
 
-	DB( g_print("\n[trendtime] export csv\n") );
+	DB( g_print("\n[reptime] export csv\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 
-	name = g_strdup_printf("hb-trendtime_%s.csv", CYA_TIMESELECT[tmpfor]);
+	name = g_strdup_printf("hb-ui_reptime_%s.csv", CYA_TIMESELECT[tmpfor]);
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, name) == TRUE )
 	{
@@ -688,9 +597,9 @@ gint tmpfor;
 			gdouble amount;
 
 				gtk_tree_model_get (model, &iter,
-					//LST_STAT_KEY, i,
-					LST_STAT_TITLE  , &name,
-					LST_STAT_AMOUNT , &amount,
+					//LST_REPTIME_KEY, i,
+					LST_REPTIME_TITLE  , &name,
+					LST_REPTIME_AMOUNT , &amount,
 
 					-1);
 
@@ -716,25 +625,25 @@ gint tmpfor;
 }
 
 
-static void trendtime_for(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_for(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gint page;
 
-	DB( g_print("\n[trendtime] for\n") );
+	DB( g_print("\n[reptime] for\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	page  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_select), page);
 
-	trendtime_compute(widget, data);
+	ui_reptime_compute(widget, data);
 }
 
 
-static void trendtime_compute(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_compute(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gint tmpfor, tmpslice;
 guint32 from, to;
 gboolean cumul;
@@ -751,7 +660,7 @@ GDate *date1, *date2;
 gdouble *tmp_amount;
 guint32 selkey;
 
-	DB( g_print("\n[trendtime] compute\n") );
+	DB( g_print("\n[reptime] compute\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -763,13 +672,13 @@ guint32 selkey;
 
 	switch(tmpfor)
 	{
-		case REPTIME_FOR_ACCOUNT:
+		case FOR_REPTIME_ACCOUNT:
 			selkey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 			break;
-		case REPTIME_FOR_CATEGORY:
+		case FOR_REPTIME_CATEGORY:
 			selkey = ui_cat_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_cat));
 			break;
-		case REPTIME_FOR_PAYEE:
+		case FOR_REPTIME_PAYEE:
 			selkey = ui_pay_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_pay));
 			break;
 	}
@@ -787,27 +696,27 @@ guint32 selkey;
 	/* count number or results */
 	switch(tmpslice)
 	{
-		case STAT_DAY:
+		case GROUPBY_REPTIME_DAY:
 			n_result = 1 + (to - from);
 			break;
-		case STAT_WEEK:
+		case GROUPBY_REPTIME_WEEK:
 			n_result = 1 + ((to - from) / 7);
 			break;
-		case STAT_MONTH:
+		case GROUPBY_REPTIME_MONTH:
 			date1 = g_date_new_julian(from);
 			date2 = g_date_new_julian(to);
 			n_result = 1 + ((g_date_get_year(date2) - g_date_get_year(date1)) * 12) + g_date_get_month(date2) - g_date_get_month(date1);
 			g_date_free(date2);
 			g_date_free(date1);
 			break;
-		case STAT_QUARTER:
+		case GROUPBY_REPTIME_QUARTER:
 			date1 = g_date_new_julian(from);
 			date2 = g_date_new_julian(to);
 			n_result = 1 + (((g_date_get_year(date2) - g_date_get_year(date1)) * 12) + g_date_get_month(date2) - g_date_get_month(date1))/3;
 			g_date_free(date2);
 			g_date_free(date1);
 			break;
-		case STAT_YEAR:
+		case GROUPBY_REPTIME_YEAR:
 			date1 = g_date_new_julian(from);
 			date2 = g_date_new_julian(to);
 			n_result = 1 + g_date_get_year(date2) - g_date_get_year(date1);
@@ -830,7 +739,7 @@ guint32 selkey;
 		
 		/* set currency */
 		/*
-		if( (tmpfor == REPTIME_FOR_ACCOUNT) && (showall == FALSE) )
+		if( (tmpfor == FOR_REPTIME_ACCOUNT) && (showall == FALSE) )
 		{
 			if(acc = da_acc_get(selkey))
 			{
@@ -866,11 +775,11 @@ guint32 selkey;
 
 				switch(tmpfor)
 				{
-					case REPTIME_FOR_ACCOUNT:
+					case FOR_REPTIME_ACCOUNT:
 						if( selkey == ope->kacc )
 							include = TRUE;
 						break;
-					case REPTIME_FOR_CATEGORY:
+					case FOR_REPTIME_CATEGORY:
 					{
 					Category *catentry;
 					
@@ -883,20 +792,26 @@ guint32 selkey;
 							{
 								split = ope->splits[i];
 								catentry = da_cat_get(split->kcat);
-								if( selkey == catentry->parent || selkey == catentry->key )
-									include = TRUE;
+								if(catentry != NULL)	//#1340142
+								{
+									if( selkey == catentry->parent || selkey == catentry->key )
+										include = TRUE;
+								}
 							}
 						}
 						else
 						{							
 							catentry = da_cat_get(ope->kcat);
-							if( selkey == catentry->parent || selkey == catentry->key )
-								include = TRUE;
+							if(catentry != NULL)	//#1340142
+							{
+								if( selkey == catentry->parent || selkey == catentry->key )
+									include = TRUE;
+							}
 						}
 						
 					}
 						break;
-					case REPTIME_FOR_PAYEE:
+					case FOR_REPTIME_PAYEE:
 						if( selkey == ope->kpay )
 							include = TRUE;
 						break;
@@ -909,23 +824,23 @@ guint32 selkey;
 				
 					switch(tmpslice)
 					{
-						case STAT_DAY:
+						case GROUPBY_REPTIME_DAY:
 							pos = ope->date - from;
 							break;
 
-						case STAT_WEEK:
+						case GROUPBY_REPTIME_WEEK:
 							pos = (ope->date - from)/7;
 							break;
 
-						case STAT_MONTH:
+						case GROUPBY_REPTIME_MONTH:
 							pos = DateInMonth(from, ope->date);
 							break;
 
-						case STAT_QUARTER:
+						case GROUPBY_REPTIME_QUARTER:
 							pos = DateInQuarter(from, ope->date);
 							break;
 
-						case STAT_YEAR:
+						case GROUPBY_REPTIME_YEAR:
 							pos = DateInYear(from, ope->date);
 							break;
 					}
@@ -933,7 +848,7 @@ guint32 selkey;
 					acc = da_acc_get(ope->kacc);
 					trn_amount = 0.0;
 					
-					if( tmpfor == REPTIME_FOR_CATEGORY && ope->flags & OF_SPLIT )
+					if( tmpfor == FOR_REPTIME_CATEGORY && ope->flags & OF_SPLIT )
 					{
 					guint nbsplit = da_transaction_splits_count(ope);
 					Split *split;
@@ -943,8 +858,11 @@ guint32 selkey;
 						{
 							split = ope->splits[i];
 							catentry = da_cat_get(split->kcat);
-							if( selkey == catentry->parent || selkey == catentry->key )
-								trn_amount += split->amount;
+							if(catentry != NULL)	//#1340142
+							{
+								if( selkey == catentry->parent || selkey == catentry->key )
+									trn_amount += split->amount;
+							}
 						}
 					}
 					else
@@ -988,14 +906,14 @@ next1:
 			/* get the result name */
 			switch(tmpslice)
 			{
-				case STAT_DAY:
+				case GROUPBY_REPTIME_DAY:
 					date = g_date_new_julian (from + i);
 					g_date_strftime (buffer, 63, PREFS->date_format, date);
 					g_date_free(date);
 					name = buffer;
 					break;
 
-				case STAT_WEEK:
+				case GROUPBY_REPTIME_WEEK:
 					date = g_date_new_julian(from);
 					g_date_add_days(date, i*7);
 					//g_snprintf(buffer, 63, "%d-%02d", g_date_get_year(date), g_date_get_month(date));
@@ -1004,7 +922,7 @@ next1:
 					name = buffer;
 					break;
 
-				case STAT_MONTH:
+				case GROUPBY_REPTIME_MONTH:
 					date = g_date_new_julian(from);
 					g_date_add_months(date, i);
 					//g_snprintf(buffer, 63, "%d-%02d", g_date_get_year(date), g_date_get_month(date));
@@ -1013,7 +931,7 @@ next1:
 					name = buffer;
 					break;
 
-				case STAT_QUARTER:
+				case GROUPBY_REPTIME_QUARTER:
 					date = g_date_new_julian(from);
 					g_date_add_months(date, i*3);
 					//g_snprintf(buffer, 63, "%d-%02d", g_date_get_year(date), g_date_get_month(date));
@@ -1022,7 +940,7 @@ next1:
 					name = buffer;
 					break;
 
-				case STAT_YEAR:
+				case GROUPBY_REPTIME_YEAR:
 					date = g_date_new_julian(from);
 					g_date_add_years(date, i);
 					g_snprintf(buffer, 63, "%d", g_date_get_year(date));
@@ -1039,10 +957,10 @@ next1:
 
 	    	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
      		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				LST_STAT_POS, id++,
-				LST_STAT_KEY, i,
-				LST_STAT_TITLE, name,
-				LST_STAT_AMOUNT, value,
+				LST_REPTIME_POS, id++,
+				LST_REPTIME_KEY, i,
+				LST_REPTIME_TITLE, name,
+				LST_REPTIME_AMOUNT, value,
 				-1);
 
 			g_free(fullcatname);
@@ -1057,7 +975,7 @@ next1:
 	g_free(tmp_amount);
 
 
-	trendtime_update(widget, user_data);
+	ui_reptime_update(widget, user_data);
 
 }
 
@@ -1068,14 +986,14 @@ next1:
 /*
 ** update sensitivity
 */
-static void trendtime_sensitive(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_sensitive(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gboolean active;
 gboolean sensitive;
 gint page;
 
-	DB( g_print("\n[trendtime] sensitive\n") );
+	DB( g_print("\n[reptime] sensitive\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1091,9 +1009,9 @@ gint page;
 
 }
 
-static void trendtime_update_detail(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_update_detail(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1108,11 +1026,11 @@ struct trendtime_data *data;
 
 		if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 		{
-			gtk_tree_model_get(model, &iter, LST_STAT_KEY, &key, -1);
+			gtk_tree_model_get(model, &iter, LST_REPTIME_KEY, &key, -1);
 
 			DB( g_print(" - active is %d\n", key) );
 
-			trendtime_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
+			ui_reptime_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
 		}
 
 
@@ -1126,9 +1044,9 @@ struct trendtime_data *data;
 
 
 
-static void trendtime_toggle_detail(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_toggle_detail(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1136,16 +1054,16 @@ struct trendtime_data *data;
 
 	DB( printf("(stats) toggledetail to %d\n", data->detail) );
 
-	trendtime_update_detail(widget, user_data);
+	ui_reptime_update_detail(widget, user_data);
 
 }
 
-static void trendtime_zoomx_callback(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_zoomx_callback(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gdouble value;
 
-	DB( g_print("\n[trendtime] zoomx\n") );
+	DB( g_print("\n[reptime] zoomx\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1159,11 +1077,11 @@ gdouble value;
 
 
 
-static void trendtime_toggle_minor(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_toggle_minor(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 
-	DB( g_print("\n[trendtime] toggle\n") );
+	DB( g_print("\n[reptime] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1177,12 +1095,12 @@ struct trendtime_data *data;
 }
 
 
-static void trendtime_toggle_showall(GtkWidget *widget, gpointer user_data)
+static void ui_reptime_toggle_showall(GtkWidget *widget, gpointer user_data)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 gboolean showall;
 
-	DB( g_print("\n[trendtime] toggle\n") );
+	DB( g_print("\n[reptime] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1192,7 +1110,7 @@ gboolean showall;
 	gtk_widget_set_sensitive(GTK_WIDGET(data->PO_cat), showall^1);
 	gtk_widget_set_sensitive(GTK_WIDGET(data->PO_pay), showall^1);
 
-	trendtime_compute(widget, data);
+	ui_reptime_compute(widget, data);
 
 }
 
@@ -1201,9 +1119,9 @@ gboolean showall;
 /*
 **
 */
-static void trendtime_setup(struct trendtime_data *data, guint32 accnum)
+static void ui_reptime_setup(struct ui_reptime_data *data, guint32 accnum)
 {
-	DB( g_print("\n[trendtime] setup\n") );
+	DB( g_print("\n[reptime] setup\n") );
 
 	data->detail = 0;
 
@@ -1217,14 +1135,14 @@ static void trendtime_setup(struct trendtime_data *data, guint32 accnum)
 
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
 
 	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
 
 
 	DB( g_print(" populate\n") );
@@ -1243,36 +1161,36 @@ static void trendtime_setup(struct trendtime_data *data, guint32 accnum)
 
 
 
-static void trendtime_selection(GtkTreeSelection *treeselection, gpointer user_data)
+static void ui_reptime_selection(GtkTreeSelection *treeselection, gpointer user_data)
 {
 GtkTreeModel *model;
 GtkTreeIter iter;
 guint key = -1;
 
-	DB( g_print("\n[trendtime] selection\n") );
+	DB( g_print("\n[reptime] selection\n") );
 
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
-		gtk_tree_model_get(model, &iter, LST_STAT_KEY, &key, -1);
+		gtk_tree_model_get(model, &iter, LST_REPTIME_KEY, &key, -1);
 
 	}
 
 	DB( g_print(" - active is %d\n", key) );
 
-	trendtime_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
-	trendtime_sensitive(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
+	ui_reptime_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
+	ui_reptime_sensitive(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
 }
 
 
 /*
 **
 */
-static gboolean trendtime_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean ui_reptime_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-struct trendtime_data *data = user_data;
+struct ui_reptime_data *data = user_data;
 struct WinGeometry *wg;
 
-	DB( g_print("\n[trendtime] dispose\n") );
+	DB( g_print("\n[reptime] dispose\n") );
 
 	da_filter_free(data->filter);
 
@@ -1295,9 +1213,9 @@ struct WinGeometry *wg;
 }
 
 // the window creation
-GtkWidget *create_trendtime_window(guint32 accnum)
+GtkWidget *ui_reptime_window_new(guint32 accnum)
 {
-struct trendtime_data *data;
+struct ui_reptime_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *hbox2, *notebook, *treeview;
 GtkWidget *label, *widget, *table, *alignment;
@@ -1307,10 +1225,10 @@ GtkActionGroup *actions;
 GtkAction *action;
 GError *error = NULL;
 
-	data = g_malloc0(sizeof(struct trendtime_data));
+	data = g_malloc0(sizeof(struct ui_reptime_data));
 	if(!data) return NULL;
 
-	DB( g_print("\n[trendtime] new\n") );
+	DB( g_print("\n[reptime] new\n") );
 
 
 	//disable define windows
@@ -1339,7 +1257,7 @@ GError *error = NULL;
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, TRUE, TRUE, 0);
 
 	//control part
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
@@ -1350,16 +1268,16 @@ GError *error = NULL;
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Display</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Display"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_For:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_cycle(label, CYA_TIMESELECT);
 	data->CY_for = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_for, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_for, 2, 3, row, row+1);
 
 	row++;
 	notebook = gtk_notebook_new();
@@ -1367,7 +1285,7 @@ GError *error = NULL;
 	gtk_widget_show(notebook);
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(notebook), FALSE);
-	gtk_table_attach_defaults (GTK_TABLE (table), notebook, 0, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), notebook, 1, 3, row, row+1);
 
 	//account
 	hbox2 = gtk_hbox_new (FALSE, HB_BOX_SPACING);
@@ -1399,58 +1317,59 @@ GError *error = NULL;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Select _all"));
 	data->CM_all = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Cumulate"));
 	data->CM_cumul = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_View by:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_cycle(label, CYA_VIEWBY);
 	data->CY_view = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
-
-	row++;
-	label = make_label(_("_Zoom X:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_scale(label);
-	data->RG_zoomx = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
+
+	row++;
+	label = make_label(_("_Zoom X:"), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_scale(label);
+	data->RG_zoomx = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
+
 
 	row++;
 	widget = gtk_hseparator_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 3, row, row+1);
 
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Date filter</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Date filter"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_Range:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->CY_range = make_daterange(label, FALSE);
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_From:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_mindate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_To:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_maxdate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 2, 3, row, row+1);
 
 
 	//part: info + report
@@ -1531,7 +1450,7 @@ GError *error = NULL;
 	//gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW (widget), GTK_CORNER_TOP_RIGHT);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	treeview = create_list_statistic();
+	treeview = ui_list_reptime_create();
 	data->LV_report = treeview;
 	gtk_container_add (GTK_CONTAINER(widget), treeview);
     gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
@@ -1550,7 +1469,7 @@ GError *error = NULL;
 
 
 	//page: lines
-	widget = gtk_chart_new(CHART_LINE_TYPE);
+	widget = gtk_chart_new(CHART_TYPE_LINE);
 	data->RE_line = widget;
 	//gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.suffix_symbol);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);
@@ -1567,32 +1486,32 @@ GError *error = NULL;
 
 
 		/* signal connect */
-    g_signal_connect (window, "delete-event", G_CALLBACK (trendtime_dispose), (gpointer)data);
+    g_signal_connect (window, "delete-event", G_CALLBACK (ui_reptime_dispose), (gpointer)data);
 
-	g_signal_connect (data->CM_cumul, "toggled", G_CALLBACK (trendtime_compute), NULL);
+	g_signal_connect (data->CM_cumul, "toggled", G_CALLBACK (ui_reptime_compute), NULL);
 
-	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (trendtime_toggle_minor), NULL);
+	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (ui_reptime_toggle_minor), NULL);
 
-    data->handler_id[HID_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (trendtime_date_change), (gpointer)data);
-    data->handler_id[HID_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (trendtime_date_change), (gpointer)data);
+    data->handler_id[HID_REPTIME_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (ui_reptime_date_change), (gpointer)data);
+    data->handler_id[HID_REPTIME_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (ui_reptime_date_change), (gpointer)data);
 
-	data->handler_id[HID_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (trendtime_range_change), NULL);
+	data->handler_id[HID_REPTIME_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (ui_reptime_range_change), NULL);
 
-	g_signal_connect (data->CY_for, "changed", G_CALLBACK (trendtime_for), (gpointer)data);
-	data->handler_id[HID_VIEW] = g_signal_connect (data->CY_view, "changed", G_CALLBACK (trendtime_compute), (gpointer)data);
+	g_signal_connect (data->CY_for, "changed", G_CALLBACK (ui_reptime_for), (gpointer)data);
+	data->handler_id[HID_REPTIME_VIEW] = g_signal_connect (data->CY_view, "changed", G_CALLBACK (ui_reptime_compute), (gpointer)data);
 
 	//setup, init and show window
-	trendtime_setup(data, accnum);
+	ui_reptime_setup(data, accnum);
 
-	g_signal_connect (data->CM_all, "toggled", G_CALLBACK (trendtime_toggle_showall), NULL);
-	g_signal_connect (data->PO_acc, "changed", G_CALLBACK (trendtime_compute), NULL);
-	g_signal_connect (data->PO_cat, "changed", G_CALLBACK (trendtime_compute), NULL);
-	g_signal_connect (data->PO_pay, "changed", G_CALLBACK (trendtime_compute), NULL);
+	g_signal_connect (data->CM_all, "toggled", G_CALLBACK (ui_reptime_toggle_showall), NULL);
+	g_signal_connect (data->PO_acc, "changed", G_CALLBACK (ui_reptime_compute), NULL);
+	g_signal_connect (data->PO_cat, "changed", G_CALLBACK (ui_reptime_compute), NULL);
+	g_signal_connect (data->PO_pay, "changed", G_CALLBACK (ui_reptime_compute), NULL);
 
-	g_signal_connect (data->RG_zoomx, "value-changed", G_CALLBACK (trendtime_zoomx_callback), NULL);
+	g_signal_connect (data->RG_zoomx, "value-changed", G_CALLBACK (ui_reptime_zoomx_callback), NULL);
 
 
-	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (trendtime_selection), NULL);
+	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (ui_reptime_selection), NULL);
 
 
 
@@ -1607,7 +1526,7 @@ GError *error = NULL;
 	gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
 	gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_view), STAT_MONTH);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_view), GROUPBY_REPTIME_MONTH);
 
 	gtk_widget_show_all (window);
 
@@ -1621,15 +1540,15 @@ GError *error = NULL;
 
 
 
-	trendtime_sensitive(window, NULL);
-	trendtime_update_detail(window, NULL);
+	ui_reptime_sensitive(window, NULL);
+	ui_reptime_update_detail(window, NULL);
 
 	DB( g_print("range: %d\n", PREFS->date_range_rep) );
 
 	if( PREFS->date_range_rep != 0)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_rep);
 	else
-		trendtime_compute(window, NULL);
+		ui_reptime_compute(window, NULL);
 
 	return window;
 }
@@ -1639,7 +1558,7 @@ GError *error = NULL;
 */
 
 
-static void trendtime_amount_cell_data_function (GtkTreeViewColumn *col,
+static void ui_reptime_amount_cell_data_function (GtkTreeViewColumn *col,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
@@ -1670,7 +1589,7 @@ gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 }
 
 
-static GtkTreeViewColumn *amount_list_trendtime_column(gchar *name, gint id)
+static GtkTreeViewColumn *amount_list_ui_reptime_column(gchar *name, gint id)
 {
 GtkTreeViewColumn  *column;
 GtkCellRenderer    *renderer;
@@ -1680,7 +1599,7 @@ GtkCellRenderer    *renderer;
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, trendtime_amount_cell_data_function, GINT_TO_POINTER(id), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_reptime_amount_cell_data_function, GINT_TO_POINTER(id), NULL);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	//gtk_tree_view_column_set_sort_column_id (column, id);
 	return column;
@@ -1697,7 +1616,7 @@ static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur)
 /*
 ** create our statistic list
 */
-static GtkWidget *create_list_statistic(void)
+static GtkWidget *ui_list_reptime_create(void)
 {
 GtkListStore *store;
 GtkWidget *view;
@@ -1706,7 +1625,7 @@ GtkTreeViewColumn  *column;
 
 	/* create list store */
 	store = gtk_list_store_new(
-	  	NUM_LST_STAT,
+	  	NUM_LST_REPTIME,
 		G_TYPE_INT,
 		G_TYPE_INT,
 		G_TYPE_STRING,
@@ -1725,14 +1644,14 @@ GtkTreeViewColumn  *column;
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	//gtk_tree_view_column_set_cell_data_func(column, renderer, ope_result_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_STAT_TITLE);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_STAT_NAME);
+	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_REPTIME_TITLE);
+	//gtk_tree_view_column_set_sort_column_id (column, LST_REPTIME_NAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Amount */
-	column = amount_list_trendtime_column(_("Amount"), LST_STAT_AMOUNT);
+	column = amount_list_ui_reptime_column(_("Amount"), LST_REPTIME_AMOUNT);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
   /* column last: empty */
@@ -1740,25 +1659,25 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* sort */
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_POS    , stat_list_compare_func, GINT_TO_POINTER(LST_STAT_POS), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_AMOUNT, stat_list_compare_func, GINT_TO_POINTER(LST_STAT_AMOUNT), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPTIME_POS    , ui_list_reptime_compare_func, GINT_TO_POINTER(LST_REPTIME_POS), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPTIME_AMOUNT, ui_list_reptime_compare_func, GINT_TO_POINTER(LST_REPTIME_AMOUNT), NULL);
 
 	return(view);
 }
 
-static gint stat_list_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
+static gint ui_list_reptime_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
 gint sortcol = GPOINTER_TO_INT(userdata);
-gint ret = 0;
+gint retval = 0;
 gint pos1, pos2;
 gdouble val1, val2;
 
 	gtk_tree_model_get(model, a,
-		LST_STAT_POS, &pos1,
+		LST_REPTIME_POS, &pos1,
 		sortcol, &val1,
 		-1);
 	gtk_tree_model_get(model, b,
-		LST_STAT_POS, &pos2,
+		LST_REPTIME_POS, &pos2,
 		sortcol, &val2,
 		-1);
 /*
@@ -1766,13 +1685,13 @@ gdouble val1, val2;
 	if(pos2 == -1) return(-1);
 */
 
-	if(sortcol == LST_STAT_POS)
-		ret = pos2 - pos1;
+	if(sortcol == LST_REPTIME_POS)
+		retval = pos2 - pos1;
 	else
-		ret = (ABS(val1) - ABS(val2)) > 0 ? 1 : -1;
+		retval = (ABS(val1) - ABS(val2)) > 0 ? 1 : -1;
 
 	//DB( g_print(" sort %d=%d or %.2f=%.2f :: %d\n", pos1,pos2, val1, val2, ret) );
 
-    return ret;
+    return retval;
   }
 

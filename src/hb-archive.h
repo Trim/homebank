@@ -37,6 +37,7 @@ struct _archive
 	gushort		every;
 	gushort		unit;
 	gushort		limit;
+	gushort		weekend;
 };
 
 
@@ -48,6 +49,14 @@ void da_archive_destroy(GList *list);
 GList *da_archive_sort(GList *list);
 guint da_archive_length(void);
 void da_archive_consistency(Archive *item);
+
+
+gboolean scheduled_is_postable(Archive *arc);
+guint32 scheduled_get_postdate(Archive *arc, guint32 postdate);
+guint32 scheduled_get_latepost_count(Archive *arc, guint32 jrefdate);
+guint32 scheduled_date_advance(Archive *arc);
+guint32 scheduled_date_get_post_max(void);
+gint scheduled_post_all_pending(void);
 
 
 #endif

@@ -53,7 +53,7 @@ gint ui_dialog_msg_question(GtkWindow *parent, gchar *title, gchar *message_form
 GtkWidget *dialog;
 gchar* msg = NULL;
 va_list args;
-gint result;
+gint retval;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW(parent),
 	                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -76,11 +76,11 @@ gint result;
 
 	gtk_dialog_set_default_response(GTK_DIALOG (dialog), GTK_RESPONSE_NO);
 	
-	result = gtk_dialog_run (GTK_DIALOG (dialog));
+	retval = gtk_dialog_run (GTK_DIALOG (dialog));
 
 	gtk_widget_destroy (dialog);
 
-	return result;
+	return retval;
 }
 
 /*
@@ -138,7 +138,7 @@ gboolean retval;
 
 	chooser = gtk_file_chooser_dialog_new (
 					_("Export as QIF"),
-					GTK_WINDOW(GLOBALS->mainwindow),
+					GTK_WINDOW(parent),
 					GTK_FILE_CHOOSER_ACTION_SAVE,
 					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -488,8 +488,8 @@ Transaction *retval = NULL;
 	vbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
 	gtk_box_pack_start (GTK_BOX (mainvbox), vbox, FALSE, TRUE, HB_BOX_SPACING);
 
-	label = make_label(NULL, 0.0, 0.5);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Select an action:</b>"));
+	label = make_label(_("Select an action:"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
     gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
 

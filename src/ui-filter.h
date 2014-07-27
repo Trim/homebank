@@ -51,6 +51,7 @@ struct ui_flt_manage_data
 
 	GtkWidget	*ST_minamount, *ST_maxamount;
 
+	GtkWidget	*CM_exact;
 	GtkWidget	*ST_info, *ST_wording, *ST_tag;
 
 	GtkWidget	*LV_acc, *BT_acc[MAX_BUTTON];

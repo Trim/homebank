@@ -78,125 +78,6 @@ static void hbfile_file_load_backup_xhb(void)
 }
 */
 
-gint hbfile_insert_scheduled_transactions(void)
-{
-GList *list;
-gint count;
-guint32 maxdate;
-gint nb_days;
-
-	DB( g_print("\n[hbfile] insert_scheduled_transactions\n") );
-
-	count = 0;
-	nb_days = archive_add_get_nbdays();
-
-	maxdate = GLOBALS->today + nb_days;
-
-	list = g_list_first(GLOBALS->arc_list);
-	while (list != NULL)
-	{
-	Archive *arc = list->data;
-
-		if((arc->flags & OF_AUTO) && arc->kacc > 0)
-		{
-
-			/*#if MYDEBUG == 1
-			gchar buffer1[128]; GDate *date;
-			date = g_date_new_julian(arc->nextdate);
-			g_date_strftime (buffer1, 128-1, "%x", date);
-			g_date_free(date);
-			//g_print("  -> '%s' - every %d %s - next %s limit %d\n", arc->wording, arc->every, CYA_UNIT[arc->unit], buffer1, arc->limit);
-			#endif*/
-
-			if(arc->nextdate < maxdate)
-			{
-			guint32 mydate = arc->nextdate;
-
-				while(mydate < maxdate)
-				{
-				Transaction ope;
-
-				/*#if MYDEBUG == 1
-					gchar buffer1[128]; GDate *date;
-					date = g_date_new_julian(mydate);
-					g_date_strftime (buffer1, 128-1, "%x", date);
-					g_date_free(date);
-					//g_print("  -> adding '%s' on %s\n", arc->wording, buffer1);
-				#endif*/
-
-					/* fill in the transaction */
-					memset(&ope, 0, sizeof(ope));
-					ope.date		= mydate;
-					ope.amount		= arc->amount;
-					ope.kacc		= arc->kacc;
-					ope.paymode		= arc->paymode;
-					ope.flags		= arc->flags | OF_ADDED;
-					ope.kpay		= arc->kpay;
-					ope.kcat		= arc->kcat;
-					ope.kxferacc	= arc->kxferacc;
-					ope.wording		= g_strdup(arc->wording);
-					ope.info		= NULL;
-
-					/* todo: ? fill in cheque number */
-
-					transaction_add(&ope, NULL, 0);
-					GLOBALS->changes_count++;
-					count++;
-
-					/* compute next occurence */
-					switch(arc->unit)
-					{
-						case AUTO_UNIT_DAY:
-							mydate += arc->every;
-							break;
-						case AUTO_UNIT_WEEK:
-							mydate += (7*arc->every);
-							break;
-						case AUTO_UNIT_MONTH:
-						{
-						GDate *date = g_date_new_julian(mydate);
-							g_date_add_months(date, (gint)arc->every);
-							mydate = g_date_get_julian(date);
-							g_date_free(date);
-							}
-							break;
-						case AUTO_UNIT_YEAR:
-							mydate += (365*arc->every);
-							break;
-					}
-
-					/* check limit, update and maybe break */
-					if(arc->flags & OF_LIMIT)
-					{
-						arc->limit--;
-						if(arc->limit <= 0)
-						{
-							arc->flags ^= (OF_LIMIT | OF_AUTO);	// invert flags
-							goto nextarchive;
-						}
-					}
-
-
-
-				}
-
-				/* store next occurence */
-				arc->nextdate = mydate;
-
-			}
-
-
-		}
-nextarchive:
-
-		list = g_list_next(list);
-
-
-	}
-
-
-	return count;
-}
 
 
 /*
@@ -511,9 +392,9 @@ void hbfile_setup(gboolean file_clear)
 
 	GLOBALS->vehicle_category = 0;
 	
+	GLOBALS->auto_smode = 1;
 	GLOBALS->auto_nbdays = 0;
 	GLOBALS->auto_weekday = 1;
-	GLOBALS->auto_smode = 0;
 	
 	GLOBALS->changes_count = 0;
 

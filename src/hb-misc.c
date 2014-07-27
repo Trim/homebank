@@ -44,12 +44,12 @@ gdouble fi;
 
 static unsigned dix_puissance_n(unsigned n)
 {
-    unsigned i, res = 1;
+    unsigned i, retval = 1;
 
     for(i = 0; i < n; i++)
-        res *= 10;
+        retval *= 10;
 
-    return res;
+    return retval;
 }
 
 double arrondi(const double x, unsigned n)
@@ -333,7 +333,7 @@ gint size;
 
 
 
-/* end obsolste call */
+/* end obsolete call */
 
 
 gchar *get_normal_color_amount(gdouble value)
@@ -527,6 +527,37 @@ guint month, year, qnum;
 /*
 ** String utility
 */
+
+
+/*
+ * compare 2 utf8 string
+ */
+gint hb_string_utf8_compare(gchar *s1, gchar *s2)
+{
+gint retval = 0;
+gchar *ns1, *ns2;
+
+    if (s1 == NULL || s2 == NULL)
+    {
+		if (s1 == NULL && s2 == NULL)
+			goto end;
+
+		retval = (s1 == NULL) ? -1 : 1;
+    }
+    else
+    {
+		//#1325969
+		//retval = g_utf8_collate(s1 != NULL ? s1 : "", s2 != NULL ? s2 : "");
+		ns1 = g_utf8_normalize(s1, -1, G_NORMALIZE_DEFAULT);
+		ns2 = g_utf8_normalize(s2, -1, G_NORMALIZE_DEFAULT);
+        retval = strcasecmp(ns1, ns2);
+		g_free(ns2);
+		g_free(ns1);
+    }
+end:
+	return retval;
+}
+
 
 void hb_string_strip_crlf(gchar *str)
 {
@@ -835,6 +866,18 @@ csvend:
 	DB( g_print(" --> return %d\n", valid) );
 
 	return valid;
+}
+
+
+void hb_print_date(guint32 jdate, gchar *label)
+{
+gchar buffer1[128];
+GDate *date;
+
+	date = g_date_new_julian(jdate);
+	g_date_strftime (buffer1, 128-1, "%x", date);
+	g_date_free(date);
+	g_print(" - %s %s\n", label != NULL ? label:"date is", buffer1);
 }
 
 

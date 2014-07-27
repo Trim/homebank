@@ -43,13 +43,12 @@ struct deftransaction_data
 	GtkWidget	*CM_valid;
 	GtkWidget	*CM_remind;
 	GtkWidget	*CM_cheque;
-	GtkWidget	*notebook;
 
 	GtkWidget	*NU_mode;
 	GtkWidget	*ST_info;
 	GtkWidget	*PO_grp;
 	GtkWidget	*PO_acc;
-	GtkWidget	*PO_accto;
+	GtkWidget	*LB_accto, *PO_accto;
 	GtkWidget	*ST_tags;
 
 	gint	action;

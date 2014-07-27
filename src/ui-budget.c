@@ -77,30 +77,19 @@ static void ui_bud_manage_selection(GtkTreeSelection *treeselection, gpointer us
 */
 static gint ui_bud_listview_compare_funct (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
+gint retval = 0;
 Category *entry1, *entry2;
-gchar *name1, *name2;
 
 	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
 	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
 
-	result = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
-	if(!result)
+	retval = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
+	if(!retval)
 	{
-		name1 = entry1->name;
-		name2 = entry2->name;
-        if (name1 == NULL || name2 == NULL)
-        {
-          //if (name1 == NULL && name2 == NULL)
-          result = (name1 == NULL) ? -1 : 1;
-        }
-        else
-        {
-          result = g_utf8_collate(name1,name2);
-        }
+		retval = hb_string_utf8_compare(entry1->name, entry2->name);
 	}
 
-    return result;
+    return retval;
 }
 
 /*
@@ -844,7 +833,7 @@ GtkWidget *ui_bud_manage_dialog (void)
 struct ui_bud_manage_data data;
 GtkWidget *window, *content, *bbox, *mainbox, *treeview, *scrollwin, *vbox, *radio, *table, *label, *widget;
 GtkWidget *spinner;
-GtkWidget *alignment;
+GtkWidget *alignment, *hpaned;
 guint i, row;
 
 	memset(&data, 0, sizeof(struct ui_bud_manage_data));
@@ -872,9 +861,13 @@ guint i, row;
 	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
+	hpaned = gtk_hpaned_new();
+	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
+
+	/* left area */
 	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	//gtk_container_set_border_width (GTK_CONTAINER (hbox), 50);
-	gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
+	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
+	gtk_paned_pack1 (GTK_PANED(hpaned), vbox, FALSE, FALSE);
 
 	//listview
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
@@ -886,15 +879,12 @@ guint i, row;
 	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 
-	// clear button
-	data.BT_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_clear, FALSE, FALSE, 0);
-
-
+	/* right area */
 	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
+	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
+	gtk_paned_pack2 (GTK_PANED(hpaned), vbox, FALSE, FALSE);
 
-// parameters
+	
 	table = gtk_table_new (12, 5, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
@@ -904,11 +894,12 @@ guint i, row;
 	gtk_container_add(GTK_CONTAINER(alignment), table);
 	gtk_container_add (GTK_CONTAINER (vbox), alignment);
 
+	
     //gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.5);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Budget for each month</b>"));
+	label = make_label(_("Budget for each month"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 5, row, row+1);
 
 	row++;
@@ -927,6 +918,11 @@ guint i, row;
 	data.spinner[0] = spinner;
 	gtk_table_attach_defaults (GTK_TABLE (table), spinner, 2, 3, row, row+1);
 
+	widget =  gtk_button_new_with_mnemonic (_("_Clear input"));
+	data.BT_clear = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 4, 5, row, row+1);
+
+	
 	// propagate button
  	/*row++;
 	button = gtk_button_new_with_label(_("Propagate"));
@@ -938,7 +934,6 @@ guint i, row;
 	data.CM_type[1] = radio;
 	gtk_table_attach_defaults (GTK_TABLE (table), radio, 1, 5, row, row+1);
 
-	row++;
 	for(i=0;i<12;i++)
 	{
 	gint col;
@@ -957,6 +952,11 @@ guint i, row;
 
 		DB( g_print("(ui_bud_manage) %s, col=%d, row=%d", months[i], col, row) );
 	}
+
+	row++;
+	label = make_label(_("Options"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 5, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Force monitoring this category"));

@@ -280,6 +280,7 @@ gboolean sensitive;
 	// text
 	active = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_option[FILTER_TEXT]));
 	sensitive = active == 0 ? FALSE : TRUE;
+	gtk_widget_set_sensitive(data->CM_exact, sensitive);
 	gtk_widget_set_sensitive(data->ST_wording, sensitive);
 	gtk_widget_set_sensitive(data->ST_info, sensitive);
 	gtk_widget_set_sensitive(data->ST_tag, sensitive);
@@ -379,6 +380,7 @@ gchar *txt;
 		data->filter->maxamount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_maxamount));
 
 	//text:wording
+		data->filter->exact  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
 		//free any previous string
 		if(	data->filter->wording )
 		{
@@ -512,7 +514,9 @@ gchar *txt;
 		}
 
 	// active tab
-	data->filter->last_tab =gtk_notebook_get_current_page(GTK_NOTEBOOK(data->notebook));
+	data->filter->last_tab = gtk_notebook_get_current_page(GTK_NOTEBOOK(data->notebook));
+	DB( g_print(" page is %d\n", data->filter->last_tab) );
+	
 
 	}
 }
@@ -575,6 +579,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_maxamount), data->filter->maxamount);
 
 	//text
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), data->filter->exact);
 	gtk_entry_set_text(GTK_ENTRY(data->ST_info), (data->filter->info != NULL) ? data->filter->info : "");
 	gtk_entry_set_text(GTK_ENTRY(data->ST_wording), (data->filter->wording != NULL) ? data->filter->wording : "");
 	gtk_entry_set_text(GTK_ENTRY(data->ST_tag), (data->filter->tag != NULL) ? data->filter->tag : "");
@@ -666,7 +671,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 
 	// active tab
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->notebook), data->filter->last_tab);
-
+	DB( g_print(" set page %d\n", data->filter->last_tab) );
 
 	}
 }
@@ -942,8 +947,8 @@ gint row;
 
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Filter Date</b>"));
+	label = make_label(_("Filter Date"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 	//gtk_table_attach (GTK_TABLE (table), label, 0, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
@@ -1010,8 +1015,8 @@ gint row;
 
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Filter Text</b>"));
+	label = make_label(_("Filter Text"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 		row++;
@@ -1027,6 +1032,10 @@ gint row;
 		data->CY_option[FILTER_TEXT] = make_nainex(label);
 		gtk_table_attach (GTK_TABLE (table), data->CY_option[FILTER_TEXT], 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
 
+		row++;
+		data->CM_exact = gtk_check_button_new_with_mnemonic (_("Case _sensitive"));
+		gtk_table_attach (GTK_TABLE (table), data->CM_exact, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	
 		row++;
 		label = make_label(_("_Memo:"), 0, 0.5);
 		gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
@@ -1071,8 +1080,8 @@ gint row;
 	// Amount section
 	row = 0;
 
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Filter Amount</b>"));
+	label = make_label(_("Filter Amount"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 		row++;
@@ -1129,8 +1138,8 @@ gint row;
 
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Filter Status</b>"));
+	label = make_label(_("Filter Status"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 		row++;
@@ -1197,8 +1206,8 @@ gint i, row;
 
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Filter Payment</b>"));
+	label = make_label(_("Filter Payment"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 
@@ -1343,37 +1352,45 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 	label = gtk_label_new(_("Date"));
 	page = ui_flt_manage_part_date(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
 	label = gtk_label_new(_("Status"));
 	page = ui_flt_manage_part_status(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
 	label = gtk_label_new(_("Paymode"));
 	page = ui_flt_manage_part_paymode(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
 	label = gtk_label_new(_("Amount"));
 	page = ui_flt_manage_part_amount(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
 	label = gtk_label_new(_("Text"));
 	page = ui_flt_manage_part_text(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 	
-	page = ui_flt_manage_page_category(&data);
 	label = gtk_label_new(_("Category"));
+	page = ui_flt_manage_page_category(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
-	page = ui_flt_manage_page_payee(&data);
 	label = gtk_label_new(_("Payee"));
+	page = ui_flt_manage_page_payee(&data);
+	gtk_widget_show(GTK_WIDGET(page));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 
 	data.show_account = show_account;
 	if(show_account == TRUE)
 	{
-		page = ui_flt_manage_page_account(&data);
 		label = gtk_label_new(_("Account"));
+		page = ui_flt_manage_page_account(&data);
+		gtk_widget_show(GTK_WIDGET(page));
 		gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
 	}
 
@@ -1419,13 +1436,13 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 
 	//wait for the user
-	gint result;	// = 55;
+	gint retval;	// = 55;
 
 	//while( result == 55 )
 	//{
-		result = gtk_dialog_run (GTK_DIALOG (window));
+		retval = gtk_dialog_run (GTK_DIALOG (window));
 
-		switch (result)
+		switch (retval)
 	    {
 		case GTK_RESPONSE_ACCEPT:
 		   //do_application_specific_something ();
@@ -1453,5 +1470,5 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 	DB( g_print(" all ok\n") );
 
-	return result;
+	return retval;
 }

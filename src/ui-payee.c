@@ -115,7 +115,7 @@ Payee *item;
 	if( item != NULL )
 		return item->key;
 
-	return -1;
+	return 0;
 }
 
 gboolean
@@ -226,31 +226,18 @@ struct payPopContext ctx;
 static gint
 ui_pay_comboboxentry_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata)
 {
-gint ret = 0;
+gint retval = 0;
 gchar *name1, *name2;
 
     gtk_tree_model_get(model, a, 0, &name1, -1);
     gtk_tree_model_get(model, b, 0, &name2, -1);
 
-    if (name1 == NULL || name2 == NULL)
-    {
-        if (name1 == NULL && name2 == NULL)
-        goto end;
+	retval = hb_string_utf8_compare(name1, name2);
 
-        ret = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        ret = g_utf8_collate(name1,name2);
-    }
-
-
-  end:
-
-    g_free(name1);
     g_free(name2);
+    g_free(name1);
 
-  	return ret;
+  	return retval;
   }
 
 
@@ -333,7 +320,7 @@ GtkCellRenderer    *renderer;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request (comboboxentry, HB_MINWIDTH_COMBO, -1);
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
 
 	return comboboxentry;
 }
@@ -368,25 +355,12 @@ ui_pay_listview_toggled_cb (GtkCellRendererToggle *cell,
 static gint
 ui_pay_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
 Payee *entry1, *entry2;
-gchar *name1, *name2;
 
     gtk_tree_model_get(model, a, LST_DEFPAY_DATAS, &entry1, -1);
     gtk_tree_model_get(model, b, LST_DEFPAY_DATAS, &entry2, -1);
 
-	name1 = entry1->name;
-	name2 = entry2->name;
-    if (name1 == NULL || name2 == NULL)
-    {
-        result = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        result = g_utf8_collate(name1,name2);
-    }
-
-    return result;
+    return hb_string_utf8_compare(entry1->name, entry2->name);
 }
 
 static void
@@ -743,10 +717,10 @@ guint32 key;
 static void ui_pay_manage_dialog_move_entry_cb(GtkComboBox *widget, gpointer user_data)
 {
 GtkDialog *window = user_data;
-guint dstkey;
+gchar *buffer;
 
-	dstkey = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(widget));
-	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, dstkey != 0 ? TRUE : FALSE);
+	buffer = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (widget))));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, strlen(buffer) > 0 ? TRUE : FALSE);
 }
 
 
@@ -825,6 +799,7 @@ GtkTreeIter			 iter;
 
 			if( result == GTK_RESPONSE_YES )
 			{
+			Payee *payee;
 			guint newpayee;
 
 				newpayee = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(getwidget));
@@ -838,6 +813,11 @@ GtkTreeIter			 iter;
 				// remove the old payee
 				da_pay_remove(entry->key);
 				ui_pay_listview_remove_selected(GTK_TREE_VIEW(data->LV_pay));
+
+				// add the new payee to listview
+				payee = da_pay_get(newpayee);
+				if(payee)
+					ui_pay_listview_add(GTK_TREE_VIEW(data->LV_pay), payee);
 				data->change++;
 
 			}
@@ -994,7 +974,6 @@ gint row;
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 	gtk_box_pack_start (GTK_BOX (mainvbox), table, TRUE, TRUE, 0);
 
-	//row 0
 	row = 0;
 	data.ST_name = gtk_entry_new ();
 	gtk_table_attach (GTK_TABLE (table), data.ST_name, 0, 1, row, row+1, (GtkAttachOptions) (GTK_EXPAND|GTK_FILL), (GtkAttachOptions) (0), 0, 0);

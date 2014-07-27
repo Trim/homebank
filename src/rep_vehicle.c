@@ -124,9 +124,8 @@ gint retval;
 
 
 //#1277622
-static CarCost *repvehicle_eval_memofield(gchar *text)
+static CarCost *repvehicle_eval_memofield(CarCost *item, gchar *text)
 {
-CarCost *item = NULL;
 gchar *d, *v1, *v2;
 gint len;
 
@@ -138,7 +137,6 @@ gint len;
 		v2 = g_strstr_len(text, len, "v~");
 		if(d && (v1 || v2))
 		{
-			item = da_vehiclecost_malloc();
 			item->meter	= atol(d+2);
 			if(v1)
 			{
@@ -157,40 +155,6 @@ gint len;
 }
 
 
-static CarCost *repvehicle_eval_transaction(Transaction *ope, guint32 catkey)
-{
-Category *cat;
-CarCost *item = NULL;
-
-	if(!(ope->flags & OF_SPLIT))
-	{
-		cat = da_cat_get(ope->kcat);
-		if( cat && (cat->key == catkey || cat->parent == catkey) )
-		{
-			item = repvehicle_eval_memofield(ope->wording);
-		}
-	}
-	else	// split transaction
-	{
-	guint i, nbsplit = da_transaction_splits_count(ope);
-	Split *split;
-	
-		for(i=0;i<nbsplit;i++)
-		{
-			split = ope->splits[i];
-			cat = da_cat_get(split->kcat);
-			if( cat && (cat->key == catkey || cat->parent == catkey) )
-			{
-				item = repvehicle_eval_memofield(split->memo);
-				break;
-			}
-		}
-	}
-
-	return item;
-}
-
-
 static void repvehicle_compute(GtkWidget *widget, gpointer user_data)
 {
 struct repvehicle_data *data;
@@ -204,13 +168,13 @@ guint32 catkey;
 	// clear the glist
 	da_vehiclecost_destroy(data->vehicle_list);
 	data->vehicle_list = NULL;
-	
-	/* do nothing if no transaction */
-	if(g_list_length(GLOBALS->ope_list) == 0)
-		goto end1;
 
 	// get the category key
 	catkey = ui_cat_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_cat));
+	
+	/* do nothing if no transaction or cat is 0 */
+	if( g_list_length(GLOBALS->ope_list) == 0 || catkey == 0 )
+		goto end1;
 
 	DB( g_print(" -> active cat is %d\n", catkey) );
 
@@ -221,21 +185,60 @@ guint32 catkey;
 	while (list != NULL)
 	{
 	Transaction *ope = list->data;
+	Category *cat;
 	CarCost *item;
 	Account *acc;
-    
+
 		acc = da_acc_get(ope->kacc);
 		if(acc == NULL) goto next1;
 		if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 		if((ope->flags & OF_REMIND)) goto next1;
 
-		item = repvehicle_eval_transaction(ope, catkey);
-		if(item != NULL)
+		// eval normal transaction
+		if(!(ope->flags & OF_SPLIT))
 		{
-			item->ope = ope;
-			data->vehicle_list = g_list_append(data->vehicle_list, item);
-			DB( g_print(" -> stored %d '%s' %.2f\n", ope->kacc, ope->wording, ope->amount) );
+			cat = da_cat_get(ope->kcat);
+			if( cat && (cat->key == catkey || cat->parent == catkey) )
+			{
+				item = da_vehiclecost_malloc();
+				item->date = ope->date;
+				item->wording = ope->wording;
+				item->amount = ope->amount;
+
+				item = repvehicle_eval_memofield(item, ope->wording);
+				data->vehicle_list = g_list_append(data->vehicle_list, item);
+				DB( g_print(" -> store acc=%d '%s' %.2f\n", ope->kacc, ope->wording, ope->amount) );
+			}
 		}
+		// eval split transaction
+		else
+		{
+		guint i, nbsplit = da_transaction_splits_count(ope);
+		Split *split;
+
+			DB( g_print(" -> nb split %d\n", nbsplit) );
+			
+			for(i=0;i<nbsplit;i++)
+			{
+				split = ope->splits[i];
+				cat = da_cat_get(split->kcat);
+
+				DB( g_print(" -> eval split '%s'\n", split->memo) );
+				
+				if( cat && (cat->key == catkey || cat->parent == catkey) )
+				{
+					item = da_vehiclecost_malloc();
+					item->date = ope->date;
+					item->wording = split->memo;
+					item->amount = split->amount;
+
+					item = repvehicle_eval_memofield(item, split->memo);
+					data->vehicle_list = g_list_append(data->vehicle_list, item);
+					DB( g_print(" -> store split part acc=%d '%s' %.2f\n", ope->kacc, split->memo, split->amount) );
+				}
+			}
+		}
+
 next1:
 		list = g_list_next(list);
 	}
@@ -246,6 +249,7 @@ next1:
 end1:
 	repvehicle_update(widget, NULL);
 }
+
 
 static void repvehicle_update(GtkWidget *widget, gpointer user_data)
 {
@@ -286,12 +290,12 @@ guint lastmeter = 0;
 	gdouble trn_amount;
 	//Account *acc;
 
-		if( (item->ope->date >= data->filter->mindate) && (item->ope->date <= data->filter->maxdate) )
+		if( (item->date >= data->filter->mindate) && (item->date <= data->filter->maxdate) )
 		{
 			// get amount in base currency
 			//acc = da_acc_get(item->ope->kacc);
 			//trn_amount = to_base_amount(item->ope->amount, acc->kcur);
-			trn_amount = item->ope->amount;
+			trn_amount = item->amount;
 
 
 			if( item->meter == 0 )
@@ -358,8 +362,8 @@ guint lastmeter = 0;
 		    	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 
 				gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					LST_CAR_DATE    , item->ope->date,
-					LST_CAR_WORDING , item->ope->wording,
+					LST_CAR_DATE    , item->date,
+					LST_CAR_WORDING , item->wording,
 					LST_CAR_METER   , item->meter,
 					LST_CAR_FUEL    , item->fuel,
 					LST_CAR_PRICE   , ABS(trn_amount) / item->fuel,
@@ -591,7 +595,7 @@ gint row, col;
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, TRUE, TRUE, 0);
 
 	//control part
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
@@ -602,49 +606,49 @@ gint row, col;
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Display</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Display"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("Vehi_cle:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	widget = ui_cat_comboboxentry_new(label);
 	data->PO_cat = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	widget = gtk_hseparator_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 3, row, row+1);
 
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Date filter</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Date filter"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_Range:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->CY_range = make_daterange(label, FALSE);
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_From:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_mindate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_To:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_maxdate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 2, 3, row, row+1);
 
 
 	//part: info + report
@@ -950,9 +954,8 @@ GtkTreeViewColumn  *column;
 		G_TYPE_DOUBLE,
 		G_TYPE_UINT,
 		G_TYPE_DOUBLE,
-	    G_TYPE_BOOLEAN,
-	    G_TYPE_UINT
-		);
+	    G_TYPE_UINT,
+	    G_TYPE_BOOLEAN		);
 
 	//treeview
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));

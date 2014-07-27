@@ -234,8 +234,8 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (box), alignment, TRUE, TRUE, 0);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>System detection</b>"));
+	label = make_label(_("System detection"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
@@ -309,8 +309,8 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (box), alignment, TRUE, TRUE, 0);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Informations</b>"));
+	label = make_label(_("Informations"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
@@ -348,8 +348,8 @@ gint row;
 
 	//row = 0;
 	row++;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Balances</b>"));
+	label = make_label(_("Balances"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;

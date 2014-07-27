@@ -23,8 +23,6 @@
 #define QIF_UNKNOW_ACCOUNT_NAME "(unknown)"
 
 
-
-
 enum
 {
 	PAGE_INTRO,
@@ -33,6 +31,15 @@ enum
 	PAGE_OPTIONS,
 	PAGE_CONFIRM,
 	NUM_PAGE
+};
+
+
+typedef struct _OfxContext OfxContext;
+struct _OfxContext
+{
+	GList		*trans_list;
+	Account 	*curr_acc;
+	gboolean	curr_acc_isnew;
 };
 
 
@@ -50,16 +57,6 @@ struct _ImportContext
 	gint		cnt_err_date;
 	gint		nb_duplicate;
 };
-
-
-typedef struct _OfxContext OfxContext;
-struct _OfxContext
-{
-	GList		*trans_list;
-	Account 	*curr_acc;
-	gboolean	curr_acc_isnew;
-};
-
 
 
 struct import_data
@@ -87,7 +84,7 @@ struct import_data
 	GtkWidget   *GR_duplicate;
 
 //	GtkWidget	*LA_acc;
-	GtkWidget	*NB_decay;
+	GtkWidget	*NB_maxgap;
 
 	GtkWidget	*BT_refresh;
 	GtkWidget	*CY_dateorder;

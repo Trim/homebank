@@ -45,6 +45,9 @@ struct defpref_data
 	GtkWidget	*BT_go_up;
 	GtkWidget	*BT_go_down;
 
+	GtkWidget   *NB_fiscyearday;
+	GtkWidget   *CY_fiscyearmonth;
+	
 	GtkWidget	*CM_runwizard;
 
 	GtkWidget	*ST_path_hbfile, *BT_path_hbfile;
@@ -62,8 +65,8 @@ struct defpref_data
 	GtkWidget	*ST_datefmt;
 	GtkWidget	*LB_date;
 
-	GtkWidget	*ST_num_presymbol;
-	GtkWidget	*ST_num_sufsymbol;
+	GtkWidget	*ST_num_symbol;
+	GtkWidget   *CM_num_isprefix;
 	GtkWidget	*ST_num_decimalchar;	
 	GtkWidget	*ST_num_groupingchar;	
 	GtkWidget	*NB_num_fracdigits;
@@ -71,7 +74,9 @@ struct defpref_data
 
 	//GtkWidget	*NB_numnbdec;
 	//GtkWidget	*CM_numseparator;
-	GtkWidget	*CM_imperial;
+	//GtkWidget	*CM_imperial;
+	GtkWidget	*CM_unitismile;
+	GtkWidget	*CM_unitisgal;
 
 	GtkWidget	*CY_daterange_wal;
 	GtkWidget	*CY_daterange_txn;
@@ -86,8 +91,8 @@ struct defpref_data
 	GtkWidget	*ST_euro_country;
 	GtkWidget	*NB_euro_value;
 
-	GtkWidget	*ST_euro_presymbol;
-	GtkWidget	*ST_euro_sufsymbol;
+	GtkWidget	*ST_euro_symbol;
+	GtkWidget	*CM_euro_isprefix;
 	GtkWidget	*ST_euro_decimalchar;	
 	GtkWidget	*ST_euro_groupingchar;	
 	GtkWidget	*NB_euro_fracdigits;

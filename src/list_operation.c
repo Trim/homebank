@@ -47,11 +47,7 @@ extern GdkPixbuf *paymode_icons[];
 
 static gint ope_sort_iter_compare_strings(gchar *s1, gchar *s2)
 {
-gint ret = 0;
-
-	ret = g_utf8_collate(s1 != NULL ? s1 : "", s2 != NULL ? s2 : "");
-
-	return ret;
+	return hb_string_utf8_compare(s1, s2);
 }
 
 
@@ -62,7 +58,7 @@ static   gint
                           gpointer      userdata)
   {
     gint sortcol = GPOINTER_TO_INT(userdata);
-    gint ret = 0;
+    gint retval = 0;
 	Transaction *ope1, *ope2;
 	gdouble tmpval = 0;
 
@@ -72,19 +68,19 @@ static   gint
     switch (sortcol)
     {
 		case LST_DSPOPE_STATUS:
-			if(!(ret = (ope1->flags & OF_VALID) - (ope2->flags & OF_VALID) ) )
+			if(!(retval = (ope1->flags & OF_VALID) - (ope2->flags & OF_VALID) ) )
 			{
-				ret = (ope1->flags & OF_REMIND) - (ope2->flags & OF_REMIND);
+				retval = (ope1->flags & OF_REMIND) - (ope2->flags & OF_REMIND);
 			}
 			break;
 
 		case LST_DSPOPE_DATE:
- 			if(! (ret = ope1->date - ope2->date) )
+ 			if(! (retval = ope1->date - ope2->date) )
 			{
 				//g_print("sort on balance d1=%d, d2=%d %f %f\n", ope1->date, ope2->date, ope1->balance , ope2->balance);
 
 				tmpval = ope1->pos - ope2->pos;
-				ret = tmpval > 0 ? 1 : -1;
+				retval = tmpval > 0 ? 1 : -1;
 			}
 			//g_print("ret=%d\n", ret);
 			break;
@@ -97,15 +93,15 @@ static   gint
 				a2 = da_acc_get(ope2->kacc);
 				if( a1 != NULL && a2 != NULL )
 				{
-					ret = ope_sort_iter_compare_strings(a1->name, a2->name);
+					retval = ope_sort_iter_compare_strings(a1->name, a2->name);
 				}
 			}
 			break;
 
 		case LST_DSPOPE_INFO:
-			if(!(ret = ope1->paymode - ope2->paymode))
+			if(!(retval = ope1->paymode - ope2->paymode))
 			{
-				ret = ope_sort_iter_compare_strings(ope1->info, ope2->info);
+				retval = ope_sort_iter_compare_strings(ope1->info, ope2->info);
 			}
 			break;
 
@@ -117,20 +113,20 @@ static   gint
 				p2 = da_pay_get(ope2->kpay);
 				if( p1 != NULL && p2 != NULL )
 				{
-					ret = ope_sort_iter_compare_strings(p1->name, p2->name);
+					retval = ope_sort_iter_compare_strings(p1->name, p2->name);
 				}
 			}
 			break;
 
 		case LST_DSPOPE_WORDING:
-				ret = ope_sort_iter_compare_strings(ope1->wording, ope2->wording);
+				retval = ope_sort_iter_compare_strings(ope1->wording, ope2->wording);
 			break;
 
 		case LST_DSPOPE_AMOUNT:
 		case LST_DSPOPE_EXPENSE:
 		case LST_DSPOPE_INCOME:
 			tmpval = ope1->amount - ope2->amount;
-			ret = tmpval > 0 ? 1 : -1;
+			retval = tmpval > 0 ? 1 : -1;
 			break;
 
 		case LST_DSPOPE_CATEGORY:
@@ -144,7 +140,7 @@ static   gint
 				{
 					name1 = da_cat_get_fullname(c1);
 					name2 = da_cat_get_fullname(c2);
-					ret = ope_sort_iter_compare_strings(name1, name2);
+					retval = ope_sort_iter_compare_strings(name1, name2);
 					g_free(name2);
 					g_free(name1);
 				}
@@ -157,7 +153,7 @@ static   gint
 
 			t1 = transaction_tags_tostring(ope1);
 			t2 = transaction_tags_tostring(ope2);
-			ret = ope_sort_iter_compare_strings(t1, t2);
+			retval = ope_sort_iter_compare_strings(t1, t2);
 			g_free(t1);
 			g_free(t2);
 		}
@@ -167,7 +163,7 @@ static   gint
 			g_return_val_if_reached(0);
     }
 
-    return ret;
+    return retval;
 }
 
 /*
@@ -224,6 +220,8 @@ Account *acc;
 	{
 		g_object_set(renderer, "text", acc->name, NULL);
 	}
+	else
+		g_object_set(renderer, "text", "", NULL);
 }
 
 /*
@@ -284,6 +282,8 @@ Payee *pay;
 	pay = da_pay_get(ope->kpay);
 	if(pay != NULL)
 		g_object_set(renderer, "text", pay->name, NULL);
+	else
+		g_object_set(renderer, "text", "", NULL);
 }
 
 /*
@@ -395,6 +395,9 @@ gchar *fullname;
 			g_object_set(renderer, "text", fullname, NULL);
 			g_free(fullname);
 		}
+		else
+			g_object_set(renderer, "text", "", NULL);
+
 	}
 	
 }
@@ -550,27 +553,51 @@ gint id;
 	return column;
 }
 
+
+guint list_transaction_get_quicksearch_column_mask(GtkTreeView *treeview)
+{
+GtkTreeViewColumn *column;
+guint n, mask;
+gint id;
+
+	mask = 0;
+	for(n=0; n < NUM_LST_DSPOPE-1 ; n++ )   // -1 cause account not to be processed
+	{
+		column = gtk_tree_view_get_column (treeview, n);
+		if(column == NULL)
+			continue;
+
+		if( gtk_tree_view_column_get_visible(column) )
+		{
+			id = gtk_tree_view_column_get_sort_column_id (column);
+			switch(id)
+			{
+				case LST_DSPOPE_WORDING: mask |= FLT_QSEARCH_MEMO; break;
+				case LST_DSPOPE_INFO: mask |= FLT_QSEARCH_INFO; break;
+				case LST_DSPOPE_PAYEE: mask |= FLT_QSEARCH_PAYEE; break;
+				case LST_DSPOPE_CATEGORY: mask |= FLT_QSEARCH_CATEGORY; break;
+				case LST_DSPOPE_TAGS: mask |= FLT_QSEARCH_TAGS; break;
+			}
+		}
+	}
+
+	return mask;
+}
+
+
 /* todo: something simpler to sort ? */
 void list_transaction_sort_force(GtkTreeSortable *sortable, gpointer user_data)
 {
-gint id;
+gint sort_column_id;
 GtkSortType order;
 
-	gtk_tree_sortable_get_sort_column_id(sortable, &id, &order);
+	DB( g_print("list_transaction_sort_force\n") );
 
-	DB( g_print("list_transaction_sort_force %d %d\n", id, order) );
+	gtk_tree_sortable_get_sort_column_id(sortable, &sort_column_id, &order);
+	DB( g_print(" - id %d order %d\n", sort_column_id, order) );
 
-	//sort revert
-	if(order == GTK_SORT_ASCENDING)
-	{
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, GTK_SORT_DESCENDING);
-	}
-	else
-	{
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, GTK_SORT_ASCENDING);
-	}
-	
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), id, order);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, order);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), sort_column_id, order);
 }
 
 

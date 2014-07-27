@@ -95,7 +95,6 @@ gint	smode, weekday, nbdays;
 }
 
 
-
 /*
 ** set widgets contents from the selected account
 */
@@ -119,6 +118,7 @@ struct defhbfile_data *data;
 
 
 }
+
 
 /*
 **
@@ -163,7 +163,7 @@ static void defhbfile_setup(struct defhbfile_data *data)
 GtkWidget *create_defhbfile_dialog (void)
 {
 struct defhbfile_data data;
-GtkWidget *dialog, *content, *mainvbox, *table, *hbox;
+GtkWidget *dialog, *content_area, *hbox, *vbox, *table;
 GtkWidget *label, *widget, *entry, *combo, *spinner;
 GtkWidget *alignment;
 gint row;
@@ -182,32 +182,29 @@ gint row;
 	DB( g_print("(defaccount) dialog=%p, inst_data=%p\n", dialog, &data) );
 
 	gtk_window_set_icon_name(GTK_WINDOW (dialog), GTK_STOCK_PROPERTIES);
+	gtk_window_set_resizable(GTK_WINDOW (dialog), FALSE);
 
-	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
-	mainvbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER(vbox), HB_MAINBOX_SPACING);
+	gtk_box_pack_start (GTK_BOX (content_area), vbox, TRUE, TRUE, 0);
 
     table = gtk_table_new (6, 3, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+	alignment = gtk_alignment_new(0.5, 0.0, 1.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_container_add (GTK_CONTAINER (mainvbox), alignment);
+	gtk_container_add (GTK_CONTAINER (vbox), alignment);
 
 // part 1
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>General</b>"));
+	label = make_label(_("General"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
-	label = make_label("", 0.0, 0.5);
-	gtk_misc_set_padding (GTK_MISC (label), HB_BOX_SPACING, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
 	label = make_label(_("_Owner:"), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	entry = make_string(label);
@@ -216,8 +213,8 @@ gint row;
 
 // frame 2
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Scheduled transaction</b>"));
+	label = make_label(_("Scheduled transaction"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
@@ -249,8 +246,8 @@ gint row;
 
 // frame 3
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Vehicle cost</b>"));
+	label = make_label(_("Vehicle cost"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;

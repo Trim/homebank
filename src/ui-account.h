@@ -86,9 +86,11 @@ struct ui_acc_manage_data
 	GtkWidget	*window;
 
 	GtkWidget	*LV_acc;
-	GtkWidget	*ST_name;
+	GtkWidget	*BT_add, *BT_rem;
+
 	//GtkWidget	*CY_curr;
 	GtkWidget	*CY_type;
+
 	GtkWidget	*ST_bank;
 	GtkWidget	*ST_number;
 	GtkWidget	*CM_nosummary;
@@ -99,10 +101,8 @@ struct ui_acc_manage_data
 	GtkWidget	*ST_minimum;
 	GtkWidget	*ST_cheque1;
 	GtkWidget	*ST_cheque2;
-
-	GtkWidget	*BT_new, *BT_rem, *BT_name;
-
 };
+
 
 struct accPopContext
 {
@@ -111,7 +111,6 @@ struct accPopContext
 	guint32 kcur;
 	gint	insert_type;
 };
-
 
 
 GtkWidget *ui_acc_manage_dialog (void);

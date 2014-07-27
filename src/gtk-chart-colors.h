@@ -52,7 +52,9 @@ enum {
 	WHITE,
 	GREY1,
 	TEXT,
-	XYLINES
+	XYLINES,
+	THBASE,
+	THTEXT
 };
 
 enum colmap

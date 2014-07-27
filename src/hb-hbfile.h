@@ -22,7 +22,6 @@
 
 
 gboolean hbfile_file_hasbackup(gchar *filepath);
-gint hbfile_insert_scheduled_transactions(void);
 
 void hbfile_change_owner(gchar *owner);
 void hbfile_change_filepath(gchar *filepath);

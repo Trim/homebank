@@ -1,14 +1,82 @@
 
+
+2014-07-27  Maxime Doyen
+
+ Made 4.6.2 release.
+ 
+ * change: xhb data file format (v0.9)
+ * change: sort preference language list by name (was by code)
+ * bugfix: gtk warning on budget/stats report
+ * bugfix: #1348951 when you move from one category to a new one, it creates a lot of categories
+ * bugfix: #1348319 scheduler options not saved
+ * bugfix: #1345739 moving payee creates erroneous payees
+ * bugfix: #1340142 program crash when select Category on Trend Time report button
+ * bugfix: #1339572 exclude from any reports and from budget, options with strange behaviour
+ * bugfix: #1338491 add transaction dialog, Memo field autocomplete doesn't give suggestions
+ * bugfix: #1338140 add transaction date defaults to the date the app was opened on
+ * bugfix: #1336882 filter for unreconciled transactions
+ * bugfix: #1335285 when inherit txn, date is not today's date
+ * bugfix: #1325969 ms windows incorrect sort of strings with special/accented (diacritics) 
+
+
+2014-06-25  Maxime Doyen
+
+ Made 4.6.1 release.
+ 
+ * bugfix: #1333426 crash under ms-windows when no euro datas into preferences 
+
+
+2014-06-23  Maxime Doyen
+
+ Made 4.6 release.
+
+ * new   : report graph now use the gtk theme colors for background and scale
+ * new   : scheduled list: added late column and splitted amount to expense/income
+ * new   : speed optimization file load, register display (tested with 0,5M txn)
+ * change: xhb data file format (v0.8)
+ * change: account dialog : relayout the properties with tabs
+ * change: preferences: moved prefix/suffix symbol to a single symbol with a checkbox for prefix
+ * change: transaction dialog : replaced the split S button with a most common image button
+ * wish  : #1317183 scheduled dialog listview to be resizable
+ * wish  : #1258344 template transaction with unspecified account inherits from current account value
+ * wish  : #1197965 text filter and sensitive case
+ * wish  : #1099026 ability to individually play scheduled transactions from the list
+ * wish  : #926784  per account QIF export
+ * wish  : #923154  vehicle Costs assumes UK volume in gallons - sold in litres
+ * wish  : #818440  scheduled transaction date before or after weekend
+ * wish  : #676447  configure financial year boundaries (report dates)
+ * wish  : #564922  add Direct Debit as payment type
+ * wish  : #493162  auto-assign category from payee
+ * wish  : #455295  quick search functionality (thunderbird/outlook) 
+ * bugfix: was possible to quick edit the balance column in account window
+ * bugfix: crash after a reset of preferences
+ * bugfix: #1316252 Vehicle cost report: "Other cost" always $ 0.00
+ * bugfix: #1308745 Error in sum displayed in Bank, Today, Future
+ * bugfix: #1304539 HomeBank crashes when 'move payee'
+ * bugfix: #1301002 Split Transactions are filtered by category incorrectly in reports
+ * bugfix: #1297054 Top spending not taking credits into account
+ * bugfix: #1295877 Expense shows in Income column
+ * bugfix: #1292012 car cost show 1km/l
+ * bugfix: #1287956 Dialogs for multiple edit of transaction are too small
+ * bugfix: #1286752 Screen Manage Categories: button Move is not translated
+ * bugfix: #1286329 In preferences, file chooser dialog have title "title"
+
+
+2014-06-09  Maxime Doyen
+
+ Made 4.6 beta release.
+
+
 2014-03-01  Maxime Doyen
 
  Made 4.5.6 release.
 
- * bugfix: #1285326	export transactions to csv. Concat [dot]csv to filename 
- * bugfix: #1285164	tags not well sorted when mixed with blank
- * bugfix: #1277622	problem with the split transaction and the Vehicle cost feature
- * bugfix: #1276377	qif import shows 0 items
- * bugfix: #1275534	Balances not updated with sheduled transactions
- * wish  : #1273848	insert scheduled more than 92 days in advance
+ * bugfix: #1285326 export transactions to csv. Concat [dot]csv to filename 
+ * bugfix: #1285164 tags not well sorted when mixed with blank
+ * bugfix: #1277622 problem with the split transaction and the Vehicle cost feature
+ * bugfix: #1276377 qif import shows 0 items
+ * bugfix: #1275534 Balances not updated with sheduled transactions
+ * wish  : #1273848 insert scheduled more than 92 days in advance
 
 
 2014-01-26  Maxime Doyen
@@ -53,13 +121,13 @@
  Made 4.5.3 release.
 
  * bugfix: #1225611 Trend Time report : categories crashes on windows
- * bugfix: #1221484	end date not checked to be larger than Start date in reports 
- * bugfix: #1218644	there is a problem of calculating the column balances.
- * bugfix: #1216321	reversed transactions
- * bugfix: #1216284	balance report do not exclude account with exclude from report checked
- * bugfix: #1215521	when importing qif, automatic assignments are not made
- * bugfix: #1214077	win32: my csv file exported crash when import again
- * bugfix: #1213569	win32: program not all translated in french since 4.5.1
+ * bugfix: #1221484 end date not checked to be larger than Start date in reports 
+ * bugfix: #1218644 there is a problem of calculating the column balances.
+ * bugfix: #1216321 reversed transactions
+ * bugfix: #1216284 balance report do not exclude account with exclude from report checked
+ * bugfix: #1215521 when importing qif, automatic assignments are not made
+ * bugfix: #1214077 win32: my csv file exported crash when import again
+ * bugfix: #1213569 win32: program not all translated in french since 4.5.1
 
 
 2013-08-15  Maxime Doyen
@@ -75,30 +143,30 @@
 
  * change: lot of code warning fix with gcc -Wextra and cppcheck
  * change: source code preparation for gtk3 migration
- * wish  : #1163319	revert back date range 'Last Year'
- * wish  : #814472	update main wallet view while editing some accounts
- * wish  : #801970	add R keyboard shortcuts to reconcile/unreconcile
- * wish  : #703544	account selected in the main view should be used by default when launching a graph report
- * wish  : #559787	running balance column in the list of transactions
- * wish  : #331113	keep windows maximized 
+ * wish  : #1163319 revert back date range 'Last Year'
+ * wish  : #814472 update main wallet view while editing some accounts
+ * wish  : #801970 add R keyboard shortcuts to reconcile/unreconcile
+ * wish  : #703544 account selected in the main view should be used by default when launching a graph report
+ * wish  : #559787 running balance column in the list of transactions
+ * wish  : #331113 keep windows maximized 
  * bugfix: mainwindow, top spending was not refreshed after preferences change
  * bugfix: anonymize, bankname/number were not modified
  * bugfix: #1202507 moving a (sub)category resets its "income" (vs expense) status
  * bugfix: #1202503 after a move of a category the list was not refreshed
- * bugfix: #1197516	file COPYING out of date
- * bugfix: #1195859	expense Income Balance Total error in Tag Statistic Report
- * bugfix: #1173910	illegal xml character allowed in split category memo
- * bugfix: #1163749	positive/Minus button ignores decimal character
- * bugfix: #1163447	auto-affectations non modifiables
- * bugfix: #1156846	QIF Import with date format YY/MM/DD fails.
- * bugfix: #1151259	split transaction filter on category problem
- * bugfix: #1140903	Bank, Today and Future Don't Update After Adding Transaction
- * bugfix: #1138103	no error message when 2 bank accounts have the same name
- * bugfix: #1133105	more permissive QIF import
- * bugfix: #1103668	segfaults on file open on x64
- * bugfix: #1102896	pick a date in calendar only works once (rollback #730319)
- * bugfix: #1099944	some strings in the main window untranslated
- * bugfix: #1047103	win: (libofx) Importing QFX causes HomeBank to freeze
+ * bugfix: #1197516 file COPYING out of date
+ * bugfix: #1195859 expense Income Balance Total error in Tag Statistic Report
+ * bugfix: #1173910 illegal xml character allowed in split category memo
+ * bugfix: #1163749 positive/Minus button ignores decimal character
+ * bugfix: #1163447 auto-affectations non modifiables
+ * bugfix: #1156846 QIF Import with date format YY/MM/DD fails.
+ * bugfix: #1151259 split transaction filter on category problem
+ * bugfix: #1140903 Bank, Today and Future Don't Update After Adding Transaction
+ * bugfix: #1138103 no error message when 2 bank accounts have the same name
+ * bugfix: #1133105 more permissive QIF import
+ * bugfix: #1103668 segfaults on file open on x64
+ * bugfix: #1102896 pick a date in calendar only works once (rollback #730319)
+ * bugfix: #1099944 some strings in the main window untranslated
+ * bugfix: #1047103 win: (libofx) Importing QFX causes HomeBank to freeze
 
 2013-07-16  Maxime Doyen
 
@@ -131,56 +199,56 @@
  * change: homebank, optimized xml
  * change: homebank, added a visual type of category everywhere (-income/+expense)
  * change: replaced '(none)' string by something more relevant
- * wish  : #140504	category split for transaction
- * wish  : #400010	csv export add support of mm-dd-yy
- * wish  : #593435	add subtotals for account list by type or bank
- * wish  : #660450	Cash Account hidden from Accounts Overview
- * wish  : #688494	limit day for automatic transaction add in the future
- * wish  : #722226 	xhb file format : amounts and order details
- * wish  : #730137 	portable app for ms-windows
- * wish  : #730319 	single click in calendar to choose date 
- * wish  : #787131	Column titles in exported CSV
- * wish  : #787134	exporting to CSV should include all available columns
- * wish  : #833614	sorting on category / subcategory in statistics report
- * wish  : #856477	improve category dropdown with +/-
- * wish  : #886372	poland in the European country list
- * wish  : #1006802	hide reconciled transactions by default
- * wish  : #1088259	Handling "VOIDed" check transactions
+ * wish  : #140504 category split for transaction
+ * wish  : #400010 csv export add support of mm-dd-yy
+ * wish  : #593435 add subtotals for account list by type or bank
+ * wish  : #660450 Cash Account hidden from Accounts Overview
+ * wish  : #688494 limit day for automatic transaction add in the future
+ * wish  : #722226  xhb file format : amounts and order details
+ * wish  : #730137  portable app for ms-windows
+ * wish  : #730319  single click in calendar to choose date 
+ * wish  : #787131 Column titles in exported CSV
+ * wish  : #787134 exporting to CSV should include all available columns
+ * wish  : #833614 sorting on category / subcategory in statistics report
+ * wish  : #856477 improve category dropdown with +/-
+ * wish  : #886372 poland in the European country list
+ * wish  : #1006802 hide reconciled transactions by default
+ * wish  : #1088259 Handling "VOIDed" check transactions
  * bugfix: archive target internal transfer account
  * bugfix: closed accounts were not excluded from reports
  * bugfix: detail status and rate in toolbar report window was not initialized
- * bugfix: #123704	Numpad dot key does not work for french locale
- * bugfix: #599476	some English terms unclear
- * bugfix: #726052	Balance report not up to date
- * bugfix: #740373	ofx import, debit should negate TRNAMT
- * bugfix: #758281	QIF import shows wrong dates
- * bugfix: #772233	mouse over piechart sometimes crash
- * bugfix: #777886	Crash when I click "Select All" in the Balance Report
- * bugfix: #783787	Fix for a small memleak
- * bugfix: #793719	csv output: no rounded values
- * bugfix: #801962	win: Descr field inUpcoming Auto-transactions alters on one entry when mouse-over or near
- * bugfix: #813789	HomeBank does not import MsMoney-qif-exported files
- * bugfix: #828947	New Wallet wizard do not treat created wallet as modified
- * bugfix: #828991	Error message when you decide not to "Save As"
- * bugfix: #829362	Missing decimal separator with C locale
- * bugfix: #840245	Closed account on internal transfert selection
- * bugfix: #850996	Escape key looses changes on "New file" with unsaved data
- * bugfix: #870023	HomeBank can't find browser
- * bugfix: #872185	crashes on qif export
- * bugfix: #885749	QIF Import shows wrong amount
- * bugfix: #905277	balance rapport reports wrong amount
- * bugfix: #926915	transaction modify window sizing problem
- * bugfix: #931187 	preferences not saved when ~/.config doesn't exist
- * bugfix: #932959 	win7: import QXF/OFX file if path contains non-ascii chars
- * bugfix: #942346	internal transactions mixup
- * bugfix: #987144	QIF Import Error in Financisto
- * bugfix: #1024907	2 qif export problems that must be fixed 
- * bugfix: #1074133	from date to date - does'nt count the last day of the months
- * bugfix: #1080132	4.5pre1: transaction split OK button stays inactive
- * bugfix: #1081809	4.5pre1: filter by category ignores split transactions
- * bugfix: #1082634	4.5pre1: transaction filter dates being reset
- * bugfix: #1094215	Button "ok" & "close" unvailable when changin "payement"
- * bugfix: #1096364	scheduled txn internal xfer dst_account not saved
+ * bugfix: #123704 Numpad dot key does not work for french locale
+ * bugfix: #599476 some English terms unclear
+ * bugfix: #726052 Balance report not up to date
+ * bugfix: #740373 ofx import, debit should negate TRNAMT
+ * bugfix: #758281 QIF import shows wrong dates
+ * bugfix: #772233 mouse over piechart sometimes crash
+ * bugfix: #777886 Crash when I click "Select All" in the Balance Report
+ * bugfix: #783787 Fix for a small memleak
+ * bugfix: #793719 csv output: no rounded values
+ * bugfix: #801962 win: Descr field inUpcoming Auto-transactions alters on one entry when mouse-over or near
+ * bugfix: #813789 HomeBank does not import MsMoney-qif-exported files
+ * bugfix: #828947 New Wallet wizard do not treat created wallet as modified
+ * bugfix: #828991 Error message when you decide not to "Save As"
+ * bugfix: #829362 Missing decimal separator with C locale
+ * bugfix: #840245 Closed account on internal transfert selection
+ * bugfix: #850996 Escape key looses changes on "New file" with unsaved data
+ * bugfix: #870023 HomeBank can't find browser
+ * bugfix: #872185 crashes on qif export
+ * bugfix: #885749 QIF Import shows wrong amount
+ * bugfix: #905277 balance rapport reports wrong amount
+ * bugfix: #926915 transaction modify window sizing problem
+ * bugfix: #931187  preferences not saved when ~/.config doesn't exist
+ * bugfix: #932959  win7: import QXF/OFX file if path contains non-ascii chars
+ * bugfix: #942346 internal transactions mixup
+ * bugfix: #987144 QIF Import Error in Financisto
+ * bugfix: #1024907 2 qif export problems that must be fixed 
+ * bugfix: #1074133 from date to date - does'nt count the last day of the months
+ * bugfix: #1080132 4.5pre1: transaction split OK button stays inactive
+ * bugfix: #1081809 4.5pre1: filter by category ignores split transactions
+ * bugfix: #1082634 4.5pre1: transaction filter dates being reset
+ * bugfix: #1094215 Button "ok" & "close" unvailable when changin "payement"
+ * bugfix: #1096364 scheduled txn internal xfer dst_account not saved
 
 
 2012-11-17  Maxime Doyen

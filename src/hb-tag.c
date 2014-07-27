@@ -260,18 +260,7 @@ da_tag_debug_list(void)
 static gint
 tag_glist_name_compare_func(Tag *a, Tag *b)
 {
-gint retval = 0;
-
-    if (a->name == NULL || b->name == NULL)
-    {
-        retval = (a->name == NULL) ? -1 : 1;
-    }
-    else
-    {
-        retval = g_utf8_collate(a->name, b->name);
-    }
-
-	return retval;
+	return hb_string_utf8_compare(a->name, b->name);
 }
 
 

@@ -31,8 +31,8 @@ struct ui_pay_manage_dialog_data
 {
 	GtkWidget	*window;
 
-	GtkWidget	*LV_pay;
 	GtkWidget	*ST_name;
+	GtkWidget	*LV_pay;
 
 	GtkWidget	*BT_add;
 	GtkWidget	*BT_mov;

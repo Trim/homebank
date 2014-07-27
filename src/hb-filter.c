@@ -99,6 +99,7 @@ guint i;
 	flt->wording = NULL;
 	flt->tag = NULL;
 
+	flt->last_tab = 0;
 }
 
 
@@ -197,16 +198,35 @@ guint32 refjuliandate, month, year, qnum;
 			break;
 
 		case FLT_RANGE_THISYEAR:
-			g_date_set_dmy(date, 1, 1, year);
-			flt->mindate = g_date_get_julian(date);
-			g_date_set_dmy(date, 31, 12, year);
+			g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year);
+			if( refjuliandate >= g_date_get_julian (date))
+			{
+				flt->mindate = g_date_get_julian(date);
+			}
+			else
+			{
+				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-1);
+				flt->mindate = g_date_get_julian(date);
+			}
+			g_date_add_years (date, 1);
+			g_date_subtract_days (date, 1);
 			flt->maxdate = g_date_get_julian(date);
 			break;
 
 		case FLT_RANGE_LASTYEAR:
-			g_date_set_dmy(date, 1, 1, year-1);
-			flt->mindate = g_date_get_julian(date);
-			g_date_set_dmy(date, 31, 12, year-1);
+			g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year);
+			if( refjuliandate >= g_date_get_julian (date))
+			{
+				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-1);
+				flt->mindate = g_date_get_julian(date);
+			}
+			else
+			{
+				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-2);
+				flt->mindate = g_date_get_julian(date);
+			}
+			g_date_add_years (date, 1);
+			g_date_subtract_days (date, 1);
 			flt->maxdate = g_date_get_julian(date);
 			break;
 
@@ -302,9 +322,107 @@ GList *lcat, *list;
 		case FLT_STATUS_UNRECONCILED:
 			flt->option[FILTER_STATUS] = 2;
 			flt->reconciled = TRUE;
+			//#1336882
+			flt->reminded = FALSE;
 			break;
 	}
 
+}
+
+
+static gint filter_text_compare(gchar *txntext, gchar *searchtext, gboolean exact)
+{
+gint retval = 0;
+
+	if( exact )
+	{
+		if( g_strstr_len(txntext, -1, searchtext) != NULL )
+		{
+			DB( g_print(" found case '%s'\n", searchtext) );
+			retval = 1;
+		}
+	}
+	else
+	{
+	gchar *word   = g_utf8_casefold(txntext, -1);
+	gchar *needle = g_utf8_casefold(searchtext, -1);
+
+		if( g_strrstr(word, needle) != NULL )
+		{
+			DB( g_print(" found nocase '%s'\n", needle) );
+			retval = 1;
+		}
+
+		g_free(word);
+		g_free(needle);
+	}
+	return retval;
+}
+
+
+/* used for quicksearch text into transaction */
+gboolean filter_txn_search_match(gchar *needle, Transaction *txn, gint flags)
+{
+gboolean retval = FALSE;
+Payee *payitem;
+Category *catitem;
+gchar *tags;
+
+	if(flags & FLT_QSEARCH_MEMO)
+	{
+		if(txn->wording)
+		{
+			retval |= filter_text_compare(txn->wording, needle, FALSE);
+		}
+		if(retval) goto end;
+	}
+	
+	if(flags & FLT_QSEARCH_INFO)
+	{
+		if(txn->info)
+		{
+			retval |= filter_text_compare(txn->info, needle, FALSE);
+		}
+		if(retval) goto end;
+	}
+
+	if(flags & FLT_QSEARCH_PAYEE)
+	{
+		payitem = da_pay_get(txn->kpay);
+		if(payitem)
+		{
+			retval |= filter_text_compare(payitem->name, needle, FALSE);
+		}
+		if(retval) goto end;
+	}
+
+	if(flags & FLT_QSEARCH_CATEGORY)
+	{
+		catitem = da_cat_get(txn->kcat);
+		if(catitem)
+		{
+		gchar *fullname = da_cat_get_fullname (catitem);
+
+			retval |= filter_text_compare(fullname, needle, FALSE);
+			g_free(fullname);
+		}
+		if(retval) goto end;
+	}
+	
+	if(flags & FLT_QSEARCH_TAGS)
+	{
+		tags = transaction_tags_tostring(txn);
+		if(tags)
+		{
+			retval |= filter_text_compare(tags, needle, FALSE);
+		}
+		g_free(tags);
+		//if(retval) goto end;
+	}
+
+	
+end:
+	return retval;
 }
 
 
@@ -368,14 +486,17 @@ gint insert;
 			count = da_transaction_splits_count(txn);
 			for(i=0;i<count;i++)
 			{
+			gint tmpinsert = 0;
+				
 				split = txn->splits[i];
 				catitem = da_cat_get(split->kcat);
 				if(catitem)
 				{
-					insert |= ( catitem->filter == TRUE ) ? 1 : 0;
+					tmpinsert = ( catitem->filter == TRUE ) ? 1 : 0;
+					if(flt->option[FILTER_CATEGORY] == 2) tmpinsert ^= 1;
 				}
+				insert |= tmpinsert;
 			}
-			if(flt->option[FILTER_CATEGORY] == 2) insert ^= 1;
 		}
 		else
 		{
@@ -422,14 +543,14 @@ gint insert;
 	if(flt->option[FILTER_TEXT])
 	{
 	gchar *tags;
-	gint insert1 = 0, insert2 = 0, insert3 = 0;
+	gint insert1, insert2, insert3;
 
+		insert1 = insert2 = insert3 = 0;
 		if(flt->info)
 		{
 			if(txn->info)
 			{
-				if( g_strstr_len(txn->info, -1, flt->info) != NULL )
-					insert1 = 1;
+				insert1 = filter_text_compare(txn->info, flt->info, flt->exact);
 			}
 		}
 		else
@@ -439,8 +560,7 @@ gint insert;
 		{
 			if(txn->wording)
 			{
-				if( g_strstr_len(txn->wording, -1, flt->wording) != NULL )
-					insert2 = 1;
+				insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
 			}
 		}
 		else
@@ -451,9 +571,7 @@ gint insert;
 			tags = transaction_tags_tostring(txn);
 			if(tags)
 			{
-				if( g_strstr_len(tags, -1, flt->tag) != NULL )
-					insert3 = 1;
-
+				insert3 = filter_text_compare(tags, flt->tag, flt->exact);
 			}
 			g_free(tags);
 		}

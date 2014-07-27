@@ -55,18 +55,18 @@ struct ui_asg_manage_data
 	GtkWidget	*window;
 
 	GtkWidget	*LV_rul;
-	GtkWidget	*ST_name;
+	GtkWidget	*BT_add, *BT_rem;
+
+	GtkWidget   *CY_field;
+	GtkWidget	*ST_text;
 	GtkWidget	*CM_exact;
 	
-	GtkWidget	*PO_pay;
-	GtkWidget	*PO_cat;
+	GtkWidget	*CM_pay, *PO_pay;
+	GtkWidget	*CM_cat, *PO_cat;
 
-
-	GtkWidget	*BT_new, *BT_rem;
-
-	//gulong		handler_id[MAX_RUL_FIELD];
 
 };
+
 
 struct rulPopContext
 {

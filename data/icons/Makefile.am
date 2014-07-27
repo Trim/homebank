@@ -70,6 +70,7 @@ private_icons = \
 	hicolor_actions_22x22_hb-legend.png \
 	hicolor_actions_22x22_hb-rate.png \
 	hicolor_actions_16x16_lpi-help.png \
+	hicolor_status_22x22_btn-split.png \
 	hicolor_status_22x22_flt-inactive.png \
 	hicolor_status_22x22_flt-include.png \
 	hicolor_status_22x22_flt-exclude.png \
@@ -97,6 +98,8 @@ private_icons = \
 	hicolor_status_22x22_pm-deposit.png \
 	hicolor_status_16x16_pm-fifee.png \
 	hicolor_status_22x22_pm-fifee.png \
+	hicolor_status_16x16_pm-directdebit.png \
+	hicolor_status_22x22_pm-directdebit.png \
 	hicolor_status_22x22_prf-general.png \
 	hicolor_status_48x48_prf-general.png \
 	hicolor_status_22x22_prf-interface.png \

@@ -694,7 +694,7 @@ Account *acc;
 
 	repbalance_update_info(widget, NULL);
 
-	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE);
+	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE, FALSE);
 	gtk_chart_show_xval(GTK_CHART(data->RE_line), TRUE);
 	gtk_chart_set_overdrawn(GTK_CHART(data->RE_line), data->minimum);
 	gtk_chart_show_overdrawn(GTK_CHART(data->RE_line), !selectall);
@@ -799,7 +799,7 @@ GtkWidget *repbalance_window_new(gint accnum)
 struct repbalance_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview;
-GtkWidget *label, *widget, *table, *alignment, *vbar;
+GtkWidget *label, *widget, *table, *alignment;
 gint row;
 GtkUIManager *ui;
 GtkActionGroup *actions;
@@ -836,7 +836,7 @@ GError *error = NULL;
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, TRUE, TRUE, 0);
 
 	//control part
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
@@ -848,68 +848,67 @@ GError *error = NULL;
 
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Display</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Display"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("A_ccount:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = ui_acc_comboboxentry_new(label);
 	data->PO_acc = widget;
 	gtk_widget_set_size_request (widget, 10, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Select _all"));
 	data->CM_selectall = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Each _day"));
 	//gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), TRUE);
 	data->CM_eachday = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
-
-
-	row++;
-	label = make_label(_("_Zoom X:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_scale(label);
-	data->RG_zoomx = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
+
+	row++;
+	label = make_label(_("_Zoom X:"), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_scale(label);
+	data->RG_zoomx = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
 
 	row++;
 	widget = gtk_hseparator_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 3, row, row+1);
 
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Date filter</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Date filter"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_Range:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->CY_range = make_daterange(label, FALSE);
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_From:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_mindate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_To:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_maxdate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 2, 3, row, row+1);
 
 
 	//part: info + report
@@ -978,10 +977,6 @@ GError *error = NULL;
 	data->TX_info = label;
 	gtk_box_pack_end (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-	vbar = gtk_vseparator_new();
-	gtk_box_pack_end (GTK_BOX (hbox), vbar, FALSE, FALSE, 0);
-
-
 	notebook = gtk_notebook_new();
 	data->GR_result = notebook;
 	gtk_widget_show(notebook);
@@ -1018,7 +1013,7 @@ GError *error = NULL;
 
 
 	//page: 2d lines
-	widget = gtk_chart_new(CHART_LINE_TYPE);
+	widget = gtk_chart_new(CHART_TYPE_LINE);
 	data->RE_line = widget;
 	//gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.suffix_symbol);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);

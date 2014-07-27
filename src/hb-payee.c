@@ -384,10 +384,11 @@ GList *lrul, *list;
 		{
 			entry->kpay = key2;
 		}
-		list = g_list_next(lrul);
+		list = g_list_next(list);
 	}
-	g_list_free(list);
+	g_list_free(lrul);
 }
+
 
 gboolean
 payee_rename(Payee *item, const gchar *newname)
@@ -453,18 +454,7 @@ Payee *item;
 static gint
 payee_glist_name_compare_func(Payee *a, Payee *b)
 {
-gint retval = 0;
-
-    if (a->name == NULL || b->name == NULL)
-    {
-        retval = (a->name == NULL) ? -1 : 1;
-    }
-    else
-    {
-        retval = g_utf8_collate(a->name, b->name);
-    }
-
-	return retval;
+	return hb_string_utf8_compare(a->name, b->name);
 }
 
 

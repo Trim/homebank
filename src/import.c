@@ -769,7 +769,7 @@ static void import_find_duplicate_transactions(struct import_data *data)
 GList *tmplist, *implist;
 Transaction *item;
 guint32 mindate;
-guint decay;
+guint maxgap;
 
 	DB( g_print("\n[import] find duplicate\n") );
 
@@ -780,7 +780,7 @@ guint decay;
 		tmplist = g_list_first(data->ictx.trans_list);
 		item = tmplist->data;
 		mindate = item->date;
-		decay = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_decay));
+		maxgap = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_maxgap));
 
 		/* clear any previous same txn */
 		implist = g_list_first(data->ictx.trans_list);
@@ -825,7 +825,7 @@ guint decay;
 					if(
 						(acckey == ope->kacc) &&
 						(impope->amount == ope->amount) &&
-						(ope->date <= impope->date+decay) && (ope->date >= impope->date-decay)
+						(ope->date <= (impope->date + maxgap)) && (ope->date >= (impope->date - maxgap))
 						)
 					{
 						//DB( g_print(" found %d: %s\n", impope->date, impope->wording) );
@@ -1764,7 +1764,6 @@ static void import_acc_affect_onRowActivated (GtkTreeView        *treeview,
 }
 
 
-
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 /**
@@ -1950,8 +1949,8 @@ gint row;
 
 
 	/* file informations */
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>File to import</b>"));
+	label = make_label(_("File to import"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_box_pack_start (GTK_BOX (container), label, FALSE, FALSE, 0);
 
 
@@ -1997,8 +1996,8 @@ gint row;
 	data->GR_options = vbox;
 	gtk_box_pack_start (GTK_BOX (container), vbox, FALSE, FALSE, 0);
 
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Import options</b>"));
+	label = make_label(_("Import options"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
 	hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
@@ -2157,7 +2156,7 @@ GtkWidget *mainbox, *vbox, *align, *hbox, *label, *sw, *widget, *expander;
 	label = make_label(_("Date _tolerance:"), 0, 0.5);
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 	widget = make_numeric(label, 0.0, 14.0);
-	data->NB_decay = widget;
+	data->NB_maxgap = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	//TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days of date tolerance
@@ -2278,8 +2277,8 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Accounts</b>"));
+	label = make_label(_("Accounts"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	/* acc update */
@@ -2302,8 +2301,8 @@ gint row;
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 2, 3, row, row+1);
 
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Transactions</b>"));
+	label = make_label(_("Transactions"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	/* trn import */
@@ -2522,7 +2521,7 @@ gchar *name;
 	gtk_tree_model_get(model, iter, 0, &entry, -1);
 	name = NULL;
 	if(entry->imp_key == 0)
-		name = _("<b>Create new</b>");
+		name = _("Create new");
 	else
 		name = _("Import into");
 

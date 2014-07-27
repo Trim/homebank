@@ -44,12 +44,16 @@ void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey);
 //void get_period_minmax(guint month, guint year, guint32 *mindate, guint32 *maxdate);
 //void get_range_minmax(guint32 refdate, gint range, guint32 *mindate, guint32 *maxdate);
 
+gint hb_string_utf8_compare(gchar *s1, gchar *s2);
+
 void hb_string_strip_crlf(gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
 gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);
 
 guint32 hb_date_get_julian(gchar *string, gint datefmt);
+
+void hb_print_date(guint32 jdate, gchar *label);
 
 void hex_dump(guchar *ptr, guint length);
 

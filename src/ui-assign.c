@@ -35,6 +35,12 @@
 /* our global datas */
 extern struct HomeBank *GLOBALS;
 
+gchar *CYA_ASG_FIELD[] = { 
+	N_("Memo"), 
+	N_("Payee"), 
+	NULL
+};
+
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
@@ -68,27 +74,12 @@ ui_asg_listview_toggled_cb (GtkCellRendererToggle *cell,
 static gint
 ui_asg_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
 Assign *entry1, *entry2;
-gchar *name1, *name2;
 
     gtk_tree_model_get(model, a, LST_DEFASG_DATAS, &entry1, -1);
     gtk_tree_model_get(model, b, LST_DEFASG_DATAS, &entry2, -1);
 
-
-	name1 = entry1->name;
-	name2 = entry2->name;
-    if (name1 == NULL || name2 == NULL)
-    {
-        result = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        result = g_utf8_collate(name1,name2);
-    }
-
-
-    return result;
+    return hb_string_utf8_compare(entry1->name, entry2->name);
 }
 
 static void
@@ -310,6 +301,7 @@ static void ui_asg_manage_getlast(struct ui_asg_manage_data *data)
 gchar *txt;
 gboolean bool;
 Assign *item;
+gint active;
 
 	DB( g_print("\n(ui_asg_manage_getlast)\n") );
 
@@ -320,25 +312,35 @@ Assign *item;
 	{
 		data->change++;
 
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
-				if (txt && *txt)
-				{
-					bool = assign_rename(item, txt);
-					if(bool)
-					{
-						gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_rul));
-					}
-					else
-					{
-						gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
-					}
-				}
+		item->field = radio_get_active(GTK_CONTAINER(data->CY_field));
+		
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
+		if (txt && *txt)
+		{
+			bool = assign_rename(item, txt);
+			if(bool)
+			{
+				gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_rul));
+			}
+			else
+			{
+				gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->name);
+			}
+		}
 
-			item->exact  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
+		item->flags = 0;
+		
+		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
+		if(active == 1) item->flags |= ASGF_EXACT;
 
-			item->kcat    = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_cat));
-			item->kpay       = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_pay));
+		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_pay));
+		if(active == 1) item->flags |= ASGF_DOPAY;
 
+		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cat));
+		if(active == 1) item->flags |= ASGF_DOCAT;
+
+		item->kcat    = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_cat));
+		item->kpay    = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_pay));
 
 	}
 
@@ -369,12 +371,16 @@ Assign *item;
 
 		DB( g_print(" -> set rul id=%d\n", item->key) );
 
+		radio_set_active(GTK_CONTAINER(data->CY_field), item->field);
+		
+		gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->name);
 
-		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), (item->flags & ASGF_EXACT) ? 1 : 0);
 
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), item->exact);
-
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_cat), (item->flags & ASGF_DOCAT) ? 1 : 0);
 		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), item->kcat);
+
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_pay), (item->flags & ASGF_DOPAY) ? 1 : 0);
 		ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_pay), item->kpay);
 
 
@@ -389,6 +395,26 @@ static gboolean ui_asg_manage_focus_out(GtkWidget *widget, GdkEventFocus *event,
 	return FALSE;
 }
 */
+
+static void ui_asg_manage_update_assignments(GtkWidget *widget, gpointer user_data)
+{
+struct ui_asg_manage_data *data;
+gboolean active;
+
+	DB( g_print("\n(ui_asg_manage_update_assignments)\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_pay));
+	gtk_widget_set_sensitive(data->PO_pay, active);
+	
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cat));
+	gtk_widget_set_sensitive(data->PO_cat, active);
+	
+	//active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_mod));
+	//gtk_widget_set_sensitive(data->NU_mod, active);
+
+}
 
 /*
 ** update the widgets status and contents from action/selection value
@@ -417,16 +443,20 @@ guint32 key;
 
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->ST_name, sensitive);
+	gtk_widget_set_sensitive(data->CY_field, sensitive);
+	gtk_widget_set_sensitive(data->ST_text, sensitive);
 	gtk_widget_set_sensitive(data->CM_exact, sensitive);
+
+	gtk_widget_set_sensitive(data->CM_pay, sensitive);
+	gtk_widget_set_sensitive(data->CM_cat, sensitive);
+
 	gtk_widget_set_sensitive(data->PO_pay, sensitive);
 	gtk_widget_set_sensitive(data->PO_cat, sensitive);
 
 
-
 	//sensitive = (data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->LV_rul, sensitive);
-	//gtk_widget_set_sensitive(data->BT_new, sensitive);
+	//gtk_widget_set_sensitive(data->BT_add, sensitive);
 
 	sensitive = (selected == TRUE && data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->BT_mod, sensitive);
@@ -441,6 +471,7 @@ guint32 key;
 		}
 
 		ui_asg_manage_set(widget, NULL);
+		ui_asg_manage_update_assignments(widget, NULL);
 	}
 
 	data->lastkey = key;
@@ -510,7 +541,7 @@ gchar *txt;
 	if( key > 0 )
 	{
 		Assign *item = da_asg_get(key);
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
 		if (txt && *txt)
 		{
 			ok = assign_rename(item, txt);
@@ -613,9 +644,9 @@ GtkWidget *ui_asg_manage_dialog (void)
 {
 struct ui_asg_manage_data data;
 GtkWidget *window, *content, *mainbox;
-GtkWidget *vbox, *table, *label, *entry1;
+GtkWidget *table, *label, *entry1;
 GtkWidget *scrollwin;
-GtkWidget *bbox;
+GtkWidget *hpaned;
 GtkWidget *alignment, *widget;
 gint row;
 
@@ -632,6 +663,11 @@ gint row;
 	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "assign.svg");
 	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_ASSIGN);
 
+	//set a nice dialog size
+	//gint w, h;
+	//gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	//gtk_window_set_default_size (GTK_WINDOW(window), w/PHI, h/PHI);
+	
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
 	DB( g_print("(ui_asg_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
@@ -642,99 +678,105 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
-	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
+	hpaned = gtk_hpaned_new();
+	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
 
+	/* left area */
+	table = gtk_table_new (2, 2, FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
+	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
+
+	row = 0;
  	scrollwin = gtk_scrolled_window_new(NULL,NULL);
-	gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
-
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
-
 	data.LV_rul = ui_asg_listview_new(FALSE);
 	gtk_widget_set_size_request(data.LV_rul, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_rul);
+	gtk_table_attach_defaults (GTK_TABLE (table), scrollwin, 0, 2, row, row+1);
 
 	// tools buttons
-	bbox = gtk_hbox_new (TRUE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (vbox), bbox, FALSE, TRUE, 0);
-	//gtk_container_set_border_width (GTK_CONTAINER (bbox), SP_BORDER);
-	//gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
-	gtk_box_set_spacing (GTK_BOX (bbox), HB_BOX_SPACING);
+	row++;
+	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	data.BT_add = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	data.BT_rem = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
 
-	//data.BT_rem = gtk_button_new_with_mnemonic(_("_Remove"));
-	data.BT_rem = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	gtk_container_add (GTK_CONTAINER (bbox), data.BT_rem);
-
-	//data.BT_new = gtk_button_new_with_mnemonic(_("_New"));
-	data.BT_new = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	gtk_container_add (GTK_CONTAINER (bbox), data.BT_new);
-
-	//h_paned
-	//vbox = gtk_vbox_new (FALSE, 0);
-	//gtk_container_set_border_width (GTK_CONTAINER (vbox), SP_BORDER);
-	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
-
-	table = gtk_table_new (12, 3, FALSE);
+	
+	/* right area */
+	table = gtk_table_new (12, 4, FALSE);
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
 	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+	alignment = gtk_alignment_new(0.5, 0.0, 1.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (mainbox), alignment, TRUE, TRUE, 0);
-
+	//gtk_box_pack_start (GTK_BOX (mainbox), alignment, TRUE, TRUE, 0);
+	gtk_paned_pack2 (GTK_PANED(hpaned), alignment, FALSE, FALSE);
+	
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Search in Memo</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	label = make_label(_("Condition"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 4, row, row+1);
 
 	row++;
-	label = make_label("", 0.0, 0.5);
-	gtk_misc_set_padding (GTK_MISC (label), HB_BOX_SPACING, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Field:"), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_radio(label, CYA_ASG_FIELD, GTK_ORIENTATION_VERTICAL);
+	data.CY_field = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
-	label = make_label(_("Contains the _text:"), 0.0, 0.5);
+	row++;
+	label = make_label(_("Con_tains:"), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	entry1 = make_string(label);
-	data.ST_name = entry1;
-	gtk_table_attach (GTK_TABLE (table), entry1, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	data.ST_text = entry1;
+	gtk_table_attach (GTK_TABLE (table), entry1, 2, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Case _sensitive"));
 	data.CM_exact = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
-
-
-//other
-
-	//row = 0;
+	
+	//other
 	row++;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Automatic assignments</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
-
-	row++;
-	label = gtk_label_new_with_mnemonic (_("_Payee:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = ui_pay_comboboxentry_new(label);
-	data.PO_pay = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
-
-	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
+	label = make_label(NULL, 0.0, 0.5);
+	gtk_label_set_markup (GTK_LABEL(label), _("Assignments"));
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 4, row, row+1);
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Category:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = gtk_check_button_new();
+	data.CM_cat = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = ui_cat_comboboxentry_new(label);
 	data.PO_cat = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
+	gtk_table_attach (GTK_TABLE (table), widget, 3, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
+
+	
+	row++;
+	label = gtk_label_new_with_mnemonic (_("_Payee:"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = gtk_check_button_new();
+	data.CM_pay = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = ui_pay_comboboxentry_new(label);
+	data.PO_pay = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 3, 4, row, row+1);
+
+	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
+
 
 
 	//connect all our signals
@@ -742,13 +784,12 @@ gint row;
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_rul)), "changed", G_CALLBACK (ui_asg_manage_selection), NULL);
 
-	g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
+	g_signal_connect (G_OBJECT (data.ST_text), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
 
+	g_signal_connect (G_OBJECT (data.CM_cat), "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
+	g_signal_connect (G_OBJECT (data.CM_pay), "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
 
-
-
-
-	g_signal_connect (G_OBJECT (data.BT_new), "clicked", G_CALLBACK (ui_asg_manage_add), NULL);
+	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_asg_manage_add), NULL);
 	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_asg_manage_remove), NULL);
 
 	//setup, init and show window

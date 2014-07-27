@@ -27,14 +27,18 @@ typedef struct _assign		Assign;
 struct _assign
 {
 	guint32   	key;
+	gushort		flags;
+	gushort		field;
 	gchar   	*name;
-	gboolean	exact;
 	guint32		kpay;
 	guint32		kcat;
-
-	/* unsaved datas */
-
 };
+
+
+#define ASGF_EXACT	(1<<0)
+#define ASGF_DOPAY	(1<<1)
+#define ASGF_DOCAT	(1<<2)
+
 
 void
 da_asg_free(Assign *item);

@@ -72,29 +72,29 @@ struct lconv *lc = localeconv();
 
 	/* ok assign */
 
-	
+
 	if( lc->p_cs_precedes || lc->n_cs_precedes )
 	{
-		PREFS->base_cur.prefix_symbol = g_strdup(lc->currency_symbol);
-		PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");
+		PREFS->base_cur.symbol = g_strdup(lc->currency_symbol);
+		PREFS->base_cur.is_prefix = TRUE;
 		DB( g_print("locale mon cs is a prefix\n") );
 	}
 	else
 	{
-		PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
-		PREFS->base_cur.suffix_symbol = g_strdup(lc->currency_symbol);
+		PREFS->base_cur.symbol = g_strdup(lc->currency_symbol);
+		PREFS->base_cur.is_prefix = FALSE;
 	}
 
-	PREFS->base_cur.decimal_char  = g_strdup(lc->mon_decimal_point);	
-	
-	PREFS->base_cur.grouping_char = g_strdup(lc->mon_thousands_sep);	
-	
+	PREFS->base_cur.decimal_char  = g_strdup(lc->mon_decimal_point);
+
+	PREFS->base_cur.grouping_char = g_strdup(lc->mon_thousands_sep);
+
 	//todo:fix
 	//PREFS->base_cur.grouping_char = g_locale_to_utf8(lc->mon_thousands_sep, -1, NULL, NULL, NULL);
 	//PREFS->base_cur.grouping_char = g_convert (lc->mon_thousands_sep, -1, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
-	
+
 	DB( g_print(" -> grouping_char: '%s'\n", PREFS->base_cur.grouping_char) );
-	
+
 	PREFS->base_cur.frac_digits   = lc->frac_digits;
 
 	//fix 378992/421228
@@ -117,31 +117,39 @@ struct lconv *lc = localeconv();
 
     //see g_locale_to_utf8 here
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SCURRENCY, wcBuffer, BUFFER_SIZE);
-    DB( g_print("LOCALE_SCURRENCY='%s'\n", buffer) );
-    PREFS->base_cur.suffix_symbol = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_SCURRENCY='%s'\n", buffer) );
+        PREFS->base_cur.symbol = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    }
 
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, wcBuffer, BUFFER_SIZE);
-    DB( g_print("LOCALE_SDECIMAL='%s'\n", buffer) );
-    PREFS->base_cur.decimal_char  = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_SDECIMAL='%s'\n", buffer) );
+        PREFS->base_cur.decimal_char  = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    }
 
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, wcBuffer, BUFFER_SIZE);
-    DB( g_print("LOCALE_STHOUSAND='%s'\n", buffer) );
-    PREFS->base_cur.grouping_char = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_STHOUSAND='%s'\n", buffer) );
+        PREFS->base_cur.grouping_char = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
+    }
 
-	PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
-	//PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");
-	//PREFS->base_cur.decimal_char  = g_strdup(".");
-	//PREFS->base_cur.grouping_char = NULL; //g_strdup("");
-	PREFS->base_cur.frac_digits   = 2;
+ 	PREFS->base_cur.frac_digits   = 2;
+
 	#else
+
 	PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
 	PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");
 	PREFS->base_cur.decimal_char  = g_strdup(".");
 	PREFS->base_cur.grouping_char = NULL; //g_strdup("");
 	PREFS->base_cur.frac_digits   = 2;
+
 	#endif
 #endif
-	
+
 }
 
 
@@ -156,38 +164,93 @@ static void homebank_pref_init_wingeometry(struct WinGeometry *wg, gint l, gint 
 }
 
 
-void homebank_pref_init_measurement_units(void)
+/*
+** create the format string for monetary strfmon (major/minor)
+*/
+static void _homebank_pref_createformat(void)
 {
+struct CurrencyFmt *cur;
 
-	if(PREFS->imperial_unit == TRUE)
+	DB( g_print("\n[preferences] pref create format\n") );
+
+/*
+	if(PREFS->base_cur.grouping_char != NULL)
+		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%^.%dn", PREFS->base_cur.frac_digits);
+	else
+		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%.%dn", PREFS->base_cur.frac_digits);
+
+	DB( g_print("+ major is: '%s'\n", GLOBALS->fmt_maj_number) );
+
+
+	if(PREFS->minor_cur.grouping_char != NULL)
+		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!^.%dn %s",
+			PREFS->minor_cur.prefix_symbol,
+			PREFS->minor_cur.frac_digits,
+			PREFS->minor_cur.suffix_symbol
+			);
+	else
+		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!.%dn %s",
+			PREFS->minor_cur.prefix_symbol,
+			PREFS->minor_cur.frac_digits,
+			PREFS->minor_cur.suffix_symbol
+			);
+
+	DB( g_print("+ minor is: '%s'\n", GLOBALS->fmt_min_number) );
+*/
+
+	/* base mon format */
+	cur = &PREFS->base_cur;
+	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
+	g_snprintf(cur->monfmt, 32-1, (cur->is_prefix) ? "%s %%s" : "%%s %s", cur->symbol);
+	DB( g_print(" - format: '%s'\n", cur->format) );
+	DB( g_print(" - monfmt: '%s'\n", cur->monfmt) );
+
+	/* minor mon format */
+	cur = &PREFS->minor_cur;
+	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
+	g_snprintf(cur->monfmt, 32-1, (cur->is_prefix) ? "%s %%s" : "%%s %s", cur->symbol);
+	DB( g_print(" - format: '%s'\n", cur->format) );
+	DB( g_print(" - monfmt: '%s'\n", cur->monfmt) );
+
+}
+
+
+//vehicle_unit_100
+//vehicle_unit_distbyvol
+//=> used for column title
+
+static void _homebank_pref_init_measurement_units(void)
+{
+	// unit is kilometer
+	if(!PREFS->vehicle_unit_ismile)
 	{
-		////TRANSLATORS: carcost for distance (Miles)
-		PREFS->vehicle_unit_dist = "%d m.";
-
-		////TRANSLATORS: vehiclecost for volume (Galons)
-		PREFS->vehicle_unit_vol  = "%.2f gal";
-
-		////TRANSLATORS: vehiclecost label for '100 miles'
-		PREFS->vehicle_unit_100  = "100 miles";
-
-		////TRANSLATORS: vehiclecost label for 'miles/gal'
-		PREFS->vehicle_unit_distbyvol  = "miles/gal";
-
+		PREFS->vehicle_unit_dist = "%d km";
+		PREFS->vehicle_unit_100  = "100 km";
 	}
+	// unit is miles
 	else
 	{
-		////TRANSLATORS: vehiclecost for distance (Kilometer)
-		PREFS->vehicle_unit_dist = "%d km";
+		PREFS->vehicle_unit_dist = "%d m.";
+		PREFS->vehicle_unit_100  = "100 miles";
+	}
 
-		////TRANSLATORS: vehiclecost for volume (Liters)
+	// unit is Liters
+	if(!PREFS->vehicle_unit_isgal)
+	{
 		PREFS->vehicle_unit_vol  = "%.2f L";
-
-		////TRANSLATORS: vehiclecost label for '100 km'
-		PREFS->vehicle_unit_100  = "100 Km";
-
-		////TRANSLATORS: vehiclecost label for 'km/l'
-		PREFS->vehicle_unit_distbyvol  = "Km/L";
-
+		if(!PREFS->vehicle_unit_ismile)
+			PREFS->vehicle_unit_distbyvol  = "km/L";
+		else
+			PREFS->vehicle_unit_distbyvol  = "miles/gal";
+	}
+	// unit is gallon
+	else
+	{
+		PREFS->vehicle_unit_vol  = "%.2f gal";
+		if(!PREFS->vehicle_unit_ismile)
+			PREFS->vehicle_unit_distbyvol  = "km/gal";
+		else
+			PREFS->vehicle_unit_distbyvol  = "miles/gal";
 	}
 
 }
@@ -211,15 +274,13 @@ void homebank_pref_free(void)
 
 	g_free(PREFS->language);
 
-	g_free(PREFS->base_cur.prefix_symbol);
-	g_free(PREFS->base_cur.suffix_symbol);
-	g_free(PREFS->base_cur.decimal_char);	
-	g_free(PREFS->base_cur.grouping_char);	
+	g_free(PREFS->base_cur.symbol);
+	g_free(PREFS->base_cur.decimal_char);
+	g_free(PREFS->base_cur.grouping_char);
 
-	g_free(PREFS->minor_cur.prefix_symbol);
-	g_free(PREFS->minor_cur.suffix_symbol);
-	g_free(PREFS->minor_cur.decimal_char);	
-	g_free(PREFS->minor_cur.grouping_char);	
+	g_free(PREFS->minor_cur.symbol);
+	g_free(PREFS->minor_cur.decimal_char);
+	g_free(PREFS->minor_cur.grouping_char);
 
 	memset(PREFS, 0, sizeof(struct Preferences));
 }
@@ -234,7 +295,7 @@ gint i;
 	homebank_pref_free();
 
 	PREFS->language = NULL;
-	
+
 	PREFS->date_format = g_strdup(DEFAULT_FORMAT_DATE);
 
 	PREFS->path_hbfile = g_strdup_printf("%s", g_get_home_dir ());
@@ -244,7 +305,7 @@ gint i;
 
 	PREFS->showsplash = TRUE;
 	PREFS->loadlast = TRUE;
-	PREFS->appendscheduled = TRUE;
+	PREFS->appendscheduled = FALSE;
 
 	PREFS->heritdate = FALSE;
 	PREFS->hidereconciled = FALSE;
@@ -255,6 +316,10 @@ gint i;
 	PREFS->color_inc  = g_strdup(DEFAULT_INC_COLOR);
 	PREFS->color_warn = g_strdup(DEFAULT_WARN_COLOR);
 	PREFS->rules_hint = FALSE;
+
+	/* fiscal year */
+	PREFS->fisc_year_day = 1;
+	PREFS->fisc_year_month = 1;
 
 	/* windows position/size */
 	homebank_pref_init_wingeometry(&PREFS->wal_wg, 0, 0, 1024, 600);
@@ -272,7 +337,7 @@ gint i;
 	PREFS->wal_upcoming = TRUE;
 	PREFS->wal_vpaned = 600/2;
 	PREFS->wal_hpaned = 1024/2;
-	
+
 
 
 	i = 0;
@@ -329,81 +394,14 @@ gint i;
 
 	PREFS->chart_legend = FALSE;
 
+	PREFS->vehicle_unit_ismile = FALSE;
+	PREFS->vehicle_unit_isgal  = FALSE;
 
-
-
-}
-
-/*
-** create the format string for monetary strfmon (major/minor)
-*/
-void homebank_pref_createformat(void)
-{
-struct CurrencyFmt *cur;
-gchar *ptr;
-
-	DB( g_print("\n[preferences] pref create format\n") );
-
-/*
-	if(PREFS->base_cur.grouping_char != NULL)
-		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%^.%dn", PREFS->base_cur.frac_digits);
-	else
-		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%.%dn", PREFS->base_cur.frac_digits);
-
-	DB( g_print("+ major is: '%s'\n", GLOBALS->fmt_maj_number) );
-
-
-	if(PREFS->minor_cur.grouping_char != NULL)
-		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!^.%dn %s",
-			PREFS->minor_cur.prefix_symbol,
-			PREFS->minor_cur.frac_digits,
-			PREFS->minor_cur.suffix_symbol
-			);
-	else
-		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!.%dn %s",
-			PREFS->minor_cur.prefix_symbol,
-			PREFS->minor_cur.frac_digits,
-			PREFS->minor_cur.suffix_symbol
-			);
-
-	DB( g_print("+ minor is: '%s'\n", GLOBALS->fmt_min_number) );
-*/
-	/* base format */
-	cur = &PREFS->base_cur;
-
-	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
-
-	ptr = cur->monfmt;
-	if(cur->prefix_symbol != NULL)
-	{
-		ptr = g_stpcpy(ptr, cur->prefix_symbol);
-		ptr = g_stpcpy(ptr, " ");
-	}
-	ptr = g_stpcpy(ptr, "%s");
-	if(cur->suffix_symbol != NULL)
-	{
-		ptr = g_stpcpy(ptr, " ");
-		ptr = g_stpcpy(ptr, cur->suffix_symbol);
-	}
-
-	cur = &PREFS->minor_cur;
-
-	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
-
-	ptr = cur->monfmt;
-	if(cur->prefix_symbol != NULL)
-	{
-		ptr = g_stpcpy(ptr, cur->prefix_symbol);
-		ptr = g_stpcpy(ptr, " ");
-	}
-	ptr = g_stpcpy(ptr, "%s");
-	if(cur->suffix_symbol != NULL)
-	{
-		ptr = g_stpcpy(ptr, " ");
-		ptr = g_stpcpy(ptr, cur->suffix_symbol);
-	}
+	_homebank_pref_createformat();
+	_homebank_pref_init_measurement_units();
 
 }
+
 
 /*
 ** load preference from homedir/.homebank (HB_DATA_PATH)
@@ -533,6 +531,22 @@ gchar *string;
 }
 
 
+static void homebank_pref_currfmt_convert(struct CurrencyFmt *cur, gchar *prefix, gchar *suffix)
+{
+
+	if( (prefix != NULL) && (strlen(prefix) > 0) )
+	{
+		cur->symbol = g_strdup(prefix);
+		cur->is_prefix = TRUE;
+	}
+	else if( (suffix != NULL) )
+	{
+		cur->symbol = g_strdup(suffix);
+		cur->is_prefix = FALSE;
+	}
+}
+
+
 gboolean homebank_pref_load(void)
 {
 GKeyFile *keyfile;
@@ -565,11 +579,11 @@ GError *error = NULL;
 					gdouble v = g_key_file_get_double (keyfile, group, "Version", NULL);
 					version = (guint32)(v * 10);
 				}
-			
+
 				DB( g_print(" - version: %d\n", version) );
 
 				homebank_pref_get_string(keyfile, group, "Language", &PREFS->language);
-			
+
 				homebank_pref_get_short(keyfile, group, "BarStyle" , &PREFS->toolbar_style);
 
 				if(version <= 6 && PREFS->toolbar_style == 0)	// force system to text beside
@@ -664,7 +678,7 @@ GError *error = NULL;
 							}
 
 						}
-					
+
 						g_free(src);
 					}
 
@@ -674,6 +688,9 @@ GError *error = NULL;
 				homebank_pref_get_integer(keyfile, group, "OpeSortOrder", &PREFS->lst_ope_sort_order);
 
 			    DB( g_print(" - set sort to %d %d\n", PREFS->lst_ope_sort_id, PREFS->lst_ope_sort_order) );
+
+				homebank_pref_get_short(keyfile, group, "FiscYearDay", &PREFS->fisc_year_day);
+				homebank_pref_get_short(keyfile, group, "FiscYearMonth", &PREFS->fisc_year_month);
 
 
 			group = "Windows";
@@ -718,8 +735,22 @@ GError *error = NULL;
 				}
 				else
 				{
-					homebank_pref_get_string(keyfile, group, "PreSymbol", &PREFS->base_cur.prefix_symbol);
-					homebank_pref_get_string(keyfile, group, "SufSymbol", &PREFS->base_cur.suffix_symbol);
+					if(version < 460)
+					{
+					gchar *prefix = NULL;
+					gchar *suffix = NULL;
+
+						homebank_pref_get_string(keyfile, group, "PreSymbol", &prefix);
+						homebank_pref_get_string(keyfile, group, "SufSymbol", &suffix);
+						homebank_pref_currfmt_convert(&PREFS->base_cur, prefix, suffix);
+						g_free(prefix);
+						g_free(suffix);
+					}
+					else
+					{
+						homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->base_cur.symbol);
+						homebank_pref_get_boolean(keyfile, group, "IsPrefix", &PREFS->base_cur.is_prefix);
+					}
 					homebank_pref_get_string(keyfile, group, "DecChar"  , &PREFS->base_cur.decimal_char);
 					homebank_pref_get_string(keyfile, group, "GroupChar", &PREFS->base_cur.grouping_char);
 					homebank_pref_get_short(keyfile, group, "FracDigits", &PREFS->base_cur.frac_digits);
@@ -729,7 +760,20 @@ GError *error = NULL;
 						PREFS->base_cur.frac_digits = MAX_FRAC_DIGIT;
 				}
 
-				homebank_pref_get_boolean(keyfile, group, "UKUnits", &PREFS->imperial_unit);
+				if(version < 460)
+				{
+				gboolean useimperial;
+
+					homebank_pref_get_boolean(keyfile, group, "UKUnits", &useimperial);
+					if(useimperial)
+					{
+						PREFS->vehicle_unit_ismile = TRUE;
+						PREFS->vehicle_unit_isgal = TRUE;
+					}
+				}
+
+				homebank_pref_get_boolean(keyfile, group, "UnitIsMile", &PREFS->vehicle_unit_ismile);
+				homebank_pref_get_boolean(keyfile, group, "UnitIsGal", &PREFS->vehicle_unit_isgal);
 
 
 			group = "Filter";
@@ -742,7 +786,7 @@ GError *error = NULL;
 
 				if(version <= 7)
 				{
-					// decay date range >= 5, since we intraduced the 5 value
+					// shift date range >= 5, since we inserted a new one at position 5
 					if(PREFS->date_range_wal >= FLT_RANGE_LASTYEAR)
 						PREFS->date_range_wal++;
 					if(PREFS->date_range_txn >= FLT_RANGE_LASTYEAR)
@@ -750,7 +794,7 @@ GError *error = NULL;
 					if(PREFS->date_range_rep >= FLT_RANGE_LASTYEAR)
 						PREFS->date_range_rep++;
 				}
-			
+
 
 			group = "Euro";
 
@@ -766,7 +810,7 @@ GError *error = NULL;
 
 				if(version <= 1)
 				{
-					homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->minor_cur.suffix_symbol);
+					homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->minor_cur.symbol);
 					PREFS->minor_cur.frac_digits = g_key_file_get_integer (keyfile, group, "NBDec", NULL);
 
 					//PREFS->euro_nbdec = g_key_file_get_integer (keyfile, group, "NBDec", NULL);
@@ -775,8 +819,22 @@ GError *error = NULL;
 				}
 				else
 				{
-					homebank_pref_get_string(keyfile, group, "PreSymbol", &PREFS->minor_cur.prefix_symbol);
-					homebank_pref_get_string(keyfile, group, "SufSymbol", &PREFS->minor_cur.suffix_symbol);
+					if(version < 460)
+					{
+					gchar *prefix = NULL;
+					gchar *suffix = NULL;
+
+						homebank_pref_get_string(keyfile, group, "PreSymbol", &prefix);
+						homebank_pref_get_string(keyfile, group, "SufSymbol", &suffix);
+						homebank_pref_currfmt_convert(&PREFS->minor_cur, prefix, suffix);
+						g_free(prefix);
+						g_free(suffix);
+					}
+					else
+					{
+						homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->minor_cur.symbol);
+						homebank_pref_get_boolean(keyfile, group, "IsPrefix", &PREFS->minor_cur.is_prefix);
+					}
 					homebank_pref_get_string(keyfile, group, "DecChar"  , &PREFS->minor_cur.decimal_char);
 					homebank_pref_get_string(keyfile, group, "GroupChar", &PREFS->minor_cur.grouping_char);
 					homebank_pref_get_short(keyfile, group, "FracDigits", &PREFS->minor_cur.frac_digits);
@@ -785,14 +843,14 @@ GError *error = NULL;
 					if( PREFS->minor_cur.frac_digits > MAX_FRAC_DIGIT )
 						PREFS->minor_cur.frac_digits = MAX_FRAC_DIGIT;
 
-				}			
+				}
 
 			//PREFS->euro_symbol = g_locale_to_utf8(tmpstr, -1, NULL, NULL, NULL);
 
 			group = "Report";
 
 				DB( g_print(" -> ** Report\n") );
-			
+
 				homebank_pref_get_boolean(keyfile, group, "StatByAmount", &PREFS->stat_byamount);
 				homebank_pref_get_boolean(keyfile, group, "StatDetail", &PREFS->stat_showdetail);
 				homebank_pref_get_boolean(keyfile, group, "StatRate", &PREFS->stat_showrate);
@@ -823,6 +881,9 @@ GError *error = NULL;
 		}
 		g_free(filename);
 		g_key_file_free (keyfile);
+
+		_homebank_pref_createformat();
+		_homebank_pref_init_measurement_units();
 	}
 
 	return retval;
@@ -896,6 +957,9 @@ gsize length;
 		g_key_file_set_integer     (keyfile, group, "OpeSortId" , PREFS->lst_ope_sort_id);
 		g_key_file_set_integer     (keyfile, group, "OpeSortOrder" , PREFS->lst_ope_sort_order);
 
+		g_key_file_set_integer     (keyfile, group, "FiscYearDay" , PREFS->fisc_year_day);
+		g_key_file_set_integer     (keyfile, group, "FiscYearMonth" , PREFS->fisc_year_month);
+
 		// added v3.4
 		DB( g_print(" -> ** windows\n") );
 
@@ -920,13 +984,16 @@ gsize length;
 		group = "Format";
 		homebank_pref_set_string  (keyfile, group, "DateFmt"   , PREFS->date_format);
 
-		homebank_pref_set_string  (keyfile, group, "PreSymbol" , PREFS->base_cur.prefix_symbol);
-		homebank_pref_set_string  (keyfile, group, "SufSymbol" , PREFS->base_cur.suffix_symbol);
+		homebank_pref_set_string  (keyfile, group, "Symbol" , PREFS->base_cur.symbol);
+		g_key_file_set_boolean    (keyfile, group, "IsPrefix" , PREFS->base_cur.is_prefix);
 		homebank_pref_set_string  (keyfile, group, "DecChar"   , PREFS->base_cur.decimal_char);
 		homebank_pref_set_string  (keyfile, group, "GroupChar" , PREFS->base_cur.grouping_char);
 		g_key_file_set_integer (keyfile, group, "FracDigits", PREFS->base_cur.frac_digits);
 
-		g_key_file_set_boolean (keyfile, group, "UKUnits" , PREFS->imperial_unit);
+		//g_key_file_set_boolean (keyfile, group, "UKUnits" , PREFS->imperial_unit);
+		g_key_file_set_boolean (keyfile, group, "UnitIsMile" , PREFS->vehicle_unit_ismile);
+		g_key_file_set_boolean (keyfile, group, "UnitIsGal" , PREFS->vehicle_unit_isgal);
+
 
 		DB( g_print(" -> ** filter\n") );
 
@@ -939,9 +1006,9 @@ gsize length;
 
 	//euro options
 		group = "Euro";
-		
+
 		//homebank_pref_set_string(keyfile, group, "DefCurrency" , PREFS->curr_default);
-		
+
 		g_key_file_set_boolean (keyfile, group, "Active" , PREFS->euro_active);
 		if( PREFS->euro_active )
 		{
@@ -949,8 +1016,8 @@ gsize length;
 			gchar ratestr[64];
 			g_ascii_dtostr(ratestr, 63, PREFS->euro_value);
 			homebank_pref_set_string  (keyfile, group, "ChangeRate", ratestr);
-			homebank_pref_set_string  (keyfile, group, "PreSymbol" , PREFS->minor_cur.prefix_symbol);
-			homebank_pref_set_string  (keyfile, group, "SufSymbol" , PREFS->minor_cur.suffix_symbol);
+			homebank_pref_set_string  (keyfile, group, "Symbol" , PREFS->minor_cur.symbol);
+			g_key_file_set_boolean    (keyfile, group, "IsPrefix" , PREFS->minor_cur.is_prefix);
 			homebank_pref_set_string  (keyfile, group, "DecChar"   , PREFS->minor_cur.decimal_char);
 			homebank_pref_set_string  (keyfile, group, "GroupChar" , PREFS->minor_cur.grouping_char);
 			g_key_file_set_integer (keyfile, group, "FracDigits", PREFS->minor_cur.frac_digits);
@@ -1003,6 +1070,9 @@ gsize length;
 
 		g_key_file_free (keyfile);
 	}
+
+	_homebank_pref_createformat();
+	_homebank_pref_init_measurement_units();
 
 	return retval;
 }

@@ -324,28 +324,16 @@ ui_acc_listview_toggled_cb (GtkCellRendererToggle *cell,
 static gint
 ui_acc_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
+gint retval = 0;
 Account *entry1, *entry2;
 //gchar *name1, *name2;
 
     gtk_tree_model_get(model, a, LST_DEFACC_DATAS, &entry1, -1);
     gtk_tree_model_get(model, b, LST_DEFACC_DATAS, &entry2, -1);
 
-/*
-	name1 = entry1->name;
-	name2 = entry2->name;
-    if (name1 == NULL || name2 == NULL)
-    {
-        result = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        result = g_utf8_collate(name1,name2);
-    }
-*/
-	result = entry1->pos - entry2->pos;
+	retval = entry1->pos - entry2->pos;
 
-    return result;
+    return retval;
 }
 
 static void
@@ -655,7 +643,7 @@ gint field = GPOINTER_TO_INT(user_data);
 static gchar *dialog_get_name(gchar *title, gchar *origname, GtkWindow *parentwindow)
 {
 GtkWidget *dialog, *content, *mainvbox, *getwidget;
-gchar *rettxt = NULL;
+gchar *retval = NULL;
 	
 		dialog = gtk_dialog_new_with_buttons (title,
 						    GTK_WINDOW (parentwindow),
@@ -696,7 +684,7 @@ gchar *rettxt = NULL;
 			/* ignore if entry is empty */
 			if (name && *name)
 			{
-				rettxt = g_strdup(name);
+				retval = g_strdup(name);
 			}
 	    }
 
@@ -704,7 +692,7 @@ gchar *rettxt = NULL;
 		gtk_widget_destroy (dialog);
 	
 
-	return rettxt;
+	return retval;
 }
 
 
@@ -782,7 +770,6 @@ struct ui_acc_manage_data *data;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
-
 Account *item;
 
 	DB( g_print("\n(ui_acc_manage_set)\n") );
@@ -797,8 +784,6 @@ Account *item;
 
 		DB( g_print(" -> set acc id=%d\n", item->key) );
 
-		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
-		
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_type), item->type );
 
 		//ui_cur_combobox_set_active(GTK_COMBO_BOX(data->CY_curr), item->kcur);
@@ -902,7 +887,6 @@ guint32 key;
 */
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->ST_name, FALSE);
 	gtk_widget_set_sensitive(data->CY_type, sensitive);
 	//gtk_widget_set_sensitive(data->CY_curr, sensitive);
 	gtk_widget_set_sensitive(data->ST_number, sensitive);
@@ -925,7 +909,6 @@ guint32 key;
 	sensitive = (selected == TRUE && data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->BT_mod, sensitive);
 	gtk_widget_set_sensitive(data->BT_rem, sensitive);
-	gtk_widget_set_sensitive(data->BT_name, sensitive);
 
 	if(selected)
 	{
@@ -1059,7 +1042,6 @@ gboolean bool;
 				bool = account_rename(item, name);					
 				if(bool)
 				{
-					gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->name);
 					gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
 					data->change++;
 				}
@@ -1070,6 +1052,16 @@ gboolean bool;
 	}
 }
 
+
+static void ui_acc_manage_rowactivated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer userdata)
+{
+//struct account_data *data;
+
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+
+	ui_acc_manage_rename(GTK_WIDGET(treeview), NULL);
+	
+}
 
 
 
@@ -1158,109 +1150,89 @@ static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 GtkWidget *ui_acc_manage_dialog (void)
 {
 struct ui_acc_manage_data data;
-GtkWidget *window, *content, *mainbox;
-GtkWidget *vbox, *table, *label, *entry1, *entry2, *entry3;
-GtkWidget *spinner, *cheque1, *cheque2, *scrollwin;
-GtkWidget *bbox, *widget, *check_button;
-GtkWidget *alignment;
+GtkWidget *dialog, *content, *mainbox, *scrollwin, *notebook, *alignment;
+GtkWidget *table, *label, *widget, *hpaned;
 gint row;
 
-	window = gtk_dialog_new_with_buttons (_("Manage Accounts"),
+	dialog = gtk_dialog_new_with_buttons (_("Manage Accounts"),
 				GTK_WINDOW(GLOBALS->mainwindow),
 				0,
 			    GTK_STOCK_CLOSE,
 			    GTK_RESPONSE_ACCEPT,
 				NULL);
 
-	data.window = window;
+	data.window = dialog;
 
-	//set the window icon
-	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "account.svg");	
-	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_ACCOUNT);
+	//set the dialog icon
+	//homebank_window_set_icon_from_file(GTK_WINDOW (dialog), "account.svg");	
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), HB_STOCK_ACCOUNT);
 
-	//store our window private data
-	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_print("(ui_acc_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
+	//store our dialog private data
+	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
+	DB( g_print("(ui_acc_manage_) dialog=%x, inst_data=%x\n", (guint)dialog, (guint)&data) );
 
 	//window contents
-	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
+	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
 	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
 
+	hpaned = gtk_hpaned_new();
+	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
 
-	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
+	/* left area */
+	table = gtk_table_new (2, 2, FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
+	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
 
+	row = 0;
  	scrollwin = gtk_scrolled_window_new(NULL,NULL);
-	gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
-
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
-
 	data.LV_acc = ui_acc_listview_new(FALSE);
 	gtk_widget_set_size_request(data.LV_acc, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_acc);
-
-	gtk_widget_set_tooltip_text(data.LV_acc, _("Drag & drop to change the order"));
-
+	gtk_widget_set_tooltip_text(data.LV_acc, _("Drag & drop to change the order\nDouble-click to rename"));
+	gtk_table_attach_defaults (GTK_TABLE (table), scrollwin, 0, 2, row, row+1);
 
 	// tools buttons
-	bbox = gtk_hbox_new (TRUE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (vbox), bbox, FALSE, TRUE, 0);
-	//gtk_container_set_border_width (GTK_CONTAINER (bbox), SP_BORDER);
-	//gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
-	gtk_box_set_spacing (GTK_BOX (bbox), HB_BOX_SPACING);
-
-	//data.BT_rem = gtk_button_new_with_mnemonic(_("_Remove"));
-	data.BT_rem = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	gtk_container_add (GTK_CONTAINER (bbox), data.BT_rem);
-
-	//data.BT_new = gtk_button_new_with_mnemonic(_("_New"));
-	data.BT_new = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	gtk_container_add (GTK_CONTAINER (bbox), data.BT_new);
-
-	data.BT_name = gtk_button_new_with_mnemonic(_("Re_name"));
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_name, FALSE, FALSE, 0);
+	row++;
+	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	data.BT_add = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	data.BT_rem = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
 
 
-	//h_paned
-	//vbox = gtk_vbox_new (FALSE, 0);
-	//gtk_container_set_border_width (GTK_CONTAINER (vbox), SP_BORDER);
-	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
-
-	table = gtk_table_new (12, 5, FALSE);
-	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
+	/* right area */
+	notebook = gtk_notebook_new();
+	//gtk_box_pack_start (GTK_BOX (mainbox), notebook, TRUE, TRUE, 0);
+	gtk_paned_pack2 (GTK_PANED(hpaned), notebook, FALSE, FALSE);
+	
+	/* page general */
+	table = gtk_table_new (8, 3, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-
+	gtk_container_set_border_width (GTK_CONTAINER(table), HB_MAINBOX_SPACING);
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (mainbox), alignment, TRUE, TRUE, 0);
+	label = gtk_label_new(_("General"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), alignment, label);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Informations</b>"));
+	label = make_label(_("Account"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
-
-	row++;
-	label = make_label("", 0.0, 0.5);
-	gtk_misc_set_padding (GTK_MISC (label), HB_BOX_SPACING, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-	label = make_label(_("_Name:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	entry1 = make_string(label);
-	data.ST_name = entry1;
-	gtk_table_attach (GTK_TABLE (table), entry1, 2, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	row++;
 	label = make_label(_("_Type:"), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_cycle(label, CYA_ACC_TYPE);
 	data.CY_type = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	/*
 	row++;
@@ -1272,115 +1244,113 @@ gint row;
 	*/
 
 	row++;
+	label = make_label (_("Start _balance:"), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+	widget = make_amount(label);
+	data.ST_initial = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	//TODO: notes
+
+	row++;
+	widget = gtk_check_button_new_with_mnemonic (_("this account was _closed"));
+	data.CM_closed = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	
+	row++;
+	label = make_label(_("Current check number"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+
+	row++;
+	label = make_label(_("Checkbook _1:"), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_long (label);
+	data.ST_cheque1 = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	row++;
+	label = make_label(_("Checkbook _2:"), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_long (label);
+	data.ST_cheque2 = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+
+	/* page options */
+	table = gtk_table_new (9, 3, FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
+	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	gtk_container_set_border_width (GTK_CONTAINER(table), HB_MAINBOX_SPACING);
+	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
+	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
+	gtk_container_add(GTK_CONTAINER(alignment), table);
+	label = gtk_label_new(_("Options"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), alignment, label);
+
+	
+	row = 0;
+	label = make_label(_("Institution"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+
+	row++;
+	label = make_label(_("_Name:"), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1,(GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_string(label);
+	data.ST_bank = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	row++;
 	label = make_label(_("N_umber:"), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	entry3 = make_string(label);
-	data.ST_number = entry3;
-	gtk_table_attach (GTK_TABLE (table), entry3, 2, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_string(label);
+	data.ST_number = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 	row++;
-	label = make_label(_("_Bank name:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1,(GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	entry2 = make_string(label);
-	data.ST_bank = entry2;
-	gtk_table_attach (GTK_TABLE (table), entry2, 2, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-	row++;
-	check_button = gtk_check_button_new_with_mnemonic (_("this account was _closed"));
-	data.CM_closed = check_button;
-	gtk_table_attach (GTK_TABLE (table), check_button, 2, 5, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-	row++;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Usage options</b>"));
+	label = make_label(_("Limits"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
-	row++;
-	check_button = gtk_check_button_new_with_mnemonic (_("exclude from account _summary"));
-	data.CM_nosummary = check_button;
-	gtk_table_attach (GTK_TABLE (table), check_button, 2, 5, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	//TODO: warning/absolute minimum balance
 
 	row++;
-	check_button = gtk_check_button_new_with_mnemonic (_("exclude from the _budget"));
-	data.CM_nobudget = check_button;
-	gtk_table_attach (GTK_TABLE (table), check_button, 2, 5, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-	row++;
-	check_button = gtk_check_button_new_with_mnemonic (_("exclude from any _reports"));
-	data.CM_noreport = check_button;
-	gtk_table_attach (GTK_TABLE (table), check_button, 2, 5, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-//other
-
-	//row = 0;
-	row++;
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Balances</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
-
-	label = make_label(NULL, 0.0, 1.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Current check number</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 3, 5, row, row+1);
-
-	row++;
-	label = gtk_label_new_with_mnemonic (_("_Initial:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
-	spinner = make_amount(label);
-	data.ST_initial = spinner;
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), spinner);
-	gtk_table_attach (GTK_TABLE (table), alignment, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-	label = gtk_label_new_with_mnemonic (_("Checkbook _1:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	cheque1 = make_long (label);
-	data.ST_cheque1 = cheque1;
-	//hbox = gtk_hbox_new (FALSE, 0);
-	//gtk_box_pack_start (GTK_BOX (hbox), cheque1, FALSE, FALSE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.37, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), cheque1);
-	gtk_table_attach (GTK_TABLE (table), alignment, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-	row++;
-	label = gtk_label_new_with_mnemonic (_("_Minimum:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	label = make_label (_("_Min. balance:"), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	spinner = make_amount(label);
-	data.ST_minimum = spinner;
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), spinner);
-	gtk_table_attach (GTK_TABLE (table), alignment, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_amount(label);
+	data.ST_minimum = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
+	row++;
+	label = make_label(_("Report exclusion"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
-	label = gtk_label_new_with_mnemonic (_("Checkbook _2:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	cheque2 = make_long (label);
-	data.ST_cheque2 = cheque2;
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.37, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), cheque2);
-	gtk_table_attach (GTK_TABLE (table), alignment, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	row++;
+	widget = gtk_check_button_new_with_mnemonic (_("exclude from account _summary"));
+	data.CM_nosummary = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	row++;
+	widget = gtk_check_button_new_with_mnemonic (_("exclude from the _budget"));
+	data.CM_nobudget = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+
+	row++;
+	widget = gtk_check_button_new_with_mnemonic (_("exclude from any _reports"));
+	data.CM_noreport = widget;
+	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 
 
 	//connect all our signals
-	g_signal_connect (window, "destroy", G_CALLBACK (gtk_widget_destroyed), &window);
+	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_acc)), "changed", G_CALLBACK (ui_acc_manage_selection), NULL);
-
-	//g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_acc_manage_rename), NULL);
-
-	g_signal_connect (G_OBJECT (data.BT_new), "clicked", G_CALLBACK (ui_acc_manage_add), NULL);
+	g_signal_connect (GTK_TREE_VIEW(data.LV_acc), "row-activated", G_CALLBACK (ui_acc_manage_rowactivated), GINT_TO_POINTER(2));
+	
+	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_acc_manage_add), NULL);
 	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_acc_manage_remove), NULL);
-	g_signal_connect (G_OBJECT (data.BT_name), "clicked", G_CALLBACK (ui_acc_manage_rename), NULL);
 
 	//setup, init and show window
 	ui_acc_manage_setup(&data);
@@ -1388,14 +1358,14 @@ gint row;
 
 //	gtk_window_set_default_size (GTK_WINDOW (window), 640, 480);
 
-	gtk_widget_show_all (window);
+	gtk_widget_show_all (dialog);
 
 	//wait for the user
-	gint result = gtk_dialog_run (GTK_DIALOG (window));
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 	// cleanup and destroy
 	ui_acc_manage_cleanup(&data, result);
-	gtk_widget_destroy (window);
+	gtk_widget_destroy (dialog);
 
 	return NULL;
 }

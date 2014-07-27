@@ -20,6 +20,50 @@
 #ifndef __HB_ARCHIVE_GTK_H__
 #define __HB_ARCHIVE_GTK_H__
 
+enum {
+	HID_ARC_MEMO,
+	HID_ARC_VALID,
+	HID_ARC_REMIND,
+	HID_ARC_MAX
+};
+
+
+struct ui_arc_manage_data
+{
+	GList	*tmp_list;
+	gint	change;
+	//guint32	lastkey;
+	Archive		*lastarcitem;
+
+
+	GtkWidget	*LV_arc;
+
+	GtkWidget	*PO_pay;
+	GtkWidget	*ST_word;
+	GtkWidget	*ST_amount, *BT_amount;	//, *BT_split;
+	GtkWidget	*CM_valid;
+	GtkWidget	*CM_remind;
+	GtkWidget	*GR_cheque;
+	GtkWidget	*CM_cheque;
+
+	GtkWidget	*NU_mode;
+	GtkWidget	*PO_grp;
+	GtkWidget	*PO_acc;
+	GtkWidget	*LB_accto, *PO_accto;
+
+	GtkWidget	*CM_auto;
+	GtkWidget	*NB_every;
+	GtkWidget	*CY_unit;
+	GtkWidget	*PO_next;
+	GtkWidget	*CM_limit;
+	GtkWidget	*NB_limit;
+	GtkWidget   *CY_weekend;
+
+	GtkWidget	*BT_add, *BT_rem;
+
+	gulong		handler_id[HID_ARC_MAX];
+
+};
 
 
 GtkWidget *ui_arc_manage_dialog (void);

@@ -165,7 +165,7 @@ gint i, count;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-static void
+void
 da_transaction_clean(Transaction *item)
 {
 	if(item != NULL)
@@ -225,7 +225,7 @@ guint count;
 
 	da_transaction_clean (dst_txn);
 
-	g_memmove(dst_txn, src_txn, sizeof(Transaction));
+	memmove(dst_txn, src_txn, sizeof(Transaction));
 	
 	//duplicate the string
 	dst_txn->wording = g_strdup(src_txn->wording);
@@ -241,6 +241,24 @@ guint count;
 
 	return dst_txn;
 }
+
+
+Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
+{
+	//txn->date		= 0;
+	txn->amount		= arc->amount;
+	txn->kacc		= arc->kacc;
+	txn->paymode	= arc->paymode;
+	txn->flags		= arc->flags | OF_ADDED;
+	txn->kpay		= arc->kpay;
+	txn->kcat		= arc->kcat;
+	txn->kxferacc	= arc->kxferacc;
+	txn->wording	= g_strdup(arc->wording);
+	txn->info		= NULL;
+
+	return txn;
+}
+
 
 Transaction *da_transaction_clone(Transaction *src_item)
 {
@@ -338,9 +356,9 @@ GList *tmplist = g_list_first(GLOBALS->ope_list);
 
 
 // nota: this is called only when loading xml file
-gboolean da_transaction_append(Transaction *item)
+gboolean da_transaction_prepend(Transaction *item)
 {
-	GLOBALS->ope_list = g_list_append(GLOBALS->ope_list, item);
+	GLOBALS->ope_list = g_list_prepend(GLOBALS->ope_list, item);
 	da_transaction_insert_memo(item);
 	return TRUE;
 }
@@ -396,6 +414,7 @@ void da_transaction_consistency(Transaction *item)
 Account *acc;
 Category *cat;
 Payee *pay;
+guint i, nbsplit;
 
 	// check account exists
 	acc = da_acc_get(item->kacc);
@@ -413,6 +432,19 @@ Payee *pay;
 		item->kcat = 0;
 	}
 
+	// check split category #1340142
+	nbsplit = da_transaction_splits_count(item);
+	for(i=0;i<nbsplit;i++)
+	{
+	Split *split = item->splits[i];
+		cat = da_cat_get(split->kcat);
+		if(cat == NULL)
+		{
+			g_warning("txn consistency: fixed invalid split cat %d", split->kcat);
+			split->kcat = 0;
+		}
+	}
+	
 	// check payee exists
 	pay = da_pay_get(item->kpay);
 	if(pay == NULL)
@@ -425,10 +457,16 @@ Payee *pay;
 	if( item->paymode != PAYMODE_INTXFER )
 		item->kxferacc = 0;
 
+	//#1295877 ensure income flag is correctly set
+	item->flags &= ~(OF_INCOME);
+	if( item->amount > 0)
+		item->flags |= (OF_INCOME);
+
+	//#1308745 ensure remind flag unset if reconciled
+	if( item->flags & OF_VALID )
+		item->flags &= ~(OF_REMIND);
+
 }
-
-
-
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -634,6 +672,10 @@ void transaction_xfer_sync_child(Transaction *s_txn, Transaction *child)
 	child->date		= s_txn->date;
 	child->amount   = -s_txn->amount;
 	child->flags	= child->flags | OF_CHANGED;
+	//#1295877
+	child->flags &= ~(OF_INCOME);
+	if( child->amount > 0)
+	  child->flags |= (OF_INCOME);
 	child->kpay		= s_txn->kpay;
 	child->kcat		= s_txn->kcat;
 	if(child->wording)
@@ -874,7 +916,13 @@ GList *list;
 	gchar *text;
 
 		text = txn->wording;
-		if( misc_text_match(text, rul->name, rul->exact))
+		if(rul->field == 1) //payee
+		{
+		Payee *pay = da_pay_get(txn->kpay);
+			if(pay)
+				text = pay->name;
+		}
+		if( misc_text_match(text, rul->name, rul->flags & ASGF_EXACT))
 			rule = rul;
 
 		list = g_list_next(list);
@@ -896,9 +944,11 @@ GList *list;
 	{
 	Assign *rul = list->data;
 
-		if( misc_text_match(text, rul->name, rul->exact))
-			rule = rul;
-
+		if( rul->field == 0 )   //memo
+		{
+			if( misc_text_match(text, rul->name, rul->flags & ASGF_EXACT))
+				rule = rul;
+		}
 		list = g_list_next(list);
 	}
 
@@ -933,13 +983,13 @@ gint changes = 0;
 				rul = transaction_auto_assign_eval_txn(l_rul, ope);
 				if( rul != NULL )
 				{
-					if( ope->kpay == 0 )
+					if( ope->kpay == 0 && (rul->flags & ASGF_DOPAY) )
 					{
 						ope->kpay = rul->kpay;
 						ope->flags |= OF_CHANGED;
 						changes++;
 					}
-					if( ope->kcat == 0 )
+					if( ope->kcat == 0 && (rul->flags & ASGF_DOCAT) )
 					{
 						ope->kcat = rul->kcat;
 						ope->flags |= OF_CHANGED;

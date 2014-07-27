@@ -25,7 +25,9 @@ typedef struct _carcost	CarCost;
 
 struct _carcost
 {
-	Transaction	*ope;
+	guint32		date;
+	gchar		*wording;
+	gdouble		amount;
 	gboolean	partial;
 	guint		meter;
 	gdouble		fuel;

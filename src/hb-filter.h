@@ -75,6 +75,17 @@ enum
 	FLT_STATUS_ALL = 3
 };
 
+
+enum
+{
+	FLT_QSEARCH_MEMO     = 1<<0,
+	FLT_QSEARCH_INFO     = 1<<1,
+	FLT_QSEARCH_PAYEE    = 1<<2,
+	FLT_QSEARCH_CATEGORY = 1<<3,
+	FLT_QSEARCH_TAGS     = 1<<4
+};
+
+
 typedef struct _filter	Filter;
 
 struct _filter
@@ -91,6 +102,7 @@ struct _filter
 	gboolean	forcechg;
 	gboolean	paymode[NUM_PAYMODE_MAX];
 	gdouble		minamount, maxamount;
+	gboolean	exact;
 	gchar		*info;
 	gchar		*wording;
 	gchar		*tag;
@@ -106,6 +118,7 @@ void filter_preset_daterange_set(Filter *flt, gint range);
 void filter_preset_type_set(Filter *flt, gint value);
 void filter_preset_status_set(Filter *flt, gint value);
 gchar *filter_daterange_text_get(Filter *flt);
+gboolean filter_txn_search_match(gchar *needle, Transaction *txn, gint flags);
 
 gint filter_test(Filter *flt, Transaction *ope);
 

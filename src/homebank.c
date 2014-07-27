@@ -273,7 +273,7 @@ gchar **str_array;
 static gboolean
 homebank_util_url_show_win32 (const gchar *url)
 {
-gint retval;
+int retval;
 gchar *errmsg;
 
 	/* win32 API call */
@@ -513,7 +513,7 @@ homebank_register_stock_icons()
 	GtkIconFactory *factory;
 	GtkIconSet *icon_set;
 	GtkIconSource *icon_source;
-	int i;
+	guint i;
 
 	const char *icon_theme_items[] =
 	{
@@ -530,6 +530,7 @@ homebank_register_stock_icons()
 		"pm-epayment",
 		"pm-deposit",
 		"pm-fifee",
+		"pm-directdebit",
 		"flt-inactive",
 		"flt-include",
 		"flt-exclude",
@@ -547,7 +548,7 @@ homebank_register_stock_icons()
 
 	factory = gtk_icon_factory_new ();
 
-	for (i = 0; i < (int) G_N_ELEMENTS (icon_theme_items); i++)
+	for (i = 0; i < G_N_ELEMENTS (icon_theme_items); i++)
 	{
 		icon_source = gtk_icon_source_new ();
 		gtk_icon_source_set_icon_name (icon_source, icon_theme_items[i]);
@@ -670,7 +671,7 @@ build_package_paths (void)
 	{
 		g_free (help_dir);
 		help_dir = g_build_filename ("/usr", "share", "doc", "homebank-data", "help", NULL);
-	}	
+	}
 #endif
 
 	DB( g_print("- config_dir : %s\n", config_dir) );
@@ -683,7 +684,16 @@ build_package_paths (void)
 }
 
 
-
+guint32 homebank_app_date_get_julian(void)
+{
+GDate *date;
+	//init global default value
+	date = g_date_new();
+	g_date_set_time_t(date, time(NULL));
+	GLOBALS->today = g_date_get_julian(date);
+	g_date_free(date);
+	return GLOBALS->today;
+}
 
 
 static gboolean homebank_check_app_dir_migrate_file(gchar *srcdir, gchar *dstdir, gchar *filename)
@@ -826,7 +836,6 @@ static void homebank_cleanup()
 */
 static gboolean homebank_setup()
 {
-GDate *date;
 
 	DB( g_print("\n[homebank] setup\n") );
 
@@ -840,8 +849,6 @@ GDate *date;
 
 	homebank_pref_setdefault();
 	homebank_pref_load();
-	homebank_pref_createformat();
-	homebank_pref_init_measurement_units();
 
 	hbfile_setup(TRUE);
 
@@ -852,11 +859,8 @@ GDate *date;
 	load_nainex_icons();
 	load_pref_icons();
 
-	//init global default value
-	date = g_date_new();
-	g_date_set_time_t(date, time(NULL));
-	GLOBALS->today = g_date_get_julian(date);
-	g_date_free(date);
+	homebank_app_date_get_julian();
+
 
 	#if MYDEBUG == 1
 
@@ -1063,7 +1067,7 @@ gboolean openlast;
 			}
 			else
 				gtk_window_maximize(GTK_WINDOW(mainwin));
-				
+
 			//todo: pause on splash
 			if( PREFS->showsplash == TRUE )
 			{
@@ -1075,7 +1079,7 @@ gboolean openlast;
 		    gtk_widget_show_all (mainwin);
 
 #if HB_UNSTABLE == TRUE
-			GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW(mainwin),
+/*			GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW(mainwin),
                       GTK_DIALOG_DESTROY_WITH_PARENT,
                       GTK_MESSAGE_WARNING,
                       GTK_BUTTONS_CLOSE,
@@ -1095,7 +1099,7 @@ gboolean openlast;
 			            );
 
 			gtk_dialog_run (GTK_DIALOG (dialog));
-			gtk_widget_destroy (dialog);
+			gtk_widget_destroy (dialog);*/
 #endif
 
 			if(GLOBALS->first_run)

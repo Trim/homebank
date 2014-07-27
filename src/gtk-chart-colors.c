@@ -239,10 +239,11 @@ struct rgbcol global_colors[] =
 {
 	{  0,   0,   0},	// black
 	{255, 255, 255},	// white
-	{239, 239, 239},	// intermediate lines
+	{239, 239, 239},	// grey1 intermediate lines
 	{ 68,  68,  68},	// text
 	{ 51,  51,  51},	// x/y axis
-	
+	{  0,   0,   0},	// theme base
+	{  0,   0,   0},	// theme text
 };
 
 

@@ -410,7 +410,7 @@ da_cat_append_ifnew_by_fullname(gchar *fullname, gboolean imported)
 {
 struct fullcatcontext ctx;
 gchar **typestr;
-Category *newcat, *item, *retcat = NULL;
+Category *newcat, *item, *retval = NULL;
 guint32 *new_key;
 
 	DB( g_print("da_cat_append_ifnew_by_fullname\n") );
@@ -472,10 +472,10 @@ guint32 *new_key;
 
 				g_hash_table_insert(GLOBALS->h_cat, new_key, newcat);
 
-				retcat = newcat;
+				retval = newcat;
 			}
 			else
-				retcat = item;
+				retval = item;
 		}
 		/* this a single category : aaaa */
 		else
@@ -500,17 +500,17 @@ guint32 *new_key;
 
 				g_hash_table_insert(GLOBALS->h_cat, new_key, newcat);
 
-				retcat = newcat;
+				retval = newcat;
 			}
 			else
-				retcat = item;
+				retval = item;
 
 		}
 
 		g_strfreev(typestr);
 	}
 
-	return retcat;
+	return retval;
 }
 
 
@@ -583,14 +583,25 @@ gboolean
 category_is_used(guint32 key)
 {
 GList *lrul, *list;
+guint i, nbsplit;
 
-	//todo: add budget use here
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
 	Transaction *entry = list->data;
 		if( key == entry->kcat )
 			return TRUE;
+
+		// check split category #1340142
+		nbsplit = da_transaction_splits_count(entry);
+		for(i=0;i<nbsplit;i++)
+		{
+		Split *split = entry->splits[i];
+
+			if( key == split->kcat )
+				return TRUE;
+		}
+
 		list = g_list_next(list);
 	}
 
@@ -603,6 +614,8 @@ GList *lrul, *list;
 		list = g_list_next(list);
 	}
 
+	//todo: add budget use here
+	
 	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
 	{
@@ -621,6 +634,7 @@ void
 category_move(guint32 key1, guint32 key2)
 {
 GList *lrul, *list;
+guint i, nbsplit;
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
@@ -631,6 +645,20 @@ GList *lrul, *list;
 			entry->kcat = key2;
 			entry->flags |= OF_CHANGED;
 		}
+
+		// move split category #1340142
+		nbsplit = da_transaction_splits_count(entry);
+		for(i=0;i<nbsplit;i++)
+		{
+		Split *split = entry->splits[i];
+
+			if( split->kcat == key1 )
+			{
+				split->kcat = key2;
+				entry->flags |= OF_CHANGED;
+			}
+		}
+
 		list = g_list_next(list);
 	}
 
@@ -713,20 +741,19 @@ gboolean retval;
 static gint category_glist_name_compare_func(Category *c1, Category *c2)
 {
 gchar *name1, *name2;
-gint ret = 0;
+gint retval = 0;
 
 	if( c1 != NULL && c2 != NULL )
 	{
 		name1 = da_cat_get_fullname(c1);
 		name2 = da_cat_get_fullname(c2);
 
-		if(name1 != NULL && name2 != NULL)
-			ret = g_utf8_collate(name1, name2);
+		retval = hb_string_utf8_compare(name1, name2);
 
 		g_free(name2);
 		g_free(name1);
 	}
-	return ret;
+	return retval;
 }
 
 

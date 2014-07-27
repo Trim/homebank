@@ -70,9 +70,9 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 #define HB_UNSTABLE			FALSE
-#define HB_VERSION			"4.5.6"
-#define FILE_VERSION		0.7
-#define PREF_VERSION		456
+#define HB_VERSION			"4.6.2"
+#define FILE_VERSION		0.9
+#define PREF_VERSION		460
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -103,9 +103,9 @@
 #define HB_MAINBOX_SPACING	12
 #define HB_BOX_SPACING		6
 
-#define HB_HSPACE_SPACING	18
+#define HB_HSPACE_SPACING	18  /* used to separate dialog block */
 #define HB_TABROW_SPACING	6
-#define HB_TABCOL_SPACING	12
+#define HB_TABCOL_SPACING	6
 
 /* widget minimum width */
 #define HB_MINWIDTH_LIST	161
@@ -220,7 +220,7 @@ const gchar *homebank_app_get_pixmaps_dir (void);
 const gchar *homebank_app_get_locale_dir (void);
 const gchar *homebank_app_get_help_dir (void);
 const gchar *homebank_app_get_datas_dir (void);
-
+guint32 homebank_app_date_get_julian(void);
 
 /* - - - - obsolete things - - - - */
 

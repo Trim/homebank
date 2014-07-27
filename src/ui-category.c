@@ -287,32 +287,18 @@ struct catPopContext ctx;
 static gint
 ui_cat_comboboxentry_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata)
 {
-gint ret = 0;
+gint retval = 0;
 gchar *name1, *name2;
 
     gtk_tree_model_get(model, a, 0, &name1, -1);
     gtk_tree_model_get(model, b, 0, &name2, -1);
 
-    if (name1 == NULL || name2 == NULL)
-    {
-        if (name1 == NULL && name2 == NULL)
-        goto end;
+	retval = hb_string_utf8_compare(name1, name2);
 
-        ret = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        ret = g_utf8_collate(name1,name2);
-    }
-
-
-  end:
-
-    g_free(name1);
     g_free(name2);
+    g_free(name1);
 
-
-  	return ret;
+  	return retval;
   }
 
 
@@ -401,7 +387,7 @@ GtkCellRenderer    *renderer;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request (comboboxentry, HB_MINWIDTH_COMBO, -1);
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
 
 	return comboboxentry;
 }
@@ -442,29 +428,18 @@ ui_cat_listview_fixed_toggled (GtkCellRendererToggle *cell,
 static gint
 ui_cat_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
+gint retval = 0;
 Category *entry1, *entry2;
-gchar *name1, *name2;
 
 	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
 	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
 
-	result = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
-	if(!result)
+	retval = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
+	if(!retval)
 	{
-		name1 = entry1->name;
-		name2 = entry2->name;
-        if (name1 == NULL || name2 == NULL)
-        {
-          //if (name1 == NULL && name2 == NULL)
-          result = (name1 == NULL) ? -1 : 1;
-        }
-        else
-        {
-          result = g_utf8_collate(name1,name2);
-        }
+		retval = hb_string_utf8_compare(entry1->name, entry2->name);
 	}
-    return result;
+    return retval;
 }
 
 
@@ -716,8 +691,6 @@ Category *item;
 }
 
 
-
-
 static void ui_cat_listview_populate_cat_ghfunc(gpointer key, gpointer value, GtkTreeModel *model)
 {
 GtkTreeIter  toplevel;
@@ -736,6 +709,7 @@ Category *item = value;
 			-1);
 	}
 }
+
 
 static void ui_cat_listview_populate_subcat_ghfunc(gpointer key, gpointer value, GtkTreeModel *model)
 {
@@ -761,6 +735,23 @@ gboolean ret;
 	}
 
 }
+
+
+static void ui_cat_listview_sort_force(GtkTreeSortable *sortable, gpointer user_data)
+{
+gint sort_column_id;
+GtkSortType order;
+
+	DB( g_print("ui_cat_listview_sort_force()\n") );
+
+	gtk_tree_sortable_get_sort_column_id(sortable, &sort_column_id, &order);
+	DB( g_print(" - id %d order %d\n", sort_column_id, order) );
+
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, order);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(sortable), sort_column_id, order);
+}
+
+
 
 
 void ui_cat_listview_populate(GtkWidget *view)
@@ -869,8 +860,8 @@ static void ui_cat_manage_filter_text_handler (GtkEntry    *entry,
                           gpointer     data)
 {
 GtkEditable *editable = GTK_EDITABLE(entry);
-int i, count=0;
-gchar *result = g_new (gchar, length);
+gint i, count=0, pos;
+gchar *result = g_new0 (gchar, length+1);
 
   for (i=0; i < length; i++)
   {
@@ -884,7 +875,7 @@ gchar *result = g_new (gchar, length);
     g_signal_handlers_block_by_func (G_OBJECT (editable),
                                      G_CALLBACK (ui_cat_manage_filter_text_handler),
                                      data);
-    gtk_editable_insert_text (editable, result, count, position);
+    gtk_editable_insert_text (editable, result, count, &pos);
     g_signal_handlers_unblock_by_func (G_OBJECT (editable),
                                        G_CALLBACK (ui_cat_manage_filter_text_handler),
                                        data);
@@ -1154,10 +1145,7 @@ GtkTreeIter			 iter;
 				data->change += category_change_type(item, isIncome);
 			}
 			
-			//hack to do a sort
-			gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), LST_DEFCAT_DATAS, GTK_SORT_DESCENDING);
-			gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), LST_DEFCAT_DATAS, GTK_SORT_ASCENDING);
-	
+			ui_cat_listview_sort_force(GTK_TREE_SORTABLE(model), NULL);
 	    }
 
 		// cleanup and destroy
@@ -1170,10 +1158,10 @@ GtkTreeIter			 iter;
 static void ui_cat_manage_dialog_move_entry_cb(GtkComboBox *widget, gpointer user_data)
 {
 GtkDialog *window = user_data;
-guint dstkey;
+gchar *buffer;
 
-	dstkey = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(widget));
-	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, dstkey != 0 ? TRUE : FALSE);
+	buffer = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (widget))));
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, strlen(buffer) > 0 ? TRUE : FALSE);
 }
 
 
@@ -1268,7 +1256,8 @@ GtkTreeIter			 iter;
 				ui_cat_listview_remove_selected(GTK_TREE_VIEW(data->LV_cat));
 
 				//add the new category into listview
-				ui_cat_listview_add(GTK_TREE_VIEW(data->LV_cat), newcat, NULL);
+				if(newcat)
+					ui_cat_listview_add(GTK_TREE_VIEW(data->LV_cat), newcat, NULL);
 
 				data->change++;
 			}
@@ -1449,7 +1438,7 @@ static void ui_cat_manage_dialog_selection(GtkTreeSelection *treeselection, gpoi
 static void ui_cat_manage_dialog_onRowActivated (GtkTreeView        *treeview,
                        GtkTreePath        *path,
                        GtkTreeViewColumn  *col,
-                       gpointer            userdata)
+                       gpointer            user_data)
 {
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
@@ -1521,7 +1510,7 @@ struct ui_cat_manage_dialog_data data;
 GtkWidget *window, *content, *mainvbox, *table, *hbox, *label, *scrollwin, *vbox, *separator, *treeview;
 gint row;
 
-      window = gtk_dialog_new_with_buttons (_("Manage Categories"),
+	window = gtk_dialog_new_with_buttons (_("Manage Categories"),
 					    GTK_WINDOW(GLOBALS->mainwindow),
 					    0,
 					    GTK_STOCK_CLOSE,
@@ -1610,7 +1599,7 @@ gint row;
 	//data.BT_mod = gtk_button_new_with_mnemonic(_("_Modify"));
 	gtk_box_pack_start (GTK_BOX (vbox), data.BT_mod, FALSE, FALSE, 0);
 
-	data.BT_mov = gtk_button_new_with_label("Move");
+	data.BT_mov = gtk_button_new_with_mnemonic(_("_Move"));
 	gtk_box_pack_start (GTK_BOX (vbox), data.BT_mov, FALSE, FALSE, 0);
 
 	separator = gtk_hseparator_new();

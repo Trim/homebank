@@ -312,18 +312,7 @@ da_acc_debug_list(void)
 static gint
 account_glist_name_compare_func(Account *a, Account *b)
 {
-gint retval = 0;
-
-    if (a->name == NULL || b->name == NULL)
-    {
-        retval = (a->name == NULL) ? -1 : 1;
-    }
-    else
-    {
-        retval = g_utf8_collate(a->name, b->name);
-    }
-
-	return retval;
+	return hb_string_utf8_compare(a->name, b->name);
 }
 
 

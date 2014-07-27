@@ -450,17 +450,17 @@ is_separator (GtkTreeModel *model,
 	      gpointer      data)
 {
   //GtkTreePath *path;
-  gboolean result;
+  gboolean retval;
   gchar *txt;
 
 	gtk_tree_model_get (model, iter, 0, &txt, -1);
 
-	result = *txt == 0 ? TRUE : FALSE;
+	retval = *txt == 0 ? TRUE : FALSE;
   //path = gtk_tree_model_get_path (model, iter);
   //result = gtk_tree_path_get_indices (path)[0] == 4;
   //gtk_tree_path_free (path);
 
-  return result;
+  return retval;
 }
 
 static void
@@ -553,13 +553,16 @@ guint i;
 /*
 **
 */
-GtkWidget *make_radio(GtkWidget *label, gchar **items)
+GtkWidget *make_radio(GtkWidget *label, gchar **items, GtkOrientation orientation)
 {
 GtkWidget *box, *button;
 //GSList *group;
 guint i;
 
-	box = gtk_vbox_new (FALSE, 0);
+	if(orientation == GTK_ORIENTATION_HORIZONTAL)
+		box = gtk_hbox_new(FALSE, 0);
+	else
+		box = gtk_vbox_new (FALSE, 0);
 
     button = gtk_radio_button_new_with_label (NULL, _(items[0]));
     gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
@@ -572,8 +575,45 @@ guint i;
 }
 
 
+gint radio_get_active (GtkContainer *container)
+{
+GList *list;
+GtkWidget *radio;
+gint i, retval = 0;
+
+	list = gtk_container_get_children (container);
+	for(i=0;list != NULL;i++)
+	{
+		radio = list->data;
+		if(GTK_IS_TOGGLE_BUTTON(radio))
+		{
+			if( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio)) == TRUE )
+			{
+				retval = i;
+				break;
+			}
+		}
+		list = g_list_next(list);
+	}
+	return retval;
+}
 
 
+void radio_set_active (GtkContainer *container, gint active)
+{
+GList *list;
+GtkWidget *radio;
+
+	if(!GTK_IS_CONTAINER(container))
+		return;
+
+	list = gtk_container_get_children (container);
+	radio = g_list_nth_data (list, active);
+	if(radio != NULL && GTK_IS_TOGGLE_BUTTON(radio))
+	{
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(radio), TRUE);
+	}
+}
 
 
 /*
@@ -703,7 +743,8 @@ char *paymode_pixbuf_names[NUM_PAYMODE_MAX] =
 	"pm-standingorder",
 	"pm-epayment",
 	"pm-deposit",
-	"pm-fifee"
+	"pm-fifee",
+	"pm-directdebit"
 };
 
 char *paymode_label_names[NUM_PAYMODE_MAX] =
@@ -718,47 +759,50 @@ char *paymode_label_names[NUM_PAYMODE_MAX] =
 	N_("Standing order"),
 	N_("Electronic payment"),
 	N_("Deposit"),
-	N_("FI fee")
+	N_("FI fee"),
+	N_("Direct Debit")
 };
 
-/*
-	http://www.direct.gov.uk/en/MoneyTaxAndBenefits/ManagingMoney/BankAccountsAndBankingProducts/DG_10035158
 
-0	aucun              / none
-1	facture cb         / credit card
-2	cheque             / check
-3   retrait espece     / withdrawal of cash
-4	virement           / transfer
-5	virement compte    / internal transfer
-6	(carte de paiement / debit card)
-7	prelevement	       / standing order/repeating payment
-8	télépaiement       / electronic payment
-9	dépôt              / deposit
-10	frais bancaires    / FI fee
-	autre
+/*
+id  ofx  			english                           french
+ ---------------------------------------------------------------------
+ 0	--------      	(none)                            (aucun) 
+ 1	--------      	credit card                       carte de crédit
+ 2	OFX_CHECK     	Check                             cheque
+ 3  OFX_CASH      	Cash  	withdrawal                retrait espece
+ 4	OFX_XFER      	Transfer                          virement
+ 5	--------      	internal transfer                 virement compte 
+ 6	--------      	(debit card)                      (carte de paiement
+ 7	OFX_REPEATPMT 	Repeating payment/standing order  Paiement recurrent/Virement auto.
+		                                                   
+ 8	OFX_PAYMENT   	Electronic payment                télépaiement
+ 9	OFX_DEP 	    Deposit                           dépôt
+10	OFX_FEE       	FI fee                            frais bancaires
+
+		                                               
+	 OFX_DIRECTDEBIT 	Merchant initiated debit     prelevement
+	 OFX_OTHER 	Somer other type of transaction      autre
+
+other OFX values:
 
 OFX_CREDIT 	Generic credit
 OFX_DEBIT 	Generic debit
 OFX_INT 	Interest earned or paid (Note: Depends on signage of amount)
 OFX_DIV 	Dividend
-OFX_FEE 	FI fee
 OFX_SRVCHG 	Service charge
-OFX_DEP 	Deposit
+-OFX_DEP 	Deposit
 OFX_ATM 	ATM debit or credit (Note: Depends on signage of amount)
 OFX_POS 	Point of sale debit or credit (Note: Depends on signage of amount)
-OFX_XFER 	Transfer
-OFX_CHECK 	Check
-OFX_PAYMENT 	Electronic payment
-OFX_CASH 	Cash withdrawal
+-OFX_XFER 	Transfer
+-OFX_CHECK 	Check
+-OFX_PAYMENT 	Electronic payment
+-OFX_CASH 	Cash withdrawal
 OFX_DIRECTDEP 	Direct deposit
 OFX_DIRECTDEBIT 	Merchant initiated debit
-OFX_REPEATPMT 	Repeating payment/standing order
+-OFX_REPEATPMT 	Repeating payment/standing order
 OFX_OTHER 	Somer other type of transaction 
-
-
 */
-
-
 
 
 void load_paymode_icons(void)

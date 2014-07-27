@@ -47,101 +47,49 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-enum {
-	HID_MINDATE,
-	HID_MAXDATE,
-	HID_RANGE,
-	HID_VIEW,
-	MAX_HID
-};
-
-struct statistic_data
-{
-	GtkWidget	*window;
-
-	gint	busy;
-
-	GtkUIManager	*ui;
-	GtkActionGroup *actions;
-
-	GtkWidget	*TB_bar;
-
-	GtkWidget	*TX_info;
-	GtkWidget	*CM_minor;
-	GtkWidget	*CY_for;
-	GtkWidget	*CY_view;
-	GtkWidget	*RG_zoomx;
-	GtkWidget	*LV_report;
-	GtkWidget	*CM_byamount;
-
-	GtkWidget	*PO_mindate, *PO_maxdate;
-
-	GtkWidget	*CY_range;
-	GtkWidget	*GR_result;
-
-	GtkWidget	*TX_daterange;
-	GtkWidget	*TX_total[3];
-
-	GtkWidget	*RE_bar;
-	GtkWidget	*RE_pie;
-
-	GtkWidget	*GR_detail;
-	GtkWidget	*LV_detail;
-
-	gdouble		total_expense;
-	gdouble		total_income;
-
-	gboolean	detail;
-	gboolean	legend;
-	gboolean	rate;
-
-	gulong		handler_id[MAX_HID];
-
-	Filter		*filter;
-
-};
 
 /* prototypes */
-static void statistic_action_viewlist(GtkAction *action, gpointer user_data);
-static void statistic_action_viewbar(GtkAction *action, gpointer user_data);
-static void statistic_action_viewpie(GtkAction *action, gpointer user_data);
-static void statistic_action_detail(GtkAction *action, gpointer user_data);
-static void statistic_action_legend(GtkAction *action, gpointer user_data);
-static void statistic_action_rate(GtkAction *action, gpointer user_data);
-static void statistic_action_filter(GtkAction *action, gpointer user_data);
-static void statistic_action_refresh(GtkAction *action, gpointer user_data);
-static void statistic_action_export(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_viewlist(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_viewbar(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_viewpie(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_detail(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_legend(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_rate(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_filter(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_refresh(GtkAction *action, gpointer user_data);
+static void ui_repdist_action_export(GtkAction *action, gpointer user_data);
 
 
 static GtkActionEntry entries[] = {
-  { "List"    , "hb-view-list" , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (statistic_action_viewlist) },
-  { "Bar"     , "hb-view-bar"  , N_("Bar")    , NULL,    N_("View results as bars"), G_CALLBACK (statistic_action_viewbar) },
-  { "Pie"     , "hb-view-pie"  , N_("Pie")    , NULL,    N_("View results as pies"), G_CALLBACK (statistic_action_viewpie) },
+  { "List"    , "hb-view-list" , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (ui_repdist_action_viewlist) },
+  { "Bar"     , "hb-view-bar"  , N_("Bar")    , NULL,    N_("View results as bars"), G_CALLBACK (ui_repdist_action_viewbar) },
+  { "Pie"     , "hb-view-pie"  , N_("Pie")    , NULL,    N_("View results as pies"), G_CALLBACK (ui_repdist_action_viewpie) },
 
-  { "Filter"  , "hb-filter"    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (statistic_action_filter) },
-  { "Refresh" , GTK_STOCK_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (statistic_action_refresh) },
+  { "Filter"  , "hb-filter"    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_repdist_action_filter) },
+  { "Refresh" , GTK_STOCK_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
 
-  { "Export" , "hb-file-export", N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (statistic_action_export) },
+  { "Export" , "hb-file-export", N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_repdist_action_export) },
 };
 static guint n_entries = G_N_ELEMENTS (entries);
+
 
 static GtkToggleActionEntry toggle_entries[] = {
   { "Detail", "hb-ope-show",                    /* name, stock id */
      N_("Detail"), NULL,                    /* label, accelerator */
     N_("Toggle detail"),                                    /* tooltip */
-    G_CALLBACK (statistic_action_detail),
+    G_CALLBACK (ui_repdist_action_detail),
     FALSE },                                    /* is_active */
 
   { "Legend", "hb-legend",                    /* name, stock id */
      N_("Legend"), NULL,                    /* label, accelerator */
     N_("Toggle legend"),                                    /* tooltip */
-    G_CALLBACK (statistic_action_legend),
+    G_CALLBACK (ui_repdist_action_legend),
     TRUE },                                    /* is_active */
 
   { "Rate", "hb-rate",                    /* name, stock id */
      N_("Rate"), NULL,                    /* label, accelerator */
     N_("Toggle rate"),                                    /* tooltip */
-    G_CALLBACK (statistic_action_rate),
+    G_CALLBACK (ui_repdist_action_rate),
     FALSE },                                    /* is_active */
 
 };
@@ -167,48 +115,26 @@ static const gchar *ui_info =
 "  </toolbar>"
 "</ui>";
 
-/* list stat */
-enum
-{
-	LST_STAT_POS,
-	LST_STAT_KEY,
-	LST_STAT_NAME,
-	LST_STAT_EXPENSE,
-	LST_STAT_EXPRATE,
-	LST_STAT_INCOME,
-	LST_STAT_INCRATE,
-	LST_STAT_BALANCE,
-	LST_STAT_BALRATE,
-	NUM_LST_STAT
-};
 
 
-static void statistic_date_change(GtkWidget *widget, gpointer user_data);
-static void statistic_range_change(GtkWidget *widget, gpointer user_data);
-static void statistic_detail(GtkWidget *widget, gpointer user_data);
-static void statistic_update(GtkWidget *widget, gpointer user_data);
-static void statistic_update_total(GtkWidget *widget, gpointer user_data);
-static void statistic_export_csv(GtkWidget *widget, gpointer user_data);
-static void statistic_compute(GtkWidget *widget, gpointer user_data);
-static void statistic_sensitive(GtkWidget *widget, gpointer user_data);
-static void statistic_toggle_detail(GtkWidget *widget, gpointer user_data);
-static void statistic_toggle_legend(GtkWidget *widget, gpointer user_data);
-static void statistic_toggle_minor(GtkWidget *widget, gpointer user_data);
-static void statistic_toggle_rate(GtkWidget *widget, gpointer user_data);
-static GtkWidget *stat_list_create(void);
-static void statistic_update_daterange(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_date_change(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_range_change(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_detail(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_update(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_update_total(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_export_csv(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_compute(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_sensitive(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_toggle_detail(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_toggle_legend(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_toggle_minor(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_toggle_rate(GtkWidget *widget, gpointer user_data);
+static GtkWidget *ui_list_repdist_create(void);
+static void ui_repdist_update_daterange(GtkWidget *widget, gpointer user_data);
 
-static gint stat_list_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata);
+static gint ui_list_repdist_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata);
 
-enum
-{
-	STAT_CATEGORY,
-	STAT_SUBCATEGORY,
-	STAT_PAYEE,
-	STAT_TAG,
-	STAT_MONTH,
-	STAT_YEAR,
-};
+
 
 gchar *CYA_STATSELECT[] = {
 	N_("Category"),
@@ -233,7 +159,6 @@ gchar *CYA_KIND2[] = {
 
 gchar *CYA_MONTHS[] =
 {
-NULL,
 N_("January"),
 N_("February"),
 N_("March"),
@@ -246,93 +171,97 @@ N_("September"),
 N_("October"),
 N_("November"),
 N_("December"),
+NULL
 };
 
 /* action functions -------------------- */
 
-static void statistic_action_viewlist(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_viewlist(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 0);
-	statistic_sensitive(data->window, NULL);
+	ui_repdist_sensitive(data->window, NULL);
 }
 
-static void statistic_action_viewbar(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_viewbar(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 1);
-	statistic_sensitive(data->window, NULL);
+	gtk_chart_set_type (GTK_CHART(data->RE_chart), CHART_TYPE_COL);
+	ui_repdist_sensitive(data->window, NULL);
 }
 
-static void statistic_action_viewpie(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_viewpie(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 gint tmpview;
 
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 2);
-	statistic_sensitive(data->window, NULL);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 1);
+
+	gtk_chart_set_type (GTK_CHART(data->RE_chart), CHART_TYPE_PIE);
+	ui_repdist_sensitive(data->window, NULL);
 
 	tmpview = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 
 	// ensure not exp & inc for piechart
 	if( tmpview == 0 )
 	{
-		//g_signal_handler_block(data->CY_view, data->handler_id[HID_VIEW]);
+		//g_signal_handler_block(data->CY_view, data->handler_id[HID_REPDIST_VIEW]);
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_view), 1);
-		//g_signal_handler_unblock(data->CY_view, data->handler_id[HID_VIEW]);
+		//g_signal_handler_unblock(data->CY_view, data->handler_id[HID_REPDIST_VIEW]);
 	}
 
 }
 
-static void statistic_action_detail(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_detail(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
-	statistic_toggle_detail(data->window, NULL);
+	ui_repdist_toggle_detail(data->window, NULL);
 }
 
-static void statistic_action_legend(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_legend(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
-	statistic_toggle_legend(data->window, NULL);
+	ui_repdist_toggle_legend(data->window, NULL);
 }
 
-static void statistic_action_rate(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_rate(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
-	statistic_toggle_rate(data->window, NULL);
+	ui_repdist_toggle_rate(data->window, NULL);
 }
 
-static void statistic_action_filter(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_filter(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
 	//debug
 	//create_deffilter_window(data->filter, TRUE);
 
 	if(ui_flt_manage_dialog_new(data->filter, TRUE) != GTK_RESPONSE_REJECT)
 	{
-		statistic_compute(data->window, NULL);
-		statistic_update_daterange(data->window, NULL);
+		ui_repdist_compute(data->window, NULL);
+		ui_repdist_update_daterange(data->window, NULL);
 	}
 }
 
-static void statistic_action_refresh(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_refresh(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
-	statistic_compute(data->window, NULL);
+	ui_repdist_compute(data->window, NULL);
 }
 
-static void statistic_action_export(GtkAction *action, gpointer user_data)
+static void ui_repdist_action_export(GtkAction *action, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 
-	statistic_export_csv(data->window, NULL);
+	ui_repdist_export_csv(data->window, NULL);
 }
 
 
@@ -393,11 +322,11 @@ gint year_from, year_ope, pos;
 	return(pos);
 }
 
-static void statistic_date_change(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_date_change(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 
-	DB( g_print("(statistic) date change\n") );
+	DB( g_print("\n[repdist] date change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -408,24 +337,24 @@ struct statistic_data *data;
 	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
 	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 
-	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_block(data->CY_range, data->handler_id[HID_REPDIST_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
-	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_REPDIST_RANGE]);
 
 
-	statistic_compute(widget, NULL);
-	statistic_update_daterange(widget, NULL);
+	ui_repdist_compute(widget, NULL);
+	ui_repdist_update_daterange(widget, NULL);
 
 }
 
 
 
-static void statistic_range_change(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_range_change(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gint range;
 
-	DB( g_print("(statistic) range change\n") );
+	DB( g_print("\n[repdist] range change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -435,53 +364,53 @@ gint range;
 	{
 		filter_preset_daterange_set(data->filter, range);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 		
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 
-		statistic_compute(widget, NULL);
-		statistic_update_daterange(widget, NULL);
+		ui_repdist_compute(widget, NULL);
+		ui_repdist_update_daterange(widget, NULL);
 	}
 	else
 	{
 		if(ui_flt_manage_dialog_new(data->filter, TRUE) != GTK_RESPONSE_REJECT)
 		{
-			statistic_compute(data->window, NULL);
-			statistic_update_daterange(widget, NULL);
+			ui_repdist_compute(data->window, NULL);
+			ui_repdist_update_daterange(widget, NULL);
 		}
 	}
 }
 
 
 
-static gint statistic_result_get_pos(gint tmpfor, guint from, Transaction *ope)
+static gint ui_repdist_result_get_pos(gint tmpfor, guint from, Transaction *ope)
 {
 gint pos = 0;
 
 	switch(tmpfor)
 	{
-		case STAT_CATEGORY:
+		case BY_REPDIST_CATEGORY:
 			{
 			Category *catentry = da_cat_get(ope->kcat);
 				if(catentry)
 					pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
 			}
 			break;
-		case STAT_SUBCATEGORY:
+		case BY_REPDIST_SUBCATEGORY:
 			pos = ope->kcat;
 			break;
-		case STAT_PAYEE:
+		case BY_REPDIST_PAYEE:
 			pos = ope->kpay;
 			break;
-		case STAT_MONTH:
+		case BY_REPDIST_MONTH:
 			pos = DateInPer(from, ope->date);
 			break;
-		case STAT_YEAR:
+		case BY_REPDIST_YEAR:
 			pos = DateInYear(from, ope->date);
 			break;
 	}
@@ -491,9 +420,9 @@ gint pos = 0;
 
 
 
-static void statistic_detail(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_detail(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 guint active = GPOINTER_TO_INT(user_data);
 guint tmpfor;
 GList *list;
@@ -502,7 +431,7 @@ GtkTreeIter  iter;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(statistic) detail\n") );
+	DB( g_print("\n[repdist] detail\n") );
 
 	/* clear and detach our model */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
@@ -510,7 +439,7 @@ GtkTreeIter  iter;
 
 	if(data->detail)
 	{
-		tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
+		tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
 
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), NULL); /* Detach model from view */
@@ -535,9 +464,9 @@ GtkTreeIter  iter;
 				{
 				guint i, pos = 0;
 
-					if( tmpfor != STAT_TAG )
+					if( tmpfor != BY_REPDIST_TAG )
 					{
-						if( (tmpfor == STAT_CATEGORY || tmpfor == STAT_SUBCATEGORY) && ope->flags & OF_SPLIT )
+						if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 						{
 						guint nbsplit = da_transaction_splits_count(ope);
 						Split *split;
@@ -547,14 +476,14 @@ GtkTreeIter  iter;
 								split = ope->splits[i];
 								switch(tmpfor)
 								{
-									case STAT_CATEGORY:
+									case BY_REPDIST_CATEGORY:
 										{
 										Category *catentry = da_cat_get(split->kcat);
 											if(catentry)
 												pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
 										}
 										break;
-									case STAT_SUBCATEGORY:
+									case BY_REPDIST_SUBCATEGORY:
 										pos = split->kcat;
 										break;
 								}
@@ -574,7 +503,7 @@ GtkTreeIter  iter;
 						}
 						else
 						{
-							pos = statistic_result_get_pos(tmpfor, data->filter->mindate, ope);
+							pos = ui_repdist_result_get_pos(tmpfor, data->filter->mindate, ope);
 							if( pos == active )
 							{
 
@@ -632,23 +561,23 @@ next1:
 }
 
 
-static void statistic_update(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_update(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gboolean byamount;
 GtkTreeModel		 *model;
 gint page, tmpfor, tmpkind, column;
 gboolean xval;
 gchar *title;
 
-	DB( g_print("(statistic) update\n") );
+	DB( g_print("\n[repdist] update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_report));
 	byamount = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_byamount));
-	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
+	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
 	tmpkind = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 
 	// ensure not exp & inc for piechart
@@ -656,9 +585,9 @@ gchar *title;
 
 	if( page == 2 && tmpkind == 0 )
 	{
-		g_signal_handler_block(data->CY_view, data->handler_id[HID_VIEW]);
+		g_signal_handler_block(data->CY_view, data->handler_id[HID_REPDIST_VIEW]);
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_view), 1);
-		g_signal_handler_unblock(data->CY_view, data->handler_id[HID_VIEW]);
+		g_signal_handler_unblock(data->CY_view, data->handler_id[HID_REPDIST_VIEW]);
 		tmpkind = 1;
 	}
 
@@ -666,74 +595,68 @@ gchar *title;
 	DB( g_print(" tmpkind %d\n\n", tmpkind) );
 
 
-	column = byamount ? LST_STAT_EXPENSE+(tmpkind-1)*2 : LST_STAT_POS;
+	column = byamount ? LST_REPDIST_EXPENSE+(tmpkind-1)*2 : LST_REPDIST_POS;
 	
 	//#833614 sort category/payee by name
-	//if(!byamount && tmpkind <= STAT_PAYEE)
-	//	column = LST_STAT_NAME;
+	//if(!byamount && tmpkind <= BY_REPDIST_PAYEE)
+	//	column = LST_REPDIST_NAME;
 		
 	DB( g_print(" sort on column %d\n\n", column) );
 
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), column, GTK_SORT_DESCENDING);
 
-	column = LST_STAT_EXPENSE+(tmpkind-1)*2;
+	column = LST_REPDIST_EXPENSE+(tmpkind-1)*2;
 
 	/* set chart color scheme */
-	gtk_chart_set_color_scheme(GTK_CHART(data->RE_bar), PREFS->report_color_scheme);
-	gtk_chart_set_color_scheme(GTK_CHART(data->RE_pie), PREFS->report_color_scheme);
+	gtk_chart_set_color_scheme(GTK_CHART(data->RE_chart), PREFS->report_color_scheme);
 
 	/* set chart title */
-	title = g_strdup_printf("%s - %s", _(CYA_STATSELECT[tmpfor]), _(CYA_KIND2[tmpkind]) );
+	////TRANSLATORS: example 'Expense by Category'
+	title = g_strdup_printf(_("%s by %s"), _(CYA_KIND2[tmpkind]), _(CYA_STATSELECT[tmpfor]) );
+
+	/* update absolute or not */
+	gboolean abs = (tmpkind == 1 || tmpkind == 2) ? TRUE : FALSE;
+	gtk_chart_set_absolute(GTK_CHART(data->RE_chart), abs);
+
 	
 	/* update bar chart */
 	DB( g_print(" set bar to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
 	if( tmpkind == 0 )
-		gtk_chart_set_dualdatas(GTK_CHART(data->RE_bar), model, LST_STAT_EXPENSE, LST_STAT_INCOME, title);
+		gtk_chart_set_dualdatas(GTK_CHART(data->RE_chart), model, LST_REPDIST_EXPENSE, LST_REPDIST_INCOME, title);
 	else
-		gtk_chart_set_datas(GTK_CHART(data->RE_bar), model, column, title);
+		gtk_chart_set_datas(GTK_CHART(data->RE_chart), model, column, title);
 
 
 	/* show xval for month/year and no by amount display */
 	xval = FALSE;
 
 
-	if( !byamount && (tmpfor == STAT_MONTH || tmpfor == STAT_YEAR) )
+	if( !byamount && (tmpfor == BY_REPDIST_MONTH || tmpfor == BY_REPDIST_YEAR) )
 	{
 		xval = TRUE;
 		switch( tmpfor)
 		{
-			case STAT_MONTH:
-				gtk_chart_set_decy_xval(GTK_CHART(data->RE_bar), 4);
+			case BY_REPDIST_MONTH:
+				gtk_chart_set_every_xval(GTK_CHART(data->RE_chart), 4);
 				break;
-			case STAT_YEAR:
-				gtk_chart_set_decy_xval(GTK_CHART(data->RE_bar), 2);
+			case BY_REPDIST_YEAR:
+				gtk_chart_set_every_xval(GTK_CHART(data->RE_chart), 2);
 				break;
-
 		}
-
-
 	}
 
-	gtk_chart_show_xval(GTK_CHART(data->RE_bar), xval);
-
-	/* update pie chart */
-
-	DB( g_print(" set pie to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
-	if( tmpkind != 0 )
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, column, title);
-	else
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), NULL, 0, NULL);
+	gtk_chart_show_xval(GTK_CHART(data->RE_chart), xval);
 
 	g_free(title);
 	
 }
 
-static void statistic_update_daterange(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_update_daterange(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gchar *daterange;
 
-	DB( g_print("(statistic) update daterange\n") );
+	DB( g_print("\n[repdist] update daterange\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -742,12 +665,12 @@ gchar *daterange;
 	g_free(daterange);
 }
 
-static void statistic_update_total(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_update_total(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 //gboolean minor;
 
-	DB( g_print("(statistic) update total\n") );
+	DB( g_print("\n[repdist] update total\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -766,9 +689,9 @@ struct statistic_data *data;
 
 }
 
-static void statistic_export_csv(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_export_csv(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 GtkTreeModel *model;
 GtkTreeIter	iter;
 gboolean valid;
@@ -777,11 +700,11 @@ GIOChannel *io;
 gchar *outstr, *name;
 gint tmpfor;
 
-	DB( g_print("(statistic) export csv\n") );
+	DB( g_print("\n[repdist] export csv\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
+	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
 
 	name = g_strdup_printf("hb-stat_%s.csv", CYA_STATSELECT[tmpfor]);
 
@@ -804,11 +727,11 @@ gint tmpfor;
 			gdouble exp, inc, bal;
 
 				gtk_tree_model_get (model, &iter,
-					//LST_STAT_KEY, i,
-					LST_STAT_NAME   , &name,
-					LST_STAT_EXPENSE, &exp,
-					LST_STAT_INCOME , &inc,
-					LST_STAT_BALANCE, &bal,
+					//LST_REPDIST_KEY, i,
+					LST_REPDIST_NAME   , &name,
+					LST_REPDIST_EXPENSE, &exp,
+					LST_REPDIST_INCOME , &inc,
+					LST_REPDIST_BALANCE, &bal,
 					-1);
 
 				outstr = g_strdup_printf("%s;%.2f;%.2f;%.2f\n", name, exp, inc, bal);
@@ -833,9 +756,9 @@ gint tmpfor;
 }
 
 
-static void statistic_compute(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_compute(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gint tmpfor, tmpkind;
 guint32 from, to;
 GtkTreeModel *model;
@@ -847,11 +770,11 @@ GDate *date1, *date2;
 gdouble *tmp_income, *tmp_expense;
 gdouble exprate, incrate, balrate;
 
-	DB( g_print("(statistic) compute\n") );
+	DB( g_print("\n[repdist] compute\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
+	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
 	tmpkind = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 
 
@@ -870,27 +793,27 @@ gdouble exprate, incrate, balrate;
 	/* count number or results */
 	switch(tmpfor)
 	{
-		case STAT_CATEGORY:
-		case STAT_SUBCATEGORY:
+		case BY_REPDIST_CATEGORY:
+		case BY_REPDIST_SUBCATEGORY:
 			n_result = da_cat_get_max_key() + 1;
 			tmplist = category_glist_sorted(1);
 			break;
-		case STAT_PAYEE:
+		case BY_REPDIST_PAYEE:
 			n_result = da_pay_get_max_key() + 1;
 			tmplist = payee_glist_sorted(1);
 			break;
-		case STAT_TAG:
+		case BY_REPDIST_TAG:
 			n_result = da_tag_length();
 			tmplist = tag_glist_sorted(1);
 			break;
-		case STAT_MONTH:
+		case BY_REPDIST_MONTH:
 			date1 = g_date_new_julian(from);
 			date2 = g_date_new_julian(to);
 			n_result = ((g_date_get_year(date2) - g_date_get_year(date1)) * 12) + g_date_get_month(date2) - g_date_get_month(date1) + 1;
 			g_date_free(date2);
 			g_date_free(date1);
 			break;
-		case STAT_YEAR:
+		case BY_REPDIST_YEAR:
 			date1 = g_date_new_julian(from);
 			date2 = g_date_new_julian(to);
 			n_result = g_date_get_year(date2) - g_date_get_year(date1) + 1;
@@ -934,48 +857,62 @@ gdouble exprate, incrate, balrate;
 					//trn_amount = to_base_amount(ope->amount, acc->kcur);
 					trn_amount = ope->amount;
 
-					if( tmpfor != STAT_TAG )
+					if( tmpfor != BY_REPDIST_TAG )
 					{
-						if( (tmpfor == STAT_CATEGORY || tmpfor == STAT_SUBCATEGORY) && ope->flags & OF_SPLIT )
+						if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 						{
 						guint nbsplit = da_transaction_splits_count(ope);
 						Split *split;
-						
+						Category *catentry;
+						gint sinsert;
+
 							for(i=0;i<nbsplit;i++)
 							{
 								split = ope->splits[i];
-								switch(tmpfor)
-								{
-									case STAT_CATEGORY:
-										{
-										Category *catentry = da_cat_get(split->kcat);
-											if(catentry)
-												pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-										}
-										break;
-									case STAT_SUBCATEGORY:
-										pos = split->kcat;
-										break;
-								}
+								catentry = da_cat_get(split->kcat);
+								if(!catentry) continue;
+								sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
+								if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
 
-								//trn_amount = to_base_amount(split->amount, acc->kcur);
-								trn_amount = split->amount;
+								DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );
+								
+								if( (data->filter->option[FILTER_CATEGORY] == 0) || sinsert)
+								{
+									switch(tmpfor)
+									{
+										case BY_REPDIST_CATEGORY:
+											{
+												if(catentry)
+													pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+											}
+											break;
+										case BY_REPDIST_SUBCATEGORY:
+											pos = split->kcat;
+											break;
+									}
 
-								if(trn_amount > 0.0)
-								{
-									tmp_income[pos] += trn_amount;
-									data->total_income  += trn_amount;
+									//trn_amount = to_base_amount(split->amount, acc->kcur);
+									trn_amount = split->amount;
+
+									if(trn_amount > 0.0)
+									{
+										tmp_income[pos] += trn_amount;
+										data->total_income  += trn_amount;
+									}
+									else
+									{
+										tmp_expense[pos] += trn_amount;
+										data->total_expense += trn_amount;
+									}
+
 								}
-								else
-								{
-									tmp_expense[pos] += trn_amount;
-									data->total_expense += trn_amount;
-								}
+								// end insert
+
 							}
 						}
 						else
 						{
-							pos = statistic_result_get_pos(tmpfor, from, ope);
+							pos = ui_repdist_result_get_pos(tmpfor, from, ope);
 							if(trn_amount > 0.0)
 							{
 								tmp_income[pos] += trn_amount;
@@ -1056,7 +993,7 @@ next1:
 
 
 			/* filter empty results */
-			if(tmpfor == STAT_CATEGORY || tmpfor == STAT_SUBCATEGORY || tmpfor == STAT_PAYEE || tmpfor == STAT_TAG)
+			if(tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY || tmpfor == BY_REPDIST_PAYEE || tmpfor == BY_REPDIST_TAG)
 			{
 				if( tmpkind == 1 && !tmp_expense[i] ) continue;
 				if( tmpkind == 2 && !tmp_income[i] ) continue;
@@ -1066,7 +1003,7 @@ next1:
 			/* get the result name */
 			switch(tmpfor)
 			{
-				case STAT_CATEGORY:
+				case BY_REPDIST_CATEGORY:
 					{
 					Category *entry = da_cat_get(i);
 
@@ -1079,7 +1016,7 @@ next1:
 					}
 					break;
 
-				case STAT_SUBCATEGORY:
+				case BY_REPDIST_SUBCATEGORY:
 					{
 					Category *entry = da_cat_get(i);
 						if(entry != NULL)
@@ -1099,7 +1036,7 @@ next1:
 					}
 					break;
 
-				case STAT_PAYEE:
+				case BY_REPDIST_PAYEE:
 					{
 					Payee *entry = da_pay_get(i);
 						if(entry != NULL)
@@ -1110,7 +1047,7 @@ next1:
 					}
 					break;
 
-				case STAT_TAG:
+				case BY_REPDIST_TAG:
 					{
 					Tag *entry = da_tag_get(i+1);
 						name = entry->name;
@@ -1118,16 +1055,16 @@ next1:
 					}
 					break;
 
-				case STAT_MONTH:
+				case BY_REPDIST_MONTH:
 					date = g_date_new_julian(from);
 					g_date_add_months(date, i);
 					//g_snprintf(buffer, 63, "%d-%02d", g_date_get_year(date), g_date_get_month(date));
-					g_snprintf(buffer, 63, "%d-%s", g_date_get_year(date), _(CYA_MONTHS[g_date_get_month(date)]));
+					g_snprintf(buffer, 63, "%d-%s", g_date_get_year(date), _(CYA_MONTHS[g_date_get_month(date)-1]));
 					g_date_free(date);
 					name = buffer;
 					break;
 
-				case STAT_YEAR:
+				case BY_REPDIST_YEAR:
 					date = g_date_new_julian(from);
 					g_date_add_years(date, i);
 					g_snprintf(buffer, 63, "%d", g_date_get_year(date));
@@ -1144,25 +1081,26 @@ next1:
 			balrate = 0.0;
 
 			if( data->total_expense )
-				exprate = (ABS(tmp_expense[i]) * 100 / data->total_expense);
+				exprate = ABS((tmp_expense[i] * 100 / data->total_expense));
 
 			if( data->total_income )
 				incrate = (tmp_income[i] * 100 / data->total_income);
 
-			if( (data->total_expense + data->total_income) )
-				balrate = (ABS(tmp_expense[i]) + tmp_income[i]) * 100 / (data->total_expense + data->total_income);
+			data->total_balance = ABS(data->total_expense) + data->total_income; 
+			if( data->total_balance )
+				balrate = (ABS(tmp_expense[i]) + tmp_income[i]) * 100 / data->total_balance;
 
 	    	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
      		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				LST_STAT_POS, sortid++,
-				LST_STAT_KEY, i,
-				LST_STAT_NAME, name,
-				LST_STAT_EXPENSE, tmp_expense[i],
-				LST_STAT_INCOME , tmp_income[i],
-				LST_STAT_BALANCE, tmp_expense[i] + tmp_income[i],
-				LST_STAT_EXPRATE, exprate,
-				LST_STAT_INCRATE, incrate,
-				LST_STAT_BALRATE, balrate,
+				LST_REPDIST_POS, sortid++,
+				LST_REPDIST_KEY, i,
+				LST_REPDIST_NAME, name,
+				LST_REPDIST_EXPENSE, tmp_expense[i],
+				LST_REPDIST_INCOME , tmp_income[i],
+				LST_REPDIST_BALANCE, tmp_expense[i] + tmp_income[i],
+				LST_REPDIST_EXPRATE, exprate,
+				LST_REPDIST_INCRATE, incrate,
+				LST_REPDIST_BALRATE, balrate,
 				-1);
 
 			g_free(fullcatname);
@@ -1182,9 +1120,9 @@ next1:
 	/* free tmplist (sort cat/pay) */
 	g_list_free(tmplist);
 
-	statistic_update_total(widget,NULL);
+	ui_repdist_update_total(widget,NULL);
 
-	statistic_update(widget, user_data);
+	ui_repdist_update(widget, user_data);
 
 }
 
@@ -1195,14 +1133,14 @@ next1:
 /*
 ** update sensitivity
 */
-static void statistic_sensitive(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_sensitive(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gboolean active;
 gboolean sensitive;
 gint page;
 
-	DB( g_print("(statistic) sensitive\n") );
+	DB( g_print("\n[repdist] sensitive\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1229,82 +1167,83 @@ gint page;
 
 }
 
-static void statistic_update_detail(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_update_detail(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	if(data->detail)
+	if(GTK_IS_TREE_VIEW(data->LV_report))
 	{
-	GtkTreeSelection *treeselection;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	guint key;
-
-		treeselection = gtk_tree_view_get_selection (GTK_TREE_VIEW(data->LV_report));
-
-		if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
+		if(data->detail)
 		{
-			gtk_tree_model_get(model, &iter, LST_STAT_KEY, &key, -1);
+		GtkTreeSelection *treeselection;
+		GtkTreeModel *model;
+		GtkTreeIter iter;
+		guint key;
 
-			DB( g_print(" - active is %d\n", key) );
+			treeselection = gtk_tree_view_get_selection (GTK_TREE_VIEW(data->LV_report));
 
-			statistic_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
+			if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
+			{
+				gtk_tree_model_get(model, &iter, LST_REPDIST_KEY, &key, -1);
+
+				DB( g_print(" - active is %d\n", key) );
+
+				ui_repdist_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
+			}
+
+
+
+			gtk_widget_show(data->GR_detail);
 		}
+		else
+			gtk_widget_hide(data->GR_detail);
 
-
-
-		gtk_widget_show(data->GR_detail);
 	}
-	else
-		gtk_widget_hide(data->GR_detail);
 }
 
 
 
 
-static void statistic_toggle_detail(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_toggle_detail(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->detail ^= 1;
 
-	DB( printf("(stats) toggledetail to %d\n", data->detail) );
+	DB( printf("\n[repdist] toggledetail to %d\n", data->detail) );
 
-	statistic_update_detail(widget, user_data);
+	ui_repdist_update_detail(widget, user_data);
 
 }
 
 /*
 ** change the chart legend visibility
 */
-static void statistic_toggle_legend(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_toggle_legend(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 //gint active;
 
-	DB( g_print("(statistic) legend\n") );
+	DB( g_print("\n[repdist] toggle legend\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->legend ^= 1;
 
-	//active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_legend));
-
-	gtk_chart_show_legend(GTK_CHART(data->RE_bar), data->legend);
-	gtk_chart_show_legend(GTK_CHART(data->RE_pie), data->legend);
+	gtk_chart_show_legend(GTK_CHART(data->RE_chart), data->legend, FALSE);
 
 }
 
-static void statistic_zoomx_callback(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_zoomx_callback(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 gdouble value;
 
-	DB( g_print("(statistic) zoomx\n") );
+	DB( g_print("\n[repdist] zoomx\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1312,7 +1251,7 @@ gdouble value;
 
 	DB( g_print(" + scale is %.2f\n", value) );
 
-	gtk_chart_set_barw(GTK_CHART(data->RE_bar), value);
+	gtk_chart_set_barw(GTK_CHART(data->RE_chart), value);
 
 }
 
@@ -1320,61 +1259,64 @@ gdouble value;
 /*
 ** change the chart rate columns visibility
 */
-static void statistic_toggle_rate(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_toggle_rate(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 GtkTreeViewColumn *column;
 
-	DB( g_print("(statistic) toggle rate\n") );
+	DB( g_print("\n[repdist] toggle rate\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->rate ^= 1;
 
-	column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 2);
-	gtk_tree_view_column_set_visible(column, data->rate);
+	if(GTK_IS_TREE_VIEW(data->LV_report))
+	{
 
-	column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 4);
-	gtk_tree_view_column_set_visible(column, data->rate);
+		column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 2);
+		gtk_tree_view_column_set_visible(column, data->rate);
 
-	column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 6);
-	gtk_tree_view_column_set_visible(column, data->rate);
+		column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 4);
+		gtk_tree_view_column_set_visible(column, data->rate);
 
+		column = gtk_tree_view_get_column (GTK_TREE_VIEW(data->LV_report), 6);
+		gtk_tree_view_column_set_visible(column, data->rate);
+	}
 
 }
 
-static void statistic_toggle_minor(GtkWidget *widget, gpointer user_data)
+static void ui_repdist_toggle_minor(GtkWidget *widget, gpointer user_data)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 
-	DB( g_print("(statistic) toggle\n") );
+	DB( g_print("\n[repdist] toggle minor\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	GLOBALS->minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
 
-	statistic_update_total(widget,NULL);
+	ui_repdist_update_total(widget,NULL);
 
 	//hbfile_update(data->LV_acc, (gpointer)4);
 	gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_report));
-	gtk_chart_show_minor(GTK_CHART(data->RE_bar), GLOBALS->minor);
-	gtk_chart_show_minor(GTK_CHART(data->RE_pie), GLOBALS->minor);
+	gtk_chart_show_minor(GTK_CHART(data->RE_chart), GLOBALS->minor);
+
 }
 
 
 /*
 **
 */
-static void statistic_setup(struct statistic_data *data)
+static void ui_repdist_setup(struct ui_repdist_data *data)
 {
-	DB( g_print("(statistic) setup\n") );
+	DB( g_print("\n[repdist] setup\n") );
 
 	data->detail = PREFS->stat_showdetail;
 	data->legend = 1;
 	data->rate = PREFS->stat_showrate^1;
 
 
-	statistic_toggle_rate(data->window, NULL);
+	ui_repdist_toggle_rate(data->window, NULL);
 
 
 	data->filter = da_filter_malloc();
@@ -1386,49 +1328,49 @@ static void statistic_setup(struct statistic_data *data)
 
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 
 	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 
 }
 
 
 
-static void statistic_selection(GtkTreeSelection *treeselection, gpointer user_data)
+static void ui_repdist_selection(GtkTreeSelection *treeselection, gpointer user_data)
 {
 GtkTreeModel *model;
 GtkTreeIter iter;
 guint key = -1;
 
-	DB( g_print("(statistic) selection\n") );
+	DB( g_print("\n[repdist] selection\n") );
 
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
-		gtk_tree_model_get(model, &iter, LST_STAT_KEY, &key, -1);
+		gtk_tree_model_get(model, &iter, LST_REPDIST_KEY, &key, -1);
 
 	}
 
 	DB( g_print(" - active is %d\n", key) );
 
-	statistic_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
-	statistic_sensitive(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
+	ui_repdist_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
+	ui_repdist_sensitive(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
 }
 
 
 /*
 **
 */
-static gboolean statistic_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static gboolean ui_repdist_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-struct statistic_data *data = user_data;
+struct ui_repdist_data *data = user_data;
 struct WinGeometry *wg;
 
-	DB( g_print("(statistic) dispose\n") );
+	DB( g_print("\n[repdist] dispose\n") );
 
 	da_filter_free(data->filter);
 
@@ -1451,19 +1393,22 @@ struct WinGeometry *wg;
 }
 
 // the window creation
-GtkWidget *create_statistic_window(void)
+GtkWidget *ui_repdist_window_new(void)
 {
-struct statistic_data *data;
+struct ui_repdist_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview;
-GtkWidget *label, *widget, *table, *alignment, *vbar, *entry;
+GtkWidget *label, *widget, *table, *alignment, *entry;
 gint row;
 GtkUIManager *ui;
 GtkActionGroup *actions;
 GtkAction *action;
 GError *error = NULL;
 
-	data = g_malloc0(sizeof(struct statistic_data));
+	DB( g_print("\n[repdist] new\n") );
+
+	
+	data = g_malloc0(sizeof(struct ui_repdist_data));
 	if(!data) return NULL;
 
 	//disable define windows
@@ -1492,7 +1437,7 @@ GError *error = NULL;
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, TRUE, TRUE, 0);
 
 	//control part
-	table = gtk_table_new (6, 2, FALSE);
+	table = gtk_table_new (6, 3, FALSE);
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
@@ -1503,40 +1448,42 @@ GError *error = NULL;
 	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
 
 	row = 0;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Display</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
-
-	row++;
-	label = make_label(_("_For:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_cycle(label, CYA_STATSELECT);
-	data->CY_for = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_for, 1, 2, row, row+1);
+	label = make_label(_("Display"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_View:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	widget = make_cycle(label, CYA_KIND2);
 	data->CY_view = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
 
 	row++;
-	label = make_label(_("_Zoom X:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_scale(label);
-	data->RG_zoomx = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	label = make_label(_("_By:"), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_cycle(label, CYA_STATSELECT);
+	data->CY_by = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_by, 2, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("By _amount"));
 	data->CM_byamount = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
+
+	
+	row++;
+	label = make_label(_("_Zoom X:"), 0, 0.5);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	widget = make_scale(label);
+	data->RG_zoomx = widget;
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
+
 
 /*
 	row++;
@@ -1546,30 +1493,30 @@ GError *error = NULL;
 */
 	row++;
 	widget = gtk_hseparator_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 3, row, row+1);
 
 	row++;
-	label = make_label(NULL, 0.0, 0.0);
-	gtk_label_set_markup (GTK_LABEL(label), _("<b>Date filter</b>"));
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 2, row, row+1);
+	label = make_label(_("Date filter"), 0.0, 0.5);
+	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_Range:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->CY_range = make_daterange(label, TRUE);
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_From:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_mindate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 2, 3, row, row+1);
 
 	row++;
 	label = make_label(_("_To:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
 	data->PO_maxdate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 1, 2, row, row+1);
+	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 2, 3, row, row+1);
 
 	//part: info + report
 	vbox = gtk_vbox_new (FALSE, 0);
@@ -1646,17 +1593,12 @@ GError *error = NULL;
 	label = gtk_label_new(_("Balance:"));
 	gtk_box_pack_end (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-	vbar = gtk_vseparator_new();
-	gtk_box_pack_end (GTK_BOX (hbox), vbar, FALSE, FALSE, 0);
-
 	entry = gtk_label_new(NULL);
 	data->TX_total[1] = entry;
 	gtk_box_pack_end (GTK_BOX (hbox), entry, FALSE, FALSE, 0);
 	label = gtk_label_new(_("Income:"));
 	gtk_box_pack_end (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-	vbar = gtk_vseparator_new();
-	gtk_box_pack_end (GTK_BOX (hbox), vbar, FALSE, FALSE, 0);
 
 	entry = gtk_label_new(NULL);
 	data->TX_total[0] = entry;
@@ -1664,9 +1606,8 @@ GError *error = NULL;
 	label = gtk_label_new(_("Expense:"));
 	gtk_box_pack_end (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-	vbar = gtk_vseparator_new();
-	gtk_box_pack_end (GTK_BOX (hbox), vbar, FALSE, FALSE, 0);
 
+	/* report area */
 	notebook = gtk_notebook_new();
 	data->GR_result = notebook;
 	gtk_widget_show(notebook);
@@ -1682,7 +1623,7 @@ GError *error = NULL;
 	//gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW (widget), GTK_CORNER_TOP_RIGHT);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	treeview = stat_list_create();
+	treeview = ui_list_repdist_create();
 	data->LV_report = treeview;
 	gtk_container_add (GTK_CONTAINER(widget), treeview);
     gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
@@ -1700,22 +1641,14 @@ GError *error = NULL;
     gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
 
 
-	//page: 2d bar
-	widget = gtk_chart_new(CHART_BAR_TYPE);
-	data->RE_bar = widget;
-	gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.suffix_symbol);
+	//page: 2d bar/pie
+	widget = gtk_chart_new(CHART_TYPE_COL);
+	data->RE_chart = widget;
+	gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.symbol);
 	//gtk_chart_set_currency(GTK_CHART(widget), GLOBALS->kcur);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);
 
-	//page: 2d pie
-	widget = gtk_chart_new(CHART_PIE_TYPE);
-	data->RE_pie = widget;
-	gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.suffix_symbol);
-	//gtk_chart_set_currency(GTK_CHART(widget), GLOBALS->kcur);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);
-
-
-	//todo:should move this
+	//todo: setup should move this
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_minor), GLOBALS->minor);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_byamount), PREFS->stat_byamount);
 
@@ -1726,28 +1659,28 @@ GError *error = NULL;
 	g_object_set_data(G_OBJECT(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail))), "minor", (gpointer)data->CM_minor);
 
 	/* signal connect */
-    g_signal_connect (window, "delete-event", G_CALLBACK (statistic_dispose), (gpointer)data);
+    g_signal_connect (window, "delete-event", G_CALLBACK (ui_repdist_dispose), (gpointer)data);
 
-	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (statistic_toggle_minor), NULL);
+	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (ui_repdist_toggle_minor), NULL);
 
-    data->handler_id[HID_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (statistic_date_change), (gpointer)data);
-    data->handler_id[HID_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (statistic_date_change), (gpointer)data);
+    data->handler_id[HID_REPDIST_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (ui_repdist_date_change), (gpointer)data);
+    data->handler_id[HID_REPDIST_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (ui_repdist_date_change), (gpointer)data);
 
-	data->handler_id[HID_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (statistic_range_change), NULL);
+	data->handler_id[HID_REPDIST_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (ui_repdist_range_change), NULL);
 
-    g_signal_connect (data->CY_for, "changed", G_CALLBACK (statistic_compute), (gpointer)data);
-    data->handler_id[HID_VIEW] = g_signal_connect (data->CY_view, "changed", G_CALLBACK (statistic_compute), (gpointer)data);
+    g_signal_connect (data->CY_by, "changed", G_CALLBACK (ui_repdist_compute), (gpointer)data);
+    data->handler_id[HID_REPDIST_VIEW] = g_signal_connect (data->CY_view, "changed", G_CALLBACK (ui_repdist_compute), (gpointer)data);
 
-	g_signal_connect (data->RG_zoomx, "value-changed", G_CALLBACK (statistic_zoomx_callback), NULL);
+	g_signal_connect (data->RG_zoomx, "value-changed", G_CALLBACK (ui_repdist_zoomx_callback), NULL);
 
 
-	g_signal_connect (data->CM_byamount, "toggled", G_CALLBACK (statistic_update), NULL);
+	g_signal_connect (data->CM_byamount, "toggled", G_CALLBACK (ui_repdist_update), NULL);
 
-	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (statistic_selection), NULL);
+	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (ui_repdist_selection), NULL);
 
 
 	//setup, init and show window
-	statistic_setup(data);
+	ui_repdist_setup(data);
 
 	/* toolbar */
 	if(PREFS->toolbar_style == 0)
@@ -1775,15 +1708,15 @@ GError *error = NULL;
 
 
 
-	statistic_sensitive(window, NULL);
-	statistic_update_detail(window, NULL);
+	ui_repdist_sensitive(window, NULL);
+	ui_repdist_update_detail(window, NULL);
 
 	DB( g_print("range: %d\n", PREFS->date_range_rep) );
 
 	if( PREFS->date_range_rep != 0)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_rep);
 	else
-		statistic_compute(window, NULL);
+		ui_repdist_compute(window, NULL);
 
 
 	return window;
@@ -1793,7 +1726,7 @@ GError *error = NULL;
 ** ============================================================================
 */
 
-static void stat_list_rate_cell_data_function (GtkTreeViewColumn *col,
+static void ui_list_repdist_rate_cell_data_function (GtkTreeViewColumn *col,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
@@ -1821,7 +1754,7 @@ static void stat_list_rate_cell_data_function (GtkTreeViewColumn *col,
 }
 
 
-static void stat_list_amount_cell_data_function (GtkTreeViewColumn *col,
+static void ui_list_repdist_amount_cell_data_function (GtkTreeViewColumn *col,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
@@ -1851,7 +1784,7 @@ gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 }
 
 
-static GtkTreeViewColumn *stat_list_amount_column(gchar *name, gint id)
+static GtkTreeViewColumn *ui_list_repdist_amount_column(gchar *name, gint id)
 {
 GtkTreeViewColumn  *column;
 GtkCellRenderer    *renderer;
@@ -1861,13 +1794,13 @@ GtkCellRenderer    *renderer;
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, stat_list_amount_cell_data_function, GINT_TO_POINTER(id), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_list_repdist_amount_cell_data_function, GINT_TO_POINTER(id), NULL);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	//gtk_tree_view_column_set_sort_column_id (column, id);
 	return column;
 }
 
-static GtkTreeViewColumn *stat_list_rate_column(gint id)
+static GtkTreeViewColumn *ui_list_repdist_rate_column(gint id)
 {
 GtkTreeViewColumn  *column;
 GtkCellRenderer    *renderer;
@@ -1879,7 +1812,7 @@ GtkCellRenderer    *renderer;
 	
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", id);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, stat_list_rate_cell_data_function, GINT_TO_POINTER(id), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_list_repdist_rate_cell_data_function, GINT_TO_POINTER(id), NULL);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	//gtk_tree_view_column_set_sort_column_id (column, id);
 
@@ -1891,7 +1824,7 @@ GtkCellRenderer    *renderer;
 /*
 ** create our statistic list
 */
-static GtkWidget *stat_list_create(void)
+static GtkWidget *ui_list_repdist_create(void)
 {
 GtkListStore *store;
 GtkWidget *view;
@@ -1900,7 +1833,7 @@ GtkTreeViewColumn  *column;
 
 	/* create list store */
 	store = gtk_list_store_new(
-	  	NUM_LST_STAT,
+	  	NUM_LST_REPDIST,
 		G_TYPE_INT,
 		G_TYPE_INT,
 		G_TYPE_STRING,
@@ -1924,28 +1857,28 @@ GtkTreeViewColumn  *column;
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	//gtk_tree_view_column_set_cell_data_func(column, renderer, ope_result_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_STAT_NAME);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_STAT_NAME);
+	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_REPDIST_NAME);
+	//gtk_tree_view_column_set_sort_column_id (column, LST_REPDIST_NAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Expense */
-	column = stat_list_amount_column(_("Expense"), LST_STAT_EXPENSE);
+	column = ui_list_repdist_amount_column(_("Expense"), LST_REPDIST_EXPENSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-	column = stat_list_rate_column(LST_STAT_EXPRATE);
+	column = ui_list_repdist_rate_column(LST_REPDIST_EXPRATE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Income */
-	column = stat_list_amount_column(_("Income"), LST_STAT_INCOME);
+	column = ui_list_repdist_amount_column(_("Income"), LST_REPDIST_INCOME);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-	column = stat_list_rate_column(LST_STAT_INCRATE);
+	column = ui_list_repdist_rate_column(LST_REPDIST_INCRATE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Balance */
-	column = stat_list_amount_column(_("Balance"), LST_STAT_BALANCE);
+	column = ui_list_repdist_amount_column(_("Balance"), LST_REPDIST_BALANCE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-	column = stat_list_rate_column(LST_STAT_BALRATE);
+	column = ui_list_repdist_rate_column(LST_REPDIST_BALRATE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
   /* column last: empty */
@@ -1953,43 +1886,43 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* sort */
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_POS    , stat_list_compare_func, GINT_TO_POINTER(LST_STAT_POS), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_EXPENSE, stat_list_compare_func, GINT_TO_POINTER(LST_STAT_EXPENSE), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_INCOME , stat_list_compare_func, GINT_TO_POINTER(LST_STAT_INCOME), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_STAT_BALANCE, stat_list_compare_func, GINT_TO_POINTER(LST_STAT_BALANCE), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPDIST_POS    , ui_list_repdist_compare_func, GINT_TO_POINTER(LST_REPDIST_POS), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPDIST_EXPENSE, ui_list_repdist_compare_func, GINT_TO_POINTER(LST_REPDIST_EXPENSE), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPDIST_INCOME , ui_list_repdist_compare_func, GINT_TO_POINTER(LST_REPDIST_INCOME), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_REPDIST_BALANCE, ui_list_repdist_compare_func, GINT_TO_POINTER(LST_REPDIST_BALANCE), NULL);
 
 
 	return(view);
 }
 
-static gint stat_list_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
+static gint ui_list_repdist_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
 gint sortcol = GPOINTER_TO_INT(userdata);
-gint ret = 0;
+gint retval = 0;
 gint pos1, pos2;
 gdouble val1, val2;
 
 	gtk_tree_model_get(model, a,
-		LST_STAT_POS, &pos1,
+		LST_REPDIST_POS, &pos1,
 		sortcol, &val1,
 		-1);
 	gtk_tree_model_get(model, b,
-		LST_STAT_POS, &pos2,
+		LST_REPDIST_POS, &pos2,
 		sortcol, &val2,
 		-1);
 
 	switch(sortcol)
 	{
-		case LST_STAT_POS:
-			ret = pos2 - pos1;
+		case LST_REPDIST_POS:
+			retval = pos2 - pos1;
 			break;
 		default:
-			ret = (ABS(val1) - ABS(val2)) > 0 ? 1 : -1;
+			retval = (ABS(val1) - ABS(val2)) > 0 ? 1 : -1;
 			break;
 	}
 
 	//DB( g_print(" sort %d=%d or %.2f=%.2f :: %d\n", pos1,pos2, val1, val2, ret) );
 
-    return ret;
+    return retval;
   }
 

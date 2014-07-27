@@ -34,7 +34,10 @@ GtkWidget *make_long(GtkWidget *label);
 GtkWidget *make_year(GtkWidget *label);
 GtkWidget *make_cycle(GtkWidget *label, gchar **items);
 GtkWidget *make_daterange(GtkWidget *label, gboolean custom);
-GtkWidget *make_radio(GtkWidget *label, gchar **items);
+GtkWidget *make_radio(GtkWidget *label, gchar **items, GtkOrientation orientation);
+
+gint radio_get_active (GtkContainer *container);
+void radio_set_active (GtkContainer *container, gint active);
 
 void
 gimp_label_set_attributes (GtkLabel *label,

@@ -38,6 +38,7 @@ typedef struct _GtkChart		GtkChart;
 typedef struct _GtkChartClass	GtkChartClass;
 //typedef struct _GtkChartPrivate	GtkChartPrivate;
 
+typedef struct _ChartItem	    ChartItem;
 typedef gchar (* GtkChartPrintIntFunc)    (gint value, gboolean minor);
 typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 
@@ -51,20 +52,19 @@ typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 
 
 /* default zoomx for charts */
-#define GTK_CHART_BARW 		24
-#define GTK_CHART_MINBARW 	8
-#define GTK_CHART_MAXBARW 	64
+#define GTK_CHART_BARW 			24
+#define GTK_CHART_MINBARW 		 8
+#define GTK_CHART_MAXBARW 		64
+#define GTK_CHART_MINRADIUS 	64
+
 
 #define CHART_BUFFER_LENGTH 128
-
-
-#define DEFAULT_DELAY 500           /* Default delay in ms */
 
 // for cairo pie
 #define PIE_LINE_SLICE 0
 #define SOFT_LIGHT  0
 #define GRADIENT	0
-#define CHART_PIE_DONUT	 0
+#define CHART_PIE_DONUT	 1
 
 
 /* new stuff */
@@ -76,13 +76,12 @@ typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 
 enum
 {
-	CHART_BAR_TYPE,
-	CHART_LINE_TYPE,
-	CHART_PIE_TYPE,
+	CHART_TYPE_COL,
+	CHART_TYPE_PIE,
+	CHART_TYPE_LINE,
 	CHART_TYPE_MAX
 };
 
-/* end */
 
 enum
 {
@@ -95,10 +94,30 @@ enum
 };
 
 
-/* you should access only the entry and list fields directly */
+struct _ChartItem
+{
+	/* data part */
+	gchar	 *label;
+	gdouble  serie1;
+	gdouble	 serie2;
+	gdouble	 rate;
+
+	/* cairo part */
+	gchar    *legend;
+	double	 angle2;	  /* rate for pie */
+	double	 height;   /* for column */ 
+};
+
+
 struct _GtkChart
 {
+	//own widget here
+
 	/*< private >*/
+	//GtkChartPrivate *priv;
+
+
+	/* all below should be in priv normally */
 	GtkHBox			hbox;
 
 	GtkWidget		*drawarea;
@@ -109,22 +128,20 @@ struct _GtkChart
 	GtkWidget		*treeview;
 	GtkTreeModel	*legend;
 
-	GtkWidget		*tooltipwin;
-	GtkWidget		*ttlabel;
-
 	/* data storage */
-	guint		nb_items;
+	gint		nb_items;
+	GArray		*items;
+
 	gchar		*title;
-	gchar		**titles;
-	gdouble		*datas1;
-	gdouble		*datas2;
+	gchar		*subtitle;
 
 	/* chart properties */
 	gint		type;
 	gboolean	dual;
+	gboolean	abs;
 	gboolean	show_over;
 	gboolean	show_xval;
-	gint		decy_xval;
+	gint		every_xval;
 	//guint32		kcur;
 	gboolean	minor;
 	gdouble		minor_rate;
@@ -133,15 +150,19 @@ struct _GtkChart
 	/* color datas */
 	struct rgbcol		*colors;
 	gint	nb_cols;
-	gint	cs_red, cs_green, cs_blue;
+	gint	cs_red, cs_green, cs_blue, cs_yellow;
 
-
-	double		l, t, b, r, w, h;
+	/* buffer surface */
+	cairo_surface_t	 *surface;
+	
+	/* draw area coordinates */
+	double	l, t, b, r, w, h;
 	/* our drawing rectangle with margin */
 	double		legend_w;
 
 	/* zones height */
 	double		title_zh;
+	double  subtitle_zh, subtitle_y;
 
 
 	double		ox, oy;
@@ -155,19 +176,22 @@ struct _GtkChart
 	gint		rayon, left, top;
 
 	/* bar specifics */
-	double	range, min, max, unit, minimum;
+	double	rawmin, rawmax, range, min, max, unit, minimum;
 	gint	div;
 	gint	visible;
 
 	double font_h;
 
+	double scale_x, scale_y, scale_w, scale_h;
 	double graph_x, graph_y, graph_width, graph_height;	//graph dimension
 	double barw, blkw, posbarh, negbarh;
 
-	gchar			buffer[CHART_BUFFER_LENGTH];
+	gchar			buffer1[CHART_BUFFER_LENGTH];
+	gchar			buffer2[CHART_BUFFER_LENGTH];
 };
 
-struct _GtkChartClass {
+struct _GtkChartClass
+{
 	GtkHBoxClass parent_class;
 
   /* Padding for future expansion */
@@ -185,6 +209,8 @@ GtkWidget *gtk_chart_new(gint type);
 void gtk_chart_set_type(GtkChart *chart, gint type);
 void gtk_chart_set_color_scheme(GtkChart * chart, gint colorscheme);
 
+void gtk_chart_queue_redraw(GtkChart *chart);
+
 void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gchar *title);
 void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title);
 
@@ -192,13 +218,14 @@ void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol);
 //void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
 
 void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum);
-void gtk_chart_set_decy_xval(GtkChart * chart, gint decay);
+void gtk_chart_set_every_xval(GtkChart * chart, gint decay);
 void gtk_chart_set_barw(GtkChart * chart, gdouble barw);
 
-void gtk_chart_show_legend(GtkChart * chart, gboolean visible);
+void gtk_chart_show_legend(GtkChart * chart, gboolean visible, gboolean showextracol);
 void gtk_chart_show_overdrawn(GtkChart * chart, gboolean visible);
 void gtk_chart_show_xval(GtkChart * chart, gboolean visible);
 void gtk_chart_show_minor(GtkChart * chart, gboolean minor);
+void gtk_chart_set_absolute(GtkChart * chart, gboolean abs);
 
 G_END_DECLS
 #endif /* __GTK_CHART_H__ */

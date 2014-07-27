@@ -20,6 +20,8 @@
 #ifndef __HB_TRANSACTION_H__
 #define __HB_TRANSACTION_H__
 
+#include "hb-archive.h"
+
 #define TXN_MAX_SPLIT 10
 
 typedef struct _split Split;
@@ -71,14 +73,16 @@ struct _transaction
 
 Transaction *da_transaction_malloc(void);
 Transaction *da_transaction_copy(Transaction *src_txn, Transaction *dst_txn);
+Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc);
 Transaction *da_transaction_clone(Transaction *src_item);
+void da_transaction_clean(Transaction *item);
 void da_transaction_free(Transaction *item);
 
 GList *da_transaction_new(void);
 void da_transaction_destroy(GList *list);
 
 GList *da_transaction_sort(GList *list);
-gboolean da_transaction_append(Transaction *item);
+gboolean da_transaction_prepend(Transaction *item);
 gboolean da_transaction_insert_sorted(Transaction *item);
 
 guint32 da_transaction_get_max_kxfer(void);

@@ -52,6 +52,7 @@ static void homebank_upgrade_to_v05(void);
 static void homebank_upgrade_lower_v06(void);
 static void homebank_upgrade_to_v06(void);
 static void homebank_upgrade_to_v07(void);
+static void homebank_upgrade_to_v08(void);
 
 static void
 start_element_handler (GMarkupParseContext *context,
@@ -138,17 +139,29 @@ gint i, j;
 			else if(!strcmp (element_name, "asg"))
 			{
 			Assign *entry = da_asg_malloc();
+			gint exact = 0;
 
 				for (i = 0; attribute_names[i] != NULL; i++)
 				{
 					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
 
 					     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
+					else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
+					else if(!strcmp (attribute_names[i], "field"   )) { entry->field = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "exact" )) { entry->exact = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "payee"      )) { entry->kpay = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "category"   )) { entry->kcat = atoi(attribute_values[i]); }
+					else if(!strcmp (attribute_names[i], "payee"   )) { entry->kpay = atoi(attribute_values[i]); }
+					else if(!strcmp (attribute_names[i], "category")) { entry->kcat = atoi(attribute_values[i]); }
+					//else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
+					// prior v08
+					else if(!strcmp (attribute_names[i], "exact" )) { exact = atoi(attribute_values[i]); }
+				}
 
+				/* in v08 exact moved to flag */
+				if( ctx->version <= 0.7)
+				{
+					entry->flags = (ASGF_DOCAT|ASGF_DOPAY);
+					if( exact > 0 )
+					   entry->flags |= ASGF_EXACT;
 				}
 
 				//all attribute loaded: append
@@ -299,6 +312,7 @@ gint i, j;
 					else if(!strcmp (attribute_names[i], "every"      )) { entry->every = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "unit"       )) { entry->unit = atoi(attribute_values[i]); }
 					else if(!strcmp (attribute_names[i], "limit"      )) { entry->limit = atoi(attribute_values[i]); }
+					else if(!strcmp (attribute_names[i], "weekend"    )) { entry->weekend = atoi(attribute_values[i]); }
 
 				}
 
@@ -363,7 +377,8 @@ gint i, j;
 				}
 
 				//all attribute loaded: append
-				da_transaction_append(entry);
+				// we use prepend here, the list will be reversed later for perf reason
+				da_transaction_prepend(entry);
 			}
 		}
 		break;
@@ -476,6 +491,10 @@ gboolean rc;
 			g_markup_parse_context_free (context);
 			g_free (buffer);
 
+			//reverse the glist (see g_list append idiom to perf for reason
+			// we use prepend and then reverse
+			GLOBALS->ope_list = g_list_reverse(GLOBALS->ope_list);
+			
 			DB( g_print("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
 			DB( g_timer_destroy (t) );
 
@@ -498,6 +517,10 @@ gboolean rc;
 				homebank_upgrade_to_v07();
 				hbfile_sanity_check();
 			}
+			if( version <= 0.7 )
+				homebank_upgrade_to_v08();
+			if( version <= 0.8 )
+				hbfile_sanity_check();
 
 			// next ?
 			
@@ -643,6 +666,24 @@ GList *lacc, *list;
 
 }
 
+static void homebank_upgrade_to_v08(void)
+{
+GList *list;
+
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v08\n") );
+
+	list = g_list_first(GLOBALS->ope_list);
+	while (list != NULL)
+	{
+	Transaction *entry = list->data;
+		da_transaction_consistency(entry);
+		list = g_list_next(list);
+	}
+
+
+}
+
+
 // v0.6 to v0.7 : assign a default currency
 /*
 static void homebank_upgrade_to_v08(void)
@@ -760,11 +801,16 @@ static void hb_xml_append_txt(GString *gstring, gchar *attrname, gchar *value)
 	}
 }
 
+static void hb_xml_append_int0(GString *gstring, gchar *attrname, guint32 value)
+{
+	g_string_append_printf(gstring, "%s=\"%d\" ", attrname, value);
+}
+	
 static void hb_xml_append_int(GString *gstring, gchar *attrname, guint32 value)
 {
 	if(value != 0)
 	{
-		g_string_append_printf(gstring, "%s=\"%d\" ", attrname, value);
+		hb_xml_append_int0(gstring, attrname, value);
 	}
 }
 
@@ -794,7 +840,7 @@ GString *node;
 	
 	hb_xml_append_txt(node, "title", title);
 	hb_xml_append_int(node, "car_category", GLOBALS->vehicle_category);
-	hb_xml_append_int(node, "auto_smode", GLOBALS->auto_smode);
+	hb_xml_append_int0(node, "auto_smode", GLOBALS->auto_smode);
 	hb_xml_append_int(node, "auto_weekday", GLOBALS->auto_weekday);
 	hb_xml_append_int(node, "auto_nbdays", GLOBALS->auto_nbdays);
 
@@ -998,28 +1044,35 @@ gchar *tmpstr;
 static void homebank_save_xml_asg(GIOChannel *io)
 {
 GList *lasg, *list;
-gchar *tmpstr;
+GString *node;
 
-	lasg = list = g_hash_table_get_values(GLOBALS->h_rul);
+	node = g_string_sized_new(255);
+	
+	lasg = list = assign_glist_sorted(0);
 	while (list != NULL)
 	{
 	Assign *item = list->data;
 
-		tmpstr = g_markup_printf_escaped("<asg key=\"%d\" name=\"%s\" exact=\"%d\" payee=\"%d\" category=\"%d\"/>\n",
-			item->key,
-			item->name,
-			item->exact,
-			item->kpay,
-			item->kcat
-		);
+		g_string_assign(node, "<asg ");
 
-		g_io_channel_write_chars(io, tmpstr, -1, NULL, NULL);
-		g_free(tmpstr);
+		hb_xml_append_int(node, "key"     , item->key);
+		hb_xml_append_int(node, "flags"   , item->flags);
+		hb_xml_append_int(node, "field"   , item->field);
+		hb_xml_append_txt(node, "name"    , item->name);	
+		hb_xml_append_int(node, "payee"   , item->kpay);
+		hb_xml_append_int(node, "category", item->kcat);
+		//hb_xml_append_int(node, "paymode" , item->paymode);
+
+		g_string_append(node, "/>\n");
+		
+		g_io_channel_write_chars(io, node->str, -1, NULL, NULL);
 
 		list = g_list_next(list);
 	}
 	g_list_free(lasg);
+	g_string_free(node, TRUE);
 }
+
 
 
 /*
@@ -1038,7 +1091,7 @@ GString *node;
 	Archive *item = list->data;
 
 		g_string_assign(node, "<fav ");
-		
+
 		hb_xml_append_amt(node, "amount", item->amount);
 		hb_xml_append_int(node, "account", item->kacc);
 		hb_xml_append_int(node, "dst_account", item->kxferacc);
@@ -1051,6 +1104,7 @@ GString *node;
 		hb_xml_append_int(node, "every", item->every);
 		hb_xml_append_int(node, "unit", item->unit);
 		hb_xml_append_int(node, "limit", item->limit);
+		hb_xml_append_int(node, "weekend", item->weekend);
 
 		g_string_append(node, "/>\n");
 

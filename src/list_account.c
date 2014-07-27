@@ -250,7 +250,7 @@ GtkCellRenderer    *renderer;
 static gint
 list_account_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint result = 0;
+gint retval = 0;
 gint dt1, dt2;
 Account *entry1, *entry2;
 //gchar *name1, *name2;
@@ -268,15 +268,10 @@ Account *entry1, *entry2;
 
 	if( dt1 == DSPACC_TYPE_NORMAL && dt2 == DSPACC_TYPE_NORMAL )
 	{
-		result = entry1->pos - entry2->pos;
+		retval = entry1->pos - entry2->pos;
 	}
 
-/*	if( dt1 == DSPACC_TYPE_HEADER && dt2 == DSPACC_TYPE_HEADER )
-	{
-		result = g_utf8_collate(name1, name2);
-	}*/
-
-    return result;
+    return retval;
 }
 
 
@@ -391,7 +386,7 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 
-	/* disbale selection for level 1 of the tree */
+	/* disable selection for level 1 of the tree */
 	
 	gtk_tree_selection_set_select_function(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), list_account_selectionfunc, NULL, NULL);
 	

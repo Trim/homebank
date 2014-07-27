@@ -44,8 +44,10 @@
 */
 struct CurrencyFmt
 {
-	gchar		*prefix_symbol;		/* max symbol is 3 digits in unicode */
-	gchar		*suffix_symbol;		/* but mostly is 1 digit */
+	//gchar		*prefix_symbol;		/* max symbol is 3 digits in unicode */
+	//gchar		*suffix_symbol;		/* but mostly is 1 digit, and most are prefix ~100  */
+	gchar	    *symbol;
+	gboolean	is_prefix;
 	gchar		*decimal_char;	
 	gchar		*grouping_char;	
 	gshort		frac_digits;
@@ -77,6 +79,9 @@ struct Preferences
 	gint		date_range_wal;
 	gint		date_range_txn;
 	gint		date_range_rep;
+
+	gshort		fisc_year_day;
+	gshort		fisc_year_month;
 	
 	//interface
 	gshort		toolbar_style;
@@ -93,7 +98,7 @@ struct Preferences
 
 	//gshort	num_nbdecimal;
 	//gboolean	num_separator;
-	gboolean	imperial_unit;
+	//gboolean	imperial_unit;
 
 	//help system
 	//gboolean	show_tooltips;
@@ -130,7 +135,8 @@ struct Preferences
 	gboolean	chart_legend;
 
 
-	/* internal */
+	
+	/* internal : not saved*/
 
 	gint 	lst_ope_columns[NUM_LST_DSPOPE+1];
 	gint	lst_ope_sort_id;
@@ -152,11 +158,14 @@ struct Preferences
 	gint		wal_vpaned;
 	gint		wal_hpaned;
 
-	//vehiclecost units (mile/gal or km/liters
-	gchar	*vehicle_unit_dist;
-	gchar	*vehicle_unit_vol;
-	gchar	*vehicle_unit_100;
-	gchar	*vehicle_unit_distbyvol;
+	//vehiclecost units (mile/gal or km/liters)
+	gboolean	vehicle_unit_ismile;	// true is unit is mile, default Km
+	gboolean	vehicle_unit_isgal;		// true is unit is gallon, default Liter
+	
+	gchar	   *vehicle_unit_dist;
+	gchar	   *vehicle_unit_vol;
+	gchar	   *vehicle_unit_100;
+	gchar	   *vehicle_unit_distbyvol;
 
 };
 
