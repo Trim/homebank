@@ -555,7 +555,8 @@ gboolean sensitive;
 	sensitive = (data->ope->flags & (OF_SPLIT)) ? FALSE : TRUE;
 	gtk_widget_set_sensitive(data->ST_amount, sensitive);
 	//# 1416624 empty category when split
-	ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
+	if( (data->ope->flags & (OF_SPLIT)) )
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
 	gtk_widget_set_sensitive(data->PO_grp, sensitive);
 
 }
