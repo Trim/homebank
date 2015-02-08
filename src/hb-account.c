@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -137,9 +137,9 @@ da_acc_length(void)
 /**
  * da_acc_remove:
  *
- * remove an account from the GHashTable
+ * delete an account from the GHashTable
  *
- * Return value: TRUE if the key was found and removed
+ * Return value: TRUE if the key was found and deleted
  *
  */
 gboolean
@@ -495,7 +495,8 @@ static void account_balances_sub_internal(Account *acc, Transaction *trn)
 	if(trn->date <= GLOBALS->today)
 		acc->bal_today -= trn->amount;
 
-	if(trn->flags & OF_VALID)
+	if(trn->status == TXN_STATUS_RECONCILED)
+	//if(trn->flags & OF_VALID)
 		acc->bal_bank -= trn->amount;
 }
 
@@ -509,7 +510,8 @@ static void account_balances_add_internal(Account *acc, Transaction *trn)
 	if(trn->date <= GLOBALS->today)
 		acc->bal_today += trn->amount;
 
-	if(trn->flags & OF_VALID)
+	if(trn->status == TXN_STATUS_RECONCILED)
+	//if(trn->flags & OF_VALID)
 		acc->bal_bank += trn->amount;
 }
 
@@ -519,7 +521,9 @@ static void account_balances_add_internal(Account *acc, Transaction *trn)
  */
 gboolean account_balances_sub(Transaction *trn)
 {
-	if(!(trn->flags & OF_REMIND))
+
+	if(!(trn->status == TXN_STATUS_REMIND))
+	//if(!(trn->flags & OF_REMIND))
 	{
 		Account *acc = da_acc_get(trn->kacc);
 		if(acc == NULL) return FALSE;
@@ -535,7 +539,8 @@ gboolean account_balances_sub(Transaction *trn)
  */
 gboolean account_balances_add(Transaction *trn)
 {
-	if(!(trn->flags & OF_REMIND))
+	if(!(trn->status == TXN_STATUS_REMIND))
+	//if(!(trn->flags & OF_REMIND))
 	{
 		Account *acc = da_acc_get(trn->kacc);
 		if(acc == NULL) return FALSE;
@@ -544,10 +549,6 @@ gboolean account_balances_add(Transaction *trn)
 	}
 	return FALSE;
 }
-
-
-
-
 
 
 void account_compute_balances(void)
@@ -577,7 +578,7 @@ Transaction *trn;
 	{
 		trn = list->data;
 
-		if(!(trn->flags & OF_REMIND))
+		if(!(trn->status == TXN_STATUS_REMIND))
 		{
 			account_balances_add(trn);
 		}

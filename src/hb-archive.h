@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,6 +20,8 @@
 #ifndef __HB_ARCHIVE_H__
 #define __HB_ARCHIVE_H__
 
+#include "hb-transaction.h"
+
 typedef struct _archive		Archive;
 
 struct _archive
@@ -32,6 +34,7 @@ struct _archive
 	guint32		kpay;
 	guint32		kcat;
 	gchar		*wording;
+	gushort     status;
 
 	guint32		nextdate;
 	gushort		every;
@@ -50,6 +53,7 @@ GList *da_archive_sort(GList *list);
 guint da_archive_length(void);
 void da_archive_consistency(Archive *item);
 
+Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn);
 
 gboolean scheduled_is_postable(Archive *arc);
 guint32 scheduled_get_postdate(Archive *arc, guint32 postdate);

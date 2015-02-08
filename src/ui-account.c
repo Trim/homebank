@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -289,7 +289,7 @@ GtkEntryCompletion *completion;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_LIST, -1);
 	
 	return comboboxentry;
 }
@@ -587,8 +587,6 @@ gint field = GPOINTER_TO_INT(user_data);
 					}
 				}
 				break;
-
-		//todo: for stock account			
 		
 			//case FIELD_TYPE:
 			//	item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
@@ -648,17 +646,17 @@ gchar *retval = NULL;
 		dialog = gtk_dialog_new_with_buttons (title,
 						    GTK_WINDOW (parentwindow),
 						    0,
-						    GTK_STOCK_CANCEL,
+						    _("_Cancel"),
 						    GTK_RESPONSE_REJECT,
-						    GTK_STOCK_OK,
+						    _("_OK"),
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
 		content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 	
-		mainvbox = gtk_vbox_new (FALSE, 0);
+		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
+		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), SPACING_SMALL);
 
 		getwidget = gtk_entry_new();
 		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
@@ -832,7 +830,6 @@ GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 gboolean selected, sensitive;
 guint32 key;
-//todo: for stock account
 //gboolean is_new;
 
 	DB( g_print("\n(ui_acc_manage_update)\n") );
@@ -874,7 +871,6 @@ guint32 key;
 		}
 	}	*/
 
-	//todo: for stock account
 	//todo: lock type if oldpos!=0
 /*
 	if( selected )
@@ -887,24 +883,8 @@ guint32 key;
 */
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->CY_type, sensitive);
-	//gtk_widget_set_sensitive(data->CY_curr, sensitive);
-	gtk_widget_set_sensitive(data->ST_number, sensitive);
-	gtk_widget_set_sensitive(data->ST_bank, sensitive);
-	gtk_widget_set_sensitive(data->CM_nobudget, sensitive);
-	gtk_widget_set_sensitive(data->CM_nosummary, sensitive);
-	gtk_widget_set_sensitive(data->CM_noreport, sensitive);
-	gtk_widget_set_sensitive(data->CM_closed, sensitive);
 
-	gtk_widget_set_sensitive(data->ST_initial, sensitive);
-	gtk_widget_set_sensitive(data->ST_minimum, sensitive);
-	gtk_widget_set_sensitive(data->ST_cheque1, sensitive);
-	gtk_widget_set_sensitive(data->ST_cheque2, sensitive);
-
-
-	//sensitive = (data->action == 0) ? TRUE : FALSE;
-	//gtk_widget_set_sensitive(data->LV_acc, sensitive);
-	//gtk_widget_set_sensitive(data->BT_new, sensitive);
+	gtk_widget_set_sensitive(data->notebook, sensitive);
 
 	sensitive = (selected == TRUE && data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->BT_mod, sensitive);
@@ -964,45 +944,66 @@ Account *item;
 }
 
 /*
-** remove the selected account to our treeview and temp GList
+** delete the selected account to our treeview and temp GList
 */
-static void ui_acc_manage_remove(GtkWidget *widget, gpointer user_data)
+static void ui_acc_manage_delete(GtkWidget *widget, gpointer user_data)
 {
 struct ui_acc_manage_data *data;
-//Account *item;
+Account *item;
 guint32 key;
-gboolean do_remove;
+gint result;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	DB( g_print("\n(ui_acc_manage_remove) (data=%x)\n", (guint)data) );
 
-	do_remove = TRUE;
 	key = ui_acc_listview_get_selected_key(GTK_TREE_VIEW(data->LV_acc));
 	if( key > 0 )
 	{
-		if( account_is_used(key) == TRUE )
-		{		
-			//item = da_acc_get(key);
-			do_remove = FALSE;
-			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_INFO,
-				_("Remove not allowed"),
-				_("This account is used and cannot be removed.")
-			);
-			
-		}
+		item = da_acc_get(key);
 
-		if( do_remove )
+		if( account_is_used(key) == TRUE )
 		{
-			da_acc_remove(key);
-			ui_acc_listview_remove_selected(GTK_TREE_VIEW(data->LV_acc));
-			data->change++;
+		gchar *title;
+
+			title = g_strdup_printf (
+				_("Cannot delete account '%s'"), item->name);
+
+			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
+				title,
+				_("This account contains transactions and/or is part of internal transfers.")
+			);
+
+			g_free(title);
+		}
+		else
+		{
+		gchar *title;
+		gchar *secondtext;
+
+			title = g_strdup_printf (
+				_("Are you sure you want to permanently delete '%s'?"), item->name);
+
+			secondtext = _("If you delete an account, it will be permanently lost.");
+			
+			result = ui_dialog_msg_confirm_alert(
+					GTK_WINDOW(data->window),
+					title,
+					secondtext,
+					_("_Delete")
+				);
+
+			g_free(title);
+
+			if( result == GTK_RESPONSE_OK )
+			{
+				da_acc_remove(key);
+				ui_acc_listview_remove_selected(GTK_TREE_VIEW(data->LV_acc));
+				data->change++;
+			}
+		
 		}
 	}
 }
-
-
-
-
 
 
 /*
@@ -1150,22 +1151,26 @@ static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 GtkWidget *ui_acc_manage_dialog (void)
 {
 struct ui_acc_manage_data data;
-GtkWidget *dialog, *content, *mainbox, *scrollwin, *notebook, *alignment;
+GtkWidget *dialog, *content, *mainbox, *vbox, *scrollwin, *notebook;
+GtkWidget *content_grid, *group_grid;
 GtkWidget *table, *label, *widget, *hpaned;
-gint row;
+gint w, h, row;
 
 	dialog = gtk_dialog_new_with_buttons (_("Manage Accounts"),
 				GTK_WINDOW(GLOBALS->mainwindow),
 				0,
-			    GTK_STOCK_CLOSE,
+			    _("_Close"),
 			    GTK_RESPONSE_ACCEPT,
 				NULL);
 
 	data.window = dialog;
 
 	//set the dialog icon
-	//homebank_window_set_icon_from_file(GTK_WINDOW (dialog), "account.svg");	
-	gtk_window_set_icon_name(GTK_WINDOW (dialog), HB_STOCK_ACCOUNT);
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_ACCOUNT);
+
+	//set a nice dialog size
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h/PHI);
 
 	//store our dialog private data
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
@@ -1173,18 +1178,27 @@ gint row;
 
 	//window contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
-	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
+	mainbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
+	gtk_container_set_border_width (GTK_CONTAINER(mainbox), SPACING_MEDIUM);
 
-	hpaned = gtk_hpaned_new();
+	hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
 
+	// set paned position
+	//w = w/PHI;
+	//gtk_paned_set_position(GTK_PANED(hpaned), w - (w/PHI));
+
 	/* left area */
-	table = gtk_table_new (2, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
+	vbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
+	gtk_widget_set_margin_right(vbox, SPACING_TINY);
+	gtk_paned_pack1 (GTK_PANED(hpaned), vbox, FALSE, FALSE);
+
+	table = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
+	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 0);
 
 	row = 0;
  	scrollwin = gtk_scrolled_window_new(NULL,NULL);
@@ -1194,154 +1208,174 @@ gint row;
 	gtk_widget_set_size_request(data.LV_acc, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_acc);
 	gtk_widget_set_tooltip_text(data.LV_acc, _("Drag & drop to change the order\nDouble-click to rename"));
-	gtk_table_attach_defaults (GTK_TABLE (table), scrollwin, 0, 2, row, row+1);
+	gtk_widget_set_vexpand (scrollwin, TRUE);
+	gtk_widget_set_hexpand (scrollwin, TRUE);
+	gtk_grid_attach (GTK_GRID(table), scrollwin, 0, row, 2, 1);
 
-	// tools buttons
 	row++;
-	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	widget = gtk_button_new_with_mnemonic(_("_Add"));
 	data.BT_add = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
-	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	data.BT_rem = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID(table), widget, 0, row, 1, 1);
+
+	widget = gtk_button_new_with_mnemonic(_("_Delete"));
+	data.BT_rem = widget; 
+	gtk_grid_attach (GTK_GRID(table), widget, 1, row, 1, 1);
 
 
 	/* right area */
 	notebook = gtk_notebook_new();
+	data.notebook = notebook;
 	//gtk_box_pack_start (GTK_BOX (mainbox), notebook, TRUE, TRUE, 0);
+	gtk_widget_set_margin_left(notebook, SPACING_TINY);
 	gtk_paned_pack2 (GTK_PANED(hpaned), notebook, FALSE, FALSE);
-	
-	/* page general */
-	table = gtk_table_new (8, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-	gtk_container_set_border_width (GTK_CONTAINER(table), HB_MAINBOX_SPACING);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
+
+	/* page :: General */
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
 	label = gtk_label_new(_("General"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), alignment, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), content_grid, label);
 
-	row = 0;
-	label = make_label(_("Account"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	// group :: Account
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 0, 1, 1);
 
-	row++;
+	label = make_label_group(_("Account"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+
+	row = 1;
 	label = make_label(_("_Type:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_ACC_TYPE);
 	data.CY_type = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	/*
 	row++;
 	label = make_label(_("_Currency:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
 	widget = ui_cur_combobox_new(label);
 	data.CY_curr = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
 	*/
 
 	row++;
 	label = make_label (_("Start _balance:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data.ST_initial = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	//TODO: notes
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("this account was _closed"));
 	data.CM_closed = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
 
 	
-	row++;
-	label = make_label(_("Current check number"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	// group :: Current check number
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
 
-	row++;
+	label = make_label_group(_("Current check number"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+
+	row = 1;
 	label = make_label(_("Checkbook _1:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_long (label);
 	data.ST_cheque1 = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("Checkbook _2:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_long (label);
 	data.ST_cheque2 = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-	/* page options */
-	table = gtk_table_new (9, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-	gtk_container_set_border_width (GTK_CONTAINER(table), HB_MAINBOX_SPACING);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	label = gtk_label_new(_("Options"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), alignment, label);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	
-	row = 0;
-	label = make_label(_("Institution"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	/* page :: Options */
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	label = gtk_label_new(_("Options"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), content_grid, label);
 
-	row++;
+	// group :: Institution
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 0, 1, 1);
+
+	label = make_label_group(_("Institution"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+	
+	row = 1;
 	label = make_label(_("_Name:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1,(GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data.ST_bank = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
 	label = make_label(_("N_umber:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data.ST_number = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
-	row++;
+	// group :: Limits
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
+
 	label = make_label(_("Limits"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
-
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+	
 	//TODO: warning/absolute minimum balance
 
-	row++;
-	label = make_label (_("_Min. balance:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	row = 1;
+	label = make_label(_("_Min. balance:"), 0.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data.ST_minimum = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	row++;
-	label = make_label(_("Report exclusion"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	// group :: Report exclusion
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 2, 1, 1);
 
-	row++;
+	label = make_label_group(_("Report exclusion"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 2, 1);
+
+	row = 1;
 	widget = gtk_check_button_new_with_mnemonic (_("exclude from account _summary"));
 	data.CM_nosummary = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("exclude from the _budget"));
 	data.CM_nobudget = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("exclude from any _reports"));
 	data.CM_noreport = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 
 	//connect all our signals
@@ -1350,13 +1384,11 @@ gint row;
 	g_signal_connect (GTK_TREE_VIEW(data.LV_acc), "row-activated", G_CALLBACK (ui_acc_manage_rowactivated), GINT_TO_POINTER(2));
 	
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_acc_manage_add), NULL);
-	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_acc_manage_remove), NULL);
+	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_acc_manage_delete), NULL);
 
 	//setup, init and show window
 	ui_acc_manage_setup(&data);
 	ui_acc_manage_update(data.LV_acc, NULL);
-
-//	gtk_window_set_default_size (GTK_WINDOW (window), 640, 480);
 
 	gtk_widget_show_all (dialog);
 

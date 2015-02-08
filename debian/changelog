@@ -1,5 +1,8 @@
-homebank (4.5-0ubuntu1) quantal; urgency=low
+homebank (5.0.0-1) unstable; urgency=medium
 
-  * Upstream 4.5 release.
+  * debian/control: changed description (Closes: #734503, #639536)
+    (LP: #155059)
+  * homebank-data: now includes example files. (Closes: #692517, #649436)
+    (LP: #835606)
 
- -- Charles Brunet <cbrunet@cbrunet.net>  Mon, 25 Feb 2013 18:06:48 -0500
+ -- NetBit73 <netbit73@gmail.com>  Sat, 10 Feb 2014 19:23:10 +0100

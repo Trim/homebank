@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -115,6 +115,8 @@ gint i;
 	flt->type   = FLT_TYPE_ALL;
 	flt->status = FLT_STATUS_ALL;
 
+	flt->forceremind = PREFS->showremind;
+
 	flt->option[FILTER_DATE] = 1;
 	filter_default_date_set(flt);
 
@@ -132,11 +134,12 @@ GDate *date;
 GList *list;
 guint32 refjuliandate, month, year, qnum;
 
-	// any date :: todo : get date of current accout only when account 
+	// any date :: todo : get date of current account only when account 
 	flt->range = range;
 	if(g_list_length(GLOBALS->ope_list) > 0) // get all transaction date bound
 	{
-		GLOBALS->ope_list = da_transaction_sort(GLOBALS->ope_list);
+		//5.0 useless
+		//GLOBALS->ope_list = da_transaction_sort(GLOBALS->ope_list);
 		list = g_list_first(GLOBALS->ope_list);
 		flt->mindate = ((Transaction *)list->data)->date;
 		list = g_list_last(GLOBALS->ope_list);
@@ -297,7 +300,7 @@ GList *lcat, *list;
 	flt->status = status;
 	flt->option[FILTER_STATUS] = 0;
 	flt->reconciled = TRUE;
-	flt->reminded = TRUE;
+	flt->cleared  = TRUE;
 	flt->forceadd = FALSE;
 	flt->forcechg = FALSE;
 
@@ -322,11 +325,28 @@ GList *lcat, *list;
 		case FLT_STATUS_UNRECONCILED:
 			flt->option[FILTER_STATUS] = 2;
 			flt->reconciled = TRUE;
-			//#1336882
-			flt->reminded = FALSE;
+			flt->cleared = FALSE;
 			break;
-	}
 
+		case FLT_STATUS_UNCLEARED:
+			flt->option[FILTER_STATUS] = 2;
+			flt->reconciled = FALSE;
+			flt->cleared = TRUE;
+			break;
+
+		case FLT_STATUS_RECONCILED:
+			flt->option[FILTER_STATUS] = 1;
+			flt->reconciled = TRUE;
+			flt->cleared = FALSE;
+			break;
+
+		case FLT_STATUS_CLEARED:
+			flt->option[FILTER_STATUS] = 1;
+			flt->reconciled = FALSE;
+			flt->cleared = TRUE;
+			break;
+		
+	}
 }
 
 
@@ -439,11 +459,15 @@ gint insert;
 
 /*** start filtering ***/
 
-	/* add/change force */
+	/* force display */
 	if(flt->forceadd == TRUE && (txn->flags & OF_ADDED))
 		goto end;
 
 	if(flt->forcechg == TRUE && (txn->flags & OF_CHANGED))
+		goto end;
+
+	/* force remind if not filter on status */
+	if(flt->forceremind == TRUE && (txn->status == TXN_STATUS_REMIND))
 		goto end;
 
 /* date */
@@ -515,9 +539,9 @@ gint insert;
 	gint insert1 = 0, insert2 = 0;
 
 		if(flt->reconciled)
-			insert1 = ( txn->flags & OF_VALID ) ? 1 : 0;
-		if(flt->reminded)
-			insert2 = ( txn->flags & OF_REMIND ) ? 1 : 0;
+			insert1 = ( txn->status == TXN_STATUS_RECONCILED ) ? 1 : 0;
+		if(flt->cleared)
+			insert2 = ( txn->status == TXN_STATUS_CLEARED ) ? 1 : 0;
 
 		insert = insert1 | insert2;
 		if(flt->option[FILTER_STATUS] == 2) insert ^= 1;

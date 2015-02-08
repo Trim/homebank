@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2014 Maxime DOYEN
+ *	Copyright (C) 1995-2015 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -24,6 +24,7 @@ typedef struct _QifContext QifContext;
 typedef struct _qif_split	QIFSplit;
 typedef struct _qif_tran	QIF_Tran;
 
+#define QIF_UNKNOW_ACCOUNT_NAME "(unknown)"
 
 struct _QifContext
 {
@@ -48,6 +49,7 @@ struct _qif_tran
 	gchar		*date;
 	gdouble		amount;
 	gboolean	reconciled;
+	gboolean	cleared;
 	gchar		*info;
 	gchar		*payee;
 	gchar		*memo;

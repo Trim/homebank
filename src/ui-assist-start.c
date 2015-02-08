@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2014 Maxime DOYEN
+ *	Copyright (C) 1995-2015 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -187,10 +187,10 @@ static void
 ui_start_assistant_create_page1 (GtkWidget *assistant, struct assist_start_data *data)
 {
   GtkWidget *box, *label, *entry;
-  GdkPixbuf *pixbuf;
 
-  box = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-  gtk_container_set_border_width (GTK_CONTAINER (box), HB_MAINBOX_SPACING);
+
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+  gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
 
 
   label = gtk_label_new (_("Owner:"));
@@ -208,25 +208,21 @@ ui_start_assistant_create_page1 (GtkWidget *assistant, struct assist_start_data 
   gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("File properties"));
   gtk_assistant_set_page_type (GTK_ASSISTANT (assistant), box, GTK_ASSISTANT_PAGE_INTRO);
 
-  pixbuf = gtk_widget_render_icon (assistant, GTK_STOCK_FILE, GTK_ICON_SIZE_DIALOG, NULL);
-  gtk_assistant_set_page_header_image (GTK_ASSISTANT (assistant), box, pixbuf);
-  g_object_unref (pixbuf);
 }
 
 static void
 ui_start_assistant_create_page2 (GtkWidget *assistant, struct assist_start_data *data)
 {
   GtkWidget *box, *hbox, *label, *table, *widget, *alignment;
-  GdkPixbuf *pixbuf;
 gint row;
 
-  box = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-  gtk_container_set_border_width (GTK_CONTAINER (box), HB_MAINBOX_SPACING);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
+  gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
 
-	table = gtk_table_new (12, 3, FALSE);
+	table = gtk_grid_new ();
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING*2);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING*2);
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL*2);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM*2);
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
@@ -236,30 +232,26 @@ gint row;
 	row = 0;
 	label = make_label(_("System detection"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label("", 0.0, 0.5);
-	gtk_misc_set_padding (GTK_MISC (label), HB_BOX_SPACING, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
 	label = make_label(_("Languages:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_label(NULL, 0.0, 0.5);
 	data->TX_lang = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("Preset file:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_table_attach (GTK_TABLE (table), hbox, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_grid_attach (GTK_GRID (table), hbox, 2, row, 1, 1);
 
-	widget = gtk_image_new_from_stock(GTK_STOCK_YES, GTK_ICON_SIZE_BUTTON);
+	widget = gtk_image_new_from_icon_name(ICONNAME_HB_FILE_VALID, GTK_ICON_SIZE_LARGE_TOOLBAR);
 	data->ok_image = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
-	widget = gtk_image_new_from_stock(GTK_STOCK_NO, GTK_ICON_SIZE_BUTTON);
+	widget = gtk_image_new_from_icon_name(ICONNAME_HB_FILE_INVALID, GTK_ICON_SIZE_LARGE_TOOLBAR);
 	data->ko_image = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
@@ -271,7 +263,7 @@ gint row;
 	widget = gtk_check_button_new_with_mnemonic (_("Initialize my categories with this file"));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
 	data->CM_load = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 3, 1);
 
   gtk_widget_show_all (box);
 
@@ -282,26 +274,22 @@ gint row;
   gtk_assistant_set_page_complete (GTK_ASSISTANT (assistant), box, TRUE);
   gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("Preset categories"));
 
-  pixbuf = gtk_widget_render_icon (assistant, GTK_STOCK_FILE, GTK_ICON_SIZE_DIALOG, NULL);
-  gtk_assistant_set_page_header_image (GTK_ASSISTANT (assistant), box, pixbuf);
-  g_object_unref (pixbuf);
 }
 
 static void
 ui_start_assistant_create_page3 (GtkWidget *assistant, struct assist_start_data *data)
 {
-  GtkWidget *box, *label, *widget, *table, *alignment;
-  GdkPixbuf *pixbuf;
+GtkWidget *box, *label, *widget, *table, *alignment;
 gint row;
 
-  box = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-  gtk_container_set_border_width (GTK_CONTAINER (box), HB_MAINBOX_SPACING);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
+  gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
 
 
-	table = gtk_table_new (12, 3, FALSE);
+	table = gtk_grid_new ();
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
@@ -311,18 +299,14 @@ gint row;
 	row = 0;
 	label = make_label(_("Informations"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label("", 0.0, 0.5);
-	gtk_misc_set_padding (GTK_MISC (label), HB_BOX_SPACING, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
 	label = make_label(_("_Name:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data->ST_name = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	g_signal_connect (G_OBJECT (widget), "changed",
 		    G_CALLBACK (on_entry_changed), assistant);
@@ -330,17 +314,17 @@ gint row;
 
 	row++;
 	label = make_label(_("_Type:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_ACC_TYPE);
 	data->CY_type = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("N_umber:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data->ST_number = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 
 //other
@@ -350,31 +334,31 @@ gint row;
 	row++;
 	label = make_label(_("Balances"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Initial:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_initial = widget;
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_table_attach (GTK_TABLE (table), alignment, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), alignment, 2, row, 1, 1);
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Overdrawn at:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_minimum = widget;
 
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_table_attach (GTK_TABLE (table), alignment, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), alignment, 2, row, 1, 1);
 
 
 
@@ -384,9 +368,7 @@ gint row;
 
 	gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("Create an account"));
 
-  pixbuf = gtk_widget_render_icon (assistant, GTK_STOCK_FILE, GTK_ICON_SIZE_DIALOG, NULL);
-  gtk_assistant_set_page_header_image (GTK_ASSISTANT (assistant), box, pixbuf);
-  g_object_unref (pixbuf);
+
 }
 
 
@@ -397,7 +379,7 @@ static void
 ui_start_assistant_create_page4 (GtkWidget *assistant, struct assist_start_data *data)
 {
   GtkWidget *label;
-  GdkPixbuf *pixbuf;
+
 
   label = gtk_label_new (_("This is a confirmation page, press 'Apply' to apply changes"));
 
@@ -407,9 +389,7 @@ ui_start_assistant_create_page4 (GtkWidget *assistant, struct assist_start_data 
   gtk_assistant_set_page_complete (GTK_ASSISTANT (assistant), label, TRUE);
   gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), label, _("Confirmation"));
 
-  pixbuf = gtk_widget_render_icon (assistant, GTK_STOCK_FILE, GTK_ICON_SIZE_DIALOG, NULL);
-  gtk_assistant_set_page_header_image (GTK_ASSISTANT (assistant), label, pixbuf);
-  g_object_unref (pixbuf);
+
 }
 
 

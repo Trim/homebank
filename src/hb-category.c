@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -117,7 +117,7 @@ da_cat_length(void)
  *
  * GRFunc to get the max id
  *
- * Return value: TRUE if the key/value must be removed
+ * Return value: TRUE if the key/value must be deleted
  *
  */
 static gboolean
@@ -133,9 +133,9 @@ da_cat_remove_grfunc(gpointer key, Category *cat, guint32 *remkey)
 /**
  * da_cat_remove:
  *
- * remove a category from the GHashTable
+ * delete a category from the GHashTable
  *
- * Return value: TRUE if the key was found and removed
+ * Return value: TRUE if the key was found and deleted
  *
  */
 guint
@@ -579,6 +579,26 @@ da_cat_debug_list(void)
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+guint32 category_report_id(guint32 key, gboolean subcat)
+{
+Category *catentry = da_cat_get(key);
+guint32 retval = 0;
+
+	if(catentry)
+	{
+		if(subcat == FALSE)
+		{
+			retval = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+		}
+		else
+		{
+			retval = catentry->key;
+		}
+	}
+	return retval;
+}
+
+
 gboolean
 category_is_used(guint32 key)
 {
@@ -987,7 +1007,7 @@ gint category_change_type(Category *item, gboolean isIncome)
 gint changes = 1;
 GList *lcat, *list;
 
-	item->flags &= ~(GF_INCOME);	//remove flag
+	item->flags &= ~(GF_INCOME);	//delete flag
 	if(isIncome == TRUE)
 		item->flags |= GF_INCOME;
 
@@ -999,7 +1019,7 @@ GList *lcat, *list;
 
 		if(child->parent == item->key)
 		{
-			child->flags &= ~(GF_INCOME);	//remove flag
+			child->flags &= ~(GF_INCOME);	//delete flag
 			if(isIncome == TRUE)
 				child->flags |= GF_INCOME;
 			changes++;

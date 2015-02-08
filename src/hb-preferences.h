@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -76,6 +76,7 @@ struct Preferences
 
 	gboolean	heritdate;
 	gboolean	hidereconciled;
+	gboolean    showremind;
 	gint		date_range_wal;
 	gint		date_range_txn;
 	gint		date_range_rep;
@@ -139,6 +140,9 @@ struct Preferences
 	/* internal : not saved*/
 
 	gint 	lst_ope_columns[NUM_LST_DSPOPE+1];
+
+	gint 	lst_ope_col_size[NUM_LST_DSPOPE+1];
+
 	gint	lst_ope_sort_id;
 	gint	lst_ope_sort_order;
 

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -239,11 +239,21 @@ struct rgbcol global_colors[] =
 {
 	{  0,   0,   0},	// black
 	{255, 255, 255},	// white
-	{239, 239, 239},	// grey1 intermediate lines
-	{ 68,  68,  68},	// text
-	{ 51,  51,  51},	// x/y axis
-	{  0,   0,   0},	// theme base
-	{  0,   0,   0},	// theme text
+	{239, 239, 239},	// grey1	THTEXT 0.05
+	{ 68,  68,  68},	// text		THTEXT 0.78
+	{ 51,  51,  51},	// xyline   THTEXT 0.8
+
+
+/*	{  255,   0,   0},	// fake
+	{  255,   255,   0},	// fake
+	{  255,   0,   255},	// fake
+	{  0,   255,   0},	// fake
+	{  0,   0,   255},	// fake
+*/
+
+	
+	{255, 255, 255},	// theme base (bg)
+	{ 46,  52,  54},	// theme fg
 };
 
 
@@ -268,6 +278,22 @@ struct rgbcol global_colors[] =
 };*/
 
 
+void chart_color_global_default(void)
+{
+struct rgbcol *tcol;
+
+	// set base color (adwaita)
+	tcol = &global_colors[THBASE];
+	tcol->r = 255;
+	tcol->g = 255;
+	tcol->b = 255;
+
+	// set text(bg) color (adwaita)
+	tcol = &global_colors[THTEXT];
+	tcol->r = 46;
+	tcol->g = 52;
+	tcol->b = 54;
+}
 
 
 void cairo_user_set_rgbcol(cairo_t *cr, struct rgbcol *col)

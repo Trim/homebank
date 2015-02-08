@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -71,8 +71,11 @@ enum
 {
 	FLT_STATUS_UNCATEGORIZED = 0,
 	FLT_STATUS_UNRECONCILED = 1,
-	// 2 separator
-	FLT_STATUS_ALL = 3
+	FLT_STATUS_UNCLEARED = 2,
+	FLT_STATUS_RECONCILED = 3,
+	FLT_STATUS_CLEARED = 4,
+	// 5 separator
+	FLT_STATUS_ALL = 6
 };
 
 
@@ -97,9 +100,10 @@ struct _filter
 
 	gshort		option[FILTER_MAX];
 	gboolean	reconciled;
-	gboolean	reminded;
+	gboolean	cleared;
 	gboolean	forceadd;
 	gboolean	forcechg;
+	gboolean	forceremind;
 	gboolean	paymode[NUM_PAYMODE_MAX];
 	gdouble		minamount, maxamount;
 	gboolean	exact;

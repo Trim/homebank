@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal rulounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -57,6 +57,8 @@ struct ui_asg_manage_data
 	GtkWidget	*LV_rul;
 	GtkWidget	*BT_add, *BT_rem;
 
+	GtkWidget   *GR_condition;
+	GtkWidget   *GR_assignment;
 	GtkWidget   *CY_field;
 	GtkWidget	*ST_text;
 	GtkWidget	*CM_exact;

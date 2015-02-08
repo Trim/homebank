@@ -91,24 +91,25 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
-	gtk-chart.$(OBJEXT) gtk-dateentry.$(OBJEXT) \
-	hb-account.$(OBJEXT) hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) \
-	hb-category.$(OBJEXT) hb-encoding.$(OBJEXT) \
-	hb-export.$(OBJEXT) hb-filter.$(OBJEXT) hb-hbfile.$(OBJEXT) \
-	hb-import.$(OBJEXT) hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) \
-	hb-preferences.$(OBJEXT) hb-report.$(OBJEXT) hb-tag.$(OBJEXT) \
-	hb-transaction.$(OBJEXT) hb-xml.$(OBJEXT) homebank.$(OBJEXT) \
-	imp_qif.$(OBJEXT) import.$(OBJEXT) language.$(OBJEXT) \
-	list_account.$(OBJEXT) list_operation.$(OBJEXT) \
-	list_topspending.$(OBJEXT) list_upcoming.$(OBJEXT) \
-	rep_balance.$(OBJEXT) rep_budget.$(OBJEXT) rep_stats.$(OBJEXT) \
-	rep_time.$(OBJEXT) rep_vehicle.$(OBJEXT) ui-account.$(OBJEXT) \
+	gtk-chart.$(OBJEXT) gtk-chart-stack.$(OBJEXT) \
+	gtk-dateentry.$(OBJEXT) hb-account.$(OBJEXT) \
+	hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) hb-category.$(OBJEXT) \
+	hb-encoding.$(OBJEXT) hb-export.$(OBJEXT) hb-filter.$(OBJEXT) \
+	hb-hbfile.$(OBJEXT) hb-import.$(OBJEXT) hb-misc.$(OBJEXT) \
+	hb-payee.$(OBJEXT) hb-preferences.$(OBJEXT) \
+	hb-report.$(OBJEXT) hb-tag.$(OBJEXT) hb-transaction.$(OBJEXT) \
+	hb-xml.$(OBJEXT) homebank.$(OBJEXT) imp_qif.$(OBJEXT) \
+	language.$(OBJEXT) list_account.$(OBJEXT) \
+	list_operation.$(OBJEXT) list_topspending.$(OBJEXT) \
+	list_upcoming.$(OBJEXT) rep_balance.$(OBJEXT) \
+	rep_budget.$(OBJEXT) rep_stats.$(OBJEXT) rep_time.$(OBJEXT) \
+	rep_vehicle.$(OBJEXT) ui-account.$(OBJEXT) \
 	ui-archive.$(OBJEXT) ui-assign.$(OBJEXT) \
-	ui-assist-start.$(OBJEXT) ui-budget.$(OBJEXT) \
-	ui-category.$(OBJEXT) ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) \
-	ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) ui-pref.$(OBJEXT) \
-	ui-transaction.$(OBJEXT) ui-widgets.$(OBJEXT) \
-	gtk-chart-colors.$(OBJEXT)
+	ui-assist-import.$(OBJEXT) ui-assist-start.$(OBJEXT) \
+	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) ui-dialogs.$(OBJEXT) \
+	ui-filter.$(OBJEXT) ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) \
+	ui-pref.$(OBJEXT) ui-transaction.$(OBJEXT) \
+	ui-widgets.$(OBJEXT) gtk-chart-colors.$(OBJEXT)
 homebank_OBJECTS = $(am_homebank_OBJECTS)
 am__DEPENDENCIES_1 =
 homebank_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -175,6 +176,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATALOGS = @CATALOGS@
+CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -192,6 +195,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
+GMOFILES = @GMOFILES@
 GMSGFMT = @GMSGFMT@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -199,6 +203,8 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+INSTOBJEXT = @INSTOBJEXT@
+INTLLIBS = @INTLLIBS@
 INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
 INTLTOOL_MERGE = @INTLTOOL_MERGE@
 INTLTOOL_PERL = @INTLTOOL_PERL@
@@ -214,7 +220,9 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
+MSGFMT_OPTS = @MSGFMT_OPTS@
 MSGMERGE = @MSGMERGE@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -228,6 +236,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+POFILES = @POFILES@
+POSUB = @POSUB@
+PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
+PO_IN_DATADIR_TRUE = @PO_IN_DATADIR_TRUE@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -292,6 +304,8 @@ homebank_SOURCES = \
 	enums.h \
 	gtk-chart.c \
 	gtk-chart.h \
+	gtk-chart-stack.c \
+	gtk-chart-stack.h \
 	gtk-dateentry.c \
 	gtk-dateentry.h \
 	hb-account.c \
@@ -330,8 +344,6 @@ homebank_SOURCES = \
 	homebank.h \
 	imp_qif.c \
 	imp_qif.h \
-	import.c \
-	import.h \
 	language.c \
 	language.h \
 	list_account.c \
@@ -358,6 +370,8 @@ homebank_SOURCES = \
 	ui-archive.h \
 	ui-assign.c \
 	ui-assign.h \
+	ui-assist-import.c \
+	ui-assist-import.h \
 	ui-assist-start.c \
 	ui-assist-start.h \
 	ui-budget.c \
@@ -381,7 +395,9 @@ homebank_SOURCES = \
 	gtk-chart-colors.c \
 	gtk-chart-colors.h 
 
-homebank_LDADD = $(DEPS_LIBS)
+homebank_LDADD = $(DEPS_LIBS) \
+	$(LIBSOUP_LIBS)
+
 AM_CPPFLAGS = \
 	$(DEPS_CFLAGS) \
 	$(common_defines)
@@ -476,6 +492,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dsp_account.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dsp_mainwindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-chart-colors.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-chart-stack.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-chart.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-dateentry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-account.Po@am__quote@
@@ -496,7 +513,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-xml.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/homebank.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_qif.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/import.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/language.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_account.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_operation.Po@am__quote@
@@ -510,6 +526,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-account.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-archive.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assign.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assist-import.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assist-start.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-budget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-category.Po@am__quote@

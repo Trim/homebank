@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -43,6 +43,7 @@ GString *elt;
 GList *list;
 GDate *date;
 char amountbuf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar *sbuf;
 gint count, i;
 
 	elt = g_string_sized_new(255);
@@ -90,7 +91,14 @@ gint count, i;
 			g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", txn->amount);
 			g_string_append_printf (elt, "T%s\n", amountbuf);
 
-			g_string_append_printf (elt, "C%s\n", txn->flags & OF_VALID ? "R" : "");
+			sbuf = "";
+			if(txn->status == TXN_STATUS_CLEARED)
+				sbuf = "c";
+			else
+			if(txn->status == TXN_STATUS_RECONCILED)
+				sbuf = "R";
+
+			g_string_append_printf (elt, "C%s\n", sbuf);
 
 			if( txn->paymode == PAYMODE_CHECK)
 				g_string_append_printf (elt, "N%s\n", txn->info);
@@ -245,6 +253,5 @@ GList *lacc, *list;
 }
 
 
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 

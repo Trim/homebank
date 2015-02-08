@@ -21,6 +21,8 @@ homebank_SOURCES =  \
 	enums.h \
 	gtk-chart.c \
 	gtk-chart.h \
+	gtk-chart-stack.c \
+	gtk-chart-stack.h \
 	gtk-dateentry.c \
 	gtk-dateentry.h \
 	hb-account.c \
@@ -59,8 +61,6 @@ homebank_SOURCES =  \
 	homebank.h \
 	imp_qif.c \
 	imp_qif.h \
-	import.c \
-	import.h \
 	language.c \
 	language.h \
 	list_account.c \
@@ -87,6 +87,8 @@ homebank_SOURCES =  \
 	ui-archive.h \
 	ui-assign.c \
 	ui-assign.h \
+	ui-assist-import.c \
+	ui-assist-import.h \
 	ui-assist-start.c \
 	ui-assist-start.h \
 	ui-budget.c \
@@ -110,7 +112,8 @@ homebank_SOURCES =  \
 	gtk-chart-colors.c \
 	gtk-chart-colors.h 
 
-homebank_LDADD = $(DEPS_LIBS)
+homebank_LDADD = $(DEPS_LIBS) \
+	$(LIBSOUP_LIBS)
 
 AM_CPPFLAGS = \
 	$(DEPS_CFLAGS) \

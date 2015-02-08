@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -34,12 +34,9 @@ struct ui_pay_manage_dialog_data
 	GtkWidget	*ST_name;
 	GtkWidget	*LV_pay;
 
-	GtkWidget	*BT_add;
-	GtkWidget	*BT_mov;
-	GtkWidget	*BT_mod;
-	GtkWidget	*BT_rem;
-	GtkWidget	*BT_import;
-	GtkWidget	*BT_export;
+	GtkWidget	*BT_edit;
+	GtkWidget	*BT_merge;
+	GtkWidget	*BT_delete;
 
 	gint	change;
 };

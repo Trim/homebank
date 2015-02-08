@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,6 +50,17 @@ gchar *CYA_OPERATION[] = {
 	N_("Inherit transaction"),
 	N_("Modify transaction")
 };
+
+
+gchar *CYA_TXN_STATUS[] = {
+	N_("None"),
+	N_("Cleared"),
+	N_("Reconciled"),
+	N_("Remind"),
+	NULL
+};
+
+
 
 static void deftransaction_update(GtkWidget *widget, gpointer user_data);
 
@@ -331,10 +342,10 @@ GtkWidget *table, *widget;
 gint row, i;
 
 
-	dialog = gtk_dialog_new_with_buttons (_("Transaction split"),
+	dialog = gtk_dialog_new_with_buttons (_("Transaction splits"),
 					    GTK_WINDOW(parent),
 					    0,
-					    GTK_STOCK_CANCEL,
+					    _("_Cancel"),
 					    GTK_RESPONSE_CANCEL,
 					    NULL);
 
@@ -343,10 +354,7 @@ gint row, i;
 	data.amount = amount;
 	data.splittype = amount ? TXN_SPLIT_AMOUNT : TXN_SPLIT_NEW;
 
-	//homebank_window_set_icon_from_file(GTK_WINDOW (dialog), "curee.svg");
-	//gtk_window_set_icon_name(GTK_WINDOW (dialog), HB_STOCK_CURRENCY);
-
-	gtk_dialog_add_button(GTK_DIALOG(dialog), GTK_STOCK_REMOVE, GTK_RESPONSE_SPLIT_REM);
+	gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Remove"), GTK_RESPONSE_SPLIT_REM);
 
 	/* sum button must appear only when new split add */
 	//#1258821
@@ -355,7 +363,7 @@ gint row, i;
 
 
 	if(data.splittype == TXN_SPLIT_AMOUNT)
-		gtk_dialog_add_button(GTK_DIALOG(dialog), GTK_STOCK_OK, GTK_RESPONSE_ACCEPT);
+		gtk_dialog_add_button(GTK_DIALOG(dialog), _("_OK"), GTK_RESPONSE_ACCEPT);
 	
 	//store our dialog private data
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
@@ -366,29 +374,29 @@ gint row, i;
 
 	//dialog contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
-	mainvbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_MEDIUM);
 	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
+	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), SPACING_MEDIUM);
 
 
-	table = gtk_table_new (TXN_MAX_SPLIT, 5, FALSE);
+	table = gtk_grid_new ();
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING/2);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING/2);
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL/2);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM/2);
 	gtk_box_pack_start (GTK_BOX (mainvbox), table, TRUE, TRUE, 0);
 
 	row = 0;
 	label = gtk_label_new(_("Category"));
 	gimp_label_set_attributes (GTK_LABEL (label), PANGO_ATTR_SCALE, PANGO_SCALE_SMALL, -1);
-	gtk_table_attach (GTK_TABLE (table), label, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 2, row, 1, 1);
 
 	label = gtk_label_new(_("Memo"));
 	gimp_label_set_attributes (GTK_LABEL (label), PANGO_ATTR_SCALE, PANGO_SCALE_SMALL, -1);
-	gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
 
 	label = gtk_label_new(_("Amount"));
 	gimp_label_set_attributes (GTK_LABEL (label), PANGO_ATTR_SCALE, PANGO_SCALE_SMALL, -1);
-	gtk_table_attach (GTK_TABLE (table), label, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 4, row, 1, 1);
 
 	for(i=0;i<TXN_MAX_SPLIT;i++)
 	{
@@ -401,30 +409,29 @@ gint row, i;
 		{
 			widget = gtk_button_new_with_label ("-");
 			data.BT_rem[i] = widget;
-			gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
+			gtk_grid_attach (GTK_GRID (table), widget, 0, row, 1, 1);
 		}
 
 		if( (i < (TXN_MAX_SPLIT-1)) )
 		{
 			widget = gtk_button_new_with_label ("+");
 			data.BT_add[i] = widget;
-			gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
+			gtk_grid_attach (GTK_GRID (table), widget, 1, row, 1, 1);
 		}
 			
 		widget = ui_cat_comboboxentry_new(NULL);
-		gtk_widget_set_size_request(widget, 180, -1);
 		data.PO_cat[i] = widget;
-		gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		gtk_widget_set_hexpand (widget, TRUE);
+		gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 		widget = make_string(NULL);
-		gtk_widget_set_size_request(widget, 180, -1);
+		gtk_widget_set_hexpand (widget, TRUE);
 		data.ST_memo[i] = widget;
-		gtk_table_attach (GTK_TABLE (table), widget, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		gtk_grid_attach (GTK_GRID (table), widget, 3, row, 1, 1);
 	
 		widget = make_amount(NULL);
-		gtk_widget_set_size_request(widget, 100, -1);
 		data.ST_amount[i] = widget;
-		gtk_table_attach (GTK_TABLE (table), widget, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 		
 		//connect all our signals
 		g_signal_connect (data.PO_cat[i], "changed", G_CALLBACK (ui_txn_split_dialog_compute), &data);
@@ -438,38 +445,38 @@ gint row, i;
 	row++;
 	label = gtk_label_new(_("Sum of splits:"));
 	gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-	gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	label = gtk_label_new(NULL);
-	gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-	gtk_misc_set_padding(GTK_MISC(label), 20, 0);
-	data.LB_sumsplit = label;
-	gtk_table_attach (GTK_TABLE (table), label, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
+	widget = gtk_label_new(NULL);
+	gtk_misc_set_alignment (GTK_MISC(widget), 1.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(widget), 20, 0);
+	data.LB_sumsplit = widget;
+	gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 
 	if( data.splittype == TXN_SPLIT_AMOUNT )
 	{
 		row++;
 		label = gtk_label_new(_("Unassigned:"));
 		gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-		gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-		label = gtk_label_new(NULL);
-		gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-		gtk_misc_set_padding(GTK_MISC(label), 20, 0);
-		data.LB_remain = label;
-		gtk_table_attach (GTK_TABLE (table), label, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
+		widget = gtk_label_new(NULL);
+		gtk_misc_set_alignment (GTK_MISC(widget), 1.0, 0.0);
+		gtk_misc_set_padding(GTK_MISC(widget), 20, 0);
+		data.LB_remain = widget;
+		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 
 		row++;
-		widget = gtk_hseparator_new();
-		gtk_table_attach (GTK_TABLE (table), widget, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		widget = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 
 		row++;
 		label = gtk_label_new(_("Transaction amount:"));
 		gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-		gtk_table_attach (GTK_TABLE (table), label, 3, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-		label = gtk_label_new(NULL);
-		gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.0);
-		gtk_misc_set_padding(GTK_MISC(label), 20, 0);
-		data.LB_txnamount = label;
-		gtk_table_attach (GTK_TABLE (table), label, 4, 5, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+		gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
+		widget = gtk_label_new(NULL);
+		gtk_misc_set_alignment (GTK_MISC(widget), 1.0, 0.0);
+		gtk_misc_set_padding(GTK_MISC(widget), 20, 0);
+		data.LB_txnamount = widget;
+		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 	}
 
 
@@ -538,22 +545,17 @@ gint row, i;
 static void deftransaction_update(GtkWidget *widget, gpointer user_data)
 {
 struct deftransaction_data *data;
-gboolean sensitive, bool;
+gboolean sensitive;
 
 	DB( g_print("(ui_transaction) update\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	//valid & remind are exclusive
-	bool  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid));
-	sensitive = bool ? FALSE : TRUE;
-	gtk_widget_set_sensitive(data->CM_remind, sensitive);
-	if(bool)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_remind), 0);
-
 	/* disable category if split is set */
 	sensitive = (data->ope->flags & (OF_SPLIT)) ? FALSE : TRUE;
 	gtk_widget_set_sensitive(data->ST_amount, sensitive);
+	//# 1416624 empty category when split
+	ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
 	gtk_widget_set_sensitive(data->PO_grp, sensitive);
 
 }
@@ -590,14 +592,13 @@ gchar *tagstr, *txt;
 
 	//DB( g_print(" set date to %d\n", entry->date) );
 	//g_object_set(GTK_DATE_ENTRY(data->PO_date), "date", (guint32)entry->ope_Date);
-	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_date), (guint)entry->date);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_date), (guint)entry->date);
 
 	txt = (entry->wording != NULL) ? entry->wording : "";
 	gtk_entry_set_text(GTK_ENTRY(data->ST_word), txt);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), entry->amount);
 	//gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_amount), (entry->ope_Flags & OF_INCOME) ? 1 : 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_valid), (entry->flags & OF_VALID) ? 1 : 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_remind), (entry->flags & OF_REMIND) ? 1 : 0);
+
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_cheque), (entry->flags & OF_CHEQ2) ? 1 : 0);
 
 	txt = (entry->info != NULL) ? entry->info : "";
@@ -613,6 +614,8 @@ gchar *tagstr, *txt;
 	gtk_entry_set_text(GTK_ENTRY(data->ST_tags), txt);
 	g_free(tagstr);
 
+	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_status), entry->status );
+	
 	//as we trigger an event on this
 	//let's place it at the end to avoid misvalue on the trigger function
 
@@ -642,7 +645,7 @@ gint active;
 	DB( g_print(" -> ope = %p\n", entry) );
 
 	//DB( g_print(" get date to %d\n", entry->ope_Date) );
-	entry->date = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_date));
+	entry->date = gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_date));
 	//g_object_get(GTK_DATE_ENTRY(data->PO_date), "date", entry->ope_Date);
 
 	//free any previous string
@@ -701,6 +704,8 @@ gint active;
 	DB( g_print(" -> tags: '%s'\n", txt) );
 	transaction_tags_parse(entry, txt);
 
+	entry->status = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_status));
+	
 	/* flags */
 	//entry->flags = 0;
 	entry->flags &= (OF_SPLIT);	//(split is set in hb_transaction)
@@ -710,12 +715,6 @@ gint active;
 
 	if(	data->type == TRANSACTION_EDIT_MODIFY)
 	entry->flags |= OF_CHANGED;
-
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid));
-	if(active == 1) entry->flags |= OF_VALID;
-
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_remind));
-	if(active == 1) entry->flags |= OF_REMIND;
 
 	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque));
 	if(active == 1) entry->flags |= OF_CHEQ2;
@@ -902,13 +901,17 @@ gboolean sensitive;
 
 				DB( g_print(" -> should fill cheque number for account %d\n", active) );
 
-				if( active != -1 )
+				//#1410166
+				if( active > 0 )
 				{
 					acc = da_acc_get( active );
-					cheque = ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque))==TRUE ? acc->cheque2 : acc->cheque1 );
-					cheque_str = g_strdup_printf("%d", cheque + 1);
-					gtk_entry_set_text(GTK_ENTRY(data->ST_info), cheque_str);
-					g_free(cheque_str);
+					if(acc != NULL)
+					{
+						cheque = ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque))==TRUE ? acc->cheque2 : acc->cheque1 );
+						cheque_str = g_strdup_printf("%d", cheque + 1);
+						gtk_entry_set_text(GTK_ENTRY(data->ST_info), cheque_str);
+						g_free(cheque_str);
+					}
 				}
 			}
 
@@ -1048,27 +1051,29 @@ static void deftransaction_setup(struct deftransaction_data *data)
 
 static GtkWidget *deftransaction_make_block1(struct deftransaction_data *data)
 {
-GtkWidget *table, *hbox, *label, *widget, *image;
+GtkWidget *group_grid, *hbox, *label, *widget, *image;
 gint row;
 
-	table = gtk_table_new (7, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 
 	row = 0;
-	label = make_label(_("_Date:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = gtk_dateentry_new();
+	label = make_label(_("_Date:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+	widget = gtk_date_entry_new();
 	data->PO_date = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 	gtk_widget_set_tooltip_text(widget, _("Date accepted here are:\nday,\nday/month or month/day,\nand complete date into your locale"));
 
 	row++;
-	label = make_label(_("_Amount:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Amount:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 
-	hbox = gtk_hbox_new (FALSE, 0);
-	gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), hbox, 1, row, 1, 1);
+	gtk_widget_set_hexpand (hbox, TRUE);
 
 		widget = gtk_button_new_with_label("+/-");
 		data->BT_amount = widget;
@@ -1079,202 +1084,195 @@ gint row;
 		data->ST_amount = widget;
 		gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-		image = gtk_image_new_from_icon_name ("btn-split", GTK_ICON_SIZE_BUTTON);
+		image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_SPLIT, GTK_ICON_SIZE_MENU);
 		widget = gtk_button_new();
 		g_object_set (widget, "image", image, NULL);
 		data->BT_split = widget;
 		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-		gtk_widget_set_tooltip_text(widget, _("Category split"));
+		gtk_widget_set_tooltip_text(widget, _("Transaction splits"));
 
 	row++;
-	label = make_label(_("Pa_yment:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("Pa_yment:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = make_paymode(label);
 	data->NU_mode = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+		gtk_widget_set_hexpand (widget, TRUE);
+
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic(_("Of notebook _2"));
 	data->CM_cheque = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+		gtk_widget_set_hexpand (widget, TRUE);
+
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 0, row, 2, 1);
 
 	row++;
-	label = make_label(_("_Info:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Info:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = make_string(label);
 	data->ST_info = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_widget_set_hexpand (widget, TRUE);
+
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
-	label = make_label(_("Acc_ount:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("Acc_ount:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
 	data->PO_acc = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
-	label = make_label(_("To acc_ount:"), 0.0, 0.5);
+	label = make_label(_("To acc_ount:"), 1.0, 0.5);
 	data->LB_accto = label;
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
 	data->PO_accto = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 
-	return table;
+	return group_grid;
 }
 
 
 static GtkWidget *deftransaction_make_block2(struct deftransaction_data *data)
 {
-GtkWidget *table, *label, *widget;
+GtkWidget *group_grid, *label, *widget;
 gint row;
 
-	table = gtk_table_new (6, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-
+	group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	
 	row = 0;
-	label = make_label(_("_Payee:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Payee:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = ui_pay_comboboxentry_new(label);
 	data->PO_pay = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
-	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available"));
 
 	row++;
-	label = make_label(_("_Category:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Category:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
 	data->PO_grp = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
-
-	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available"));
 
 	row++;
-	label = make_label(_("M_emo:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("M_emo:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = make_memo_entry(label);
 	data->ST_word = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
-	label = make_label(_("Ta_gs:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 0,1, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("Ta_gs:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = make_string(label);
 	data->ST_tags = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("_Reconciled"));
-	data->CM_valid = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
+	label = make_label(_("_Status:"), 1.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+	widget = make_cycle(label, CYA_TXN_STATUS);
+	data->CY_status = widget;
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
-	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Re_mind"));
-	data->CM_remind = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 2, row, row+1);
-
-	return table;
+	return group_grid;
 }
 
 
 GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type)
 {
 struct deftransaction_data *data;
-GtkWidget *window, *content, *hbox, *mainbox, *table;
-GtkWidget *alignment;
+GtkWidget *dialog, *content_area, *content_grid, *group_grid;
+GtkWidget *label, *widget;
+gint crow;
 
 	DB( g_print("(ui_transaction) new\n") );
 
 	data = g_malloc0(sizeof(struct deftransaction_data));
-	if(!data) return NULL;
-
 	
-	window = gtk_dialog_new_with_buttons (NULL,
+	dialog = gtk_dialog_new_with_buttons (NULL,
 					    GTK_WINDOW (parent),
 					    0,
 					    NULL,
 					    NULL);
 
 	//store our window private data
-	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_print(" -> window=%p, inst_data=%p\n", window, data) );
+	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)data);
+	DB( g_print(" -> window=%p, inst_data=%p\n", dialog, data) );
 
-	data->window = window;
+	data->window = dialog;
 	data->type = type;
-
 	
 	if(type == TRANSACTION_EDIT_MODIFY)
 	{
-		gtk_dialog_add_buttons (GTK_DIALOG(window),
-		    GTK_STOCK_CANCEL,
-		    GTK_RESPONSE_REJECT,
-			GTK_STOCK_OK,
-			GTK_RESPONSE_ACCEPT,
-		NULL);
+		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+		    _("_Cancel"), GTK_RESPONSE_REJECT,
+			_("_OK"), GTK_RESPONSE_ACCEPT,
+			NULL);
 	}
 	else
 	{
-		gtk_dialog_add_buttons (GTK_DIALOG(window),
-			GTK_STOCK_CLOSE,
-		    GTK_RESPONSE_REJECT,
-		    GTK_STOCK_ADD,
-		    GTK_RESPONSE_ADD,
-		NULL);
+		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+			_("_Close"), GTK_RESPONSE_REJECT,
+		    _("_Add"), GTK_RESPONSE_ADD,
+			NULL);
 	}
 
 	switch(type)
 	{
 		case TRANSACTION_EDIT_ADD:
-			//homebank_window_set_icon_from_file(GTK_WINDOW (window), "ope_add.svg");
-			gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_OPE_ADD);
+			gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_OPE_ADD);
 			break;
 		case TRANSACTION_EDIT_INHERIT:
-			//homebank_window_set_icon_from_file(GTK_WINDOW (window), "ope_herit.svg");
-			gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_OPE_HERIT);
+			gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_OPE_HERIT);
 			break;
 		case TRANSACTION_EDIT_MODIFY:
-			//homebank_window_set_icon_from_file(GTK_WINDOW (window), "ope_edit.svg");
-			gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_OPE_EDIT);
+			gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_OPE_EDIT);
 			break;
 	}
 
-
 	//window contents
-	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-	mainbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, HB_MAINBOX_SPACING);
-	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 
-	// parameters HB_BOX_SPACING
-	hbox = gtk_hbox_new (TRUE, HB_HSPACE_SPACING);
-	gtk_box_pack_start (GTK_BOX (mainbox), hbox, FALSE, FALSE, 0);
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_grid_set_column_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	//gtk_grid_set_column_homogeneous(GTK_GRID (content_grid), TRUE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	gtk_container_add (GTK_CONTAINER (content_area), content_grid);
 
-	// block 1
-	table = deftransaction_make_block1(data);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
+	crow = 0;
+	group_grid = deftransaction_make_block1(data);
+	gtk_widget_set_hexpand (GTK_WIDGET(group_grid), FALSE);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow, 1, 1);
+	group_grid = deftransaction_make_block2(data);
+	gtk_widget_set_hexpand (GTK_WIDGET(group_grid), TRUE);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 1, crow, 1, 1);
 
-
-	// block 2
-	table = deftransaction_make_block2(data);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-
-	//fill from
 	if( data->type != TRANSACTION_EDIT_MODIFY && da_archive_length() > 0)
 	{
-	GtkWidget *expander, *widget, *label;
+	GtkWidget *expander, *hbox;
 
+		crow++;
 		expander = gtk_expander_new (_("Fill in with a template"));
-		gtk_box_pack_start (GTK_BOX (mainbox), expander, FALSE, FALSE, 0);
+		gtk_grid_attach (GTK_GRID (content_grid), expander, 0, crow, 2, 1);
 
-		hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_MEDIUM);
 		gtk_container_add (GTK_CONTAINER (expander), hbox);
 
 		label = make_label(_("_Template:"), 0, 0.5);
@@ -1286,7 +1284,6 @@ GtkWidget *alignment;
 		g_signal_connect (data->PO_arc, "changed", G_CALLBACK (deftransaction_fillfrom), NULL);
 	}
 
-
 	//connect all our signals
 	g_signal_connect (G_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), data);
 	g_signal_connect (G_OBJECT (data->BT_amount), "clicked", G_CALLBACK (deftransaction_toggleamount), NULL);
@@ -1294,16 +1291,13 @@ GtkWidget *alignment;
 
 	g_signal_connect (data->NU_mode, "changed", G_CALLBACK (deftransaction_paymode), NULL);
 	g_signal_connect (data->CM_cheque, "toggled", G_CALLBACK (deftransaction_paymode), NULL);
-	g_signal_connect (data->CM_valid, "toggled", G_CALLBACK (deftransaction_update), NULL);
 	g_signal_connect (data->PO_acc, "changed", G_CALLBACK (deftransaction_update_accto), NULL);
 	g_signal_connect (data->PO_accto, "changed", G_CALLBACK (deftransaction_update_transfer), NULL);
 
 	//setup, init and show window
 	deftransaction_setup(data);
 
-	gtk_window_set_default_size(GTK_WINDOW(window), 640, -1);
+	gtk_widget_show_all (dialog);
 
-	gtk_widget_show_all (window);
-
-	return window;
+	return dialog;
 }

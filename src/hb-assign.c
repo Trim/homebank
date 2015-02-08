@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -102,9 +102,9 @@ da_asg_length(void)
 /**
  * da_asg_remove:
  *
- * remove an rul from the GHashTable
+ * delete an rul from the GHashTable
  *
- * Return value: TRUE if the key was found and removed
+ * Return value: TRUE if the key was found and deleted
  *
  */
 gboolean

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,13 +20,14 @@
 #ifndef __HB_TRANSACTION_H__
 #define __HB_TRANSACTION_H__
 
-#include "hb-archive.h"
+
 
 #define TXN_MAX_SPLIT 10
 
 typedef struct _split Split;
 typedef struct _transaction	Transaction;
 
+#include "hb-archive.h"
 
 struct _split
 {
@@ -48,9 +49,10 @@ struct _transaction
 
 	guint32		date;
 	gushort		pos;
+	gushort     status;
 	gchar		*info;
 	guint32		*tags;
-	guint32		kxfer;		//internal xfer key
+	guint32		kxfer;		//strong link xfer key
 	guint32		kxferacc;
 	
 	Split		*splits[TXN_MAX_SPLIT+1];
@@ -60,15 +62,23 @@ struct _transaction
 	gdouble		balance;
 };
 
-#define OF_VALID	(1<<0)
+#define OF_OLDVALID	(1<<0)  //deprecated since 5.x
 #define OF_INCOME	(1<<1)
-#define OF_AUTO		(1<<2)	//tmp flag scheduled
+#define OF_AUTO		(1<<2)	//scheduled
 #define OF_ADDED	(1<<3)  //tmp flag
 #define OF_CHANGED	(1<<4)  //tmp flag
-#define OF_REMIND	(1<<5)
+#define OF_OLDREMIND	(1<<5)  //deprecated since 5.x
 #define OF_CHEQ2	(1<<6)
 #define OF_LIMIT	(1<<7)	//scheduled
 #define OF_SPLIT	(1<<8)
+
+typedef enum {
+	TXN_STATUS_NONE,
+	TXN_STATUS_CLEARED,
+	TXN_STATUS_RECONCILED,
+	TXN_STATUS_REMIND,
+	//TXN_VOID
+} HbTxnStatus;
 
 
 Transaction *da_transaction_malloc(void);
@@ -116,7 +126,7 @@ void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview)
 void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);
 void transaction_xfer_sync_child(Transaction *ope, Transaction *child);
-void transaction_xfer_delete_child(Transaction *src);
+void transaction_xfer_remove_child(Transaction *src);
 Transaction *transaction_old_get_child_transfer(Transaction *src);
 
 guint transaction_tags_count(Transaction *ope);

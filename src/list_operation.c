@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -38,21 +38,39 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
+
+gchar *list_txn_column_label[] = {
+	"----", //datas
+	"----", //status
+	"----", //date
+	N_("Info"    ),
+	N_("Payee"   ),
+	N_("Memo"    ),
+	N_("Amount"  ),
+	N_("Expense" ),
+	N_("Income"  ),
+	N_("Category"),
+	N_("Tags"    ),
+	N_("Balance" ),
+	"C",
+	NULL
+};
+
+
 //debug
 //extern gboolean minor_active;
-extern GdkPixbuf *paymode_icons[];
 
 /* This is not pretty. Of course you can also use a
    *  separate compare function for each sort ID value */
 
-static gint ope_sort_iter_compare_strings(gchar *s1, gchar *s2)
+static gint list_txn_sort_iter_compare_strings(gchar *s1, gchar *s2)
 {
 	return hb_string_utf8_compare(s1, s2);
 }
 
 
 static   gint
-  ope_sort_iter_compare_func (GtkTreeModel *model,
+  list_txn_sort_iter_compare_func (GtkTreeModel *model,
                           GtkTreeIter  *a,
                           GtkTreeIter  *b,
                           gpointer      userdata)
@@ -68,9 +86,9 @@ static   gint
     switch (sortcol)
     {
 		case LST_DSPOPE_STATUS:
-			if(!(retval = (ope1->flags & OF_VALID) - (ope2->flags & OF_VALID) ) )
+			if(!(retval = (ope1->flags & OF_ADDED) - (ope2->flags & OF_ADDED) ) )
 			{
-				retval = (ope1->flags & OF_REMIND) - (ope2->flags & OF_REMIND);
+				retval = (ope1->flags & OF_CHANGED) - (ope2->flags & OF_CHANGED);
 			}
 			break;
 
@@ -93,7 +111,7 @@ static   gint
 				a2 = da_acc_get(ope2->kacc);
 				if( a1 != NULL && a2 != NULL )
 				{
-					retval = ope_sort_iter_compare_strings(a1->name, a2->name);
+					retval = list_txn_sort_iter_compare_strings(a1->name, a2->name);
 				}
 			}
 			break;
@@ -101,7 +119,7 @@ static   gint
 		case LST_DSPOPE_INFO:
 			if(!(retval = ope1->paymode - ope2->paymode))
 			{
-				retval = ope_sort_iter_compare_strings(ope1->info, ope2->info);
+				retval = list_txn_sort_iter_compare_strings(ope1->info, ope2->info);
 			}
 			break;
 
@@ -113,13 +131,17 @@ static   gint
 				p2 = da_pay_get(ope2->kpay);
 				if( p1 != NULL && p2 != NULL )
 				{
-					retval = ope_sort_iter_compare_strings(p1->name, p2->name);
+					retval = list_txn_sort_iter_compare_strings(p1->name, p2->name);
 				}
 			}
 			break;
 
 		case LST_DSPOPE_WORDING:
-				retval = ope_sort_iter_compare_strings(ope1->wording, ope2->wording);
+				retval = list_txn_sort_iter_compare_strings(ope1->wording, ope2->wording);
+			break;
+
+		case LST_DSPOPE_CLR:
+			retval = ope1->status - ope2->status;
 			break;
 
 		case LST_DSPOPE_AMOUNT:
@@ -140,7 +162,7 @@ static   gint
 				{
 					name1 = da_cat_get_fullname(c1);
 					name2 = da_cat_get_fullname(c2);
-					retval = ope_sort_iter_compare_strings(name1, name2);
+					retval = list_txn_sort_iter_compare_strings(name1, name2);
 					g_free(name2);
 					g_free(name1);
 				}
@@ -153,7 +175,7 @@ static   gint
 
 			t1 = transaction_tags_tostring(ope1);
 			t2 = transaction_tags_tostring(ope2);
-			retval = ope_sort_iter_compare_strings(t1, t2);
+			retval = list_txn_sort_iter_compare_strings(t1, t2);
 			g_free(t1);
 			g_free(t2);
 		}
@@ -169,10 +191,10 @@ static   gint
 /*
 ** date cell function
 */
-static void ope_status_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_status_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *entry;
-GdkPixbuf *pixbuf = NULL;
+gchar *iconname = NULL;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &entry, -1);
 
@@ -186,29 +208,29 @@ GdkPixbuf *pixbuf = NULL;
 	switch(GPOINTER_TO_INT(user_data))
 	{
 		case 1:
-			pixbuf = ( entry->flags & OF_AUTO  ) ? GLOBALS->lst_pixbuf[LST_PIXBUF_AUTO] : ( entry->flags & OF_ADDED ) ? GLOBALS->lst_pixbuf[LST_PIXBUF_ADD] : NULL;
+			iconname = ( entry->flags & OF_AUTO  ) ? ICONNAME_HB_OPE_AUTO : ( entry->flags & OF_ADDED ) ? ICONNAME_NEW : NULL;
 			break;
 		case 2:
-			pixbuf = ( entry->flags & OF_CHANGED  ) ? GLOBALS->lst_pixbuf[LST_PIXBUF_EDIT] : NULL;
+			iconname = ( entry->flags & OF_CHANGED  ) ? ICONNAME_HB_OPE_EDIT : NULL;
 			break;
-		case 3:
+		/*case 3:
 			if( entry->flags & OF_VALID )
-				pixbuf = GLOBALS->lst_pixbuf[LST_PIXBUF_VALID];
+				iconname = ICONNAME_HB_OPE_VALID;
 			else
 			{
 				if( entry->flags & OF_REMIND )
-					pixbuf = GLOBALS->lst_pixbuf[LST_PIXBUF_REMIND];
+					iconname = ICONNAME_HB_OPE_REMIND;
 			}
-			break;
+			break;*/
 	}
-	g_object_set(renderer, "pixbuf", pixbuf, NULL);
+	g_object_set(renderer, "icon-name", iconname, NULL);
 }
 
 
 /*
 ** account cell function
 */
-static void ope_account_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_account_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 Account *acc;
@@ -227,7 +249,7 @@ Account *acc;
 /*
 ** date cell function
 */
-static void ope_date_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_date_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 gchar buffer[256];
@@ -252,7 +274,7 @@ GDate *date;
 /*
 ** info cell function
 */
-static void ope_info_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_info_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 
@@ -261,7 +283,7 @@ Transaction *ope;
 	switch(GPOINTER_TO_INT(user_data))
 	{
 		case 1:
-			g_object_set(renderer, "pixbuf", paymode_icons[ope->paymode], NULL);
+			g_object_set(renderer, "icon-name", get_paymode_icon_name(ope->paymode), NULL);
 			break;
 		case 2:
 		    g_object_set(renderer, "text", ope->info, NULL);
@@ -272,7 +294,7 @@ Transaction *ope;
 /*
 ** payee cell function
 */
-static void ope_payee_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_payee_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 Payee *pay;
@@ -289,7 +311,7 @@ Payee *pay;
 /*
 ** tags cell function
 */
-static void ope_tags_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_tags_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 gchar *str;
@@ -312,7 +334,7 @@ gchar *str;
 /*
 ** wording cell function
 */
-static void ope_wording_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_wording_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 
@@ -320,10 +342,31 @@ Transaction *ope;
     g_object_set(renderer, "text", ope->wording, NULL);
 }
 
+
+/*
+** clr cell function
+*/
+static void list_txn_clr_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+{
+Transaction *ope;
+const gchar *c = "";
+	
+	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
+	switch(ope->status)
+	{
+		case TXN_STATUS_CLEARED: c = "c"; break;
+		case TXN_STATUS_RECONCILED: c = "R"; break;
+		case TXN_STATUS_REMIND: c = "!"; break;
+	}
+
+	g_object_set(renderer, "text", c, NULL);
+}
+
+
 /*
 ** amount cell function
 */
-static void ope_amount_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_amount_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 gint column = GPOINTER_TO_INT(user_data);
@@ -358,7 +401,7 @@ gchar *color;
 		//store to a data set to the listview
 		//acc = da_acc_get(ope->kacc);
 		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, acc->kcur);
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->minor);
+		mystrfnum(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->minor);
 		color = get_normal_color_amount(amount);
 
 		g_object_set(renderer,
@@ -374,7 +417,7 @@ gchar *color;
 /*
 ** category cell function
 */
-static void ope_category_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void list_txn_category_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
 Category *cat;
@@ -382,7 +425,7 @@ gchar *fullname;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
-	if(ope->flags &OF_SPLIT)
+	if(ope->flags & OF_SPLIT)
 	{
 		g_object_set(renderer, "text", _("- split -"), NULL);
 	}
@@ -403,138 +446,19 @@ gchar *fullname;
 }
 
 
-
-
-/* column 3: Infos */
-static GtkTreeViewColumn *info_list_transaction_column()
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Info"));
-
-	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_tree_view_column_pack_start(column, renderer, FALSE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_info_cell_data_function, GINT_TO_POINTER(1), NULL);
-
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_info_cell_data_function, GINT_TO_POINTER(2), NULL);
-	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_INFO);
-
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-
-	return column;
-}
-
-
-/* column 4: Payee */
-static GtkTreeViewColumn *payee_list_transaction_column()
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Payee"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_payee_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_PAYEE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-
-	return column;
-}
-
-/* column 5: Wording */
-static GtkTreeViewColumn *wording_list_transaction_column()
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Memo"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_wording_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_WORDING);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-
-	return column;
-}
+/* = = = = = = = = = = = = = = = = */
 
 
 
 
-/* column 6/7: Amount/Expense/Income */
-
-static GtkTreeViewColumn *amount_list_transaction_column(gchar *title, gint id)
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, title);
-	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, "xalign", 1.0, NULL);
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_amount_cell_data_function, GINT_TO_POINTER(id), NULL);
-	gtk_tree_view_column_set_sort_column_id (column, id);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-
-	return column;
-}
 
 
 
 
-/* column 8: Category */
-static GtkTreeViewColumn *category_list_transaction_column()
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
 
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Category"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_category_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_CATEGORY);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
 
-	return column;
-}
 
-/* column 9: Tags */
-static GtkTreeViewColumn *tags_list_transaction_column()
-{
-GtkTreeViewColumn  *column;
-GtkCellRenderer    *renderer;
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Tags"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_tags_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_TAGS);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_reorderable(column, TRUE);
-	gtk_tree_view_column_set_alignment (column, 0.5);
-
-	return column;
-}
-
-static GtkTreeViewColumn *list_transaction_get_column(GList *list, gint search_id)
+static GtkTreeViewColumn *list_txn_get_column(GList *list, gint search_id)
 {
 GtkTreeViewColumn *column = NULL;
 GList *tmp;
@@ -544,9 +468,15 @@ gint id;
 	while (tmp != NULL)
 	{
 		id = gtk_tree_view_column_get_sort_column_id(tmp->data);
-		if( search_id == id)
-			column = tmp->data;
+		
+		DB( g_print(" seek %d == %d\n", search_id, id) );
 
+		if( search_id == id)
+		{
+			column = tmp->data;
+			DB( g_print(" found\n") );
+			break;
+		}
 		tmp = g_list_next(tmp);
 	}
 
@@ -554,7 +484,7 @@ gint id;
 }
 
 
-guint list_transaction_get_quicksearch_column_mask(GtkTreeView *treeview)
+guint list_txn_get_quicksearch_column_mask(GtkTreeView *treeview)
 {
 GtkTreeViewColumn *column;
 guint n, mask;
@@ -585,13 +515,24 @@ gint id;
 }
 
 
-/* todo: something simpler to sort ? */
-void list_transaction_sort_force(GtkTreeSortable *sortable, gpointer user_data)
+void list_txn_set_save_column_width(GtkTreeView *treeview, gboolean save_column_width)
+{
+struct list_txn_data *data;
+
+	data = g_object_get_data(G_OBJECT(treeview), "inst_data");
+	if( data )
+	{
+		data->save_column_width = save_column_width;
+	}
+}
+
+
+void list_txn_sort_force(GtkTreeSortable *sortable, gpointer user_data)
 {
 gint sort_column_id;
 GtkSortType order;
 
-	DB( g_print("list_transaction_sort_force\n") );
+	DB( g_print("list_txn_sort_force\n") );
 
 	gtk_tree_sortable_get_sort_column_id(sortable, &sort_column_id, &order);
 	DB( g_print(" - id %d order %d\n", sort_column_id, order) );
@@ -601,16 +542,119 @@ GtkSortType order;
 }
 
 
-static void list_transaction_sort_column_changed(GtkTreeSortable *sortable, gpointer user_data)
+static void list_txn_get_columns_width(GtkTreeView *treeview)
 {
-struct list_transaction_data *data = user_data;
+GtkTreeViewColumn *column;
+GList *list;
+guint i;
+gint col_id;
+	
+	list = gtk_tree_view_get_columns( treeview );
+
+	for( i=0 ; i<g_list_length (list) ; i++)
+	{
+		column = list_txn_get_column(list, i+1);
+		if( GTK_IS_TREE_VIEW_COLUMN(column) )
+		{
+			if( gtk_tree_view_column_get_visible (column) )
+			{
+				// we substract 1 here as column_id start at 1, but we store starting 0
+				col_id = gtk_tree_view_column_get_sort_column_id (column) - 1;
+				PREFS->lst_ope_col_size[col_id] = gtk_tree_view_column_get_width(column);
+				DB( g_print(" column pos=%d, id=%d, width=%d\n", i, col_id, PREFS->lst_ope_col_size[col_id]) );
+			}
+		}
+	}
+
+	g_list_free(list );
+	
+}
+
+
+static void list_txn_set_columns(GtkTreeView *treeview, gint *col_id)
+{
+struct list_txn_data *data;
+GtkTreeViewColumn *column, *base;
+gboolean visible;
+GList *list;
+gint i = 0;
+gint id;
+
+	DB( g_print("\n[list_txn] set_columns)\n") );
+
+	data = g_object_get_data(G_OBJECT(treeview), "inst_data");
+
+#if MYDEBUG == 1
+	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )   // -1 cause account not to be processed
+	{
+		DB( g_print(" - pos:%d col:%d\n", i, col_id[i]) );
+	}
+#endif	
+
+	list = gtk_tree_view_get_columns( treeview );
+
+	base = NULL;
+
+	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )   // -1 cause account not to be processed
+	{
+		/* hidden are stored as col_id negative */
+		id = ABS(col_id[i]);
+		column = list_txn_get_column(list, id);
+
+		DB( g_print(" get column %d %p\n", id, column) );
+		
+		if( column != NULL )
+		{
+			DB( g_print(" - pos:%d col:%d (%s)\n", i, col_id[i], gtk_tree_view_column_get_title(column)) );
+
+			gtk_tree_view_move_column_after(treeview, column, base);
+			base = column;
+
+			visible = col_id[i] < 0 ? FALSE : TRUE;
+			
+			/* display exception for detail/import list */
+			if(data->list_type != LIST_TXN_TYPE_BOOK)
+			{
+				if( id == LST_DSPOPE_AMOUNT )
+					visible = TRUE;
+				
+				if( id == LST_DSPOPE_STATUS || id == LST_DSPOPE_EXPENSE || id == LST_DSPOPE_INCOME )
+					visible = FALSE;
+			}
+			
+			gtk_tree_view_column_set_visible (column, visible);
+			if( id == LST_DSPOPE_BALANCE )
+			{
+				data->tvc_is_visible = visible;
+			}
+
+			if(   id == LST_DSPOPE_INFO
+			   || id == LST_DSPOPE_PAYEE
+			   || id == LST_DSPOPE_WORDING
+			   || id == LST_DSPOPE_CATEGORY
+			   || id == LST_DSPOPE_TAGS
+			   || id == LST_DSPOPE_ACCOUNT )
+			{
+				gtk_tree_view_column_set_fixed_width( column, PREFS->lst_ope_col_size[id - 1]);
+			}
+		}
+
+	}
+
+	g_list_free(list );
+}
+
+
+static void list_txn_sort_column_changed(GtkTreeSortable *sortable, gpointer user_data)
+{
+struct list_txn_data *data = user_data;
 gint id;
 GtkSortType order;
 gboolean showBalance;
 	
 	gtk_tree_sortable_get_sort_column_id(sortable, &id, &order);
 
-	DB( g_print("list_transaction_columns_changed %d %d\n", id, order) );
+	DB( g_print("list_txn_columns_changed %d %d\n", id, order) );
 
 	//here save the transaction list columnid and sort order
 	PREFS->lst_ope_sort_id    = id;
@@ -623,81 +667,136 @@ gboolean showBalance;
 }
 
 
-static void list_transaction_set_columns(GtkTreeView *treeview, gint *visibility)
+
+static GtkTreeViewColumn *
+list_txn_column_amount_create(gint list_type, gchar *title, gint sortcolumnid, GtkTreeCellDataFunc func)
 {
-struct list_transaction_data *data;
-GtkTreeViewColumn *column, *base;
-gboolean visible;
-GList *list;
-gint i = 0;
+GtkTreeViewColumn  *column;
+GtkCellRenderer    *renderer;
 
-	DB( g_print("(list_transaction_set_columns)\n") );
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, "xalign", 1.0, NULL);
 
-	data = g_object_get_data(G_OBJECT(treeview), "inst_data");
+	column = gtk_tree_view_column_new_with_attributes(title, renderer, NULL);
 	
-	list = gtk_tree_view_get_columns( treeview );
-
-	base = NULL;
-
-	for(i=0; i < NUM_LST_DSPOPE-1 ; i++ )   // -1 cause account not to be processed
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	//gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sort_column_id (column, sortcolumnid);
+	if(list_type == LIST_TXN_TYPE_BOOK)
 	{
-		column = list_transaction_get_column(list, ABS(visibility[i]));
-		if( column != NULL )
-		{
-			DB( g_print(" - pos:%d col:%d (%s)\n", i, visibility[i], gtk_tree_view_column_get_title(column)) );
-
-			gtk_tree_view_move_column_after(treeview, column, base);
-			base = column;
-
-			visible = visibility[i] < 0 ? FALSE : TRUE;
-			gtk_tree_view_column_set_visible (column, visible);
-			if( ABS(visibility[i]) == LST_DSPOPE_BALANCE)
-			{
-				data->tvc_is_visible = visible;
-			}
-			
-		}
-
+		gtk_tree_view_column_set_reorderable(column, TRUE);
 	}
-
-	g_list_free(list );
+	gtk_tree_view_column_set_cell_data_func(column, renderer, func, GINT_TO_POINTER(sortcolumnid), NULL);
+		
+	return column;
 }
 
 
-static void list_transaction_destroy( GtkWidget *widget, gpointer user_data )
+static GtkTreeViewColumn *
+list_txn_column_text_create(gint list_type, gchar *title, gint sortcolumnid, GtkTreeCellDataFunc func, gpointer user_data)
 {
-struct list_transaction_data *data;
+GtkTreeViewColumn  *column;
+GtkCellRenderer    *renderer;
+
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);
+	
+	column = gtk_tree_view_column_new_with_attributes(title, renderer, NULL);
+
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sort_column_id (column, sortcolumnid);
+	if(list_type == LIST_TXN_TYPE_BOOK)
+	{
+		gtk_tree_view_column_set_reorderable(column, TRUE);
+		gtk_tree_view_column_set_min_width (column, HB_MINWIDTH_COLUMN);
+		gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
+	}
+	gtk_tree_view_column_set_cell_data_func(column, renderer, func, user_data, NULL);
+
+	return column;
+}
+
+
+static GtkTreeViewColumn *
+list_txn_column_info_create(gint list_type)
+{
+GtkTreeViewColumn  *column;
+GtkCellRenderer    *renderer;
+
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Info"));
+
+	renderer = gtk_cell_renderer_pixbuf_new ();
+	gtk_tree_view_column_pack_start(column, renderer, FALSE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_info_cell_data_function, GINT_TO_POINTER(1), NULL);
+
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);
+	gtk_tree_view_column_pack_start(column, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_info_cell_data_function, GINT_TO_POINTER(2), NULL);
+
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_INFO);
+	if(list_type == LIST_TXN_TYPE_BOOK)
+	{
+		gtk_tree_view_column_set_reorderable(column, TRUE);
+		gtk_tree_view_column_set_min_width (column, HB_MINWIDTH_COLUMN);
+		gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
+	}
+
+	return column;
+}
+
+
+static void list_txn_destroy( GtkWidget *widget, gpointer user_data )
+{
+struct list_txn_data *data;
 
 	data = g_object_get_data(G_OBJECT(widget), "inst_data");
 
 	DB( g_print ("\n[list_transaction] destroy event occurred\n") );
 
-	
+	if( data->save_column_width )
+	{
+		list_txn_get_columns_width(GTK_TREE_VIEW(data->treeview));
+	}
+		
 	DB( g_print(" - view=%p, inst_data=%p\n", widget, data) );
 	g_free(data);
 }
-
 
 /*
 ** create our transaction list
 ** Status, Date, Info, Payee, Wording, (Amount), Expense, Income, Category
 */
-GtkWidget *create_list_transaction(gint type, gboolean *pref_columns)
+GtkWidget *create_list_transaction(gint list_type, gboolean *pref_columns)
 {
-struct list_transaction_data *data;
+struct list_txn_data *data;
 GtkListStore *store;
-GtkWidget *view;
+GtkWidget *treeview;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column, *col_acc = NULL;
 
 
-	data = g_malloc0(sizeof(struct list_transaction_data));
+	data = g_malloc0(sizeof(struct list_txn_data));
 	if(!data) return NULL;
 
+	data->list_type = list_type;
+	data->save_column_width = FALSE;
+	
 	/* create list store */
 	store = gtk_list_store_new(
 	  	NUM_LST_DSPOPE,
 		G_TYPE_POINTER,	/*only really used columns, other are fake */
+	    G_TYPE_BOOLEAN,
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
 		G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
@@ -708,131 +807,137 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 		);
 
 	//treeview
-	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	data->treeview = treeview;
 	g_object_unref(store);
 
 	//store our window private data
-	g_object_set_data(G_OBJECT(view), "inst_data", (gpointer)data);
-	DB( g_print(" - view=%p, inst_data=%p\n", view, data) );
+	g_object_set_data(G_OBJECT(treeview), "inst_data", (gpointer)data);
+	DB( g_print(" - treeview=%p, inst_data=%p\n", treeview, data) );
 
 	// connect our dispose function
-	g_signal_connect (view, "destroy",
-		G_CALLBACK (list_transaction_destroy), (gpointer)data);
-
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
+	g_signal_connect (treeview, "destroy", G_CALLBACK (list_txn_destroy), (gpointer)data);
+	
+	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), PREFS->rules_hint);
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
 	//			       COLUMN_DESCRIPTION);
 
-	if(type == TRN_LIST_TYPE_BOOK)
-		gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_MULTIPLE);
+	if(list_type == LIST_TXN_TYPE_BOOK)
+		gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview)), GTK_SELECTION_MULTIPLE);
 
 	/* column 1: Status */
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Status"));
+	//gtk_tree_view_column_set_title(column, _("Status"));
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
+	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_status_cell_data_function, GINT_TO_POINTER(1), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_status_cell_data_function, GINT_TO_POINTER(1), NULL);
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
+	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_status_cell_data_function, GINT_TO_POINTER(2), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_status_cell_data_function, GINT_TO_POINTER(2), NULL);
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
+	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_status_cell_data_function, GINT_TO_POINTER(3), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_status_cell_data_function, GINT_TO_POINTER(3), NULL);
 
 	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_STATUS);
 	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-
-	if(type == TRN_LIST_TYPE_DETAIL)
+	if(list_type == LIST_TXN_TYPE_DETAIL)
 	{
-		column = gtk_tree_view_column_new();
+		column = list_txn_column_text_create(list_type, _("Account"), LST_DSPOPE_ACCOUNT, list_txn_account_cell_data_function, NULL);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 		col_acc = column;
-		gtk_tree_view_column_set_title(column, _("Account"));
-		renderer = gtk_cell_renderer_text_new ();
-		gtk_tree_view_column_pack_start(column, renderer, TRUE);
-		gtk_tree_view_column_set_cell_data_func(column, renderer, ope_account_cell_data_function, NULL, NULL);
-		gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_ACCOUNT);
-		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 	}
-
 
 	/* column 2: Date */
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Date"));
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_date_cell_data_function, NULL, NULL);
+	g_object_set(renderer, "xalign", 1.0, NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_date_cell_data_function, NULL, NULL);
 	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	//gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
 
-	column = info_list_transaction_column();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_info_create(list_type);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	
+	column = list_txn_column_text_create(list_type, _("Payee"), LST_DSPOPE_PAYEE, list_txn_payee_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = payee_list_transaction_column();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_text_create(list_type, _("Memo"), LST_DSPOPE_WORDING, list_txn_wording_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = wording_list_transaction_column();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	/* column CLR */
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, "C");	/* untranslated = normal */
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start(column, renderer, TRUE);
+	g_object_set(renderer, "xalign", 1.0, NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_clr_cell_data_function, NULL, NULL);
+	gtk_tree_view_column_set_reorderable(column, TRUE);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_CLR);
+	//gtk_tree_view_column_set_sort_indicator (column, FALSE);
+	//gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	
+	
+	column = list_txn_column_amount_create(list_type, _("Amount"), LST_DSPOPE_AMOUNT, list_txn_amount_cell_data_function);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = amount_list_transaction_column(_("Amount"), LST_DSPOPE_AMOUNT);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_amount_create(list_type, _("Expense"), LST_DSPOPE_EXPENSE, list_txn_amount_cell_data_function);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = amount_list_transaction_column(_("Expense"), LST_DSPOPE_EXPENSE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_amount_create(list_type, _("Income"), LST_DSPOPE_INCOME, list_txn_amount_cell_data_function);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = amount_list_transaction_column(_("Income"), LST_DSPOPE_INCOME);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_text_create(list_type, _("Category"), LST_DSPOPE_CATEGORY, list_txn_category_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = category_list_transaction_column();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_text_create(list_type, _("Tags"), LST_DSPOPE_TAGS, list_txn_tags_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	column = tags_list_transaction_column();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-	if(type != TRN_LIST_TYPE_DETAIL)
+	if(list_type == LIST_TXN_TYPE_BOOK)
 	{
-		column = amount_list_transaction_column(_("Balance"), LST_DSPOPE_BALANCE);
+		column = list_txn_column_amount_create(list_type, _("Balance"), LST_DSPOPE_BALANCE, list_txn_amount_cell_data_function);
 		data->tvc_balance = column;
 		gtk_tree_view_column_set_clickable(column, FALSE);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 	}
 	
   /* column 9: empty */
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
   /* sort */
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_STATUS  , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_STATUS), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_DATE    , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_DATE), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_INFO    , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_INFO), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_PAYEE   , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_PAYEE), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_WORDING , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_WORDING), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_AMOUNT  , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_AMOUNT), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_EXPENSE , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_EXPENSE), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_INCOME  , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_INCOME), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_CATEGORY, ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_CATEGORY), NULL);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_TAGS    , ope_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_TAGS), NULL);
-
-
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_STATUS  , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_STATUS), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_DATE    , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_DATE), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_INFO    , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_INFO), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_PAYEE   , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_PAYEE), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_WORDING , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_WORDING), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_AMOUNT  , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_AMOUNT), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_EXPENSE , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_EXPENSE), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_INCOME  , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_INCOME), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_CATEGORY, list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_CATEGORY), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_TAGS    , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_TAGS), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DSPOPE_CLR     , list_txn_sort_iter_compare_func, GINT_TO_POINTER(LST_DSPOPE_CLR), NULL);
 
   /* apply user preference for columns */
-	list_transaction_set_columns(GTK_TREE_VIEW(view), pref_columns);
+	list_txn_set_columns(GTK_TREE_VIEW(treeview), pref_columns);
 
-  /* force accoutn column for detail view */
-	if(type == TRN_LIST_TYPE_DETAIL)
+  /* force accoutn column for detail treeview */
+	if(list_type == LIST_TXN_TYPE_DETAIL)
 	{
-		gtk_tree_view_move_column_after(GTK_TREE_VIEW(view), col_acc, NULL);
+		gtk_tree_view_move_column_after(GTK_TREE_VIEW(treeview), col_acc, NULL);
 	}
 
   /* set initial sort order */
@@ -841,10 +946,10 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 
 
 	/* signals */
-	if(type == TRN_LIST_TYPE_BOOK)
-		g_signal_connect (GTK_TREE_SORTABLE(store), "sort-column-changed", G_CALLBACK (list_transaction_sort_column_changed), data);
+	if(list_type == LIST_TXN_TYPE_BOOK)
+		g_signal_connect (GTK_TREE_SORTABLE(store), "sort-column-changed", G_CALLBACK (list_txn_sort_column_changed), data);
 
-	return(view);
+	return(treeview);
 }
 
 
@@ -886,7 +991,7 @@ gchar *color;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
-	mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
+	mystrfnum(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
 	//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
 
 	color = get_normal_color_amount(ope->amount);
@@ -898,21 +1003,18 @@ gchar *color;
 
 }
 
-/*
-**
-*/
+
 static void ope_importstatus_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
-GdkPixbuf *pixbuf = NULL;
+gchar *iconname = NULL;
 
 	// get the transaction
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
-	if( ope->same != NULL )
-		pixbuf = GLOBALS->lst_pixbuf[LST_PIXBUF_WARNING];
+	iconname = ( ope->same != NULL ) ? ICONNAME_WARNING : NULL;
 
-	g_object_set(renderer, "pixbuf", pixbuf, NULL);
+	g_object_set(renderer, "icon-name", iconname, NULL);
 }
 
 
@@ -943,10 +1045,10 @@ ope_importfixed_toggled (GtkCellRendererToggle *cell,
 /*
 ** create our transaction list
 */
-GtkWidget *create_list_import_transaction(void)
+GtkWidget *create_list_import_transaction(gboolean enable_choose)
 {
 GtkListStore *store;
-GtkWidget *view;
+GtkWidget *treeview;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column;
 
@@ -966,38 +1068,40 @@ GtkTreeViewColumn  *column;
 		);
 
 	//treeview
-	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
+	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), TRUE);
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
 	//			       COLUMN_DESCRIPTION);
 
 	//gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_MULTIPLE);
 
 	/* column: Selection */
-	renderer = gtk_cell_renderer_toggle_new ();
+	if(enable_choose)
+	{
+		renderer = gtk_cell_renderer_toggle_new ();
 
-	g_signal_connect (renderer, "toggled",
-		    G_CALLBACK (ope_importfixed_toggled), store);
+		g_signal_connect (renderer, "toggled", G_CALLBACK (ope_importfixed_toggled), store);
 
 
-	column = gtk_tree_view_column_new_with_attributes (NULL,
-						     renderer,
-						     "active", LST_OPE_IMPTOGGLE,
-						     NULL);
+		column = gtk_tree_view_column_new_with_attributes (NULL,
+								 renderer,
+								 "active", LST_OPE_IMPTOGGLE,
+								 NULL);
 
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	/* column: Duplicate */
-	column = gtk_tree_view_column_new();
-	//gtk_tree_view_column_set_title(column, _("Import ?"));
-	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_importstatus_cell_data_function, NULL, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
+		/* column: Duplicate */
+		column = gtk_tree_view_column_new();
+		//gtk_tree_view_column_set_title(column, _("Import ?"));
+		renderer = gtk_cell_renderer_pixbuf_new ();
+		//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
+		gtk_tree_view_column_pack_start(column, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(column, renderer, ope_importstatus_cell_data_function, NULL, NULL);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	}
+		
 //#ifndef NOOFX
 	/* column: Account */
 	column = gtk_tree_view_column_new();
@@ -1007,84 +1111,37 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_importaccount_cell_data_function, NULL, NULL);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 //#endif
 
 	/* column: Date */
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Date"));
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_date_cell_data_function, NULL, NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-
-	/* column: Wording */
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Memo"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_wording_cell_data_function, NULL, NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_WORDING);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-	/* column: Amount */
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Amount"));
-	renderer = gtk_cell_renderer_text_new ();
 	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_importamount_cell_data_function, NULL, NULL);
-	gtk_tree_view_column_set_alignment (column, 1.0);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_EXPENSE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_date_cell_data_function, NULL, NULL);
+	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	/* column: Infos */
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Info"));
+	column = list_txn_column_text_create(LIST_TXN_TYPE_IMPORT, _("Memo"), -1, list_txn_wording_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_info_cell_data_function, GINT_TO_POINTER(1), NULL);
+	column = list_txn_column_amount_create(LIST_TXN_TYPE_IMPORT, _("Amount"), -1, ope_importamount_cell_data_function);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_info_cell_data_function, GINT_TO_POINTER(2), NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_INFO);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	column = list_txn_column_info_create(LIST_TXN_TYPE_IMPORT);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	/* column: Payee */
+	column = list_txn_column_text_create(LIST_TXN_TYPE_IMPORT, _("Payee"), -1, list_txn_payee_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+
+	column = list_txn_column_text_create(LIST_TXN_TYPE_IMPORT, _("Category"), -1, list_txn_category_cell_data_function, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Payee"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_payee_cell_data_function, NULL, NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_PAYEE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	/* column : Category */
-
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, _("Category"));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ope_category_cell_data_function, NULL, NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_CATEGORY);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-
-
-	/* column 6: empty */
-	column = gtk_tree_view_column_new();
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
-	return(view);
+	return(treeview);
 }

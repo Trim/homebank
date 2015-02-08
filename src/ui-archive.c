@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -47,6 +47,7 @@ gchar *CYA_UNIT[] = { N_("Day"), N_("Week"), N_("Month"), N_("Year"), NULL };
 
 gchar *CYA_SCHED_WEEKEND[] = { N_("Possible"), N_("Before"), N_("After"), NULL };
 
+extern gchar *CYA_TXN_STATUS[];
 
 static GtkWidget *ui_arc_listview_new(void);
 
@@ -77,15 +78,14 @@ Archive *entry1, *entry2;
 static void ui_arc_listview_auto_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Archive *item;
-GdkPixbuf *pixbuf = NULL;
+gchar *iconname = NULL;
 
 	// get the transaction
 	gtk_tree_model_get(model, iter, LST_DEFARC_DATAS, &item, -1);
 
-	if( item->flags & OF_AUTO )
-		pixbuf = GLOBALS->lst_pixbuf[LST_PIXBUF_AUTO];
+	iconname = ( item->flags & OF_AUTO ) ? ICONNAME_HB_OPE_AUTO : NULL;
 
-	g_object_set(renderer, "pixbuf", pixbuf, NULL);
+	g_object_set(renderer, "icon-name", iconname, NULL);
 }
 
 
@@ -136,14 +136,6 @@ GtkTreeViewColumn  *column;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	/* icon column */
-	column = gtk_tree_view_column_new();
-	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
-	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_auto_cell_data_function, NULL, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
 	/* text column */
 	column = gtk_tree_view_column_new();
 	renderer = gtk_cell_renderer_text_new ();
@@ -151,6 +143,15 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_text_cell_data_function, GINT_TO_POINTER(1), NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
+	/* icon column */
+	column = gtk_tree_view_column_new();
+	renderer = gtk_cell_renderer_pixbuf_new ();
+	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
+	gtk_tree_view_column_pack_start(column, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_auto_cell_data_function, NULL, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+
+	
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(view), FALSE);
 	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
 
@@ -179,7 +180,7 @@ Archive *item;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_arc));
 
 	item = da_archive_malloc();
-	item->wording = g_strdup_printf(_("(archive %d)"), g_list_length(GLOBALS->arc_list) + 1);
+	item->wording = g_strdup_printf(_("(template %d)"), g_list_length(GLOBALS->arc_list) + 1);
 	item->unit = 2;
 
 	GLOBALS->arc_list = g_list_append(GLOBALS->arc_list, item);
@@ -196,30 +197,53 @@ Archive *item;
 }
 
 /*
-** remove the selected account to our treeview and temp GList
+** delete the selected account to our treeview and temp GList
 */
-static void ui_arc_manage_remove(GtkWidget *widget, gpointer user_data)
+static void ui_arc_manage_delete(GtkWidget *widget, gpointer user_data)
 {
 struct ui_arc_manage_data *data;
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 Archive *item;
+gint result;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("\n[ui_scheduled] remove (data=%p)\n", data) );
+	DB( g_print("\n[ui_scheduled] delete (data=%p)\n", data) );
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_arc));
 	//if true there is a selected node
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
+	gchar *title;
+	gchar *secondtext;
+		
 		gtk_tree_model_get(model, &iter, LST_DEFARC_DATAS, &item, -1);
-		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
 
-		GLOBALS->arc_list = g_list_remove(GLOBALS->arc_list, item);
+		title = g_strdup_printf (
+			_("Are you sure you want to permanently delete '%s'?"), item->wording);
 
-		data->change++;
-		//DB( g_print(" remove =%08x (pos=%d)\n", entry, g_list_index(data->tmp_list, entry) ) );
+		secondtext = _("If you delete a scheduled/template, it will be permanently lost.");
+		
+		result = ui_dialog_msg_confirm_alert(
+				GTK_WINDOW(data->window),
+				title,
+				secondtext,
+				_("_Delete")
+			);
+
+		g_free(title);
+		
+		if( result == GTK_RESPONSE_OK )
+		{
+			gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+
+			GLOBALS->arc_list = g_list_remove(GLOBALS->arc_list, item);
+
+			data->change++;
+
+		}
+		//DB( g_print(" delete =%08x (pos=%d)\n", entry, g_list_index(data->tmp_list, entry) ) );
 	}
 }
 
@@ -293,14 +317,20 @@ Archive *item;
 
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), item->amount);
 
-		g_signal_handler_block(data->CM_valid, data->handler_id[HID_ARC_VALID]);
+
+		
+		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_status), item->status );
+
+		
+		/*g_signal_handler_block(data->CM_valid, data->handler_id[HID_ARC_VALID]);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_valid), (item->flags & OF_VALID) ? 1 : 0);
 		g_signal_handler_unblock(data->CM_valid, data->handler_id[HID_ARC_VALID]);
 
 		g_signal_handler_block(data->CM_remind, data->handler_id[HID_ARC_REMIND]);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_remind), (item->flags & OF_REMIND) ? 1 : 0);
 		g_signal_handler_unblock(data->CM_remind, data->handler_id[HID_ARC_REMIND]);
-
+		*/
+		
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->NU_mode), item->paymode);
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_cheque), (item->flags & OF_CHEQ2) ? 1 : 0);
@@ -322,7 +352,7 @@ Archive *item;
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_unit), item->unit);
 
-		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_next), item->nextdate);
+		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_next), item->nextdate);
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_limit), (item->flags & OF_LIMIT) ? 1 : 0);
 
@@ -366,6 +396,7 @@ Archive *item;
 
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_arc));
 
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_amount));
 		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 		item->amount = value;
 
@@ -378,11 +409,13 @@ Archive *item;
 		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque));
 		if(bool) item->flags |= OF_CHEQ2;
 
-		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid));
+		item->status = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_status));
+
+		/*bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid));
 		if(bool) item->flags |= OF_VALID;
 
 		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_remind));
-		if(bool == 1) item->flags |= OF_REMIND;
+		if(bool == 1) item->flags |= OF_REMIND;*/
 
 		item->paymode		= gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
 		item->kcat		= ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_grp));
@@ -396,13 +429,15 @@ Archive *item;
 		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_auto));
 		if(bool) item->flags |= OF_AUTO;
 
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->NB_every));
 		item->every   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->NB_every));
 		item->unit    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_unit));
-		item->nextdate	= gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_next));
+		item->nextdate	= gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_next));
 
 		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_limit));
 		if(bool) item->flags |= OF_LIMIT;
 
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->NB_limit));
 		item->limit   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->NB_limit));
 
 		item->weekend = radio_get_active(GTK_CONTAINER(data->CY_weekend));
@@ -450,7 +485,7 @@ gboolean sensitive;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("\n[ui_scheduled] widget=%p, data=%p\n", widget, data) );
+	//DB( g_print(" widget=%p, data=%p\n", widget, data) );
 
 	
 	payment = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
@@ -474,6 +509,8 @@ gboolean sensitive;
 	hb_widget_visible(data->LB_accto, sensitive);
 	hb_widget_visible(data->PO_accto, sensitive);
 
+	DB( g_print(" visible: %d\n", sensitive) );
+
 }
 
 /*
@@ -482,24 +519,61 @@ gboolean sensitive;
 static void ui_arc_manage_scheduled(GtkWidget *widget, gpointer user_data)
 {
 struct ui_arc_manage_data *data;
-gboolean sensitive;
+Archive *arcitem;
+GtkTreeModel		 *model;
+GtkTreeIter			 iter;
+GtkTreePath			*path;
+gboolean selected, sensitive;
 
 	DB( g_print("\n[ui_scheduled] scheduled\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	//scheduled
-	sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_auto)) ? TRUE : FALSE;
+	sensitive = FALSE;
+	
+	
+	selected = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_arc)), &model, &iter);
+	if(selected)
+	{
+		gtk_tree_model_get(model, &iter, LST_DEFARC_DATAS, &arcitem, -1);
+
+		arcitem->flags &= ~(OF_AUTO);
+		sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_auto)) ? TRUE : FALSE;
+		if(sensitive)
+			arcitem->flags |= OF_AUTO;
+	}
+	
+
+	
+	gtk_widget_set_sensitive(data->LB_next, sensitive);
 	gtk_widget_set_sensitive(data->PO_next, sensitive);
+
+	gtk_widget_set_sensitive(data->LB_every, sensitive);
 	gtk_widget_set_sensitive(data->NB_every, sensitive);
-	gtk_widget_set_sensitive(data->CY_unit, sensitive);
-	gtk_widget_set_sensitive(data->CM_limit, sensitive);
+
+	gtk_widget_set_sensitive(data->LB_weekend, sensitive);
 	gtk_widget_set_sensitive(data->CY_weekend, sensitive);
 
+	gtk_widget_set_sensitive(data->CY_unit, sensitive);
+	gtk_widget_set_sensitive(data->CM_limit, sensitive);
+
+	gtk_widget_set_sensitive(data->LB_posts, sensitive);
+
+	
 	sensitive = (sensitive == TRUE) ? gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_limit)) : sensitive;
 	gtk_widget_set_sensitive(data->NB_limit, sensitive);
 
+	if(selected)
+	{
+		/* redraw the row to display/hide the icon */
+		path = gtk_tree_model_get_path(model, &iter);
+		gtk_tree_model_row_changed(model, path, &iter);
+		gtk_tree_path_free (path);
 
+		//	gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_arc));
+		//gtk_widget_queue_draw (GTK_WIDGET(data->LV_arc));
+	}	
+		
 }
 
 
@@ -527,21 +601,11 @@ Archive *arcitem;
 	DB( g_print(" selected = %d\n", selected) );
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->PO_pay, sensitive);
-	gtk_widget_set_sensitive(data->ST_word, sensitive);
-	gtk_widget_set_sensitive(data->ST_amount, sensitive);
-	gtk_widget_set_sensitive(data->BT_amount, sensitive);
-	//gtk_widget_set_sensitive(data->BT_split, sensitive);
 
-	gtk_widget_set_sensitive(data->CM_valid, sensitive);
-	gtk_widget_set_sensitive(data->CM_remind, sensitive);
+	gtk_widget_set_sensitive(data->GR_txnleft, sensitive);
+	gtk_widget_set_sensitive(data->GR_txnright, sensitive);
+	
 
-	gtk_widget_set_sensitive(data->CM_cheque, sensitive);
-
-	gtk_widget_set_sensitive(data->NU_mode, sensitive);
-	gtk_widget_set_sensitive(data->PO_grp, sensitive);
-	gtk_widget_set_sensitive(data->PO_acc, sensitive);
-	gtk_widget_set_sensitive(data->PO_accto, sensitive);
 
 	gtk_widget_set_sensitive(data->CM_auto, sensitive);
 
@@ -566,45 +630,13 @@ Archive *arcitem;
 		data->lastarcitem = NULL;
 	}
 
+	gtk_widget_set_sensitive(data->LB_schedinsert, sensitive);
+
+
 	DB( g_print(" - call scheduled\n") );
 	ui_arc_manage_scheduled(widget, NULL);
 	DB( g_print(" - call paymode\n") );
 	ui_arc_manage_paymode(widget,NULL);
-
-
-}
-
-
-static void ui_arc_manage_togglestatus(GtkWidget *widget, gpointer user_data)
-{
-struct ui_arc_manage_data *data;
-
-	DB( g_print("\n[ui_scheduled] togglestatus\n") );
-
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-
-	//valid & remind are exclusive
-	switch( GPOINTER_TO_INT(user_data) )
-	{
-		case HID_ARC_VALID:
-			if( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid)) )
-			{
-				g_signal_handler_block(data->CM_remind, data->handler_id[HID_ARC_REMIND]);
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_remind), FALSE);
-				g_signal_handler_unblock(data->CM_remind, data->handler_id[HID_ARC_REMIND]);
-			}
-			break;
-
-		case HID_ARC_REMIND:
-			if( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_remind)) )
-			{
-				g_signal_handler_block(data->CM_valid, data->handler_id[HID_ARC_VALID]);
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_valid), FALSE);
-				g_signal_handler_unblock(data->CM_valid, data->handler_id[HID_ARC_VALID]);
-			}
-	}
-
-
 
 
 }
@@ -722,23 +754,24 @@ gint i;
 
 static GtkWidget *ui_arc_manage_create_left_txn(struct ui_arc_manage_data *data)
 {
-GtkWidget *table, *hbox, *label, *widget;
+GtkWidget *group_grid, *hbox, *label, *widget;
 gint row;
+	
+	// group :: Transaction detail
+    group_grid = gtk_grid_new ();
+    data->GR_txnleft = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 
-	table = gtk_table_new (2, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	label = make_label_group(_("Transaction detail"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
-	row = 0;
-	label = make_label(_("Transaction detail"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
-
-	row++;
+	row = 1;
 	label = make_label(_("_Amount:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
-	hbox = gtk_hbox_new (FALSE, 0);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_widget_set_hexpand (hbox, TRUE);
 
 	widget = gtk_button_new_with_label("+/-");
 	data->BT_amount = widget;
@@ -749,126 +782,133 @@ gint row;
 	data->ST_amount = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-	gtk_table_attach (GTK_TABLE (table), hbox, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), hbox, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("Pay_ment:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_paymode(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->NU_mode = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic(_("Of notebook _2"));
 	data->CM_cheque = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	/* info should be here some day */
 
 	row++;
 	label = make_label(_("A_ccount:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->PO_acc = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_To account:"), 0.0, 0.5);
 	data->LB_accto = label;
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->PO_accto = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	return table;
+	return group_grid;
 }
 
 
 static GtkWidget *ui_arc_manage_create_right_txn(struct ui_arc_manage_data *data)
 {
-GtkWidget *table, *label, *widget;
+GtkWidget *group_grid, *label, *widget;
 gint row;
 
-	table = gtk_table_new (2, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	// group :: <empty> 
+	group_grid = gtk_grid_new ();
+	data->GR_txnright = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 
-	row = 0;
 	// keep this to avoid a shift
-	label = make_label(NULL, 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	label = make_label_group(NULL);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
-	row++;
+	row = 1;
 	label = make_label(_("_Payee:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_pay_comboboxentry_new(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->PO_pay = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_Category:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->PO_grp = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_Memo:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
+	gtk_widget_set_hexpand (widget, TRUE);
 	data->ST_word = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	/* tags should be here some day */
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("_Reconciled"));
-	data->CM_valid = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = make_label(_("_Status:"), 0.0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_cycle(label, CYA_TXN_STATUS);
+	data->CY_status = widget;
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Re_mind"));
-	data->CM_remind = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-
-
-	return table;
+	return group_grid;
 }
 
 
 static GtkWidget *ui_arc_manage_create_scheduling(struct ui_arc_manage_data *data)
 {
-GtkWidget *table, *hbox, *label, *widget;
+GtkWidget *group_grid, *hbox, *label, *widget;
 gint row;
 
-	table = gtk_table_new (2, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	// group :: Scheduled insertion
+	group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 
-	row = 0;
-	label = make_label(_("Scheduled insertion"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	label = make_label_group(_("Scheduled insertion"));
+	data->LB_schedinsert = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
-	row++;
+	row = 1;
 	widget = gtk_check_button_new_with_mnemonic(_("_Activate"));
 	data->CM_auto = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
 
 	row++;
-	label = make_label(_("Next _date:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = gtk_dateentry_new();
+	label = gtk_label_new_with_mnemonic (_("Next _date:"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+	data->LB_next = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = gtk_date_entry_new();
 	data->PO_next = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Ever_y:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	label = gtk_label_new_with_mnemonic (_("Ever_y:"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+	data->LB_every = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
-	hbox = gtk_hbox_new(FALSE, HB_BOX_SPACING);
-	gtk_table_attach (GTK_TABLE (table), hbox, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_grid_attach (GTK_GRID (group_grid), hbox, 2, row, 1, 1);
 	widget = make_numeric(label, 1, 100);
 	data->NB_every = widget;
     gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
@@ -880,15 +920,16 @@ gint row;
 
 	row++;
 	label = make_label(_("Week end:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	data->LB_weekend = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
-	widget = make_radio(NULL, CYA_SCHED_WEEKEND, GTK_ORIENTATION_HORIZONTAL);
+	widget = make_radio(CYA_SCHED_WEEKEND, FALSE, GTK_ORIENTATION_HORIZONTAL);
 	data->CY_weekend = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	hbox = gtk_hbox_new(FALSE, HB_BOX_SPACING);
-	gtk_table_attach (GTK_TABLE (table), hbox, 1, 3, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_grid_attach (GTK_GRID (group_grid), hbox, 1, row, 3, 1);
 
 		widget = gtk_check_button_new_with_mnemonic(_("_Stop after:"));
 		data->CM_limit = widget;
@@ -899,51 +940,56 @@ gint row;
 	    gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
 		label = gtk_label_new_with_mnemonic (_("posts"));
+		data->LB_posts = label;
 	    gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
-	return table;
+	return group_grid;
 }
 
 
 GtkWidget *ui_arc_manage_dialog (void)
 {
 struct ui_arc_manage_data data;
-GtkWidget *window, *content, *mainbox, *hbox, *vbox, *table;
-GtkWidget *widget, *treeview, *scrollwin;
-GtkWidget *alignment, *hpaned;
-gint row;
+GtkWidget *dialog, *content_area;
+GtkWidget *content_grid, *group_grid, *hgrid, *treeview, *scrollwin;
+GtkWidget *widget, *hpaned;
+gint w, h;
 
-      window = gtk_dialog_new_with_buttons (_("Manage scheduled/template transactions"),
+	dialog = gtk_dialog_new_with_buttons (_("Manage scheduled/template transactions"),
 					    GTK_WINDOW(GLOBALS->mainwindow),
 					    0,
-					    GTK_STOCK_CLOSE,
+					    _("_Close"),
 					    GTK_RESPONSE_ACCEPT,
 					    NULL);
 
-	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "archive.svg");
-	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_ARCHIVE);
+	data.window = dialog;
+	
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_ARCHIVE);
 
-	//store our window private data
-	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
-	DB( g_print("\n[ui_scheduled] window=%p, inst_data=%p\n", window, &data) );
+	//set a nice dialog size
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h/PHI);
 
-	//window contents
-	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
+	
+	//store our dialog private data
+	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
+	DB( g_print("\n[ui_scheduled] dialog=%p, inst_data=%p\n", dialog, &data) );
 
-	hpaned = gtk_hpaned_new();
-	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
+	//dialog contents
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));	 	// return a vbox
 
+	hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_container_set_border_width (GTK_CONTAINER(hpaned), SPACING_MEDIUM);
+	gtk_container_add(GTK_CONTAINER(content_area), hpaned);
+	
 	/* left area */
-	table = gtk_table_new (2, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
-	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
+	hgrid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (hgrid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (hgrid), SPACING_MEDIUM);
+	gtk_widget_set_margin_right(hgrid, SPACING_SMALL);
+	gtk_paned_pack1 (GTK_PANED(hpaned), hgrid, FALSE, FALSE);
 
 	// listview
-	row  = 0;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
@@ -951,77 +997,73 @@ gint row;
   	data.LV_arc = treeview;
 	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
-	gtk_table_attach_defaults (GTK_TABLE (table), scrollwin, 0, 2, row, row+1);
-
-	// tools buttons
-	row++;
-	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	gtk_widget_set_hexpand (scrollwin, TRUE);
+	gtk_widget_set_vexpand (scrollwin, TRUE);
+	gtk_grid_attach (GTK_GRID (hgrid), scrollwin, 0, 0, 2, 1);
+	
+	widget = gtk_button_new_with_mnemonic(_("_Add"));
 	data.BT_add = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
-	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	gtk_grid_attach (GTK_GRID (hgrid), widget, 0, 1, 1, 1);
+	
+	widget = gtk_button_new_with_mnemonic(_("_Delete"));
 	data.BT_rem = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (hgrid), widget, 1, 1, 1, 1);
+
 
 	/* right area */
-	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, TRUE, TRUE, 0);
-	gtk_paned_pack2 (GTK_PANED(hpaned), vbox, FALSE, FALSE);
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	//gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	gtk_widget_set_margin_left(content_grid, SPACING_SMALL);
+	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
+
+	hgrid = gtk_grid_new ();
+	gtk_grid_set_column_spacing (GTK_GRID (hgrid), SPACING_SMALL);
+	gtk_grid_attach (GTK_GRID (content_grid), hgrid, 0, 0, 1, 1);
+
+	group_grid = ui_arc_manage_create_left_txn(&data);
+	gtk_widget_set_hexpand (GTK_WIDGET(group_grid), FALSE);
+	gtk_grid_attach (GTK_GRID (hgrid), group_grid, 0, 0, 1, 1);
+
+	group_grid = ui_arc_manage_create_right_txn(&data);
+	gtk_widget_set_hexpand (GTK_WIDGET(group_grid), TRUE);
+	gtk_grid_attach (GTK_GRID (hgrid), group_grid, 1, 0, 1, 1);
 	
-	hbox = gtk_hbox_new (TRUE, HB_HSPACE_SPACING);
-	gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
-
-
-	widget = ui_arc_manage_create_left_txn(&data);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-
-	widget = ui_arc_manage_create_right_txn(&data);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_box_pack_start (GTK_BOX (hbox), alignment, TRUE, TRUE, 0);
-
 	/* sheduling */
-	widget = ui_arc_manage_create_scheduling(&data);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 0.20, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_box_pack_start (GTK_BOX (vbox), alignment, TRUE, TRUE, 0);
+	group_grid = ui_arc_manage_create_scheduling(&data);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
 
 	/* set default periodicity to month */
 	//todo: move elsewhere
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data.CY_unit), 2);
 
-
-
 	//connect all our signals
-	g_signal_connect (window, "destroy", G_CALLBACK (gtk_widget_destroyed), &window);
+	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_arc)), "changed", G_CALLBACK (ui_arc_manage_selection), NULL);
 	g_signal_connect (G_OBJECT (data.BT_amount), "clicked", G_CALLBACK (ui_arc_manage_toggleamount), NULL);
 
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_arc_manage_add), NULL);
-	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_arc_manage_remove), NULL);
+	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_arc_manage_delete), NULL);
 
 	data.handler_id[HID_ARC_MEMO] = g_signal_connect (G_OBJECT (data.ST_word), "changed", G_CALLBACK (ui_arc_manage_rename), NULL);
 	g_signal_connect (data.NU_mode, "changed", G_CALLBACK (ui_arc_manage_paymode), NULL);
 	g_signal_connect (data.PO_acc, "changed", G_CALLBACK (ui_arc_manage_update_accto), NULL);
-	data.handler_id[HID_ARC_VALID]  = g_signal_connect (data.CM_valid , "toggled", G_CALLBACK (ui_arc_manage_togglestatus), GINT_TO_POINTER(HID_ARC_VALID));
-	data.handler_id[HID_ARC_REMIND] = g_signal_connect (data.CM_remind, "toggled", G_CALLBACK (ui_arc_manage_togglestatus), GINT_TO_POINTER(HID_ARC_REMIND));
+	//data.handler_id[HID_ARC_VALID]  = g_signal_connect (data.CM_valid , "toggled", G_CALLBACK (ui_arc_manage_togglestatus), GINT_TO_POINTER(HID_ARC_VALID));
+	//data.handler_id[HID_ARC_REMIND] = g_signal_connect (data.CM_remind, "toggled", G_CALLBACK (ui_arc_manage_togglestatus), GINT_TO_POINTER(HID_ARC_REMIND));
 
 	g_signal_connect (data.CM_auto, "toggled", G_CALLBACK (ui_arc_manage_scheduled), NULL);
 	g_signal_connect (data.CM_limit, "toggled", G_CALLBACK (ui_arc_manage_scheduled), NULL);
 
-	//setup, init and show window
+	//setup, init and show dialog
 	ui_arc_manage_setup(&data);
 	ui_arc_manage_update(data.LV_arc, NULL);
 
-	gtk_widget_show_all (window);
+	gtk_widget_show_all (dialog);
 
 	//wait for the user
-	gint result = gtk_dialog_run (GTK_DIALOG (window));
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 	switch (result)
     {
@@ -1035,7 +1077,7 @@ gint row;
 
 	// cleanup and destroy
 	ui_arc_manage_cleanup(&data, result);
-	gtk_widget_destroy (window);
+	gtk_widget_destroy (dialog);
 
 	return NULL;
 }

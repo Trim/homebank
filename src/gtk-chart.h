@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -53,8 +53,10 @@ typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 
 /* default zoomx for charts */
 #define GTK_CHART_BARW 			24
-#define GTK_CHART_MINBARW 		 8
-#define GTK_CHART_MAXBARW 		64
+
+#define GTK_CHART_MINBARW 		 4
+#define GTK_CHART_MAXBARW 		128
+
 #define GTK_CHART_MINRADIUS 	64
 
 
@@ -76,6 +78,7 @@ typedef gchar (* GtkChartPrintDoubleFunc) (gdouble value, gboolean minor);
 
 enum
 {
+	CHART_TYPE_NONE,
 	CHART_TYPE_COL,
 	CHART_TYPE_PIE,
 	CHART_TYPE_LINE,
@@ -102,7 +105,7 @@ struct _ChartItem
 	gdouble	 serie2;
 	gdouble	 rate;
 
-	/* cairo part */
+	/* draw stuffs */
 	gchar    *legend;
 	double	 angle2;	  /* rate for pie */
 	double	 height;   /* for column */ 
@@ -118,7 +121,7 @@ struct _GtkChart
 
 
 	/* all below should be in priv normally */
-	GtkHBox			hbox;
+	GtkBox			hbox;
 
 	GtkWidget		*drawarea;
 	GtkAdjustment	*adjustment;
@@ -141,6 +144,7 @@ struct _GtkChart
 	gboolean	abs;
 	gboolean	show_over;
 	gboolean	show_xval;
+	gboolean	show_mono;
 	gint		every_xval;
 	//guint32		kcur;
 	gboolean	minor;
@@ -152,12 +156,17 @@ struct _GtkChart
 	gint	nb_cols;
 	gint	cs_red, cs_green, cs_blue, cs_yellow;
 
+	/* cairo default value */
+	PangoFontDescription *pfd;
+	gint				pfd_size;
+
 	/* buffer surface */
 	cairo_surface_t	 *surface;
 	
 	/* draw area coordinates */
 	double	l, t, b, r, w, h;
 	/* our drawing rectangle with margin */
+	double		label_w;
 	double		legend_w;
 
 	/* zones height */
@@ -192,7 +201,7 @@ struct _GtkChart
 
 struct _GtkChartClass
 {
-	GtkHBoxClass parent_class;
+	GtkBoxClass parent_class;
 
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
@@ -211,8 +220,8 @@ void gtk_chart_set_color_scheme(GtkChart * chart, gint colorscheme);
 
 void gtk_chart_queue_redraw(GtkChart *chart);
 
-void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gchar *title);
-void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title);
+void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gchar *title, gchar *subtitle);
+void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title, gchar *subtitle);
 
 void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol);
 //void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
@@ -220,6 +229,7 @@ void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol);
 void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum);
 void gtk_chart_set_every_xval(GtkChart * chart, gint decay);
 void gtk_chart_set_barw(GtkChart * chart, gdouble barw);
+void gtk_chart_set_showmono(GtkChart * chart, gboolean mono);
 
 void gtk_chart_show_legend(GtkChart * chart, gboolean visible, gboolean showextracol);
 void gtk_chart_show_overdrawn(GtkChart * chart, gboolean visible);

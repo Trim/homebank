@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -121,7 +121,7 @@ guint count, i=0;
 		da_split_free(txn->splits[i]);
 		txn->splits[i] = NULL;
 	}
-	//remove the flag
+	//delete the flag
 	txn->flags &= ~(OF_SPLIT);
 
 }
@@ -250,6 +250,7 @@ Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
 	txn->kacc		= arc->kacc;
 	txn->paymode	= arc->paymode;
 	txn->flags		= arc->flags | OF_ADDED;
+	txn->status		= arc->status;
 	txn->kpay		= arc->kpay;
 	txn->kcat		= arc->kcat;
 	txn->kxferacc	= arc->kxferacc;
@@ -444,6 +445,12 @@ guint i, nbsplit;
 			split->kcat = 0;
 		}
 	}
+	//# 1416624 empty category when split
+	if(nbsplit > 0)
+	{
+		g_warning("txn consistency: fixed invalid cat on split txn");
+		item->kcat = 0;
+	}
 	
 	// check payee exists
 	pay = da_pay_get(item->kpay);
@@ -463,8 +470,9 @@ guint i, nbsplit;
 		item->flags |= (OF_INCOME);
 
 	//#1308745 ensure remind flag unset if reconciled
-	if( item->flags & OF_VALID )
-		item->flags &= ~(OF_REMIND);
+	//useless since 5.0
+	//if( item->flags & OF_VALID )
+	//	item->flags &= ~(OF_REMIND);
 
 }
 
@@ -597,9 +605,9 @@ gchar swap;
 
 		child->amount = -child->amount;
 		child->flags ^= (OF_INCOME);	// invert flag
-		child->flags &= ~(OF_REMIND);	// remove flag
 		//#1268026
-		child->flags &= ~(OF_VALID);	// remove reconcile state
+		child->status = TXN_STATUS_NONE;
+		//child->flags &= ~(OF_VALID);	// delete reconcile state
 		
 
 		swap = child->kacc;
@@ -696,11 +704,11 @@ void transaction_xfer_sync_child(Transaction *s_txn, Transaction *child)
 }
 
 
-void transaction_xfer_delete_child(Transaction *src)
+void transaction_xfer_remove_child(Transaction *src)
 {
 Transaction *dst;
 
-	DB( g_print("\n[transaction] transaction_xfer_delete_child\n") );
+	DB( g_print("\n[transaction] transaction_xfer_remove_child\n") );
 
 	dst = transaction_strong_get_child_transfer( src );
 
@@ -772,7 +780,7 @@ Account *acc;
 		acc = da_acc_get(ope->kxferacc);
 		if(acc == NULL) return;
 		
-		// remove any splits
+		// delete any splits
 		da_transaction_splits_free(ope);
 	}
 

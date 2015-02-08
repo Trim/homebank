@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,6 +20,37 @@
 #ifndef __HB_IMPORT_H__
 #define __HB_IMPORT_H__
 
+
+typedef struct _OfxContext OfxContext;
+struct _OfxContext
+{
+	GList		*trans_list;
+	Account 	*curr_acc;
+	gboolean	curr_acc_isnew;
+};
+
+
+
+typedef struct _ImportContext ImportContext;
+struct _ImportContext
+{
+	GList			*trans_list;	// trn storage
+	gint 			next_acc_key;	//max key account when start
+
+	gint			datefmt;
+	const gchar		*encoding;
+
+	gint			nb_src_acc, nb_new_acc;	
+	gint			cnt_new_ope;
+	gint			cnt_new_pay;
+	gint			cnt_new_cat;
+	gint			cnt_err_date;
+	gint			nb_duplicate;
+};
+
+
+Account *import_create_account(gchar *name, gchar *number);
+GList *homebank_ofx_import(gchar *filename, ImportContext *ictx);
 
 
 #endif

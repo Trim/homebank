@@ -1,13 +1,22 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/gnome.mk
+#include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 
-%:
-	dh $@  --with autotools-dev
+DEB_INSTALL_MANPAGES_homebank = debian/homebank.1
+DEB_CONFIGURE_EXTRA_FLAGS := --htmldir=/usr/share/doc/homebank-data/help
+
+DEB_DH_STRIP_ARGS := --dbg-package=homebank-dbg
+
+#to avoid the deletion of data/homebank.desktop.in by clean target
+#we copy data/homebank.desktop.in in homebank.desktop.in-orig
+#and then we restore the original situation after the clean.
+
+cleanbuilddir/homebank::
+	cp data/homebank.desktop.in homebank.desktop.in-orig
+
+clean::
+	rm -f intltool-extract intltool-merge intltool-update config.log
+	mv homebank.desktop.in-orig data/homebank.desktop.in

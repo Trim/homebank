@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -91,6 +91,8 @@ struct ui_acc_manage_data
 	//GtkWidget	*CY_curr;
 	GtkWidget	*CY_type;
 
+	GtkWidget   *notebook;
+	
 	GtkWidget	*ST_bank;
 	GtkWidget	*ST_number;
 	GtkWidget	*CM_nosummary;

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -40,8 +40,6 @@ struct deftransaction_data
 	GtkWidget	*PO_arc;
 	GtkWidget	*ST_word;
 	GtkWidget	*ST_amount, *BT_amount, *BT_split;
-	GtkWidget	*CM_valid;
-	GtkWidget	*CM_remind;
 	GtkWidget	*CM_cheque;
 
 	GtkWidget	*NU_mode;
@@ -50,6 +48,7 @@ struct deftransaction_data
 	GtkWidget	*PO_acc;
 	GtkWidget	*LB_accto, *PO_accto;
 	GtkWidget	*ST_tags;
+	GtkWidget   *CY_status;
 
 	gint	action;
 	gint	accnum;

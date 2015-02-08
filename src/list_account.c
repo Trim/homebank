@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,6 +50,7 @@ status_cell_data_function (GtkTreeViewColumn *col,
                            gpointer           user_data)
 {
 Account *acc;
+gchar *iconname = NULL;
 gint dt;
 
 	gtk_tree_model_get(model, iter, 
@@ -63,15 +64,15 @@ gint dt;
 		switch(GPOINTER_TO_INT(user_data))
 		{
 			case 1:
-				g_object_set(renderer, "pixbuf", (acc->flags & AF_ADDED) ? GLOBALS->lst_pixbuf[LST_PIXBUF_ADD] : NULL, NULL);
+				iconname = (acc->flags & AF_ADDED) ? ICONNAME_NEW : NULL;
 				break;
 			case 2:
-				g_object_set(renderer, "pixbuf", (acc->flags & AF_CHANGED) ? GLOBALS->lst_pixbuf[LST_PIXBUF_EDIT] : NULL, NULL);
+				iconname = (acc->flags & AF_CHANGED) ? ICONNAME_HB_OPE_EDIT : NULL;
 				break;
 		}
 	}
-	else
-		g_object_set(renderer, "pixbuf", NULL, NULL);
+
+	g_object_set(renderer, "icon-name", iconname, NULL);
 }
 
 /*
@@ -334,15 +335,13 @@ GtkTreeViewColumn  *column;
 
     /* Status */
 	column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Status"));
+    //gtk_tree_view_column_set_title(column, _("Status"));
 
     renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_cell_data_func(column, renderer, status_cell_data_function, GINT_TO_POINTER(1), NULL);
 
     renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_cell_data_func(column, renderer, status_cell_data_function, GINT_TO_POINTER(2), NULL);
 

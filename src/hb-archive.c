@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -121,19 +121,41 @@ Payee *pay;
 	if( item->paymode != PAYMODE_INTXFER )
 		item->kxferacc = 0;
 
-	// remove automation if dst_acc not exists
+	// delete automation if dst_acc not exists
 	if(item->paymode == PAYMODE_INTXFER)
 	{
 		acc = da_acc_get(item->kxferacc);
 		if(acc == NULL)
 		{
-			item->flags &= ~(OF_AUTO);	//remove flag
+			item->flags &= ~(OF_AUTO);	//delete flag
 		}
 	}
 
 }
 
 /* = = = = = = = = = = = = = = = = = = = = */
+
+Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn)
+{
+	//fill it
+	arc->amount		= txn->amount;
+	arc->kacc		= txn->kacc;
+	arc->kxferacc	= txn->kxferacc;
+	arc->paymode		= txn->paymode;
+	arc->flags			= txn->flags	& (OF_INCOME);
+	arc->status		= txn->status;
+	arc->kpay			= txn->kpay;
+	arc->kcat		= txn->kcat;
+	if(txn->wording != NULL)
+		arc->wording 		= g_strdup(txn->wording);
+	else
+		arc->wording 		= g_strdup(_("(new archive)"));
+
+	return arc;
+}
+
+
+
 
 static guint32 _sched_date_get_next_post(Archive *arc, guint32 nextdate)
 {

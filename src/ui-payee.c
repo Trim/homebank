@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -49,8 +49,9 @@ ui_pay_comboboxentry_get_name(GtkComboBox *entry_box)
 gchar *cbname;
 gchar *name = NULL;
 
-	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
+    DB( g_print ("ui_pay_comboboxentry_get_name()\n") );
 
+	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	if( cbname != NULL)
 	{
 		name = g_strdup(cbname);
@@ -135,9 +136,6 @@ Payee *item;
 	gtk_entry_set_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))), "");
 	return FALSE;
 }
-
-
-
 
 /**
  * ui_pay_comboboxentry_add:
@@ -277,6 +275,8 @@ GtkWidget *comboboxentry;
 GtkEntryCompletion *completion;
 GtkCellRenderer    *renderer;
 
+    DB( g_print ("ui_pay_comboboxentry_new()\n") );
+
 	store = gtk_list_store_new (1,
 		G_TYPE_STRING
 		);
@@ -320,13 +320,12 @@ GtkCellRenderer    *renderer;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_COMBO, -1);
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_LIST, -1);
 
 	return comboboxentry;
 }
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
-
 
 static void
 ui_pay_listview_toggled_cb (GtkCellRendererToggle *cell,
@@ -401,11 +400,11 @@ gchar *string;
 void
 ui_pay_listview_add(GtkTreeView *treeview, Payee *item)
 {
+GtkTreeModel *model;
+GtkTreeIter	iter;
+
 	if( item->name != NULL )
 	{
-	GtkTreeModel *model;
-	GtkTreeIter	iter;
-
 		model = gtk_tree_view_get_model(treeview);
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -442,6 +441,8 @@ ui_pay_listview_remove_selected(GtkTreeView *treeview)
 GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
+
+	DB( g_print("ui_pay_listview_remove_selected() \n") );
 
 	selection = gtk_tree_view_get_selection(treeview);
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
@@ -484,6 +485,45 @@ GtkTreeModel *model;
 }
 
 
+static gboolean ui_pay_listview_search_equal_func (GtkTreeModel *model,
+                               gint column,
+                               const gchar *key,
+                               GtkTreeIter *iter,
+                               gpointer search_data)
+{
+  gboolean retval = TRUE;
+  gchar *normalized_string;
+  gchar *normalized_key;
+  gchar *case_normalized_string = NULL;
+  gchar *case_normalized_key = NULL;
+  Payee *item;
+	
+  //gtk_tree_model_get_value (model, iter, column, &value);
+  gtk_tree_model_get(model, iter, LST_DEFPAY_DATAS, &item, -1);
+
+  if(item !=  NULL)
+  {
+	  normalized_string = g_utf8_normalize (item->name, -1, G_NORMALIZE_ALL);
+	  normalized_key = g_utf8_normalize (key, -1, G_NORMALIZE_ALL);
+
+	  if (normalized_string && normalized_key)
+		{
+		  case_normalized_string = g_utf8_casefold (normalized_string, -1);
+		  case_normalized_key = g_utf8_casefold (normalized_key, -1);
+
+		  if (strncmp (case_normalized_key, case_normalized_string, strlen (case_normalized_key)) == 0)
+		    retval = FALSE;
+		}
+
+	  g_free (normalized_key);
+	  g_free (normalized_string);
+	  g_free (case_normalized_key);
+	  g_free (case_normalized_string);
+  }
+  return retval;
+}
+
+
 GtkWidget *
 ui_pay_listview_new(gboolean withtoggle)
 {
@@ -492,14 +532,14 @@ GtkWidget *treeview;
 GtkCellRenderer		*renderer;
 GtkTreeViewColumn	*column;
 
-	// create list store
+	DB( g_print("ui_pay_listview_new() \n") );
+
 	store = gtk_list_store_new(
 		NUM_LST_DEFPAY,
 		G_TYPE_BOOLEAN,
 		G_TYPE_POINTER
 		);
 
-	// treeview
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
@@ -510,33 +550,31 @@ GtkTreeViewColumn	*column;
 	{
 		renderer = gtk_cell_renderer_toggle_new ();
 		column = gtk_tree_view_column_new_with_attributes (_("Visible"),
-							     renderer,
-							     "active", LST_DEFPAY_TOGGLE,
-							     NULL);
+						renderer, "active", LST_DEFPAY_TOGGLE, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-		g_signal_connect (renderer, "toggled",
+		g_signal_connect (G_OBJECT(renderer), "toggled",
 			    G_CALLBACK (ui_pay_listview_toggled_cb), store);
 
 	}
 
 	// column 2: name
-	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new();
+	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_name_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
+	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(treeview), ui_pay_listview_search_equal_func, NULL, NULL);
+
 	// treeview attribute
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
-	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
+
 	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_DATAS, ui_pay_listview_compare_func, NULL, NULL);
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFPAY_DATAS, GTK_SORT_ASCENDING);
 
 	return treeview;
 }
-
-
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -548,10 +586,10 @@ GtkTreeViewColumn	*column;
 static void
 ui_pay_manage_dialog_load_csv( GtkWidget *widget, gpointer user_data)
 {
-struct ui_pay_manage_dialog_data *data;
+struct ui_pay_manage_dialog_data *data = user_data;
 gchar *filename = NULL;
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
 
 	DB( g_print("(ui_pay_manage_dialog) load csv - data %p\n", data) );
 
@@ -574,12 +612,12 @@ gchar *filename = NULL;
 static void
 ui_pay_manage_dialog_save_csv( GtkWidget *widget, gpointer user_data)
 {
-struct ui_pay_manage_dialog_data *data;
+struct ui_pay_manage_dialog_data *data = user_data;
 gchar *filename = NULL;
 
 	DB( g_print("(ui_pay_manage_dialog) save csv\n") );
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, NULL) == TRUE )
 	{
@@ -589,7 +627,6 @@ gchar *filename = NULL;
 		g_free( filename );
 	}
 }
-
 
 /**
  * ui_pay_manage_dialog_add:
@@ -618,7 +655,7 @@ gchar *name;
 }
 
 
-static void ui_pay_manage_dialog_modify_entry_cb(GtkEditable *editable, gpointer user_data)
+static void ui_pay_manage_dialog_edit_entry_cb(GtkEditable *editable, gpointer user_data)
 {
 GtkDialog *window = user_data;
 const gchar *buffer;
@@ -628,10 +665,7 @@ const gchar *buffer;
 }
 
 
-/*
-** modify
-*/
-static void ui_pay_manage_dialog_modify(GtkWidget *widget, gpointer user_data)
+static void ui_pay_manage_dialog_edit(GtkWidget *widget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
 GtkWidget *window, *content, *mainvbox, *getwidget;
@@ -647,30 +681,32 @@ guint32 key;
 
 		item = da_pay_get( key );
 
-		window = gtk_dialog_new_with_buttons (_("Modify..."),
+		window = gtk_dialog_new_with_buttons (_("Edit..."),
 						    GTK_WINDOW (data->window),
 						    0,
-						    GTK_STOCK_CANCEL,
+						    _("_Cancel"),
 						    GTK_RESPONSE_REJECT,
-						    GTK_STOCK_OK,
+						    _("_OK"),
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
 		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-		mainvbox = gtk_vbox_new (FALSE, 0);
+		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
+		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), SPACING_MEDIUM);
 
 		getwidget = gtk_entry_new();
 		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
-		gtk_widget_show_all(mainvbox);
-
-		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_modify_entry_cb), window);
 
 		gtk_entry_set_text(GTK_ENTRY(getwidget), item->name);
 		gtk_widget_grab_focus (getwidget);
 
 		gtk_entry_set_activates_default (GTK_ENTRY(getwidget), TRUE);
+
+		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_edit_entry_cb), window);
+
+
+		gtk_widget_show_all(mainvbox);
 
 		gtk_dialog_set_default_response(GTK_DIALOG( window ), GTK_RESPONSE_ACCEPT);
 
@@ -681,9 +717,9 @@ guint32 key;
 		{
 		const gchar *name;
 
+			// 1: manage renaming
 			name = gtk_entry_get_text(GTK_ENTRY(getwidget));
-
-			/* ignore if entry is empty */
+			// ignore if item is empty
 			if (name && *name)
 			{
 				if( payee_rename(item, name) )
@@ -714,169 +750,175 @@ guint32 key;
 }
 
 
-static void ui_pay_manage_dialog_move_entry_cb(GtkComboBox *widget, gpointer user_data)
+static void ui_pay_manage_dialog_merge_entry_cb(GtkComboBox *widget, gpointer user_data)
 {
 GtkDialog *window = user_data;
 gchar *buffer;
 
 	buffer = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (widget))));
-	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, strlen(buffer) > 0 ? TRUE : FALSE);
+	gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_OK, strlen(buffer) > 0 ? TRUE : FALSE);
 }
 
 
-/*
-** move
-*/
-static void ui_pay_manage_dialog_move(GtkWidget *widget, gpointer user_data)
+static void ui_pay_manage_dialog_merge(GtkWidget *widget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
-GtkWidget *window, *content, *mainvbox;
-GtkWidget *getwidget;
+GtkWidget *dialog, *content, *mainvbox;
+GtkWidget *getwidget, *togglebutton;
 GtkTreeSelection *selection;
-GtkTreeModel		 *model;
-GtkTreeIter			 iter;
+GtkTreeModel *model;
+GtkTreeIter iter;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("(defayee) move %p\n", data) );
+	DB( g_print("(defayee) merge %p\n", data) );
 
-	// get selection ...
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay));
 	//if true there is a selected node
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
-	Payee *entry;
+	Payee *srcpay;
+	gchar *title;
+	gchar *secondtext;
 
-		gtk_tree_model_get(model, &iter, LST_DEFPAY_DATAS, &entry, -1);
+		gtk_tree_model_get(model, &iter, LST_DEFPAY_DATAS, &srcpay, -1);
 
-		window = gtk_dialog_new_with_buttons (_("Move to..."),
-						    GTK_WINDOW (data->window),
-						    0,
-						    GTK_STOCK_CANCEL,
-						    GTK_RESPONSE_REJECT,
-						    GTK_STOCK_OK,
-						    GTK_RESPONSE_ACCEPT,
-						    NULL);
+		title = g_strdup_printf (
+			_("Merge payee '%s'"), srcpay->name);
+		
+		dialog = gtk_message_dialog_new (GTK_WINDOW (data->window),
+			                              GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			                              GTK_MESSAGE_WARNING,
+			                              GTK_BUTTONS_NONE,
+			                              title,
+		                             	  NULL
+			                              );
 
-		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-		mainvbox = gtk_vbox_new (FALSE, 0);
+		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+				_("_Cancel"), GTK_RESPONSE_CANCEL,
+				_("Merge"), GTK_RESPONSE_OK,
+				NULL);
+
+		gtk_dialog_set_default_response(GTK_DIALOG (dialog), GTK_RESPONSE_CANCEL);
+
+		content = gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG (dialog));
+		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
 		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
+
+		secondtext = _("Transactions assigned to this payee,\n"
+			  "will be moved to the payee selected below.");
+
+		g_object_set(GTK_MESSAGE_DIALOG (dialog), "secondary-text", secondtext, NULL);
+		g_free(title);
 
 		getwidget = ui_pay_comboboxentry_new(NULL);
-		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, FALSE, FALSE, 0);
 
+		secondtext = g_strdup_printf (
+			_("_Delete the payee '%s'"), srcpay->name);
+		togglebutton = gtk_check_button_new_with_mnemonic(secondtext);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
+		g_free(secondtext);
+		gtk_box_pack_start (GTK_BOX (mainvbox), togglebutton, FALSE, FALSE, 0);
+
+		//setup 
 		//gtk_combo_box_set_active(GTK_COMBO_BOX(getwidget), oldpos);
-		gtk_dialog_set_response_sensitive(GTK_DIALOG(window), GTK_RESPONSE_ACCEPT, FALSE);
+		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_merge_entry_cb), dialog);
+		gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
 
-		gtk_widget_show_all(mainvbox);
-
-		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_move_entry_cb), window);
-
-		//data->tmp_list = g_list_sort(data->tmp_list, (GCompareFunc)ui_pay_manage_dialog_list_sort);
-		ui_pay_comboboxentry_populate_except(GTK_COMBO_BOX(getwidget), GLOBALS->h_pay, entry->key);
+		ui_pay_comboboxentry_populate_except(GTK_COMBO_BOX(getwidget), GLOBALS->h_pay, srcpay->key);
 		gtk_widget_grab_focus (getwidget);
 
+		gtk_widget_show_all(mainvbox);
+		
 		//wait for the user
-		gint result = gtk_dialog_run (GTK_DIALOG (window));
+		gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
-		if(result == GTK_RESPONSE_ACCEPT)
+		if(result == GTK_RESPONSE_OK)
 		{
-		gint result;
-		gchar *npn;
+		GtkTreeModel *model;
+		Payee *payee;
+		guint dstpaykey;
 
-			npn = ui_pay_comboboxentry_get_name(GTK_COMBO_BOX(getwidget)),
+			model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_pay));
+			gtk_list_store_clear (GTK_LIST_STORE(model));
 
-			result = ui_dialog_msg_question(
-				GTK_WINDOW(window),
-				_("Move this payee to another one ?"),
-				_("This will replace '%s' by '%s',\n"
-				  "and then remove '%s'"),
-				entry->name,
-				npn,
-				entry->name,
-				NULL
-				);
+			dstpaykey = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(getwidget));
 
-			if( result == GTK_RESPONSE_YES )
+			payee_move(srcpay->key, dstpaykey);
+
+
+			// add the new payee to listview
+			payee = da_pay_get(dstpaykey);
+			if(payee)
+				ui_pay_listview_add(GTK_TREE_VIEW(data->LV_pay), payee);
+
+			// delete the old payee
+			if( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)) )
 			{
-			Payee *payee;
-			guint newpayee;
+				DB( g_print(" -> delete %d '%s'\n", srcpay->key, srcpay->name ) );
 
-				newpayee = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(getwidget));
-
-				gtk_combo_box_get_active(GTK_COMBO_BOX(getwidget));
-
-				DB( g_print(" -> should move %d - %s to %d - %s\n", entry->key, entry->name, newpayee, npn ) );
-
-				payee_move(entry->key, newpayee);
-
-				// remove the old payee
-				da_pay_remove(entry->key);
+				da_pay_remove(srcpay->key);
 				ui_pay_listview_remove_selected(GTK_TREE_VIEW(data->LV_pay));
-
-				// add the new payee to listview
-				payee = da_pay_get(newpayee);
-				if(payee)
-					ui_pay_listview_add(GTK_TREE_VIEW(data->LV_pay), payee);
-				data->change++;
-
 			}
 
+
+			data->change++;
+
+			ui_pay_listview_populate(data->LV_pay);
 		}
 
 		// cleanup and destroy
-		gtk_widget_destroy (window);
-
+		gtk_widget_destroy (dialog);
 	}
 
 }
 
 
 /*
-** remove the selected payee to our treeview and temp GList
+** delete the selected payee to our treeview and temp GList
 */
-static void ui_pay_manage_dialog_remove(GtkWidget *widget, gpointer user_data)
+static void ui_pay_manage_dialog_delete(GtkWidget *widget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
-guint32 key;
 Payee *item;
+guint32 key;
 gint result;
-gboolean do_remove;
+
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("(ui_pay_manage_dialog) remove (data=%p)\n", data) );
+	DB( g_print("(ui_pay_manage_dialog) delete (data=%p)\n", data) );
 
-	do_remove = TRUE;
 	key = ui_pay_listview_get_selected_key(GTK_TREE_VIEW(data->LV_pay));
 	if( key > 0 )
 	{
+	gchar *title;
+	gchar *secondtext = NULL;
+
+		item = da_pay_get(key);
+
+		title = g_strdup_printf (
+			_("Are you sure you want to permanently delete '%s'?"), item->name);
+
 		if( payee_is_used(key) == TRUE )
 		{
-			item = da_pay_get(key);
-
-			result = ui_dialog_msg_question(
-				GTK_WINDOW(data->window),
-				_("Remove a payee ?"),
-				_("If you remove '%s', archive and transaction referencing this payee\n"
-				"will set place to 'no payee'"),
-				item->name,
-				NULL
-				);
-
-			if( result == GTK_RESPONSE_YES )
-			{
-				payee_move(key, 0);
-			}
-			else if( result == GTK_RESPONSE_NO )
-			{
-				do_remove = FALSE;
-			}
+			secondtext = _("This payee is used.\n"
+			    "Any transaction using that payee will be set to (no payee)");
 		}
 
-		if( do_remove )
+		result = ui_dialog_msg_confirm_alert(
+				GTK_WINDOW(data->window),
+				title,
+				secondtext,
+				_("_Delete")
+			);
+
+		g_free(title);
+
+		if( result == GTK_RESPONSE_OK )
 		{
-			da_pay_remove(key);
+			payee_move(key, 0);
 			ui_pay_listview_remove_selected(GTK_TREE_VIEW(data->LV_pay));
+			da_pay_remove(key);
 			data->change++;
 		}
 
@@ -884,9 +926,6 @@ gboolean do_remove;
 }
 
 
-/*
-**
-*/
 static void ui_pay_manage_dialog_update(GtkWidget *treeview, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
@@ -900,9 +939,9 @@ guint32 key;
 	key = ui_pay_listview_get_selected_key(GTK_TREE_VIEW(data->LV_pay));
 
 	sensitive = (key > 0) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->BT_mov, sensitive);
-	gtk_widget_set_sensitive(data->BT_mod, sensitive);
-	gtk_widget_set_sensitive(data->BT_rem, sensitive);
+	gtk_widget_set_sensitive(data->BT_edit, sensitive);
+	gtk_widget_set_sensitive(data->BT_merge, sensitive);
+	gtk_widget_set_sensitive(data->BT_delete, sensitive);
 
 }
 
@@ -918,43 +957,47 @@ static void ui_pay_manage_dialog_selection(GtkTreeSelection *treeselection, gpoi
 static void ui_pay_manage_dialog_onRowActivated (GtkTreeView        *treeview,
                        GtkTreePath        *path,
                        GtkTreeViewColumn  *col,
-                       gpointer            userdata)
+                       gpointer            user_data)
 {
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
+
+	DB( g_print("ui_pay_manage_dialog_onRowActivated()\n") );
+
 
 	model = gtk_tree_view_get_model(treeview);
 	gtk_tree_model_get_iter_first(model, &iter);
 	if(gtk_tree_selection_iter_is_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview)), &iter) == FALSE)
 	{
-		ui_pay_manage_dialog_modify(GTK_WIDGET(treeview), NULL);
+		ui_pay_manage_dialog_edit(GTK_WIDGET(treeview), NULL);
 	}
 }
 
-/*
-**
-*/
+
 GtkWidget *ui_pay_manage_dialog (void)
 {
 struct ui_pay_manage_dialog_data data;
-GtkWidget *window, *content, *mainvbox, *treeview, *scrollwin, *vbox, *table;
-GtkWidget *separator;
-gint row;
+GtkWidget *window, *content, *mainvbox, *bbox, *treeview, *scrollwin, *table;
+GtkWidget *menu, *menuitem, *widget, *image;
+gint w, h, row;
 
 	window = gtk_dialog_new_with_buttons (_("Manage Payees"),
 					    GTK_WINDOW(GLOBALS->mainwindow),
 					    0,
-					    GTK_STOCK_CLOSE,
+					    _("_Close"),
 					    GTK_RESPONSE_ACCEPT,
 					    NULL);
 
 	data.window = window;
 	data.change = 0;
 
+	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_PAYEE);
 
-	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "payee.svg");
-	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_PAYEE);
+	//set a nice dialog size
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(window), -1, h/PHI);
 
+	
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
 	DB( g_print("(ui_pay_manage_dialog) window=%p, inst_data=%p\n", window, &data) );
@@ -964,61 +1007,74 @@ gint row;
 
 	//window contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-	mainvbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
+	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), SPACING_MEDIUM);
 
     //our table
-	table = gtk_table_new (2, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	table = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_box_pack_start (GTK_BOX (mainvbox), table, TRUE, TRUE, 0);
 
 	row = 0;
-	data.ST_name = gtk_entry_new ();
-	gtk_table_attach (GTK_TABLE (table), data.ST_name, 0, 1, row, row+1, (GtkAttachOptions) (GTK_EXPAND|GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	data.BT_add = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	gtk_table_attach (GTK_TABLE (table), data.BT_add, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	menu = gtk_menu_new ();
+	gtk_widget_set_halign (menu, GTK_ALIGN_END);
 
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Import CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_pay_manage_dialog_load_csv), &data);
+
+	menuitem = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_pay_manage_dialog_save_csv), &data);
+	
+	gtk_widget_show_all (menu);
+	
+	widget = gtk_menu_button_new();
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_MENU, GTK_ICON_SIZE_MENU);
+
+	//gchar *thename;
+	//gtk_image_get_icon_name(image, &thename, NULL);
+	//g_print("the name is %s\n", thename);
+
+	g_object_set (widget, "image", image, "popup", GTK_MENU(menu),  NULL);
+	gtk_widget_set_halign (widget, GTK_ALIGN_END);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 1, 1);
+
+	row++;
+	data.ST_name = gtk_entry_new ();
+	gtk_entry_set_placeholder_text(GTK_ENTRY(data.ST_name), _("new payee") );
+	gtk_widget_set_hexpand (data.ST_name, TRUE);
+	gtk_grid_attach (GTK_GRID (table), data.ST_name, 0, row, 2, 1);
+
+	
 	//list
 	row++;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
-	gtk_table_attach (GTK_TABLE (table), scrollwin, 0, 1, row, row+1, (GtkAttachOptions) (GTK_EXPAND|GTK_FILL), (GtkAttachOptions) (GTK_EXPAND|GTK_FILL), 0, 0);
-
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
-	//gtk_container_set_border_width (GTK_CONTAINER(scrollwin), 5);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
- 	//treeview = (GtkWidget *)ui_pay_manage_dialog_list_new(FALSE);
 	treeview = ui_pay_listview_new(FALSE);
-	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
- 	data.LV_pay = treeview;
+	data.LV_pay = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
+	gtk_widget_set_hexpand (scrollwin, TRUE);
+	gtk_widget_set_vexpand (scrollwin, TRUE);
+	gtk_grid_attach (GTK_GRID (table), scrollwin, 0, row, 2, 1);
 
-	vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
-	gtk_table_attach (GTK_TABLE (table), vbox, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (GTK_EXPAND|GTK_FILL), 0, 0);
+	row++;
+	bbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
+	gtk_box_set_spacing (GTK_BOX (bbox), SPACING_SMALL);
+	gtk_grid_attach (GTK_GRID (table), bbox, 0, row, 2, 1);
 
-	data.BT_rem = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_rem, FALSE, FALSE, 0);
+	data.BT_edit = gtk_button_new_with_mnemonic(_("_Edit"));
+	gtk_container_add (GTK_CONTAINER (bbox), data.BT_edit);
 
-	data.BT_mod = gtk_button_new_from_stock(GTK_STOCK_EDIT);
-	//data.BT_mod = gtk_button_new_with_mnemonic(_("_Modify"));
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_mod, FALSE, FALSE, 0);
+	data.BT_merge = gtk_button_new_with_mnemonic(_("_Merge"));
+	gtk_container_add (GTK_CONTAINER (bbox), data.BT_merge);
 
-	data.BT_mov = gtk_button_new_with_mnemonic(_("_Move"));
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_mov, FALSE, FALSE, 0);
-
-	separator = gtk_hseparator_new();
-	gtk_box_pack_start (GTK_BOX (vbox), separator, FALSE, FALSE, HB_BOX_SPACING);
-
-
-	data.BT_import = gtk_button_new_with_mnemonic(_("_Import"));
-	//data.BT_import = gtk_button_new_from_stock(GTK_STOCK_OPEN);
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_import, FALSE, FALSE, 0);
-
-	data.BT_export = gtk_button_new_with_mnemonic(_("E_xport"));
-	//data.BT_export = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-	gtk_box_pack_start (GTK_BOX (vbox), data.BT_export, FALSE, FALSE, 0);
-
+	data.BT_delete = gtk_button_new_with_mnemonic(_("_Delete"));
+	gtk_container_add (GTK_CONTAINER (bbox), data.BT_delete);
 
 
 	//connect all our signals
@@ -1027,19 +1083,13 @@ gint row;
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_pay)), "changed", G_CALLBACK (ui_pay_manage_dialog_selection), NULL);
 	g_signal_connect (GTK_TREE_VIEW(data.LV_pay), "row-activated", G_CALLBACK (ui_pay_manage_dialog_onRowActivated), NULL);
 
-	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_pay_manage_dialog_add), NULL);
-	g_signal_connect (G_OBJECT (data.BT_mod), "clicked", G_CALLBACK (ui_pay_manage_dialog_modify), NULL);
-	g_signal_connect (G_OBJECT (data.BT_mov), "clicked", G_CALLBACK (ui_pay_manage_dialog_move), NULL);
-	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_pay_manage_dialog_remove), NULL);
-
-	g_signal_connect (G_OBJECT (data.BT_import), "clicked", G_CALLBACK (ui_pay_manage_dialog_load_csv), NULL);
-	g_signal_connect (G_OBJECT (data.BT_export), "clicked", G_CALLBACK (ui_pay_manage_dialog_save_csv), NULL);
+	g_signal_connect (G_OBJECT (data.BT_edit), "clicked", G_CALLBACK (ui_pay_manage_dialog_edit), NULL);
+	g_signal_connect (G_OBJECT (data.BT_merge), "clicked", G_CALLBACK (ui_pay_manage_dialog_merge), NULL);
+	g_signal_connect (G_OBJECT (data.BT_delete), "clicked", G_CALLBACK (ui_pay_manage_dialog_delete), NULL);
 
 	//setup, init and show window
 	ui_pay_listview_populate(data.LV_pay);
 	ui_pay_manage_dialog_update(data.LV_pay, NULL);
-
-	//gtk_window_resize(GTK_WINDOW(window), 200, 320);
 
 	gtk_widget_show_all (window);
 
@@ -1056,10 +1106,11 @@ gint row;
 	   break;
     }
 
-
 	// cleanup and destroy
-	GLOBALS->changes_count += data.change;
+
 	gtk_widget_destroy (window);
+
+	GLOBALS->changes_count += data.change;
 
 	return NULL;
 }

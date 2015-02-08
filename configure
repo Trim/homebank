@@ -623,6 +623,17 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 GETTEXT_PACKAGE
+MKINSTALLDIRS
+POSUB
+POFILES
+PO_IN_DATADIR_FALSE
+PO_IN_DATADIR_TRUE
+INTLLIBS
+INSTOBJEXT
+GMOFILES
+CATOBJEXT
+CATALOGS
+MSGFMT_OPTS
 NOOFX_FALSE
 NOOFX_TRUE
 EGREP
@@ -2863,6 +2874,7 @@ END
   fi
 fi
 
+
 # If the source code has changed at all, increment REVISION
 # If any interfaces have been added, removed, or changed, increment CURRENT, and set REVISION to 0.
 # If any interfaces have been added since the last public release, then increment AGE.
@@ -4632,12 +4644,12 @@ if test -n "$DEPS_CFLAGS"; then
     pkg_cv_DEPS_CFLAGS="$DEPS_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.24 glib-2.0 >= 2.28\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-3.0 >= 3.6 glib-2.0 >= 2.34\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_DEPS_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28" 2>/dev/null`
+  pkg_cv_DEPS_CFLAGS=`$PKG_CONFIG --cflags "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -4649,12 +4661,12 @@ if test -n "$DEPS_LIBS"; then
     pkg_cv_DEPS_LIBS="$DEPS_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.24 glib-2.0 >= 2.28\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-3.0 >= 3.6 glib-2.0 >= 2.34\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_DEPS_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28" 2>/dev/null`
+  pkg_cv_DEPS_LIBS=`$PKG_CONFIG --libs "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -4675,14 +4687,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        DEPS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28" 2>&1`
+	        DEPS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34" 2>&1`
         else
-	        DEPS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtk+-2.0 >= 2.24 glib-2.0 >= 2.28" 2>&1`
+	        DEPS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtk+-3.0 >= 3.6 glib-2.0 >= 2.34" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$DEPS_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (gtk+-2.0 >= 2.24 glib-2.0 >= 2.28) were not met:
+	as_fn_error $? "Package requirements (gtk+-3.0 >= 3.6 glib-2.0 >= 2.34) were not met:
 
 $DEPS_PKG_ERRORS
 
@@ -4762,14 +4774,21 @@ _ACEOF
 fi
 
 
+#PKG_CHECK_MODULES(LIBSOUP, [libsoup-2.4 >= 2.26])
+#AC_SUBST(LIBSOUP_CFLAGS)
+#AC_SUBST(LIBSOUP_LIBS)
+
 # general usage flags
 CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
+
+# disable deprecated warnings
+CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 
 # extended flags
 #CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
-#valgrind flags
-#CFLAGS="${CFLAGS} -g -O0"
+# profiling valgrind/gprof flags
+#CFLAGS="${CFLAGS} -g -O0 -pg"
 
 # pre-relase # 2 - error as warning for
 #CFLAGS="${CFLAGS} -Werror"
@@ -6387,6 +6406,7 @@ cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 #
 AMDEP_TRUE="$AMDEP_TRUE" ac_aux_dir="$ac_aux_dir"
 
+
 _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
@@ -6397,14 +6417,17 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
+    "default-1") CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "data/homebank.desktop.in") CONFIG_FILES="$CONFIG_FILES data/homebank.desktop.in" ;;
     "data/Makefile") CONFIG_FILES="$CONFIG_FILES data/Makefile" ;;
-    "data/icons/Makefile") CONFIG_FILES="$CONFIG_FILES data/icons/Makefile" ;;
     "data/datas/Makefile") CONFIG_FILES="$CONFIG_FILES data/datas/Makefile" ;;
     "images/Makefile") CONFIG_FILES="$CONFIG_FILES images/Makefile" ;;
     "mime/Makefile") CONFIG_FILES="$CONFIG_FILES mime/Makefile" ;;
+    "pixmaps/Makefile") CONFIG_FILES="$CONFIG_FILES pixmaps/Makefile" ;;
+    "themes/Makefile") CONFIG_FILES="$CONFIG_FILES themes/Makefile" ;;
+    "themes/hicolor/Makefile") CONFIG_FILES="$CONFIG_FILES themes/hicolor/Makefile" ;;
     "po/Makefile.in") CONFIG_FILES="$CONFIG_FILES po/Makefile.in" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "doc/images/Makefile") CONFIG_FILES="$CONFIG_FILES doc/images/Makefile" ;;
@@ -7097,6 +7120,9 @@ $as_echo X"$file" |
   done
 }
  ;;
+    "default-1":C) case "$CONFIG_FILES" in *po/Makefile.in*)
+        sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile
+      esac ;;
     "po/stamp-it":C)
     if  ! grep "^# INTLTOOL_MAKEFILE$" "po/Makefile.in" > /dev/null ; then
        as_fn_error $? "po/Makefile.in.in was not created by intltoolize." "$LINENO" 5

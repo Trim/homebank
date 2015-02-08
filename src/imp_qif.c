@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2014 Maxime DOYEN
+ *	Copyright (C) 1995-2015 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -19,11 +19,11 @@
 
 #include "homebank.h"
 
-#include "import.h"
+//#include "ui-assist-import.h"
 #include "imp_qif.h"
 
 /****************************************************************************/
-/* Debug macros																														 */
+/* Debug macros                                                             */
 /****************************************************************************/
 #define MYDEBUG 0
 
@@ -44,6 +44,7 @@ da_qif_tran_malloc(void)
 {
 	return g_malloc0(sizeof(QIF_Tran));
 }
+
 
 static void
 da_qif_tran_free(QIF_Tran *item)
@@ -80,8 +81,6 @@ gint i;
 }
 
 
-
-
 static void
 da_qif_tran_destroy(QifContext *ctx)
 {
@@ -97,12 +96,12 @@ GList *qiflist = g_list_first(ctx->q_tra);
 	ctx->q_tra = NULL;
 }
 
+
 static void
 da_qif_tran_new(QifContext *ctx)
 {
 	ctx->q_tra = NULL;
 }
-
 
 
 static void
@@ -134,7 +133,7 @@ gchar *new_str, *p;
 gint  ndcount = 0;
 gchar dc;
 
-	DB( g_print("\n(qif) hb_qif_parser_get_amount\n") );
+	//DB( g_print("\n[qif] hb_qif_parser_get_amount\n") );
 
 
 	amount = 0.0;
@@ -147,7 +146,7 @@ gchar dc;
 
 	for(i=l;i>=0;i--)
 	{
-		DB( g_print(" %d :: %c :: ds='%c' ndcount=%d\n", i, string[i], dc, ndcount) );
+		//DB( g_print(" %d :: %c :: ds='%c' ndcount=%d\n", i, string[i], dc, ndcount) );
 		
 		if( string[i] == '-' || string[i] == '+' ) continue;
 
@@ -165,7 +164,7 @@ gchar dc;
 		}
 	}
 
-	DB( g_print(" s='%s' :: ds='%c'\n", string, dc) );
+	//DB( g_print(" s='%s' :: ds='%c'\n", string, dc) );
 
 
 	new_str = g_malloc (l+3);   //#1214077
@@ -183,7 +182,7 @@ gchar dc;
 	*p++ = '\0';
 	amount = g_ascii_strtod(new_str, NULL);
 
-	DB( g_print(" -> amount was='%s' => to='%s' double='%f'\n", string, new_str, amount) );
+	//DB( g_print(" -> amount was='%s' => to='%s' double='%f'\n", string, new_str, amount) );
 
 	g_free(new_str);
 
@@ -231,7 +230,7 @@ account_qif_get_child_transfer(Transaction *src, GList *list)
 {
 Transaction *item;
 
-	//DB( g_print("(transaction) transaction_get_child_transfer\n") );
+	DB( g_print("([qif] get_child_transfer\n") );
 
 	//DB( g_print(" search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
 
@@ -266,7 +265,7 @@ hb_qif_parser_get_block_type(gchar *qif_line)
 gchar **typestr;
 gint type = QIF_NONE;
 
-	DB( g_print("--------\n(account) block type\n") );
+	DB( g_print("--------\n[qif] block type\n") );
 
 	//DB( g_print(" -> str: %s type: %d\n", qif_line, type) );
 
@@ -342,7 +341,7 @@ hb_qif_parser_parse(QifContext *ctx, gchar *filename, const gchar *encoding)
 GIOChannel *io;
 QIF_Tran tran = { 0 };
 
-	DB( g_print("(qif) hb_qif_parser_parse\n") );
+	DB( g_print("\n[qif] hb_qif_parser_parse\n") );
 
 	io = g_io_channel_new_file(filename, "r", NULL);
 	if(io != NULL)
@@ -468,7 +467,12 @@ QIF_Tran tran = { 0 };
 							if(g_str_has_prefix(value, "X") || g_str_has_prefix(value, "R") )
 							{
 								tran.reconciled = TRUE;
-							}								
+							}
+							tran.cleared = FALSE;
+							if(g_str_has_prefix(value, "*") || g_str_has_prefix(value, "c") )
+							{
+								tran.cleared = TRUE;
+							}
 							break;
 						}
 
@@ -613,8 +617,6 @@ QIF_Tran tran = { 0 };
 }
 
 
-
-
 /*
 ** this is our main qif entry point
 */
@@ -625,7 +627,7 @@ QifContext ctx = { 0 };
 GList *qiflist;
 GList *list = NULL;
 
-	DB( g_print("(qif) account import qif\n") );
+	DB( g_print("\n[qif] account import qif\n") );
 
 	// allocate our GLists
 	da_qif_tran_new(&ctx);
@@ -638,7 +640,7 @@ GList *list = NULL;
 	//isodate = hb_qif_parser_check_iso_date(&ctx);
 	//DB( g_print(" -> date is dd/mm/yy: %d\n", isodate) );
 
-	DB( g_print("(qif) transform to hb txn\n") );
+	DB( g_print(" -> transform to hb txn\n") );
 
 	DB( g_print(" -> %d qif txn\n",  g_list_length(ctx.q_tra)) );
 
@@ -648,7 +650,7 @@ GList *list = NULL;
 	{
 	QIF_Tran *item = qiflist->data;
 	Transaction *newope, *child;
-	Account *accitem, *existitem;
+	Account *accitem;
 	Payee *payitem;
 	Category *catitem;
 	gchar *name;
@@ -704,7 +706,7 @@ GList *list = NULL;
 				//remove brackets
 				accname = hb_strdup_nobrackets(item->category);
 
-				// account + append
+				// search target account + append if not exixts
 				accitem = da_acc_get_by_name(accname);
 				if(accitem == NULL)
 				{
@@ -762,25 +764,11 @@ GList *list = NULL;
 		}
 
 		// account + append
-		name = strcmp(QIF_UNKNOW_ACCOUNT_NAME, item->account) == 0 ? QIF_UNKNOW_ACCOUNT_NAME : item->account;
+		name = strcmp(QIF_UNKNOW_ACCOUNT_NAME, item->account) == 0 ? "" : item->account;
 
 		DB( g_print(" -> account name is '%s'\n", name ) );
 
-		accitem = da_acc_get_by_imp_name(name);
-		if( accitem == NULL )
-		{
-			// check for an existing account before creating it
-			existitem = da_acc_get_by_name(name);
-
-			accitem = import_create_account(name, NULL);
-			DB( g_print(" -> creating account '%s'\n", name ) );
-
-			if( existitem != NULL )
-			{
-				accitem->imp_key = existitem->key;
-				DB( g_print(" -> existitem is '%d' %s\n", existitem->key, existitem->name ) );
-			}
-		}
+		accitem = import_create_account(name, NULL);
 
 		newope->kacc = accitem->key;
 
@@ -789,8 +777,11 @@ GList *list = NULL;
 			newope->flags |= OF_INCOME;
 
 		if( item->reconciled )
-			newope->flags |= OF_VALID;
-
+			newope->status = TXN_STATUS_RECONCILED;
+		else
+		if( item->cleared )
+			newope->status = TXN_STATUS_CLEARED;
+		
 		child = account_qif_get_child_transfer(newope, list);
 		if( child != NULL)
 		{

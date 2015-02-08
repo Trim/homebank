@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -27,7 +27,7 @@
 #include "list_topspending.h"
 
 #include "dsp_account.h"
-#include "import.h"
+//#include "ui-assist-import.h"
 #include "imp_qif.h"
 #include "ui-assist-start.h"
 #include "ui-account.h"
@@ -39,6 +39,7 @@
 #include "ui-pref.h"
 #include "ui-hbfile.h"
 #include "ui-transaction.h"
+#include "ui-assist-import.h"
 
 #include "rep_balance.h"
 #include "rep_budget.h"
@@ -59,6 +60,7 @@
 /* Debug macros                                                             */
 /****************************************************************************/
 #define MYDEBUG 0
+
 #if MYDEBUG
 #define DB(x) (x);
 #else
@@ -104,9 +106,10 @@ static void ui_mainwindow_action_budget(void);
 static void ui_mainwindow_action_balance(void);
 static void ui_mainwindow_action_vehiclecost(void);
 
-static void ui_mainwindow_action_import(void);
+static void ui_mainwindow_action_import(GtkAction *action);
 static void ui_mainwindow_action_export(void);
 static void ui_mainwindow_action_anonymize(void);
+static void ui_mainwindow_action_file_statistics(void);
 
 static void ui_mainwindow_action_help(void);
 void ui_mainwindow_action_help_welcome(void);
@@ -137,81 +140,97 @@ void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path);
 static void ui_mainwindow_scheduled_populate(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_scheduled_postall(GtkWidget *widget, gpointer user_data);
 
+void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path);
 
 extern gchar *CYA_ACC_TYPE[];
 
+gchar *CYA_CATSUBCAT[] = { 
+	N_("Category"), 
+	N_("Subcategory"), 
+	NULL
+};
+
+
 static GtkActionEntry entries[] = {
 
-  /* name, stock id, label */
+  /* name, icon-name, label */
 
-  { "FileMenu"     , NULL, N_("_File"), NULL, NULL, NULL },
-  { "EditMenu"     , NULL, N_("_Edit"), NULL, NULL, NULL },
-  { "ViewMenu"     , NULL, N_("_View"), NULL, NULL, NULL },
-  { "ManageMenu"   , NULL, N_("_Manage"), NULL, NULL, NULL },
-  { "TransactionMenu", NULL, N_("_Transactions"), NULL, NULL, NULL },
-  { "ReportMenu"   , NULL, N_("_Reports"), NULL, NULL, NULL  },
-  { "HelpMenu"     , NULL, N_("_Help"), NULL, NULL, NULL },
+  { "FileMenu"   , NULL, N_("_File"), NULL, NULL, NULL },
+  { "ImportMenu" , NULL, N_("_Import"), NULL, NULL, NULL },
+  { "EditMenu"   , NULL, N_("_Edit"), NULL, NULL, NULL },
+  { "ViewMenu"   , NULL, N_("_View"), NULL, NULL, NULL },
+  { "ManageMenu" , NULL, N_("_Manage"), NULL, NULL, NULL },
+  { "TxnMenu"    , NULL, N_("_Transactions"), NULL, NULL, NULL },
+  { "ReportMenu" , NULL, N_("_Reports"), NULL, NULL, NULL  },
+  { "ToolsMenu"  , NULL, N_("_Tools"), NULL, NULL, NULL },
+  { "HelpMenu"   , NULL, N_("_Help"), NULL, NULL, NULL },
 
 //  { "Import"       , NULL, N_("Import") },
 //  { "Export"       , NULL, N_("Export to") },
-	/* name, stock id, label, accelerator, tooltip */
+	/* name, icon-name, label, accelerator, tooltip */
 
   /* FileMenu */
-  { "New"        , GTK_STOCK_NEW            , N_("_New")          , NULL, N_("Create a new file"),    G_CALLBACK (ui_mainwindow_action_new) },
-  { "Open"       , GTK_STOCK_OPEN           , N_("_Open...")      , NULL, N_("Open a file"),    G_CALLBACK (ui_mainwindow_action_open) },
-  { "Save"       , GTK_STOCK_SAVE           , N_("_Save")         , NULL, N_("Save the current file"),    G_CALLBACK (ui_mainwindow_action_save) },
-  { "SaveAs"     , GTK_STOCK_SAVE_AS        , N_("Save As...")    , "<shift><control>S", N_("Save the current file with a different name"),    G_CALLBACK (ui_mainwindow_action_saveas) },
-  { "Revert"     , GTK_STOCK_REVERT_TO_SAVED, N_("Revert")        , NULL, N_("Revert to a saved version of this file"),    G_CALLBACK (ui_mainwindow_action_revert) },
+  { "New"        , ICONNAME_NEW            , N_("_New")          , "<control>N", N_("Create a new file"),    G_CALLBACK (ui_mainwindow_action_new) },
+  { "Open"       , ICONNAME_OPEN           , N_("_Open...")      , "<control>O", N_("Open a file"),    G_CALLBACK (ui_mainwindow_action_open) },
+  { "Save"       , ICONNAME_SAVE           , N_("_Save")         , "<control>S", N_("Save the current file"),    G_CALLBACK (ui_mainwindow_action_save) },
+  { "SaveAs"     , ICONNAME_SAVE_AS        , N_("Save As...")    , "<shift><control>S", N_("Save the current file with a different name"),    G_CALLBACK (ui_mainwindow_action_saveas) },
+  { "Revert"     , ICONNAME_REVERT         , N_("Revert")        , NULL, N_("Revert to a saved version of this file"),    G_CALLBACK (ui_mainwindow_action_revert) },
 
-  { "Properties" , GTK_STOCK_PROPERTIES     , N_("_Properties..."), NULL, N_("Configure the file"),    G_CALLBACK (ui_mainwindow_action_properties) },
-  { "Close"      , GTK_STOCK_CLOSE          , N_("_Close")        , NULL, N_("Close the current file"),    G_CALLBACK (ui_mainwindow_action_close) },
-  { "Quit"       , GTK_STOCK_QUIT           , N_("_Quit")         , NULL, N_("Quit homebank"),    G_CALLBACK (ui_mainwindow_action_quit) },
+  { "Properties" , ICONNAME_PROPERTIES     , N_("_Properties..."), NULL, N_("Configure the file"),    G_CALLBACK (ui_mainwindow_action_properties) },
+  { "Close"      , ICONNAME_CLOSE          , N_("_Close")        , "<control>W", N_("Close the current file"),    G_CALLBACK (ui_mainwindow_action_close) },
+  { "Quit"       , ICONNAME_QUIT           , N_("_Quit")         , "<control>Q", N_("Quit homebank"),    G_CALLBACK (ui_mainwindow_action_quit) },
 
   /* Exchange */
-  { "FileImport" , "hb-file-import"         , N_("Import QIF/OFX/CSV...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
-  { "ExportQIF"  , "hb-file-export"         , N_("Export QIF...")     , NULL, N_("Open the export to QIF assistant"),    G_CALLBACK (ui_mainwindow_action_export) },
-  { "Anonymize"  , NULL                     , N_("Anonymize...")  , NULL, NULL,    G_CALLBACK (ui_mainwindow_action_anonymize) },
+  { "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  { "ImportOFX" , ICONNAME_HB_FILE_IMPORT  , N_("OFX/QFX file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  { "ImportCSV" , ICONNAME_HB_FILE_IMPORT  , N_("CSV file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+	
+  { "ExportQIF" , ICONNAME_HB_FILE_EXPORT  , N_("Export QIF file...")     , NULL, N_("Export all account in a QIF file"),    G_CALLBACK (ui_mainwindow_action_export) },
 
   /* EditMenu */
-  { "Preferences", GTK_STOCK_PREFERENCES, N_("Preferences..."), NULL,    N_("Configure homebank"),    G_CALLBACK (ui_mainwindow_action_preferences) },
+  { "Preferences", ICONNAME_PREFERENCES    , N_("Preferences..."), NULL,    N_("Configure homebank"),    G_CALLBACK (ui_mainwindow_action_preferences) },
 
   /* ManageMenu */
-//  { "Currency"   , "hb-currency"  , N_("Currencies...") , NULL,    N_("Configure the currencies"), G_CALLBACK (ui_mainwindow_action_defcurrency) },
-  { "Account"    , "hb-account"   , N_("Acc_ounts...")  , NULL,    N_("Configure the accounts"), G_CALLBACK (ui_mainwindow_action_defaccount) },
-  { "Payee"      , "hb-payee"     , N_("_Payees...")    , NULL,    N_("Configure the payees"),    G_CALLBACK (ui_mainwindow_action_defpayee) },
-  { "Category"   , "hb-category"  , N_("Categories...") , NULL,    N_("Configure the categories"),    G_CALLBACK (ui_mainwindow_action_defcategory) },
-  { "Archive"    , "hb-archive"   , N_("Scheduled/Template...")  , NULL,    N_("Configure the scheduled/template transactions"),    G_CALLBACK (ui_mainwindow_action_defarchive) },
-  { "Budget"     , "hb-budget"    , N_("Budget...")     , NULL,    N_("Configure the budget"),    G_CALLBACK (ui_mainwindow_action_defbudget) },
-  { "Assign"     , "hb-assign"    , N_("Assignments..."), NULL,    N_("Configure the automatic assignments"),    G_CALLBACK (ui_mainwindow_action_defassign) },
+//  { "Currency"   , ICONNAME_HB_CURRENCY    , N_("Currencies...") , NULL,    N_("Configure the currencies"), G_CALLBACK (ui_mainwindow_action_defcurrency) },
+  { "Account"    , ICONNAME_HB_ACCOUNT     , N_("Acc_ounts...")  , NULL,    N_("Configure the accounts"), G_CALLBACK (ui_mainwindow_action_defaccount) },
+  { "Payee"      , ICONNAME_HB_PAYEE       , N_("_Payees...")    , NULL,    N_("Configure the payees"),    G_CALLBACK (ui_mainwindow_action_defpayee) },
+  { "Category"   , ICONNAME_HB_CATEGORY    , N_("Categories...") , NULL,    N_("Configure the categories"),    G_CALLBACK (ui_mainwindow_action_defcategory) },
+  { "Archive"    , ICONNAME_HB_ARCHIVE     , N_("Scheduled/Template...")  , NULL,    N_("Configure the scheduled/template transactions"),    G_CALLBACK (ui_mainwindow_action_defarchive) },
+  { "Budget"     , ICONNAME_HB_BUDGET      , N_("Budget...")     , NULL,    N_("Configure the budget"),    G_CALLBACK (ui_mainwindow_action_defbudget) },
+  { "Assign"     , ICONNAME_HB_ASSIGN      , N_("Assignments..."), NULL,    N_("Configure the automatic assignments"),    G_CALLBACK (ui_mainwindow_action_defassign) },
 
-  /* TransactionMenu */
-  { "ShowOpe"    , HB_STOCK_OPE_SHOW, N_("Show...")             , NULL, N_("Shows selected account transactions"),    G_CALLBACK (ui_mainwindow_action_showtransactions) },
-  { "AddOpe"     , HB_STOCK_OPE_ADD , N_("Add...")              , NULL, N_("Add transaction"),    G_CALLBACK (ui_mainwindow_action_addtransactions) },
-  { "Scheduler"  , NULL             , N_("Set scheduler...")    , NULL, N_("Configure the transaction scheduler"),    G_CALLBACK (ui_mainwindow_action_properties) },
-  { "AddScheduled"  , NULL             , N_("Process scheduled..."), NULL, N_("Insert pending scheduled transactions"),    G_CALLBACK (ui_mainwindow_action_checkscheduled) },
+  /* TxnMenu */
+  { "ShowOpe"     , ICONNAME_HB_OPE_SHOW   , N_("Show...")             , NULL, N_("Shows selected account transactions"),    G_CALLBACK (ui_mainwindow_action_showtransactions) },
+  { "AddOpe"      , ICONNAME_HB_OPE_ADD    , N_("Add...")              , NULL, N_("Add transactions"),    G_CALLBACK (ui_mainwindow_action_addtransactions) },
+  { "Scheduler"   , NULL                   , N_("Set scheduler...")    , NULL, N_("Configure the transaction scheduler"),    G_CALLBACK (ui_mainwindow_action_properties) },
+  { "AddScheduled", NULL                   , N_("Post scheduled"), NULL, N_("Post pending scheduled transactions"),    G_CALLBACK (ui_mainwindow_action_checkscheduled) },
 
   /* ReportMenu */
-  { "RStatistics" , HB_STOCK_REP_STATS , N_("_Statistics...") , NULL,    N_("Open the Statistics report"),    G_CALLBACK (ui_mainwindow_action_statistic) },
-  { "RTrendTime"   , HB_STOCK_REP_TIME , N_("_Trend Time...") , NULL,    N_("Open the Trend Time report"),    G_CALLBACK (ui_mainwindow_action_trendtime) },
-  { "RBudget"    , HB_STOCK_REP_BUDGET, N_("B_udget...")     , NULL,    N_("Open the Budget report"),    G_CALLBACK (ui_mainwindow_action_budget) },
-  { "RBalance"  , HB_STOCK_REP_BALANCE, N_("Balance...")  , NULL,    N_("Open the Balance report"),    G_CALLBACK (ui_mainwindow_action_balance) },
-  { "RVehiculeCost"    , HB_STOCK_REP_CAR   , N_("_Vehicle cost...")   , NULL,    N_("Open the Vehicle cost report"),    G_CALLBACK (ui_mainwindow_action_vehiclecost) },
+  { "RStatistics" , ICONNAME_HB_REP_STATS  , N_("_Statistics...") , NULL,    N_("Open the Statistics report"),    G_CALLBACK (ui_mainwindow_action_statistic) },
+  { "RTrendTime"  , ICONNAME_HB_REP_TIME   , N_("_Trend Time...") , NULL,    N_("Open the Trend Time report"),    G_CALLBACK (ui_mainwindow_action_trendtime) },
+  { "RBudget"     , ICONNAME_HB_REP_BUDGET , N_("B_udget...")     , NULL,    N_("Open the Budget report"),    G_CALLBACK (ui_mainwindow_action_budget) },
+  { "RBalance"    , ICONNAME_HB_REP_BALANCE, N_("Balance...")  , NULL,    N_("Open the Balance report"),    G_CALLBACK (ui_mainwindow_action_balance) },
+  { "RVehiculeCost", ICONNAME_HB_REP_CAR   , N_("_Vehicle cost...")   , NULL,    N_("Open the Vehicle cost report"),    G_CALLBACK (ui_mainwindow_action_vehiclecost) },
 
+  /* Tools */
+  { "Welcome"     , NULL              , N_("Show welcome dialog...")  , NULL, NULL, G_CALLBACK (ui_mainwindow_action_help_welcome) },
+  { "FileStats"   , NULL              , N_("File statistics...")  , NULL, NULL,    G_CALLBACK (ui_mainwindow_action_file_statistics) },
+  { "Anonymize"   , NULL              , N_("Anonymize...")  , NULL, NULL,    G_CALLBACK (ui_mainwindow_action_anonymize) },
+	
   /* HelpMenu */
-  { "Contents"   , GTK_STOCK_HELP    , N_("_Contents")                    , "F1", N_("Documentation about HomeBank"), G_CALLBACK (ui_mainwindow_action_help) },
-  { "Welcome"    , NULL              , N_("Show welcome dialog...")       , NULL, NULL                              , G_CALLBACK (ui_mainwindow_action_help_welcome) },
-  { "Online"     , "lpi-help"        , N_("Get Help Online...")           , NULL, N_("Connect to the LaunchPad website for online help"), G_CALLBACK (ui_mainwindow_action_help_online) },
-  { "Translate"  , "lpi-translate"   , N_("Translate this Application..."), NULL, N_("Connect to the LaunchPad website to help translate this application"), G_CALLBACK (ui_mainwindow_action_help_translate) },
-  { "Problem"    , "lpi-bug"         , N_("Report a Problem...")          , NULL, N_("Connect to the LaunchPad website to help fix problems"), G_CALLBACK (ui_mainwindow_action_help_problem) },
+  { "Contents"    , ICONNAME_HELP     , N_("_Contents")                    , "F1", N_("Documentation about HomeBank"), G_CALLBACK (ui_mainwindow_action_help) },
+  { "Online"      , "lpi-help"        , N_("Get Help Online...")           , NULL, N_("Connect to the LaunchPad website for online help"), G_CALLBACK (ui_mainwindow_action_help_online) },
+  { "Translate"   , "lpi-translate"   , N_("Translate this Application..."), NULL, N_("Connect to the LaunchPad website to help translate this application"), G_CALLBACK (ui_mainwindow_action_help_translate) },
+  { "Problem"     , "lpi-bug"         , N_("Report a Problem...")          , NULL, N_("Connect to the LaunchPad website to help fix problems"), G_CALLBACK (ui_mainwindow_action_help_problem) },
 
-  { "About"      , GTK_STOCK_ABOUT      , N_("_About")     , NULL, N_("About HomeBank")      ,G_CALLBACK (ui_mainwindow_action_about) },
+  { "About"       , ICONNAME_ABOUT      , N_("_About")     , NULL, N_("About HomeBank")      ,G_CALLBACK (ui_mainwindow_action_about) },
 
 };
 static guint n_entries = G_N_ELEMENTS (entries);
 
 
 static GtkToggleActionEntry toggle_entries[] = {
-/*  name         , stockid, label, accelerator, tooltip, callback, is_active */
+/*  name         , icon-name, label, accelerator, tooltip, callback, is_active */
   { "Toolbar"    , NULL                 , N_("_Toolbar")  , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_toolbar), TRUE },
   { "Spending"   , NULL                 , N_("_Top spending") , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_topspending), TRUE },
   { "Upcoming"   , NULL                 , N_("_Scheduled list") , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_upcoming), TRUE },
@@ -233,13 +252,16 @@ static const gchar *ui_info =
 "      <menuitem action='SaveAs'/>"
 "      <menuitem action='Revert'/>"
 "        <separator/>"
-"      <menuitem action='FileImport'/>"
+"      <menuitem action='Properties'/>"
+"        <separator/>"
+"        <menu action='ImportMenu'>"
+"          <menuitem action='ImportQIF'/>"
+"          <menuitem action='ImportOFX'/>"
+"          <menuitem action='ImportCSV'/>"
+"        </menu>"
 "      <menuitem action='ExportQIF'/>"
 //"        <separator/>"
 // print to come here
-"        <separator/>"
-"      <menuitem action='Properties'/>"
-"      <menuitem action='Anonymize'/>"
 "        <separator/>"
 "      <menuitem action='Close'/>"
 "      <menuitem action='Quit'/>"
@@ -249,6 +271,7 @@ static const gchar *ui_info =
 "    </menu>"
 "    <menu action='ViewMenu'>"
 "      <menuitem action='Toolbar'/>"
+"        <separator/>"
 "      <menuitem action='Spending'/>"
 "      <menuitem action='Upcoming'/>"
 "        <separator/>"
@@ -259,11 +282,11 @@ static const gchar *ui_info =
 "      <menuitem action='Account'/>"
 "      <menuitem action='Payee'/>"
 "      <menuitem action='Category'/>"
-"      <menuitem action='Assign'/>"
 "      <menuitem action='Archive'/>"
 "      <menuitem action='Budget'/>"
+"      <menuitem action='Assign'/>"
 "    </menu>"
-"    <menu action='TransactionMenu'>"
+"    <menu action='TxnMenu'>"
 "      <menuitem action='ShowOpe'/>"
 "      <menuitem action='AddOpe'/>"
 "        <separator/>"
@@ -277,10 +300,14 @@ static const gchar *ui_info =
 "      <menuitem action='RBudget'/>"
 "      <menuitem action='RVehiculeCost'/>"
 "    </menu>"
+"    <menu action='ToolsMenu'>"
+"      <menuitem action='Welcome'/>"
+"      <menuitem action='FileStats'/>"
+"        <separator/>"
+"      <menuitem action='Anonymize'/>"
+"    </menu>"
 "    <menu action='HelpMenu'>"
 "      <menuitem action='Contents'/>"
-"        <separator/>"
-"      <menuitem action='Welcome'/>"
 "        <separator/>"
 "      <menuitem action='Online'/>"
 "      <menuitem action='Translate'/>"
@@ -292,15 +319,16 @@ static const gchar *ui_info =
 
 "  <toolbar  name='ToolBar'>"
 "    <toolitem action='New'/>"
+//	  here Open + recent is coded
 "    <toolitem action='Save'/>"
 "      <separator/>"
 //"    <toolitem action='Currency'/>"
 "    <toolitem action='Account'/>"
 "    <toolitem action='Payee'/>"
 "    <toolitem action='Category'/>"
-"    <toolitem action='Assign'/>"
 "    <toolitem action='Archive'/>"
 "    <toolitem action='Budget'/>"
+"    <toolitem action='Assign'/>"
 "      <separator/>"
 "    <toolitem action='ShowOpe'/>"
 "    <toolitem action='AddOpe'/>"
@@ -315,6 +343,7 @@ static const gchar *ui_info =
 "</ui>";
 
 
+
 /* TODO: a bouger */
 
 
@@ -324,50 +353,44 @@ static const gchar *ui_info =
 void ui_mainwindow_revert(GtkWidget *widget, gpointer user_data)
 {
 //struct hbfile_data *data;
-GtkWidget *dialog;
 gchar *basename;
+gchar *title;
+gchar *secondtext;
 gint result;
 
 	DB( g_print("\n[ui-mainwindow] revert\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-		basename = g_path_get_basename(GLOBALS->xhb_filepath);
-		dialog = gtk_message_dialog_new
-		(
+	basename = g_path_get_basename(GLOBALS->xhb_filepath);
+	title = g_strdup_printf (
+		_("Revert unsaved changes to file '%s'?"), basename);
+
+	secondtext = 
+		_("- Changes made to the file will be permanently lost\n"
+		"- File will be reloaded from the last save (.xhb~)");
+
+	result = ui_dialog_msg_confirm_alert(
 			GTK_WINDOW(GLOBALS->mainwindow),
-			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_MESSAGE_QUESTION,
-			GTK_BUTTONS_NONE,
-			_("Revert to the previously saved file of '%s'?"),
-			basename
+			title,
+			secondtext,
+			_("_Revert")
 		);
-		g_free(basename);
 
-		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-			_("- Changes made to the file will be permanently lost\n"
-			"- File will be restored to the last save (.xhb~)")
-			);
+	g_free(title);
+	g_free(basename);
 
-		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
-		    GTK_STOCK_CANCEL, 0,
-			GTK_STOCK_REVERT_TO_SAVED, 1,
-			NULL);
-
-	  result = gtk_dialog_run( GTK_DIALOG( dialog ) );
-	  gtk_widget_destroy( dialog );
-
-	if( result == 1)
+	if( result == GTK_RESPONSE_OK )
 	{
 		DB( g_print(" - should revert\n") );
 		
 		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb~"));
 		ui_mainwindow_open_internal(widget, NULL);
 		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb"));
-
 	}
 
 }
+
 
 static void
 activate_url (GtkAboutDialog *about,
@@ -420,7 +443,7 @@ GdkPixbuf *pixbuf;
 		  "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
 		  "MA 02110-1301, USA.";
 
-	static const gchar *copyright = "Copyright \xc2\xa9 1995-2014 - Maxime DOYEN";
+	static const gchar *copyright = "Copyright \xc2\xa9 1995-2015 - Maxime DOYEN";
 
 
 	pathfilename = g_build_filename(homebank_app_get_images_dir(), "splash.png", NULL);
@@ -429,10 +452,16 @@ GdkPixbuf *pixbuf;
 
 	about  = gtk_about_dialog_new();
 	gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(about), g_get_application_name ());
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about), PACKAGE_VERSION);
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about), g_strdup_printf ("%s\n\nRunning against GTK+ %d.%d.%d",
+                                                     PACKAGE_VERSION,
+                                                     gtk_get_major_version (),
+                                                     gtk_get_minor_version (),
+                                                     gtk_get_micro_version ()));
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(about), copyright);
 	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(about), _("Free, easy, personal accounting for everyone."));
 	gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(about), license);
+	//gtk_about_dialog_set_license_type (GTK_ABOUT_DIALOG(about), GTK_LICENSE_GPL_2_0);
+	
 	//gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(about), );
 	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(about), "http://homebank.free.fr");
 	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(about), "Visit the HomeBank website");
@@ -464,6 +493,8 @@ GdkPixbuf *pixbuf;
 	gtk_dialog_run (GTK_DIALOG (about));
 
 	gtk_widget_destroy (about);
+
+	g_object_unref (pixbuf);
 }
 
 
@@ -481,6 +512,11 @@ GtkWidget *widget = GLOBALS->mainwindow;
 		//clear all, and init GLOBALS->xhb_filepath to default
 		ui_mainwindow_clear(widget, GINT_TO_POINTER(TRUE)); // GPOINTER_TO_INT(
 		ui_mainwindow_update(widget, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
+
+		ui_start_assistant();
+		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
 	}
 }
 
@@ -529,7 +565,10 @@ gboolean result;
 	//gtk_main_quit();
 }
 
-
+static void ui_mainwindow_action_file_statistics(void)
+{
+	ui_dialog_file_statistics();
+}
 
 
 static void ui_mainwindow_action_properties(void)
@@ -541,15 +580,23 @@ static void ui_mainwindow_action_properties(void)
 static void ui_mainwindow_action_anonymize(void)
 {
 gint result;
+gchar *title;
+gchar *secondtext;
 
-	result = ui_dialog_msg_question(
-		GTK_WINDOW(GLOBALS->mainwindow),
-		_("Anonymize the file ?"),
-		_("Proceeding will changes name/memo to anonymous datas,\n"
-		"please confirm.")
+	title = _("Are you sure you want to anonymize the file?");
+
+	secondtext = 
+		_("Proceeding will changes any texts to anonymized ones, \n"
+		"like 'account x', 'payee y', 'memo z', ...");
+
+	result = ui_dialog_msg_confirm_alert(
+			GTK_WINDOW(GLOBALS->mainwindow),
+			title,
+			secondtext,
+			_("_Anonymize")
 		);
 
-	if( result == GTK_RESPONSE_NO )
+	if( result == GTK_RESPONSE_CANCEL )
 		return;	
 	
 	hbfile_anonymize();
@@ -743,10 +790,25 @@ static void ui_mainwindow_action_vehiclecost(void)
 	repcost_window_new();
 }
 
-static void ui_mainwindow_action_import(void)
+static void ui_mainwindow_action_import(GtkAction *action)
 {
-	ui_import_window_new();
+const gchar *name;
+gint filetype = FILETYPE_UNKNOW;
 
+	name = gtk_action_get_name(action);
+
+	if( g_str_has_suffix (name, "QIF"))
+	   filetype= FILETYPE_QIF;
+	else
+	if( g_str_has_suffix (name, "OFX"))
+	   filetype= FILETYPE_OFX;
+	else
+	if( g_str_has_suffix (name, "CSV"))
+	   filetype= FILETYPE_CSV_HB;
+
+	DB( g_print("action %s type=%d\n", name, filetype) );
+
+	ui_import_assistant_new(filetype);
 
 }
 
@@ -809,21 +871,21 @@ static void ui_mainwindow_action_help_welcome5 (GtkButton *button, gpointer user
 
 void ui_mainwindow_action_help_welcome(void)
 {
-GtkWidget *dialog, *content;
+GtkWidget *dialog, *content_area;
 GtkWidget *mainvbox, *widget, *label;
 
 	dialog = gtk_dialog_new_with_buttons (_("Welcome to HomeBank"),
 			GTK_WINDOW(GLOBALS->mainwindow),
 			0,
-			GTK_STOCK_CLOSE,
+			_("_Close"),
 			GTK_RESPONSE_ACCEPT,
 			NULL);
 
-	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 	
-	mainvbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (content), mainvbox, FALSE, FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_pack_start (GTK_BOX (content_area), mainvbox, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), SPACING_MEDIUM);
 
 	label = make_label (_("HomeBank"), 0, 0);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
@@ -832,12 +894,12 @@ GtkWidget *mainvbox, *widget, *label;
 	label = make_label (_("Free, easy, personal accounting for everyone."), 0, 0);
 	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, 0);
 
-	widget = gtk_hseparator_new();
-	gtk_box_pack_start (GTK_BOX (content), widget, FALSE, FALSE, 0);
+	widget = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_box_pack_start (GTK_BOX (content_area), widget, FALSE, FALSE, 0);
 
-	mainvbox = gtk_vbox_new (FALSE, HB_MAINBOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), HB_MAINBOX_SPACING);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_MEDIUM);
+	gtk_box_pack_start (GTK_BOX (content_area), mainvbox, TRUE, TRUE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER(mainvbox), SPACING_MEDIUM);
 
 	label = make_label (_("What do you want to do:"), 0, 0);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
@@ -987,14 +1049,6 @@ gboolean file_clear = GPOINTER_TO_INT(user_data);
 	hbfile_cleanup(file_clear);
 	hbfile_setup(file_clear);
 
-	if(file_clear == TRUE)
-	{
-		ui_start_assistant();
-		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
-		ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
-		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
-	}
-
 }
 
 
@@ -1087,7 +1141,7 @@ struct hbfile_data *data;
 GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list;
-gint range;
+gint type, range;
 guint n_result, i, n_items;
 GArray *garray;
 gdouble total, other;
@@ -1099,9 +1153,10 @@ gdouble total, other;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
+	type = radio_get_active(GTK_CONTAINER(data->RA_type));
 	range = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
 
-	DB( g_print(" - range=%d\n", range) );
+	DB( g_print(" - type=%d, range=%d\n", type, range) );
 	DB( g_print(" - pref range=%d\n", PREFS->date_range_wal) );
 
 	if(range == FLT_RANGE_OTHER)
@@ -1148,7 +1203,7 @@ gdouble total, other;
 			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 			if(ope->paymode == PAYMODE_INTXFER) goto next1;
 
-			if( !(ope->flags & OF_REMIND) )
+			if( !(ope->status == TXN_STATUS_REMIND) )
 			{
 				if( (ope->date >= data->filter->mindate) && (ope->date <= data->filter->maxdate) )
 				{
@@ -1167,9 +1222,7 @@ gdouble total, other;
 						for(i=0;i<nbsplit;i++)
 						{
 							split = ope->splits[i];
-							Category *catentry = da_cat_get(split->kcat);
-								if(catentry)
-									pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+							pos = category_report_id(split->kcat, type);
 
 							//trn_amount = to_base_amount(split->amount, acc->kcur);
 							trn_amount = split->amount;
@@ -1183,12 +1236,10 @@ gdouble total, other;
 					}
 					else
 					{
-					Category *catentry = da_cat_get(ope->kcat);
 					struct tmptop *item;
 
-						if(catentry)
-							pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-			
+						pos = category_report_id(ope->kcat, type);
+		
 						//#1297054 if( trn_amount < 0 ) {
 							item = &g_array_index (garray, struct tmptop, pos);
 							item->key = pos;
@@ -1247,7 +1298,7 @@ next1:
 			entry = da_cat_get(item->key);
 			if(entry == NULL) continue;
 
-			name = entry->key == 0 ? _("(no category)") : entry->name;
+			name = entry->key == 0 ? _("(no category)") : da_cat_get_fullname(entry);
 
 			// append test
 			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -1282,7 +1333,7 @@ next1:
 		hb_label_set_amount(GTK_LABEL(data->TX_topamount), total, GLOBALS->minor);
 
 		gtk_chart_set_color_scheme(GTK_CHART(data->RE_pie), PREFS->report_color_scheme);
-		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, LST_TOPSPEND_AMOUNT, NULL);
+		gtk_chart_set_datas(GTK_CHART(data->RE_pie), model, LST_TOPSPEND_AMOUNT, NULL, NULL);
 		//gtk_chart_show_legend(GTK_CHART(data->RE_pie), FALSE);
 
 	  /* update info range text */
@@ -1519,6 +1570,7 @@ GDate *date;
 	while (list != NULL)
 	{
 	Archive *arc = list->data;
+	gdouble inc, exp;
 	guint nbdays, nblate;
 
 		if((arc->flags & OF_AUTO) ) //&& arc->kacc > 0)
@@ -1529,22 +1581,47 @@ GDate *date;
 			
 			DB( g_print(" - append '%s' : %d\n", arc->wording, nbdays) );
 
+			//acc = da_acc_get(arc->kacc);
+			//total += to_base_amount(arc->amount, acc->kcur);
+			if(arc->flags & OF_INCOME)
+			{
+				inc = arc->amount;
+				exp = 0.0;
+				totinc += arc->amount;
+			}
+			else
+			{
+				exp = arc->amount;
+				inc = 0.0;
+				totexp += arc->amount;
+			}
+
+			/* insert normal txn */
 			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				  LST_DSPUPC_DATAS, arc,
+				  LST_DSPUPC_ACCOUNT, arc->kacc,
 			      LST_DSPUPC_WORDING, arc->wording,
-			      LST_DSPUPC_EXPENSE, !(arc->flags & OF_INCOME) ? arc->amount : 0.0,
-			      LST_DSPUPC_INCOME, (arc->flags & OF_INCOME) ? arc->amount :  0.0,
+			      LST_DSPUPC_EXPENSE, exp,
+			      LST_DSPUPC_INCOME, inc,
 				  LST_DSPUPC_REMAINING, nbdays,
 			      LST_DSPUPC_NB_LATE, nblate,
 				  -1);
 
-			//acc = da_acc_get(arc->kacc);
-			//total += to_base_amount(arc->amount, acc->kcur);
-			if(arc->flags & OF_INCOME)
-				totinc += arc->amount;
-			else
-				totexp += arc->amount;
+			/* insert internal xfer txn : 1378836 */
+			if(arc->paymode == PAYMODE_INTXFER)
+			{
+				gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+				gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+					  LST_DSPUPC_DATAS, arc,
+					  LST_DSPUPC_ACCOUNT, arc->kxferacc,
+					  LST_DSPUPC_WORDING, arc->wording,
+					  LST_DSPUPC_EXPENSE, -inc,
+					  LST_DSPUPC_INCOME, -exp,
+					  LST_DSPUPC_REMAINING, nbdays,
+					  LST_DSPUPC_NB_LATE, nblate,
+					  -1);
+			}
 
 		}
 		list = g_list_next(list);
@@ -1626,7 +1703,7 @@ gint r;
 
 			homebank_lastopenedfiles_save();
 
-			//todo: remove this after computing done at xml read
+			//todo: delete this after computing done at xml read
 			account_compute_balances();
 
 			ui_mainwindow_recent_add(data, GLOBALS->xhb_filepath);
@@ -1905,11 +1982,11 @@ gint flags;
 	gchar *basename;
 	gchar *changed;
 
-		DB( printf(" +  1: wintitle %x\n", (gint)data->wintitle) );
+		DB( g_print(" +  1: wintitle %x\n", (gint)data->wintitle) );
 
 		basename = g_path_get_basename(GLOBALS->xhb_filepath);
 
-		DB( printf(" global changes: %d\n", GLOBALS->changes_count) );
+		DB( g_print(" global changes: %d\n", GLOBALS->changes_count) );
 
 		g_free(data->wintitle);
 
@@ -1931,7 +2008,7 @@ gint flags;
 	GtkTreePath		*path;
 	gboolean	active,sensitive;
 
-		DB( printf(" +  2: disabled, opelist count\n") );
+		DB( g_print(" +  2: disabled, opelist count\n") );
 
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_acc));
 
@@ -1946,7 +2023,7 @@ gint flags;
 
 			if( depth > 1 )
 			{
-				DB( printf(" depth is %d\n", depth) );
+				DB( g_print(" depth is %d\n", depth) );
 
 				gtk_tree_model_get(GTK_TREE_MODEL(model), &iter, LST_DSPACC_DATAS, &acc, -1);
 				data->acc = acc;
@@ -1963,7 +2040,7 @@ gint flags;
 
 
 		// no change: disable save
-		DB( printf(" changes %d - new %d\n", GLOBALS->changes_count, GLOBALS->hbfile_is_new) );
+		DB( g_print(" changes %d - new %d\n", GLOBALS->changes_count, GLOBALS->hbfile_is_new) );
 
 
 		sensitive = (GLOBALS->changes_count != 0 ) ? TRUE : FALSE;
@@ -1979,7 +2056,6 @@ gint flags;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Account"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Payee"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Category"), sensitive);
-		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/EditMenu/Preferences"), sensitive);
 
@@ -1990,8 +2066,8 @@ gint flags;
 
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Close"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Archive"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TransactionMenu/AddOpe"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TransactionMenu/ShowOpe"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddOpe"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowOpe"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RStatistics"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RTrendTime"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBudget"), sensitive);
@@ -2002,25 +2078,26 @@ gint flags;
 		sensitive = da_cat_length() > 1 ? TRUE : FALSE;
 
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
 
 	// empty archive list: disable scheduled check
 		sensitive = g_list_length(GLOBALS->arc_list) > 0 ? TRUE : FALSE;
 
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TransactionMenu/AddScheduled"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddScheduled"), sensitive);
 
 	// no active account: disable Edit, Over
 		sensitive = (active == TRUE ) ? TRUE : FALSE;
 		if(data->acc && data->acc->window != NULL)
 			sensitive = FALSE;
 
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TransactionMenu/ShowOpe"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowOpe"), sensitive);
 
 	}
 
 	/* update toolbar, list */
 	if(flags & UF_VISUAL)
 	{
-		DB( printf(" +  8: visual\n") );
+		DB( g_print(" +  8: visual\n") );
 
 		if(PREFS->toolbar_style == 0)
 			gtk_toolbar_unset_style(GTK_TOOLBAR(data->toolbar));
@@ -2030,14 +2107,14 @@ gint flags;
 		gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (data->LV_acc), PREFS->rules_hint);
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
 
-		DB( printf(" - show toolbar=%d\n", PREFS->wal_toolbar) );
+		DB( g_print(" - show toolbar=%d\n", PREFS->wal_toolbar) );
 		if(PREFS->wal_toolbar)
 			gtk_widget_show(GTK_WIDGET(data->toolbar));
 		else
 			gtk_widget_hide(GTK_WIDGET(data->toolbar));
 
 
-		DB( printf(" - show top_spending=%d\n", PREFS->wal_spending) );
+		DB( g_print(" - show top_spending=%d\n", PREFS->wal_spending) );
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_wal);
 
@@ -2048,13 +2125,13 @@ gint flags;
 
 
 		
-		DB( printf(" - show upcoming=%d\n", PREFS->wal_upcoming) );
+		DB( g_print(" - show upcoming=%d\n", PREFS->wal_upcoming) );
 		if(PREFS->wal_upcoming)
 			gtk_widget_show(GTK_WIDGET(data->GR_upc));
 		else
 			gtk_widget_hide(GTK_WIDGET(data->GR_upc));
 
-		DB( printf(" minor %d\n", PREFS->euro_active) );
+		DB( g_print(" minor %d\n", PREFS->euro_active) );
 		gtk_action_set_visible(gtk_ui_manager_get_action(data->manager, "/MenuBar/ViewMenu/AsMinor"), PREFS->euro_active);
 	}
 
@@ -2062,7 +2139,7 @@ gint flags;
 	if(flags & UF_BALANCE)
 	{
 
-		DB( printf(" +  4: balances\n") );
+		DB( g_print(" +  4: balances\n") );
 
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
 
@@ -2077,7 +2154,7 @@ gint flags;
 
 	if(flags & UF_REFRESHALL)
 	{
-		DB( printf(" +  8: refreshall\n") );
+		DB( g_print(" +  8: refreshall\n") );
 
 		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
@@ -2498,28 +2575,23 @@ GError *error = NULL;
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), data->recent_menu);
 */
 
-	/* testing */
-		/* add the custom Open button to the toolbar */
-	GtkToolItem *open_button = gtk_menu_tool_button_new_from_stock (GTK_STOCK_OPEN);
-	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (open_button),
-				       data->recent_menu);
+	/* test */
+	/* add the custom Open button to the toolbar */
+	GtkWidget *image = gtk_image_new_from_icon_name (ICONNAME_OPEN, GTK_ICON_SIZE_BUTTON);
+
+	GtkToolItem *open_button = gtk_menu_tool_button_new(image, _("_Open"));
+	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (open_button), data->recent_menu);
 
 	gtk_tool_item_set_tooltip_text (open_button, _("Open a file"));
-	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (open_button),
-						     _("Open a recently used file"));
-
+	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (open_button), _("Open a recently used file"));
 
 	action = gtk_action_group_get_action (data->actions, "Open");
-	g_object_set (action,
-		      "short_label", _("Open"),
-		      NULL);
+	g_object_set (action, "short_label", _("Open"), NULL);
 	//gtk_action_connect_proxy (action, GTK_WIDGET (open_button));
 	gtk_activatable_set_related_action (GTK_ACTIVATABLE (open_button), action);
 
-	gtk_toolbar_insert (GTK_TOOLBAR (data->toolbar),
-			    open_button,
-			    1);
-	/* end testing */
+	gtk_toolbar_insert (GTK_TOOLBAR (data->toolbar), open_button, 1);
+	/* end test */
 
 }
 
@@ -2527,16 +2599,16 @@ static GtkWidget *ui_mainwindow_create_youraccounts(struct hbfile_data *data)
 {
 GtkWidget *mainvbox, *align, *label, *widget, *sw;
 
-	mainvbox = gtk_vbox_new (FALSE, 0);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
 	label = make_label(_("Your accounts"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_misc_set_padding (GTK_MISC(label), HB_BOX_SPACING, HB_BOX_SPACING/2);
+	gtk_misc_set_padding (GTK_MISC(label), SPACING_SMALL, SPACING_SMALL/2);
     gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, 0);
 
 	align = gtk_alignment_new(0, 0, 1.0, 1.0);
 	// top, bottom, left, right
-	gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, HB_BOX_SPACING, 2*HB_BOX_SPACING, HB_BOX_SPACING);
+	gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, SPACING_SMALL, 2*SPACING_SMALL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (mainvbox), align, TRUE, TRUE, 0);
 
 	sw = gtk_scrolled_window_new (NULL, NULL);
@@ -2557,38 +2629,42 @@ static GtkWidget *ui_mainwindow_create_topspending(struct hbfile_data *data)
 GtkWidget *mainvbox, *hbox, *vbox;
 GtkWidget *label, *align, *widget;
 
-		mainvbox = gtk_vbox_new (FALSE, 0);
+		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 		data->GR_top = mainvbox;
 
 		label = make_label(_("Where your money goes"), 0.0, 0.5);
 		gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-		gtk_misc_set_padding (GTK_MISC(label), HB_BOX_SPACING, HB_BOX_SPACING/2);
+		gtk_misc_set_padding (GTK_MISC(label), SPACING_SMALL, SPACING_SMALL/2);
 	    gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, 0);
 
 		align = gtk_alignment_new(0, 0, 1.0, 1.0);
 		// top, bottom, left, right
-		gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, HB_BOX_SPACING, 2*HB_BOX_SPACING, HB_BOX_SPACING);
+		gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, SPACING_SMALL, 2*SPACING_SMALL, SPACING_SMALL);
 		gtk_box_pack_start (GTK_BOX (mainvbox), align, TRUE, TRUE, 0);
 
-		vbox = gtk_vbox_new (FALSE, HB_BOX_SPACING);
+		vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
 		gtk_container_add (GTK_CONTAINER (align), vbox);
 		
 		/* total + date range */
-		hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 		gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 		
-		label = make_label(_("Top 5 spending"), 0.0, 0.5);
+		label = make_label(_("Top spending"), 0.0, 0.5);
 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 		
 		label = make_label(NULL, 0.0, 0.5);
 		data->TX_topamount = label;
 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
-	
+
 		data->CY_range = make_daterange(label, FALSE);
 		gtk_box_pack_end (GTK_BOX (hbox), data->CY_range, FALSE, FALSE, 0);
 
+		widget = make_radio(CYA_CATSUBCAT, TRUE, GTK_ORIENTATION_HORIZONTAL);
+		data->RA_type = widget;
+		gtk_box_pack_end (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
 		/* pie + listview */
-		hbox = gtk_hbox_new (FALSE, 0);
+		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 		gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
 
 		widget = gtk_chart_new(CHART_TYPE_PIE);
@@ -2620,16 +2696,16 @@ GtkWidget *mainvbox, *hbox, *vbox, *sw, *tbar;
 GtkWidget *label, *image, *align, *widget;
 GtkToolItem *toolitem;
 	
-	mainvbox = gtk_vbox_new (FALSE, 0);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	data->GR_upc = mainvbox;
 
-	hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, FALSE, FALSE, 0);
 
 	label = make_label(_("Scheduled transactions"), 0.0, 0.5);
 	//gtk_label_set_angle(GTK_LABEL(label), 90.0);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_misc_set_padding (GTK_MISC(label), HB_BOX_SPACING, HB_BOX_SPACING/2);
+	gtk_misc_set_padding (GTK_MISC(label), SPACING_SMALL, SPACING_SMALL/2);
     gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	label = make_label(_("maximum post date"), 0.0, 0.7);
@@ -2643,10 +2719,10 @@ GtkToolItem *toolitem;
 	
 	align = gtk_alignment_new(0, 0, 1.0, 1.0);
 	// top, bottom, left, right
-	gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, HB_BOX_SPACING, 2*HB_BOX_SPACING, HB_BOX_SPACING);
+	gtk_alignment_set_padding (GTK_ALIGNMENT(align), 0, SPACING_SMALL, 2*SPACING_SMALL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (mainvbox), align, TRUE, TRUE, 0);
 
-	vbox = gtk_vbox_new (FALSE, 0);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add (GTK_CONTAINER (align), vbox);
 
 	sw = gtk_scrolled_window_new (NULL, NULL);
@@ -2663,18 +2739,20 @@ GtkToolItem *toolitem;
 	gtk_toolbar_set_style(GTK_TOOLBAR(tbar), GTK_TOOLBAR_ICONS);
 	gtk_box_pack_start (GTK_BOX (vbox), tbar, FALSE, FALSE, 0);
 
+	gtk_style_context_add_class (gtk_widget_get_style_context (tbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
+
 	/*widget = gtk_tool_item_new ();
 	label = gtk_label_new("test");
 	gtk_container_add(GTK_CONTAINER(widget), label);
 	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(widget), -1);*/
 	
-	image = gtk_image_new_from_icon_name ("media-skip-forward", GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_SCHED_SKIP, GTK_ICON_SIZE_MENU);
 	toolitem = gtk_tool_button_new(image, NULL);
 	data->BT_sched_skip = toolitem;
 	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(toolitem), _("Skip"));
 
-	image = gtk_image_new_from_icon_name ("media-playback-start", GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_SCHED_POST, GTK_ICON_SIZE_MENU);
 	toolitem = gtk_tool_button_new(image, NULL);
 	data->BT_sched_post = toolitem;
 	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
@@ -2691,6 +2769,7 @@ GtkToolItem *toolitem;
 GtkWidget *create_hbfile_window(GtkWidget *do_widget)
 {
 struct hbfile_data *data;
+struct WinGeometry *wg;
 GtkWidget *mainvbox, *vbox, *vpaned, *hpaned;
 GtkWidget *widget;
 GtkWidget *window;
@@ -2711,8 +2790,19 @@ GtkAction *action;
 	data->window = window;
 	GLOBALS->mainwindow = window;
 
+	//setup, init and show window
+	wg = &PREFS->wal_wg;
+	if(wg->s == 0)
+	{
+		gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
+		gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
+	}
+	else
+		gtk_window_maximize(GTK_WINDOW(window));
 
-	mainvbox = gtk_vbox_new (FALSE, 0);
+	gtk_widget_show (window);
+
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add (GTK_CONTAINER (window), mainvbox);
 
 	ui_mainwindow_create_menu_bar_and_toolbar (data, mainvbox);
@@ -2729,28 +2819,37 @@ GtkWidget *bar, *label;
 #endif
 	
 	/* Add the main area */
-	vbox = gtk_vbox_new (FALSE, 0);
-    //gtk_container_set_border_width (GTK_CONTAINER(vbox), HB_MAINBOX_SPACING);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    //gtk_container_set_border_width (GTK_CONTAINER(vbox), SPACING_MEDIUM);
     gtk_box_pack_start (GTK_BOX (mainvbox), vbox, TRUE, TRUE, 0);
 
-	vpaned = gtk_vpaned_new();
+	vpaned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 	data->vpaned = vpaned;
     gtk_box_pack_start (GTK_BOX (vbox), vpaned, TRUE, TRUE, 0);
 
-		hpaned = gtk_hpaned_new();
+		hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 		data->hpaned = hpaned;
-		gtk_paned_pack1 (GTK_PANED(vpaned), hpaned, TRUE, FALSE);
+		gtk_paned_pack1 (GTK_PANED(vpaned), hpaned, FALSE, FALSE);
+
+		widget = ui_mainwindow_scheduled_create(data);
+		gtk_paned_pack2 (GTK_PANED(vpaned), widget, FALSE, FALSE);
 
 		widget = ui_mainwindow_create_youraccounts(data);
 		gtk_paned_pack1 (GTK_PANED(hpaned), widget, FALSE, FALSE);
 
 		widget = ui_mainwindow_create_topspending(data);
-		gtk_paned_pack2 (GTK_PANED(hpaned), widget, TRUE, FALSE);
-
-		widget = ui_mainwindow_scheduled_create(data);
-		gtk_paned_pack2 (GTK_PANED(vpaned), widget, FALSE, FALSE);
+		gtk_paned_pack2 (GTK_PANED(hpaned), widget, FALSE, FALSE);
 
 
+	DB( g_print(" - vpaned=%d hpaned=%d\n", PREFS->wal_vpaned, PREFS->wal_hpaned) );
+
+	if(PREFS->wal_hpaned > 0)
+		gtk_paned_set_position(GTK_PANED(data->hpaned), PREFS->wal_hpaned);
+	if(PREFS->wal_vpaned > 0)
+		gtk_paned_set_position(GTK_PANED(data->vpaned), PREFS->wal_vpaned);
+
+	gtk_widget_show_all (window);
+	
 	//todo: move this elsewhere
 	DB( g_print(" - setup stuff\n") );
 
@@ -2758,12 +2857,7 @@ GtkWidget *bar, *label;
 	filter_default_all_set(data->filter);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), PREFS->date_range_wal);
 
-	DB( g_print(" - vpaned=%d hpaned=%d\n", PREFS->wal_vpaned, PREFS->wal_hpaned) );
-	
-	if(PREFS->wal_vpaned > 0)
-		gtk_paned_set_position(GTK_PANED(data->vpaned), PREFS->wal_vpaned);
-	if(PREFS->wal_hpaned > 0)
-		gtk_paned_set_position(GTK_PANED(data->hpaned), PREFS->wal_hpaned);
+
 
 	action = gtk_ui_manager_get_action(data->manager, "/MenuBar/ViewMenu/Toolbar");
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), PREFS->wal_toolbar);
@@ -2798,6 +2892,10 @@ GtkWidget *bar, *label;
 	g_signal_connect (G_OBJECT (data->BT_sched_post), "clicked", G_CALLBACK (ui_mainwindow_scheduled_post_cb), data);
 	g_signal_connect (G_OBJECT (data->BT_sched_skip), "clicked", G_CALLBACK (ui_mainwindow_scheduled_skip_cb), data);
 	
+	widget = radio_get_nth_widget(GTK_CONTAINER(data->RA_type), 1);
+	if(widget)
+		g_signal_connect (widget, "toggled", G_CALLBACK (ui_mainwindow_populate_topspending), &data);
+
 	g_signal_connect (data->CY_range, "changed", G_CALLBACK (ui_mainwindow_populate_topspending), NULL);
 
 

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -61,32 +61,32 @@ static void ui_repdist_action_export(GtkAction *action, gpointer user_data);
 
 
 static GtkActionEntry entries[] = {
-  { "List"    , "hb-view-list" , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (ui_repdist_action_viewlist) },
-  { "Bar"     , "hb-view-bar"  , N_("Bar")    , NULL,    N_("View results as bars"), G_CALLBACK (ui_repdist_action_viewbar) },
-  { "Pie"     , "hb-view-pie"  , N_("Pie")    , NULL,    N_("View results as pies"), G_CALLBACK (ui_repdist_action_viewpie) },
+  { "List"    , ICONNAME_HB_VIEW_LIST   , N_("List")   , NULL,    N_("View results as list"), G_CALLBACK (ui_repdist_action_viewlist) },
+  { "Column"  , ICONNAME_HB_VIEW_COLUMN , N_("Column") , NULL,    N_("View results as column"), G_CALLBACK (ui_repdist_action_viewbar) },
+  { "Donut"   , ICONNAME_HB_VIEW_DONUT  , N_("Donut")  , NULL,    N_("View results as donut"), G_CALLBACK (ui_repdist_action_viewpie) },
 
-  { "Filter"  , "hb-filter"    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_repdist_action_filter) },
-  { "Refresh" , GTK_STOCK_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
+  { "Filter"  , ICONNAME_HB_FILTER      , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_repdist_action_filter) },
+  { "Refresh" , ICONNAME_REFRESH        , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
 
-  { "Export" , "hb-file-export", N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_repdist_action_export) },
+  { "Export"  , ICONNAME_HB_FILE_EXPORT , N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_repdist_action_export) },
 };
 static guint n_entries = G_N_ELEMENTS (entries);
 
 
 static GtkToggleActionEntry toggle_entries[] = {
-  { "Detail", "hb-ope-show",                    /* name, stock id */
+  { "Detail", ICONNAME_HB_OPE_SHOW,                    /* name, icon-name */
      N_("Detail"), NULL,                    /* label, accelerator */
     N_("Toggle detail"),                                    /* tooltip */
     G_CALLBACK (ui_repdist_action_detail),
     FALSE },                                    /* is_active */
 
-  { "Legend", "hb-legend",                    /* name, stock id */
+  { "Legend", ICONNAME_HB_SHOW_LEGEND,                    /* name, icon-name */
      N_("Legend"), NULL,                    /* label, accelerator */
     N_("Toggle legend"),                                    /* tooltip */
     G_CALLBACK (ui_repdist_action_legend),
     TRUE },                                    /* is_active */
 
-  { "Rate", "hb-rate",                    /* name, stock id */
+  { "Rate", ICONNAME_HB_SHOW_RATE,                    /* name, icon-name */
      N_("Rate"), NULL,                    /* label, accelerator */
     N_("Toggle rate"),                                    /* tooltip */
     G_CALLBACK (ui_repdist_action_rate),
@@ -101,8 +101,8 @@ static const gchar *ui_info =
 "<ui>"
 "  <toolbar name='ToolBar'>"
 "    <toolitem action='List'/>"
-"    <toolitem action='Bar'/>"
-"    <toolitem action='Pie'/>"
+"    <toolitem action='Column'/>"
+"    <toolitem action='Donut'/>"
 "      <separator/>"
 "    <toolitem action='Detail'/>"
 "    <toolitem action='Legend'/>"
@@ -330,12 +330,12 @@ struct ui_repdist_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	data->filter->mindate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
-	data->filter->maxdate = gtk_dateentry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
+	data->filter->mindate = gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_mindate));
+	data->filter->maxdate = gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_maxdate));
 
 	// set min/max date for both widget
-	gtk_dateentry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
-	gtk_dateentry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
+	gtk_date_entry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
+	gtk_date_entry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_REPDIST_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
@@ -367,8 +367,8 @@ gint range;
 		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
 		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 		
-		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-		gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
+		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
+		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 		
 		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
 		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
@@ -458,7 +458,7 @@ GtkTreeIter  iter;
 			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 
 			//filter here
-			if( !(ope->flags & OF_REMIND) )
+			if( !(ope->status == TXN_STATUS_REMIND) )
 			{
 				if(filter_test(data->filter, ope) == 1)
 				{
@@ -622,9 +622,9 @@ gchar *title;
 	/* update bar chart */
 	DB( g_print(" set bar to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
 	if( tmpkind == 0 )
-		gtk_chart_set_dualdatas(GTK_CHART(data->RE_chart), model, LST_REPDIST_EXPENSE, LST_REPDIST_INCOME, title);
+		gtk_chart_set_dualdatas(GTK_CHART(data->RE_chart), model, LST_REPDIST_EXPENSE, LST_REPDIST_INCOME, title, NULL);
 	else
-		gtk_chart_set_datas(GTK_CHART(data->RE_chart), model, column, title);
+		gtk_chart_set_datas(GTK_CHART(data->RE_chart), model, column, title, NULL);
 
 
 	/* show xval for month/year and no by amount display */
@@ -847,7 +847,7 @@ gdouble exprate, incrate, balrate;
 			if(acc == NULL) goto next1;
 			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
 
-			if( !(ope->flags & OF_REMIND) )
+			if( !(ope->status == TXN_STATUS_REMIND) )
 			{
 				if( (filter_test(data->filter, ope) == 1) )
 				{
@@ -870,7 +870,7 @@ gdouble exprate, incrate, balrate;
 							{
 								split = ope->splits[i];
 								catentry = da_cat_get(split->kcat);
-								if(!catentry) continue;
+								if(catentry == NULL) continue;
 								sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
 								if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
 
@@ -882,8 +882,7 @@ gdouble exprate, incrate, balrate;
 									{
 										case BY_REPDIST_CATEGORY:
 											{
-												if(catentry)
-													pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+												pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
 											}
 											break;
 										case BY_REPDIST_SUBCATEGORY:
@@ -1106,6 +1105,10 @@ next1:
 			g_free(fullcatname);
 		}
 
+		/* update column 0 title */
+		GtkTreeViewColumn *column = gtk_tree_view_get_column( GTK_TREE_VIEW(data->LV_report), 0);
+		gtk_tree_view_column_set_title(column, _(CYA_STATSELECT[tmpfor]));
+
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_report));
 		
 		/* Re-attach model to view */
@@ -1154,18 +1157,16 @@ gint page;
 
 	//view = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 
-
-
 	sensitive = page == 0 ? FALSE : TRUE;
+	gtk_widget_set_sensitive(data->LB_zoomx, sensitive);
 	gtk_widget_set_sensitive(data->RG_zoomx, sensitive);
-//	gtk_widget_set_sensitive(data->TB_buttons[ACTION_REPBUDGET_LEGEND], sensitive);
 	gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/ToolBar/Legend"), sensitive);
 
 	sensitive = page == 0 ? TRUE : FALSE;
 	gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/ToolBar/Rate"), sensitive);
 
-
 }
+
 
 static void ui_repdist_update_detail(GtkWidget *widget, gpointer user_data)
 {
@@ -1214,7 +1215,7 @@ struct ui_repdist_data *data;
 
 	data->detail ^= 1;
 
-	DB( printf("\n[repdist] toggledetail to %d\n", data->detail) );
+	DB( g_print("\n[repdist] toggledetail to %d\n", data->detail) );
 
 	ui_repdist_update_detail(widget, user_data);
 
@@ -1331,8 +1332,8 @@ static void ui_repdist_setup(struct ui_repdist_data *data)
 	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
 	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
 
-	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-	gtk_dateentry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 
 	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
 	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
@@ -1397,7 +1398,7 @@ GtkWidget *ui_repdist_window_new(void)
 {
 struct ui_repdist_data *data;
 struct WinGeometry *wg;
-GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview;
+GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview, *vpaned, *sw;
 GtkWidget *label, *widget, *table, *alignment, *entry;
 gint row;
 GtkUIManager *ui;
@@ -1425,101 +1426,102 @@ GError *error = NULL;
 	gtk_window_set_title (GTK_WINDOW (window), _("Statistics Report"));
 
 	//set the window icon
-	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "report_stats.svg");
-	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_REP_STATS);
+	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_REP_STATS);
 
 
 	//window contents
-	mainvbox = gtk_vbox_new (FALSE, 0);
+	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add (GTK_CONTAINER (window), mainvbox);
 
-	hbox = gtk_hbox_new(FALSE, 0);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start (GTK_BOX (mainvbox), hbox, TRUE, TRUE, 0);
 
 	//control part
-	table = gtk_table_new (6, 3, FALSE);
+	table = gtk_grid_new ();
 	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
 	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(alignment), table);
+	gtk_widget_set_hexpand (GTK_WIDGET(table), FALSE);
     gtk_box_pack_start (GTK_BOX (hbox), alignment, FALSE, FALSE, 0);
 
-	gtk_container_set_border_width (GTK_CONTAINER (table), HB_BOX_SPACING);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_SMALL);
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 
 	row = 0;
 	label = make_label(_("Display"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
 	label = make_label(_("_View:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_KIND2);
 	data->CY_view = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_By:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_STATSELECT);
 	data->CY_by = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_by, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), data->CY_by, 2, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("By _amount"));
 	data->CM_byamount = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
 
 	
 	row++;
 	label = make_label(_("_Zoom X:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	data->LB_zoomx = label;
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_scale(label);
 	data->RG_zoomx = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 
 /*
 	row++;
 	widget = gtk_check_button_new_with_mnemonic ("Legend");
 	data->CM_legend = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 1, 2, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), widget, 1, 2, row, row+1);
 */
 	row++;
-	widget = gtk_hseparator_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 0, 3, row, row+1);
+	widget = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_grid_attach (GTK_GRID (table), widget, 0, row, 3, 1);
 
 	row++;
 	label = make_label(_("Date filter"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
 	label = make_label(_("_Range:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->CY_range = make_daterange(label, TRUE);
-	gtk_table_attach_defaults (GTK_TABLE (table), data->CY_range, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), data->CY_range, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_From:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	data->PO_mindate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_mindate, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
+	data->PO_mindate = gtk_date_entry_new();
+	gtk_grid_attach (GTK_GRID (table), data->PO_mindate, 2, row, 1, 1);
 
 	row++;
 	label = make_label(_("_To:"), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	data->PO_maxdate = gtk_dateentry_new();
-	gtk_table_attach_defaults (GTK_TABLE (table), data->PO_maxdate, 2, 3, row, row+1);
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
+	data->PO_maxdate = gtk_date_entry_new();
+	gtk_grid_attach (GTK_GRID (table), data->PO_maxdate, 2, row, 1, 1);
 
 	//part: info + report
-	vbox = gtk_vbox_new (FALSE, 0);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
 
 	//ui manager
@@ -1540,10 +1542,10 @@ GError *error = NULL;
 	action = gtk_action_group_get_action(actions, "List");
 	g_object_set(action, "is_important", TRUE, NULL);
 
-	action = gtk_action_group_get_action(actions, "Bar");
+	action = gtk_action_group_get_action(actions, "Column");
 	g_object_set(action, "is_important", TRUE, NULL);
 
-	action = gtk_action_group_get_action(actions, "Pie");
+	action = gtk_action_group_get_action(actions, "Donut");
 	g_object_set(action, "is_important", TRUE, NULL);
 
 	action = gtk_action_group_get_action(actions, "Detail");
@@ -1578,8 +1580,8 @@ GError *error = NULL;
 	gtk_box_pack_start (GTK_BOX (vbox), data->TB_bar, FALSE, FALSE, 0);
 
 	//infos + balance
-	hbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_container_set_border_width (GTK_CONTAINER(hbox), HB_BOX_SPACING);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER(hbox), SPACING_SMALL);
     gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
 	widget = make_label(NULL, 0.5, 0.5);
@@ -1615,33 +1617,31 @@ GError *error = NULL;
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(notebook), FALSE);
     gtk_box_pack_start (GTK_BOX (vbox), notebook, TRUE, TRUE, 0);
 
-	//page: list
-	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, NULL);
+	// page list/detail
+	vpaned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vpaned, NULL);
 
-	widget = gtk_scrolled_window_new (NULL, NULL);
-	//gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW (widget), GTK_CORNER_TOP_RIGHT);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget), GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	// list
+	sw = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	treeview = ui_list_repdist_create();
 	data->LV_report = treeview;
-	gtk_container_add (GTK_CONTAINER(widget), treeview);
-    gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
+	gtk_container_add (GTK_CONTAINER(sw), treeview);
+	gtk_paned_pack1 (GTK_PANED(vpaned), sw, TRUE, TRUE);
 
 	//detail
-	widget = gtk_scrolled_window_new (NULL, NULL);
-	data->GR_detail = widget;
-	//gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW (widget), GTK_CORNER_TOP_RIGHT);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (widget), GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (widget), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	treeview = create_list_transaction(TRN_LIST_TYPE_DETAIL, PREFS->lst_ope_columns);
+	sw = gtk_scrolled_window_new (NULL, NULL);
+	data->GR_detail = sw;
+	//gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW (sw), GTK_CORNER_TOP_RIGHT);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	treeview = create_list_transaction(LIST_TXN_TYPE_DETAIL, PREFS->lst_ope_columns);
 	data->LV_detail = treeview;
-	gtk_container_add (GTK_CONTAINER(widget), treeview);
+	gtk_container_add (GTK_CONTAINER(sw), treeview);
+	gtk_paned_pack2 (GTK_PANED(vpaned), sw, TRUE, TRUE);	
 
-    gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
-
-
-	//page: 2d bar/pie
+	//page: 2d bar /pie
 	widget = gtk_chart_new(CHART_TYPE_COL);
 	data->RE_chart = widget;
 	gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.symbol);
@@ -1859,7 +1859,7 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_column_set_cell_data_func(column, renderer, ope_result_cell_data_function, NULL, NULL);
 	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_REPDIST_NAME);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_REPDIST_NAME);
-	gtk_tree_view_column_set_resizable(column, TRUE);
+	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 

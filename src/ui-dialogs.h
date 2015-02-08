@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -22,7 +22,7 @@
 
 
 
-
+gint ui_dialog_msg_confirm_alert(GtkWindow *parent, gchar *title, gchar *secondtext, gchar *actionverb);
 
 gint ui_dialog_about(GtkWindow *parent, gchar *title, gchar *message_format, ...);
 gint ui_dialog_msg_question(GtkWindow *parent, gchar *title, gchar *message_format, ...);
@@ -34,7 +34,7 @@ gboolean ui_file_chooser_folder(GtkWindow *parent, gchar *title, gchar **storage
 
 gboolean ui_dialog_msg_savechanges(GtkWidget *widget, gpointer user_data);
 
-
+void ui_dialog_file_statistics(void);
 
 Transaction *ui_dialog_transaction_xfer_select_child(GList *matchlist);
 

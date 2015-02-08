@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,8 +50,8 @@ struct _account
 
 	// import datas
 	gboolean	imported;
-	guint32		imp_key;
-	gchar		*imp_name;
+	guint32		imp_key;	// 0 create new / x to map to existing
+	gchar		*imp_name;  // name in the file
 };
 
 // 0 is free

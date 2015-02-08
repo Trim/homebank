@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -26,8 +26,9 @@ enum
 	ACTION_ACCOUNT_ADD,
 	ACTION_ACCOUNT_INHERIT,
 	ACTION_ACCOUNT_EDIT,
+	ACTION_ACCOUNT_CLEAR,
 	ACTION_ACCOUNT_RECONCILE,
-	ACTION_ACCOUNT_REMOVE,
+	ACTION_ACCOUNT_DELETE,
 	ACTION_ACCOUNT_FILTER,
 	ACTION_ACCOUNT_CLOSE,
 	MAX_ACTION_ACCOUNT

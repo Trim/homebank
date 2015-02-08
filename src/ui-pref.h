@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -34,6 +34,7 @@ struct defpref_data
 
 	GtkWidget	*CY_language;
 	GtkWidget	*CY_toolbar;
+
 	GtkWidget	*CY_colors;
 	GtkWidget	*CM_custom_colors;
 	GtkWidget	*CP_exp_color;
@@ -59,6 +60,7 @@ struct defpref_data
 	GtkWidget	*CM_append_scheduled;
 	GtkWidget	*CM_herit_date;
 	GtkWidget	*CM_hide_reconciled;
+	GtkWidget	*CM_show_remind;
 
 	//GtkWidget	*ST_path_navigator;
 

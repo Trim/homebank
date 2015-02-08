@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -33,21 +33,17 @@ sched_lateicon_cell_data_function (GtkTreeViewColumn *col,
                            GtkTreeIter       *iter,
                            gpointer           user_data)
 {
+gchar *iconname = NULL;
 gint nblate;
 
 	gtk_tree_model_get(model, iter,
 		LST_DSPUPC_NB_LATE, &nblate,
 		-1);
 
-	if( nblate > 0 )
-	{
-		g_object_set(renderer, "pixbuf", GLOBALS->lst_pixbuf[LST_PIXBUF_WARNING], NULL, NULL);
-	}
-	else
-		g_object_set(renderer, "pixbuf", NULL, NULL);
+	iconname = ( nblate > 0 ) ? ICONNAME_WARNING : NULL;
 
+	g_object_set(renderer, "icon-name", iconname, NULL);
 }
-
 
 
 /*
@@ -239,18 +235,16 @@ gint weight;
 */
 static void account_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-Archive *arc;
+guint32 accid;
 Account *acc;
 gchar *name = NULL;
 
-	gtk_tree_model_get(model, iter, LST_DSPUPC_DATAS, &arc, -1);
-	if(arc)
+	gtk_tree_model_get(model, iter, LST_DSPUPC_ACCOUNT, &accid, -1);
+	/* 1378836 display acc or dstacc */
+	acc = da_acc_get(accid);
+	if( acc != NULL )
 	{
-		acc = da_acc_get(arc->kacc);
-		if( acc )
-		{
-			name = acc->name;
-		}
+		name = acc->name;
 	}
 
 	g_object_set(renderer, "text", name, NULL);
@@ -295,7 +289,7 @@ GtkTreeViewColumn  *column;
 		G_TYPE_STRING,	/* wording */
 		G_TYPE_DOUBLE,	/* expense */
 		G_TYPE_DOUBLE,	/* income */
-		G_TYPE_BOOLEAN,	/* account */
+		G_TYPE_INT,		/* account */
 	    G_TYPE_BOOLEAN,	/* next on */
 		G_TYPE_INT,		/* remaining */
 		G_TYPE_INT		/* nb late */
@@ -316,7 +310,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_title(column, _("Late"));
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, sched_lateicon_cell_data_function, NULL, NULL);
 

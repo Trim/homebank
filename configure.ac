@@ -21,19 +21,26 @@ AC_PROG_INSTALL
 AC_PROG_INTLTOOL
 
 # Checks for libraries.
-PKG_CHECK_MODULES(DEPS, gtk+-2.0 >= 2.24 glib-2.0 >= 2.28)
+PKG_CHECK_MODULES(DEPS, gtk+-3.0 >= 3.6 glib-2.0 >= 2.34)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 AC_CHECK_LIB(m, pow)
 
+#PKG_CHECK_MODULES(LIBSOUP, [libsoup-2.4 >= 2.26])
+#AC_SUBST(LIBSOUP_CFLAGS)
+#AC_SUBST(LIBSOUP_LIBS)
+
 # general usage flags
 CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
+
+# disable deprecated warnings
+CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 
 # extended flags
 #CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
-#valgrind flags
-#CFLAGS="${CFLAGS} -g -O0"
+# profiling valgrind/gprof flags
+#CFLAGS="${CFLAGS} -g -O0 -pg"
 
 # pre-relase # 2 - error as warning for 
 #CFLAGS="${CFLAGS} -Werror"
@@ -97,11 +104,13 @@ Makefile
 src/Makefile 
 data/homebank.desktop.in
 data/Makefile
-data/icons/Makefile
 data/datas/Makefile
 images/Makefile
 mime/Makefile
-po/Makefile.in 
+pixmaps/Makefile
+themes/Makefile
+themes/hicolor/Makefile
+po/Makefile.in
 doc/Makefile
 doc/images/Makefile
 ])

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -46,7 +46,50 @@ extern struct Preferences *PREFS;
 
 
 /* = = = = = = = = = = = = = = = = = = = = */
+
+/* Confirmation Alert dialog */
+
+gint ui_dialog_msg_confirm_alert(GtkWindow *parent, gchar *title, gchar *secondtext, gchar *actionverb)
+{
+GtkWidget *dialog;
+gint retval;
+
+	dialog = gtk_message_dialog_new (GTK_WINDOW(parent),
+	                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+	                                  GTK_MESSAGE_WARNING,
+	                                  GTK_BUTTONS_NONE,
+	                                  title,
+	                                  NULL
+	                                  );
+
+		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+		    _("_Cancel"), GTK_RESPONSE_CANCEL,
+			actionverb, GTK_RESPONSE_OK,
+			NULL);
+
+
+	if(secondtext)
+	{
+		g_object_set(GTK_MESSAGE_DIALOG (dialog), "secondary-text", secondtext, NULL);
+		//gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), secondtext);
+	}
+		
+	gtk_dialog_set_default_response(GTK_DIALOG (dialog), GTK_RESPONSE_CANCEL);
+	
+	retval = gtk_dialog_run (GTK_DIALOG (dialog));
+
+	gtk_widget_destroy (dialog);
+
+	return retval;
+}
+
+
+
+
 /* Message dialog */
+
+
+
 
 gint ui_dialog_msg_question(GtkWindow *parent, gchar *title, gchar *message_format, ...)
 {
@@ -59,8 +102,8 @@ gint retval;
 	                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 	                                  GTK_MESSAGE_QUESTION,
 	                                  GTK_BUTTONS_YES_NO,
-	                                  "%s",
-	                                  title
+	                                  title,
+	                                  NULL
 	                                  );
 
   if (message_format)
@@ -96,7 +139,7 @@ va_list args;
 	dialog = gtk_message_dialog_new (GTK_WINDOW(parent),
 	                                  GTK_DIALOG_DESTROY_WITH_PARENT,
 	                                  type,
-	                                  GTK_BUTTONS_CLOSE,
+	                                  GTK_BUTTONS_OK,
 	                                  "%s",
 	                                  title
 	                                  );
@@ -120,6 +163,109 @@ va_list args;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
+void ui_dialog_file_statistics(void)
+{
+GtkWidget *dialog, *content_area, *content_grid, *group_grid;
+GtkWidget *label, *widget;
+gchar *tmpstr;
+gint crow, row, count;
+
+	dialog = gtk_dialog_new_with_buttons (_("File statistics"),
+		GTK_WINDOW (GLOBALS->mainwindow),
+		0,
+		_("_Close"),
+		GTK_RESPONSE_ACCEPT,
+		NULL);
+
+	gtk_window_set_default_size (GTK_WINDOW(dialog), HB_MINWIDTH_LIST, -1);
+	
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	gtk_box_pack_start (GTK_BOX (content_area), content_grid, TRUE, TRUE, 0);
+
+	crow = 0;
+	// group :: file title
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+
+	label = make_label_group(NULL);
+	tmpstr = g_path_get_basename(GLOBALS->xhb_filepath);
+	gtk_label_set_text(GTK_LABEL(label), tmpstr);
+	g_free(tmpstr);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+
+	row = 1;
+	label = make_label(_("Account"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_label(NULL, 1.0, 0.5);
+	count = da_acc_length ();
+	ui_label_set_integer(GTK_LABEL(widget), count);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label(_("Transaction"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_label(NULL, 1.0, 0.5);
+	count = g_list_length(GLOBALS->ope_list);
+	ui_label_set_integer(GTK_LABEL(widget), count);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label(_("Payee"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_label(NULL, 1.0, 0.5);
+	count = da_pay_length ();
+	ui_label_set_integer(GTK_LABEL(widget), count);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label(_("Category"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_label(NULL, 1.0, 0.5);
+	count = da_cat_length ();
+	ui_label_set_integer(GTK_LABEL(widget), count);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label(_("Assignment"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_label(NULL, 1.0, 0.5);
+	count = da_asg_length ();
+	ui_label_set_integer(GTK_LABEL(widget), count);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	gtk_widget_show_all(content_grid);
+
+	//wait for the user
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
+
+	if(result == GTK_RESPONSE_ACCEPT)
+	{
+
+	}
+
+	// cleanup and destroy
+	gtk_widget_destroy (dialog);
+
+}
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+
+
+
 static void ui_file_chooser_add_filter(GtkFileChooser *chooser, gchar *name, gchar *pattern)
 {
 	GtkFileFilter *filter = gtk_file_filter_new ();
@@ -140,8 +286,8 @@ gboolean retval;
 					_("Export as QIF"),
 					GTK_WINDOW(parent),
 					GTK_FILE_CHOOSER_ACTION_SAVE,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+					_("_Cancel"), GTK_RESPONSE_CANCEL,
+					_("_Save"), GTK_RESPONSE_ACCEPT,
 					NULL);
 
 	//todo: change this ?
@@ -182,20 +328,20 @@ gchar *path;
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
 		title = _("Import from CSV");
-		button = GTK_STOCK_OPEN;
+		button = _("_Open");
 		path = PREFS->path_import;
 	}
 	else
 	{
 		title = _("Export as CSV");
-		button = GTK_STOCK_SAVE;
+		button = _("_Save");
 		path = PREFS->path_export;
 	}
 
 	chooser = gtk_file_chooser_dialog_new (title,
 					GTK_WINDOW(parent),
 					action,	//GTK_FILE_CHOOSER_ACTION_OPEN,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					_("_Cancel"), GTK_RESPONSE_CANCEL,
 					button, GTK_RESPONSE_ACCEPT,
 					NULL);
 
@@ -244,18 +390,18 @@ gboolean retval;
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
 		title = _("Open homebank file");
-		button = GTK_STOCK_OPEN;
+		button = _("_Open");
 	}
 	else
 	{
 		title = _("Save homebank file as");
-		button = GTK_STOCK_SAVE;
+		button = _("_Save");
 	}
 
 	chooser = gtk_file_chooser_dialog_new (title,
 					GTK_WINDOW(GLOBALS->mainwindow),
 					action,	//GTK_FILE_CHOOSER_ACTION_OPEN,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					_("_Cancel"), GTK_RESPONSE_CANCEL,
 					button, GTK_RESPONSE_ACCEPT,
 					NULL);
 
@@ -306,8 +452,8 @@ gboolean retval;
 	chooser = gtk_file_chooser_dialog_new (title,
 					parent,
 					GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-					GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+					_("_Cancel"), GTK_RESPONSE_CANCEL,
+					_("_Open"), GTK_RESPONSE_ACCEPT,
 					NULL);
 
 	DB( g_print(" - set folder %s\n", *storage_ptr) );
@@ -361,18 +507,18 @@ GtkWidget *dialog = NULL;
 			GTK_MESSAGE_WARNING,
 			//GTK_MESSAGE_INFO,
 			GTK_BUTTONS_NONE,
-			_("Do you want to save the changes\nin the current file ?")
+			_("Save changes to the file before closing?")
 		);
 
 		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-			_("If you do not save, some changes will be\ndefinitively lost: %d."),
+			_("If you don't save, changes will be permanently lost.\nNumber of changes: %d."),
 			GLOBALS->changes_count
 			);
 
 		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
-		    _("Do _not save"), 0,
-		    GTK_STOCK_CANCEL, 1,
-			GTK_STOCK_SAVE, 2,
+		    _("Close _without saving"), 0,
+		    _("_Cancel"), 1,
+			_("_Save"), 2,
 			NULL);
 
 		gtk_dialog_set_default_response(GTK_DIALOG( dialog ), 2);
@@ -456,9 +602,9 @@ Transaction *retval = NULL;
 						    //GTK_WINDOW (parentwindow),
 			    			NULL,
 						    0,
-			    GTK_STOCK_CANCEL,
+			    _("_Cancel"),
 						    GTK_RESPONSE_REJECT,
-						    GTK_STOCK_OK,
+						    _("_OK"),
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
@@ -466,12 +612,12 @@ Transaction *retval = NULL;
 	data.window = window;
 
 		//gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
-	gtk_window_set_default_size (GTK_WINDOW (window), 400, -1);
+	gtk_window_set_default_size (GTK_WINDOW (window), 800, 494);
 
 	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-		mainvbox = gtk_vbox_new (FALSE, 0);
+		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), HB_BOX_SPACING);
+		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), SPACING_SMALL);
 
 		gtk_window_set_title (GTK_WINDOW (window), _("Select among possible transactions..."));
 
@@ -482,11 +628,11 @@ Transaction *retval = NULL;
 	gimp_label_set_attributes (GTK_LABEL (label),
                              PANGO_ATTR_SCALE,  PANGO_SCALE_SMALL,
                              -1);
-	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, HB_BOX_SPACING);
+	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, SPACING_SMALL);
 
 
-	vbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (mainvbox), vbox, FALSE, TRUE, HB_BOX_SPACING);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
+	gtk_box_pack_start (GTK_BOX (mainvbox), vbox, FALSE, TRUE, SPACING_SMALL);
 
 	label = make_label(_("Select an action:"), 0.0, 0.5);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
@@ -503,7 +649,7 @@ Transaction *retval = NULL;
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-	data.treeview = create_list_transaction(TRN_LIST_TYPE_BOOK, PREFS->lst_ope_columns);
+	data.treeview = create_list_transaction(LIST_TXN_TYPE_BOOK, PREFS->lst_ope_columns);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), GTK_SELECTION_SINGLE);
 	gtk_container_add (GTK_CONTAINER (sw), data.treeview);
 	gtk_box_pack_start (GTK_BOX (mainvbox), sw, TRUE, TRUE, 0);

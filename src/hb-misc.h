@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -21,16 +21,18 @@
 #define __HB_MISC__H__
 
 double arrondi(const double x, unsigned n);
+gdouble amount_to_euro(gdouble amount);
 
-gdouble to_base_amount(gdouble value, guint32 kcur);
-
-gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur);
+gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur, gboolean showsymbol);
+gint mystrfnum(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 gint mystrfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
+gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 
+//gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur);
+//gdouble to_base_amount(gdouble value, guint32 kcur);
 //void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur);
 //void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur);
 //gint hb_strfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
-gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 
 gchar *hb_filename_new_with_extention(gchar *filename, const gchar *extension);
 
@@ -47,6 +49,7 @@ void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey);
 gint hb_string_utf8_compare(gchar *s1, gchar *s2);
 
 void hb_string_strip_crlf(gchar *str);
+void hb_string_replace_space(gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
 gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);

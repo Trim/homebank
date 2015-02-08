@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal ruleing for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -426,7 +426,6 @@ GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 gboolean selected, sensitive;
 guint32 key;
-//todo: for stock assign
 //gboolean is_new;
 
 	DB( g_print("\n(ui_asg_manage_update)\n") );
@@ -443,16 +442,8 @@ guint32 key;
 
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
-	gtk_widget_set_sensitive(data->CY_field, sensitive);
-	gtk_widget_set_sensitive(data->ST_text, sensitive);
-	gtk_widget_set_sensitive(data->CM_exact, sensitive);
-
-	gtk_widget_set_sensitive(data->CM_pay, sensitive);
-	gtk_widget_set_sensitive(data->CM_cat, sensitive);
-
-	gtk_widget_set_sensitive(data->PO_pay, sensitive);
-	gtk_widget_set_sensitive(data->PO_cat, sensitive);
-
+	gtk_widget_set_sensitive(data->GR_condition, sensitive);
+	gtk_widget_set_sensitive(data->GR_assignment, sensitive);
 
 	//sensitive = (data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->LV_rul, sensitive);
@@ -500,22 +491,39 @@ Assign *item;
 }
 
 /*
-** remove the selected assign to our treeview and temp GList
+** delete the selected assign to our treeview and temp GList
 */
-static void ui_asg_manage_remove(GtkWidget *widget, gpointer user_data)
+static void ui_asg_manage_delete(GtkWidget *widget, gpointer user_data)
 {
 struct ui_asg_manage_data *data;
 guint32 key;
-gboolean do_remove;
+gint result;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	DB( g_print("\n(ui_asg_manage_remove) (data=%x)\n", (guint)data) );
 
-	do_remove = TRUE;
 	key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
 	if( key > 0 )
 	{
-		if( do_remove )
+	Assign *item = da_asg_get(key);
+	gchar *title = NULL;
+	gchar *secondtext;
+
+		title = g_strdup_printf (
+			_("Are you sure you want to permanently delete '%s'?"), item->name);
+
+		secondtext = _("If you delete an assignment, it will be permanently lost.");
+		
+		result = ui_dialog_msg_confirm_alert(
+				GTK_WINDOW(data->window),
+				title,
+				secondtext,
+				_("_Delete")
+			);
+
+		g_free(title);
+		
+		if( result == GTK_RESPONSE_OK )
 		{
 			da_asg_remove(key);
 			ui_asg_listview_remove_selected(GTK_TREE_VIEW(data->LV_rul));
@@ -644,47 +652,49 @@ GtkWidget *ui_asg_manage_dialog (void)
 {
 struct ui_asg_manage_data data;
 GtkWidget *window, *content, *mainbox;
+GtkWidget *content_grid, *group_grid;
 GtkWidget *table, *label, *entry1;
 GtkWidget *scrollwin;
-GtkWidget *hpaned;
-GtkWidget *alignment, *widget;
-gint row;
+GtkWidget *widget, *hpaned;
+gint w, h, row;
 
 	window = gtk_dialog_new_with_buttons (_("Manage Assignments"),
 				GTK_WINDOW(GLOBALS->mainwindow),
 				0,
-			    GTK_STOCK_CLOSE,
+			    _("_Close"),
 			    GTK_RESPONSE_ACCEPT,
 				NULL);
 
 	data.window = window;
 
 	//set the window icon
-	//homebank_window_set_icon_from_file(GTK_WINDOW (window), "assign.svg");
-	gtk_window_set_icon_name(GTK_WINDOW (window), HB_STOCK_ASSIGN);
+	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_ASSIGN);
 
 	//set a nice dialog size
-	//gint w, h;
-	//gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
-	//gtk_window_set_default_size (GTK_WINDOW(window), w/PHI, h/PHI);
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(window), -1, h/PHI);
 	
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
 	DB( g_print("(ui_asg_manage_) window=%x, inst_data=%x\n", (guint)window, (guint)&data) );
 
 	//window contents
-	content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-	mainbox = gtk_hbox_new (FALSE, HB_BOX_SPACING);
-	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER(mainbox), HB_MAINBOX_SPACING);
+	content = gtk_dialog_get_content_area(GTK_DIALOG (window));	 	// return a vbox
 
-	hpaned = gtk_hpaned_new();
+
+	mainbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_box_pack_start (GTK_BOX (content), mainbox, TRUE, TRUE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER(mainbox), SPACING_MEDIUM);
+
+	hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start (GTK_BOX (mainbox), hpaned, TRUE, TRUE, 0);
 
 	/* left area */
-	table = gtk_table_new (2, 2, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	table = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
+	//gtk_box_pack_start (GTK_BOX (mainbox), table, FALSE, FALSE, 0);
+	gtk_widget_set_margin_right(table, SPACING_SMALL);
 	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
 
 	row = 0;
@@ -694,86 +704,97 @@ gint row;
 	data.LV_rul = ui_asg_listview_new(FALSE);
 	gtk_widget_set_size_request(data.LV_rul, HB_MINWIDTH_LIST, -1);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_rul);
-	gtk_table_attach_defaults (GTK_TABLE (table), scrollwin, 0, 2, row, row+1);
+	gtk_widget_set_vexpand (scrollwin, TRUE);
+	gtk_widget_set_hexpand (scrollwin, TRUE);
+	gtk_grid_attach (GTK_GRID(table), scrollwin, 0, 0, 2, 1);
 
-	// tools buttons
 	row++;
-	widget = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	widget = gtk_button_new_with_mnemonic(_("_Add"));
 	data.BT_add = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 0, 1, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
-	widget = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	gtk_grid_attach (GTK_GRID(table), widget, 0, 1, 1, 1);
+
+	widget = gtk_button_new_with_mnemonic(_("_Delete"));
 	data.BT_rem = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL|GTK_EXPAND), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID(table), widget, 1, 1, 1, 1);
 
 	
 	/* right area */
-	table = gtk_table_new (12, 4, FALSE);
-	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
-	gtk_table_set_row_spacings (GTK_TABLE (table), HB_TABROW_SPACING);
-	gtk_table_set_col_spacings (GTK_TABLE (table), HB_TABCOL_SPACING);
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	//gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	gtk_widget_set_margin_left(content_grid, SPACING_SMALL);
+	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	//gtk_box_pack_start (GTK_BOX (mainbox), alignment, TRUE, TRUE, 0);
-	gtk_paned_pack2 (GTK_PANED(hpaned), alignment, FALSE, FALSE);
+	// group :: Condition
+    group_grid = gtk_grid_new ();
+	data.GR_condition = group_grid; 
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 0, 1, 1);
 	
 	row = 0;
-	label = make_label(_("Condition"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 4, row, row+1);
-
+	label = make_label_group(_("Condition"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+	
 	row++;
 	label = make_label(_("_Field:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-	widget = make_radio(label, CYA_ASG_FIELD, GTK_ORIENTATION_VERTICAL);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_radio(CYA_ASG_FIELD, FALSE, GTK_ORIENTATION_HORIZONTAL);
 	data.CY_field = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
 	label = make_label(_("Con_tains:"), 0.0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	entry1 = make_string(label);
 	data.ST_text = entry1;
-	gtk_table_attach (GTK_TABLE (table), entry1, 2, 4, row, row+1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand(entry1, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), entry1, 2, row, 2, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Case _sensitive"));
 	data.CM_exact = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 1, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 3, 1);
 
+	// group :: Assignments
+    group_grid = gtk_grid_new ();
+	data.GR_assignment = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
 	
-	//other
-	row++;
-	label = make_label(NULL, 0.0, 0.5);
-	gtk_label_set_markup (GTK_LABEL(label), _("Assignments"));
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_table_attach_defaults (GTK_TABLE (table), label, 0, 4, row, row+1);
+	row = 0;
+	label = make_label_group(_("Assignments"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 4, 1);
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Category:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_cat = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_halign (widget, GTK_ALIGN_CENTER);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
 	data.PO_cat = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 3, 4, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
 
 	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
-
 	
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Payee:"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_pay = widget;
-	gtk_table_attach (GTK_TABLE (table), widget, 2, 3, row, row+1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
+	gtk_widget_set_halign (widget, GTK_ALIGN_CENTER);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 	widget = ui_pay_comboboxentry_new(label);
 	data.PO_pay = widget;
-	gtk_table_attach_defaults (GTK_TABLE (table), widget, 3, 4, row, row+1);
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
 
 	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
 
@@ -790,7 +811,7 @@ gint row;
 	g_signal_connect (G_OBJECT (data.CM_pay), "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
 
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_asg_manage_add), NULL);
-	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_asg_manage_remove), NULL);
+	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_asg_manage_delete), NULL);
 
 	//setup, init and show window
 	ui_asg_manage_setup(&data);

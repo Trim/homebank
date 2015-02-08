@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -34,39 +34,36 @@ extern struct Preferences *PREFS;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-static gdouble fint(gdouble amount)
-{
-gdouble fi;
+static const double fac[7] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
 
-	modf(amount, &fi);
-	return(fi);
+double arrondi(const double x, unsigned int digits)
+{
+    return round(x*fac[digits])/fac[digits];
 }
 
-static unsigned dix_puissance_n(unsigned n)
+
+// used to convert from national to euro currency
+//round option is to 0.5 case so 1.32 is 1.3, but 1.35 is 1.4
+gdouble amount_to_euro(gdouble amount)
 {
-    unsigned i, retval = 1;
-
-    for(i = 0; i < n; i++)
-        retval *= 10;
-
-    return retval;
+	return arrondi((amount / PREFS->euro_value), 2);
 }
 
-double arrondi(const double x, unsigned n)
+
+static gdouble _amount_to_minor(gdouble amount)
 {
-    unsigned N = dix_puissance_n(n);
-    return floor((x * N) + 0.5) / N;
+	return arrondi((amount * PREFS->euro_value), 2);
+	//return arrondi((amount * PREFS->euro_value), PREFS.minor_cur->frac_digits);
 }
 
-// new for v4.5
 
-/*
+/* new currency fct
+*
  *	convert an amount in base currency
  *
  */
-gdouble to_base_amount(gdouble value, guint32 kcur)
+/*gdouble to_base_amount(gdouble value, guint32 kcur)
 {
-/*
 gdouble newvalue;
 Currency *cur;
 
@@ -78,16 +75,15 @@ Currency *cur;
 		return 0;
 	newvalue = value * cur->rate;
 	return newvalue;
-*/
+
 	return value;
 }
 
 
-/* new currency fct
 static gint real_mystrfmoncurr(gchar *outstr, gint outlen, gchar *buf1, Currency *cur)
 {
 gint size = 0;
-gchar groupbuf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar groupbuf[outlen];
 gchar **str_array;
 guint i, length;
 gchar *monstr;
@@ -163,7 +159,7 @@ Currency *cur = da_cur_get(kcur);
 
 void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur)
 {
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar formatd_buf[outlen];
 Currency *cur;
 gdouble monval;
 
@@ -179,7 +175,7 @@ gdouble monval;
 
 void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur)
 {
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar formatd_buf[outlen];
 Currency *cur;
 gdouble monval;
 
@@ -192,11 +188,11 @@ gdouble monval;
 	}
 }
 
-//todo: remove this
+//todo: delete this
 // test for currecny choose dialog
 void mystrfmoncurrcurr(gchar *outstr, gint outlen, gdouble value, Currency *cur)
 {
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar formatd_buf[outlen];
 gdouble monval;
 
 	monval = arrondi(value, cur->frac_digits);
@@ -205,14 +201,12 @@ gdouble monval;
 }
 */
 
-
-	
-
-/* obsolete before currencies */
-gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur)
+/* obsolete previous 5.0
+ * 
+ * gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur)
 {
 gint size = 0;
-gchar groupbuf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar groupbuf[outlen];
 gchar **str_array;
 guint i, length;
 gchar *monstr;
@@ -244,10 +238,7 @@ gchar *monstr;
 		{
 			if( i!=0 && (length % 3) == 0 )
 			{
-			gchar *gc = cur->grouping_char;
-			
-				while( *gc )
-					*d++ = *gc++;
+				d = g_stpcpy(d, cur->grouping_char);
 			}
 		
 			*d++ = *s;
@@ -274,60 +265,157 @@ gchar *monstr;
 	
 	return size;
 }
+*/
+
+
+
+/* this function copy a number 99999.99 at s into d and count
+ * number of digits for integer part and decimal part
+ */
+static gchar * _strfnumcopycount(gchar *s, gchar *d, gchar *decchar, gint *plen, gint *pnbint, gint *pnbdec)
+{
+gint len=0, nbint=0, nbdec=0;
+
+	// sign part
+	if(*s == '-') {
+		*d++ = *s++;
+		len++;
+	}
+	// integer part
+	while(*s != 0 && *s != '.') {
+		*d++ = *s++;
+		nbint++;
+		len++;
+	}
+	// decimal separator
+	if(*s == '.') {
+		d = g_stpcpy(d, decchar);
+		len++;
+		s++;
+	}
+	// decimal part
+	while(*s != 0) {
+		*d++ = *s++;
+		nbdec++;
+		len++;
+	}
+	// end string | fill external count
+	*d = 0;
+	*plen = len;
+	*pnbint = nbint;
+	*pnbdec = nbdec;
+
+	return d;
+}
+
+
+gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur, gboolean showsymbol)
+{
+gint len, nbd, nbi;
+gchar *s, *d, *tmp;
+
+	d = tmp = outstr;
+	if(showsymbol && cur->is_prefix)
+	{
+		d = g_stpcpy (d, cur->symbol);
+		*d++ = ' ';
+		tmp = d;
+	}
+	
+	d = _strfnumcopycount(buf1, d, cur->decimal_char, &len, &nbi, &nbd);
+
+	if( cur->grouping_char != NULL && strlen(cur->grouping_char) > 0 )
+	{
+	gint i, grpcnt;
+
+		s = buf1;
+		d = tmp;
+		if(*s == '-')
+			*d++ = *s++;
+
+		grpcnt = 4 - nbi;
+		for(i=0;i<nbi;i++)
+		{
+			*d++ = *s++;
+			if( !(grpcnt % 3) && i<(nbi-1))
+			{
+				d = g_stpcpy(d, cur->grouping_char);
+			}
+			grpcnt++;
+		}
+
+		if(nbd > 0)
+		{
+			d = g_stpcpy(d, cur->decimal_char);
+			d = g_stpcpy(d, s+1);
+		}
+		*d = 0;
+	}
+
+	if(showsymbol && !cur->is_prefix)
+	{
+		*d++ = ' ';
+		d = g_stpcpy (d, cur->symbol);
+	}
+
+	*d = 0;
+	
+	return d;
+}
+
+
+static gchar * _strformatd(gchar *outstr, gint outlen, gdouble value, gboolean minor, gboolean symbol)
+{
+struct CurrencyFmt *cur;
+gchar formatd_buf[outlen];
+gdouble monval;
+
+	cur = minor ? &PREFS->minor_cur : &PREFS->base_cur;
+
+	if(minor == TRUE)
+		monval = _amount_to_minor(value);
+	else
+		monval = arrondi(value, cur->frac_digits);
+	
+	// cur->format hold '%.xf', so formatd_buf will hold 999999.99
+	g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
+	
+	hb_str_formatd(outstr, outlen, formatd_buf, cur, symbol);
+
+	return outstr;
+}
+
+
+gint mystrfnum(gchar *outstr, gint outlen, gdouble value, gboolean minor)
+{
+	_strformatd(outstr, outlen, value, minor, FALSE);
+	return 0;
+}
 
 
 gint mystrfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor)
 {
-struct CurrencyFmt *cur;
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
-gdouble monval;
-gint size;
-
-	cur = minor ? &PREFS->minor_cur : &PREFS->base_cur;
-
-	monval = arrondi(value, cur->frac_digits);
-
-	if(minor == TRUE)
-	{
-		monval = (value * PREFS->euro_value);
-		monval += (monval > 0.0) ? 0.005 : -0.005;
-		monval = (fint(monval * 100) / 100);
-	}
-
-	//DB( g_print("fmt = %s\n", cur->format) );
-
-	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), cur->format, monval);
-
-	size = real_mystrfmon(outstr, outlen, formatd_buf, cur);
-
-	return size;
+	_strformatd(outstr, outlen, value, minor, TRUE);
+	return 0;
 }
-
-
-
 
 
 gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor)
 {
 struct CurrencyFmt *cur;
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar formatd_buf[outlen];
 gdouble monval = value;
-gint size;
 
 	cur = minor ? &PREFS->minor_cur : &PREFS->base_cur;
 
 	if(minor == TRUE)
-	{
-		monval = (value * PREFS->euro_value);
-		monval += (monval > 0.0) ? 0.005 : -0.005;
-		monval = (fint(monval * 100) / 100);
-	}
+		monval = _amount_to_minor(value);
 
-	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), "%0.f", monval);
+	g_ascii_formatd(formatd_buf, outlen, "%0.f", monval);
 
-	size = real_mystrfmon(outstr, outlen, formatd_buf, cur);
+	hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
 
-	return size;
+	return 0;
 }
 
 
@@ -575,6 +663,27 @@ gchar *p = str;
 		}
 	}
 }
+
+
+void hb_string_replace_space(gchar *str)
+{
+gchar *s = str;
+gchar *d = str;
+
+	if(str)
+	{
+		while( *s )
+		{
+			if( *s != ' ')
+			{
+				*d++ = *s;
+			}
+			s++;
+		}
+		*d = 0;
+	}
+}
+
 
 gchar*
 hb_strdup_nobrackets (const gchar *str)

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -137,9 +137,9 @@ guint32 *new_key;
 /**
  * da_pay_remove:
  *
- * remove an payee from the GHashTable
+ * delete an payee from the GHashTable
  *
- * Return value: TRUE if the key was found and removed
+ * Return value: TRUE if the key was found and deleted
  *
  */
 gboolean

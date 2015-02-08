@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -68,7 +68,7 @@ struct ui_repdist_data
 	GtkWidget	*CM_minor;
 	GtkWidget	*CY_by;
 	GtkWidget	*CY_view;
-	GtkWidget	*RG_zoomx;
+	GtkWidget	*RG_zoomx, *LB_zoomx;
 	GtkWidget	*LV_report;
 	GtkWidget	*CM_byamount;
 

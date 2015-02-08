@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -30,6 +30,8 @@ enum {
 
 struct ui_arc_manage_data
 {
+	GtkWidget	*window;
+
 	GList	*tmp_list;
 	gint	change;
 	//guint32	lastkey;
@@ -38,26 +40,30 @@ struct ui_arc_manage_data
 
 	GtkWidget	*LV_arc;
 
+	GtkWidget   *GR_txnleft;
 	GtkWidget	*PO_pay;
 	GtkWidget	*ST_word;
 	GtkWidget	*ST_amount, *BT_amount;	//, *BT_split;
-	GtkWidget	*CM_valid;
-	GtkWidget	*CM_remind;
 	GtkWidget	*GR_cheque;
 	GtkWidget	*CM_cheque;
+	GtkWidget   *CY_status;
 
+	GtkWidget   *GR_txnright;
 	GtkWidget	*NU_mode;
 	GtkWidget	*PO_grp;
 	GtkWidget	*PO_acc;
 	GtkWidget	*LB_accto, *PO_accto;
 
+	GtkWidget   *LB_schedinsert;
 	GtkWidget	*CM_auto;
-	GtkWidget	*NB_every;
+	GtkWidget	*LB_next, *PO_next;
+	GtkWidget	*LB_every, *NB_every;
+	GtkWidget   *LB_weekend, *CY_weekend;
 	GtkWidget	*CY_unit;
-	GtkWidget	*PO_next;
 	GtkWidget	*CM_limit;
 	GtkWidget	*NB_limit;
-	GtkWidget   *CY_weekend;
+	GtkWidget	*LB_posts;
+	
 
 	GtkWidget	*BT_add, *BT_rem;
 

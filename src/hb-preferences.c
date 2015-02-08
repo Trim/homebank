@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -231,7 +231,7 @@ static void _homebank_pref_init_measurement_units(void)
 	else
 	{
 		PREFS->vehicle_unit_dist = "%d m.";
-		PREFS->vehicle_unit_100  = "100 miles";
+		PREFS->vehicle_unit_100  = "100 m.";
 	}
 
 	// unit is Liters
@@ -241,7 +241,7 @@ static void _homebank_pref_init_measurement_units(void)
 		if(!PREFS->vehicle_unit_ismile)
 			PREFS->vehicle_unit_distbyvol  = "km/L";
 		else
-			PREFS->vehicle_unit_distbyvol  = "miles/gal";
+			PREFS->vehicle_unit_distbyvol  = "m./L";
 	}
 	// unit is gallon
 	else
@@ -250,7 +250,7 @@ static void _homebank_pref_init_measurement_units(void)
 		if(!PREFS->vehicle_unit_ismile)
 			PREFS->vehicle_unit_distbyvol  = "km/gal";
 		else
-			PREFS->vehicle_unit_distbyvol  = "miles/gal";
+			PREFS->vehicle_unit_distbyvol  = "m./gal";
 	}
 
 }
@@ -309,6 +309,7 @@ gint i;
 
 	PREFS->heritdate = FALSE;
 	PREFS->hidereconciled = FALSE;
+	PREFS->showremind = TRUE;
 
 	PREFS->toolbar_style = 4;	//text beside icons
 	PREFS->custom_colors = TRUE;
@@ -359,6 +360,7 @@ gint i;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_PAYEE;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_CATEGORY;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_TAGS;
+	PREFS->lst_ope_columns[i++] = LST_DSPOPE_CLR;
 	PREFS->lst_ope_columns[i++] = -LST_DSPOPE_AMOUNT;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_EXPENSE;
 	PREFS->lst_ope_columns[i++] = LST_DSPOPE_INCOME;
@@ -368,6 +370,8 @@ gint i;
 	PREFS->lst_ope_sort_id    = LST_DSPOPE_DATE;
 	PREFS->lst_ope_sort_order = GTK_SORT_ASCENDING;
 
+	for( i=0;i<NUM_LST_DSPOPE;i++)
+		PREFS->lst_ope_col_size[i] = -1;
 
 	//PREFS->base_cur.nbdecimal = 2;
 	//PREFS->base_cur.separator = TRUE;
@@ -633,11 +637,12 @@ GError *error = NULL;
 
 				homebank_pref_get_boolean(keyfile, group, "HeritDate", &PREFS->heritdate);
 				homebank_pref_get_boolean(keyfile, group, "HideReconciled", &PREFS->hidereconciled);
+				homebank_pref_get_boolean(keyfile, group, "ShowRemind", &PREFS->showremind);
 
 				if( g_key_file_has_key(keyfile, group, "ColumnsOpe", NULL) )
 				{
 				gboolean *bsrc;
-				gint *src, i;
+				gint *src, i, j;
 				gsize length;
 
 					if(version <= 2)	//retrieve old 0.1 or 0.2 visibility boolean
@@ -673,7 +678,30 @@ GError *error = NULL;
 									DB( g_print(" - upgrade from v7\n") );
 									DB( g_print(" - copying column order from pref file\n") );
 									memcpy(PREFS->lst_ope_columns, src, length*sizeof(gint));
+									//append balance column
 									PREFS->lst_ope_columns[10] = LST_DSPOPE_BALANCE;
+								}
+							}
+
+							if(version < 500)
+							{
+								if( length == NUM_LST_DSPOPE-2 )	//1 less column before v4.5.1
+								{
+									DB( g_print(" - upgrade prior v5.0\n") );
+									DB( g_print(" - copying column order from pref file\n") );
+									gboolean added = FALSE;
+									for(i=0,j=0; i<NUM_LST_DSPOPE-1 ; i++)
+									{
+										if( added == FALSE &&
+										    (ABS(src[i]) == LST_DSPOPE_AMOUNT ||
+										    ABS(src[i]) == LST_DSPOPE_EXPENSE ||
+										    ABS(src[i]) == LST_DSPOPE_INCOME) )
+										{
+											PREFS->lst_ope_columns[j++] = LST_DSPOPE_CLR;
+											added = TRUE;
+										}
+										PREFS->lst_ope_columns[j++] = src[i];
+									}
 								}
 							}
 
@@ -684,6 +712,22 @@ GError *error = NULL;
 
 				}
 
+				if( g_key_file_has_key(keyfile, group, "ColumnsOpeWidth", NULL) )
+				{
+				gint *src;
+				gsize length;
+
+					src = g_key_file_get_integer_list(keyfile, group, "ColumnsOpeWidth", &length, &error);
+
+					DB( g_print(" - length %d (max=%d)\n", length, NUM_LST_DSPOPE) );
+
+					if( length == NUM_LST_DSPOPE-1 )
+					{
+						DB( g_print(" - copying column width from pref file\n") );
+						memcpy(PREFS->lst_ope_col_size, src, length*sizeof(gint));
+					}
+				}
+			
 				homebank_pref_get_integer(keyfile, group, "OpeSortId", &PREFS->lst_ope_sort_id);
 				homebank_pref_get_integer(keyfile, group, "OpeSortOrder", &PREFS->lst_ope_sort_order);
 
@@ -952,8 +996,10 @@ gsize length;
 
 		g_key_file_set_boolean (keyfile, group, "HeritDate", PREFS->heritdate);
 		g_key_file_set_boolean (keyfile, group, "HideReconciled", PREFS->hidereconciled);
+		g_key_file_set_boolean (keyfile, group, "ShowRemind", PREFS->showremind);
 
 		g_key_file_set_integer_list(keyfile, group, "ColumnsOpe", PREFS->lst_ope_columns, NUM_LST_DSPOPE-1);
+		g_key_file_set_integer_list(keyfile, group, "ColumnsOpeWidth", PREFS->lst_ope_col_size, NUM_LST_DSPOPE-1);
 		g_key_file_set_integer     (keyfile, group, "OpeSortId" , PREFS->lst_ope_sort_id);
 		g_key_file_set_integer     (keyfile, group, "OpeSortOrder" , PREFS->lst_ope_sort_order);
 

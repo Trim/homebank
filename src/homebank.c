@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2014 Maxime DOYEN
+ *  Copyright (C) 1995-2015 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -22,6 +22,8 @@
 #include "dsp_mainwindow.h"
 #include "hb-preferences.h"
 #include "language.h"
+
+
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -244,7 +246,7 @@ gchar **str_array;
 
 		if( g_file_test(newname, G_FILE_TEST_EXISTS) )
 		{
-			DB( g_print("- remove existing: %s\n", newname) );
+			DB( g_print("- delete existing: %s\n", newname) );
 			g_remove(newname);
 		}
 
@@ -435,139 +437,23 @@ gsize length;
 
 
 
-static void free_list_pixbuf(void)
-{
-guint i;
-
-	DB( g_print("\n[homebank] free_list_pixbuf\n") );
-
-	for(i=0;i<NUM_LST_PIXBUF;i++)
-	{
-		if(GLOBALS->lst_pixbuf[i] != NULL)
-		{
-			g_object_unref(GLOBALS->lst_pixbuf[i]);
-		}
-	}
-}
-
-static void load_list_pixbuf(void)
-{
-GdkPixbuf *pixbuf;
-guint i;
-GtkWidget *cellview;
-
-	DB( g_print("\n[homebank] load_list_pixbuf\n") );
-
-	cellview = gtk_cell_view_new ();
-
-	/* list added (account/transaction list) */
-	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_NEW, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_ADD] = pixbuf;
-
-	/* list scheduled (archive list) */
-	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_AUTO, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_AUTO] = pixbuf;
-
-	/* list edited (account/transaction list) */
-	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_EDIT, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_EDIT] = pixbuf;
-
-	/* list remind (transaction list) */
-	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_REMIND, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_REMIND] = pixbuf;
-
-	/* list reconciled (transaction list) */
-	pixbuf = gtk_widget_render_icon (cellview, HB_STOCK_OPE_VALID, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_VALID] = pixbuf;
-
-	/* list warning (import transaction list) */
-	pixbuf = gtk_widget_render_icon (cellview, GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_MENU, NULL);
-	//g_object_unref(pixbuf);
-	GLOBALS->lst_pixbuf[LST_PIXBUF_WARNING] = pixbuf;
-
-	GLOBALS->lst_pixbuf_maxwidth = 0;
-	for(i=0;i<NUM_LST_PIXBUF;i++)
-	{
-		if( GLOBALS->lst_pixbuf[i] != NULL )
-			GLOBALS->lst_pixbuf_maxwidth = MAX(GLOBALS->lst_pixbuf_maxwidth, gdk_pixbuf_get_width(GLOBALS->lst_pixbuf[i]) );
-
-	}
-
-	DB( g_print(" -> pixbuf list maxwidth: %d\n", GLOBALS->lst_pixbuf_maxwidth) );
-
-  gtk_widget_destroy (cellview);
-
-}
-
 
 static void
-homebank_register_stock_icons()
+homebank_icon_theme_setup()
 {
-	DB( g_print("\n[homebank] register_stock_icons\n") );
+	DB( g_print("\n[homebank] icon_theme_setup\n") );
 
-	GtkIconFactory *factory;
-	GtkIconSet *icon_set;
-	GtkIconSource *icon_source;
-	guint i;
+	GLOBALS->icontheme = gtk_icon_theme_get_default();
 
-	const char *icon_theme_items[] =
-	{
-		"hb-file-import",
-		"hb-file-export"
-		"pm-none",
-		"pm-ccard",
-		"pm-check",
-		"pm-cash" ,
-		"pm-transfer",
-		"pm-intransfer",
-		"pm-dcard",
-		"pm-standingorder",
-		"pm-epayment",
-		"pm-deposit",
-		"pm-fifee",
-		"pm-directdebit",
-		"flt-inactive",
-		"flt-include",
-		"flt-exclude",
-		HB_STOCK_OPE_VALID,
-		HB_STOCK_OPE_REMIND,
-		HB_STOCK_OPE_AUTO,
-		"prf-general",
-		"prf-interface",
-		"prf-columns",
-		"prf-display",
-		"prf-euro",
-		"prf-report",
-		"prf-import"
-	};
+	DB( g_print(" -> prepend theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
+	gtk_icon_theme_prepend_search_path (GLOBALS->icontheme, homebank_app_get_pixmaps_dir());
+	//DB( g_print(" -> append theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
+	//gtk_icon_theme_append_search_path (GLOBALS->icontheme, homebank_app_get_pixmaps_dir());
 
-	factory = gtk_icon_factory_new ();
-
-	for (i = 0; i < G_N_ELEMENTS (icon_theme_items); i++)
-	{
-		icon_source = gtk_icon_source_new ();
-		gtk_icon_source_set_icon_name (icon_source, icon_theme_items[i]);
-
-		icon_set = gtk_icon_set_new ();
-		gtk_icon_set_add_source (icon_set, icon_source);
-		gtk_icon_source_free (icon_source);
-
-		gtk_icon_factory_add (factory, icon_theme_items[i], icon_set);
-		gtk_icon_set_unref (icon_set);
-	}
-
-	//gtk_stock_add_static (icon_theme_items, G_N_ELEMENTS (icon_theme_items));
-
-	gtk_icon_factory_add_default (factory);
-	g_object_unref (factory);
-
+	
 	#if MYDEBUG == 1
 	GtkIconTheme *ic = gtk_icon_theme_get_default();
+	guint i;
 	gchar **paths;
 
 		DB( g_print(" -> get default icon theme\n") );
@@ -582,22 +468,9 @@ homebank_register_stock_icons()
 
 	#endif
 
-	
 
-	DB( g_print(" -> adding theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
-	gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (), homebank_app_get_pixmaps_dir());
 }
 
-/*
-void homebank_window_set_icon_from_file(GtkWindow *window, gchar *filename)
-{
-gchar *pathfilename;
-
-	pathfilename = g_build_filename(homebank_app_get_pixmaps_dir(), filename, NULL);
-	gtk_window_set_icon_from_file(GTK_WINDOW (window), pathfilename, NULL);
-	g_free(pathfilename);
-}
-*/
 
 const gchar *
 homebank_app_get_config_dir (void)
@@ -714,7 +587,7 @@ gboolean retval = FALSE;
 	{
 		if(g_file_set_contents(dstpath, buffer, length, NULL))
 		{
-			//g_print("sould remove %s\n", srcpath);
+			//g_print("sould delete %s\n", srcpath);
 			g_remove(srcpath);
 			retval = TRUE;
 		}
@@ -802,11 +675,6 @@ static void homebank_cleanup()
 	//v3.4 save windows size/position
 	homebank_pref_save();
 
-	free_list_pixbuf();
-	free_paymode_icons();
-	free_nainex_icons();
-	free_pref_icons();
-
 	hbfile_cleanup(TRUE);
 
 	/* free our global datas */
@@ -852,12 +720,7 @@ static gboolean homebank_setup()
 
 	hbfile_setup(TRUE);
 
-	homebank_register_stock_icons();
-
-	load_list_pixbuf();
-	load_paymode_icons();
-	load_nainex_icons();
-	load_pref_icons();
+	homebank_icon_theme_setup();
 
 	homebank_app_date_get_julian();
 
@@ -910,7 +773,7 @@ gchar *pathfilename;
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
 	gtk_container_add (GTK_CONTAINER (window), frame);
 
-	vbox = gtk_vbox_new (FALSE, 0);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
 	/*
@@ -1041,32 +904,14 @@ gboolean openlast;
 				gtk_main_iteration ();
 		}
 
-		/*
-		pathfilename = g_build_filename(homebank_app_get_pixmaps_dir(), "homebank.svg", NULL);
-		gtk_window_set_default_icon_from_file(pathfilename, NULL);
-		g_free(pathfilename);
-		*/
-
 		gtk_window_set_default_icon_name ("homebank");
 
 		DB( g_print(" -> creating window\n" ) );
-
 
 		mainwin = (GtkWidget *)create_hbfile_window (NULL);
 
 		if(mainwin)
 		{
-		struct WinGeometry *wg;
-
-			//setup, init and show window
-			wg = &PREFS->wal_wg;
-			if(wg->s == 0)
-			{
-				gtk_window_move(GTK_WINDOW(mainwin), wg->l, wg->t);
-				gtk_window_resize(GTK_WINDOW(mainwin), wg->w, wg->h);
-			}
-			else
-				gtk_window_maximize(GTK_WINDOW(mainwin));
 
 			//todo: pause on splash
 			if( PREFS->showsplash == TRUE )
@@ -1076,7 +921,6 @@ gboolean openlast;
 				gtk_widget_destroy(splash);
 			}
 
-		    gtk_widget_show_all (mainwin);
 
 #if HB_UNSTABLE == TRUE
 /*			GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW(mainwin),
