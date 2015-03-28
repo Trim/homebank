@@ -312,6 +312,25 @@ struct ui_reptime_data *data;
 }
 
 
+static void ui_reptime_update_quickdate(GtkWidget *widget, gpointer user_data)
+{
+struct ui_reptime_data *data;
+
+	DB( g_print("\n[reptime] update quickdate\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
+	
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
+	
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
+
+}
+
 
 static void ui_reptime_range_change(GtkWidget *widget, gpointer user_data)
 {
@@ -326,16 +345,9 @@ gint range;
 
 	if(range != FLT_RANGE_OTHER)
 	{
-		filter_preset_daterange_set(data->filter, range);
+		filter_preset_daterange_set(data->filter, range, data->accnum);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
-		
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
-		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);
+		ui_reptime_update_quickdate(widget, NULL);
 		
 		ui_reptime_compute(widget, NULL);
 		ui_reptime_update_daterange(widget, NULL);
@@ -710,11 +722,15 @@ guint32 selkey;
 	cumul = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cumul));
 	showall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_all));
 	selkey = 0;
+	
+	data->accnum = 0;
 
 	switch(tmpfor)
 	{
 		case FOR_REPTIME_ACCOUNT:
 			selkey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
+			if(showall == FALSE) 
+				data->accnum = selkey;
 			break;
 		case FOR_REPTIME_CATEGORY:
 			selkey = ui_cat_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_cat));
@@ -728,6 +744,9 @@ guint32 selkey;
 
 	/* do nothing if no transaction */
 	if(g_list_length(GLOBALS->ope_list) == 0) return;
+
+	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	ui_reptime_update_quickdate(widget, NULL);
 
 	//get our min max date
 	from = data->filter->mindate;
@@ -1196,7 +1215,7 @@ static void ui_reptime_setup(struct ui_reptime_data *data, guint32 accnum)
 	data->filter->option[FILTER_PAYMODE] = 1;
 	data->filter->paymode[PAYMODE_INTXFER] = FALSE;
 
-	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
+	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, data->accnum);
 	
 	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPTIME_MINDATE]);
 	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPTIME_MAXDATE]);

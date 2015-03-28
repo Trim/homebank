@@ -13,7 +13,9 @@ private_icons = \
 	hicolor_actions_16x16_hb-ope-auto.png \
 	hicolor_actions_16x16_hb-ope-budget.png \
 	hicolor_actions_16x16_hb-ope-edit.png \
+	hicolor_actions_16x16_hb-ope-cleared.png \
 	hicolor_actions_16x16_hb-ope-remind.png \
+	hicolor_actions_16x16_hb-ope-reconciled.png \
 	hicolor_actions_24x24_hb-account.png \
 	hicolor_actions_24x24_hb-archive.png \
 	hicolor_actions_24x24_hb-assign.png \

@@ -551,15 +551,19 @@ gboolean sensitive;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	/* disable category if split is set */
+	//# 1419476 empty category when no split either...
+	if( (data->ope->flags & (OF_SPLIT)) )
+	{
+		//# 1416624 empty category when split
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
+	}
+
+	/* disable amount+category if split is set */
 	sensitive = (data->ope->flags & (OF_SPLIT)) ? FALSE : TRUE;
 	gtk_widget_set_sensitive(data->ST_amount, sensitive);
-	//# 1416624 empty category when split
-	if( (data->ope->flags & (OF_SPLIT)) )
-		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
 	gtk_widget_set_sensitive(data->PO_grp, sensitive);
-
 }
+
 
 void deftransaction_set_amount_from_split(GtkWidget *widget, gdouble amount)
 {
@@ -840,7 +844,11 @@ guint kacc, kdst;
 end:
 	DB( g_print(" sensitive %d\n", sensitive) );
 
-	gtk_widget_set_sensitive(gtk_dialog_get_action_area(GTK_DIALOG (data->window)), sensitive);
+	//#1437551
+	//gtk_widget_set_sensitive(gtk_dialog_get_action_area(GTK_DIALOG (data->window)), sensitive);
+	gtk_dialog_set_response_sensitive(GTK_DIALOG (data->window), GTK_RESPONSE_ACCEPT, sensitive);
+	gtk_dialog_set_response_sensitive(GTK_DIALOG (data->window), GTK_RESPONSE_ADD, sensitive);
+	gtk_dialog_set_response_sensitive(GTK_DIALOG (data->window), GTK_RESPONSE_ADDKEEP, sensitive);
 
 }
 
@@ -971,18 +979,7 @@ gint n_arc;
 	{
 		arc = g_list_nth_data(GLOBALS->arc_list, n_arc-1);
 
-		//fill it
-		entry->amount	= arc->amount;
-		//#1258344 keep the current account if tpl is empty
-		if(arc->kacc)
-			entry->kacc	= arc->kacc;
-		entry->kxferacc	= arc->kxferacc;
-		entry->paymode	= arc->paymode;
-		entry->flags	= arc->flags;
-		entry->kpay	= arc->kpay;
-		entry->kcat	= arc->kcat;
-		entry->wording =	g_strdup(arc->wording);
-		entry->info = NULL;
+		da_transaction_init_from_template(entry, arc);
 
 		DB( g_print(" calls\n") );
 
@@ -1217,7 +1214,8 @@ gint crow;
 
 	data->window = dialog;
 	data->type = type;
-	
+
+	// if you add/remove response_id also change into deftransaction_update_transfer
 	if(type == TRANSACTION_EDIT_MODIFY)
 	{
 		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
@@ -1229,6 +1227,7 @@ gint crow;
 	{
 		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
 			_("_Close"), GTK_RESPONSE_REJECT,
+		    _("_Add & Keep"), GTK_RESPONSE_ADDKEEP,
 		    _("_Add"), GTK_RESPONSE_ADD,
 			NULL);
 	}
@@ -1271,6 +1270,7 @@ gint crow;
 
 		crow++;
 		expander = gtk_expander_new (_("Fill in with a template"));
+		gtk_expander_set_expanded (GTK_EXPANDER(expander), TRUE);
 		gtk_grid_attach (GTK_GRID (content_grid), expander, 0, crow, 2, 1);
 
 		hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_MEDIUM);

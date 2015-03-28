@@ -215,12 +215,12 @@ gint month;
 	date1 = g_date_new_julian(date);
 	month = g_date_get_month(date1);
 
-	#if MYDEBUG == 1
+	/*#if MYDEBUG == 1
+		g_print("\n[repbudget] getmonth\n");
 		gchar buffer1[128];
 		g_date_strftime (buffer1, 128-1, "%x", date1);
-		g_print("  date is '%s'\n", buffer1);
-		g_print(" month is '%d'\n", month);
-	#endif
+		g_print("  date is '%s', month=%d\n", buffer1, month);
+	#endif*/
 
 	g_date_free(date1);
 
@@ -235,7 +235,7 @@ gint nbmonth;
 	date1 = g_date_new_julian(mindate);
 	date2 = g_date_new_julian(maxdate);
 
-	nbmonth = 0;
+	nbmonth = 1;
 	while(g_date_compare(date1, date2) < 0)
 	{
 		nbmonth++;
@@ -304,7 +304,7 @@ gint range;
 
 	if(range != FLT_RANGE_OTHER)
 	{
-		filter_preset_daterange_set(data->filter, range);
+		filter_preset_daterange_set(data->filter, range, 0);
 
 		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
 		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
@@ -554,10 +554,9 @@ gchar *title;
 		data->total_spent = 0.0;
 		data->total_budget = 0.0;
 
-
 		/* compute budget for each category */
 		//fixed #328034: here <=n_result
-		for(i=0, id=0; i<=n_result; i++)
+		for(i=1; i<=n_result; i++)
 		{
 		Category *entry;
 		//gchar buffer[128];
@@ -567,18 +566,15 @@ gchar *title;
 			if( entry == NULL)
 				continue;
 
+			DB( g_print("+ catgory %d:'%s' custom=%d\n", entry->key, entry->name, (entry->flags & GF_CUSTOM)) );
+
 			//debug
 			#if MYDEBUG == 1
-
 			gint k;
-
-			g_print("--------\n");
-
-			g_print("+ %s", entry->name);
+			g_print(" budget vector\n");
 			for(k=0;k<13;k++)
-				g_print( "%d[%.2f] ", k, entry->budget[k]);
+				g_print( " %d:[%.2f]", k, entry->budget[k]);
 			g_print("\n");
-
 			#endif
 
 			pos = 0;
@@ -596,12 +592,10 @@ gchar *title;
 					break;
 			}
 
-			DB( g_print(" ** compute for %d '%s' custom=%d\n", entry->key, entry->name, (entry->flags & GF_CUSTOM)) );
-
 			// same value each month ?
 			if(!(entry->flags & GF_CUSTOM))
 			{
-				DB( g_print(" cat %s -> monthly %.2f\n", entry->name, entry->budget[0]) );
+				DB( g_print(" -> monthly %.2f\n", entry->budget[0]) );
 				tmp_budget[pos] += entry->budget[0]*nbmonth;
 				tmp_hasbudget[i] += entry->budget[0]*nbmonth;
 			}
@@ -611,9 +605,10 @@ gchar *title;
 			gint month = getmonth(mindate);
 			gint j;
 
+				DB( g_print(" -> custom each month for %d months\n", nbmonth) );
 				for(j=0;j<nbmonth;j++)
 				{
-					DB( g_print(" %d, cat %s -> custom : month=%d budg=%.2f\n", j, entry->name, month, entry->budget[month]) );
+					DB( g_print(" -> j=%d month=%d budg=%.2f\n", j, month, entry->budget[month]) );
 
 					tmp_budget[pos] += entry->budget[month];
 					tmp_hasbudget[i] += entry->budget[month];
@@ -624,21 +619,14 @@ gchar *title;
 
 			//debug
 			#if MYDEBUG == 1
-			if( tmp_budget[pos] )
-			{
-				g_print(" -> cat %d %s, budg[%d]=%.2f hasbudg[%d]=%.2f\n", 
+			g_print(" final budget: %d '%s' : budg[%d]=%.2f hasbudg[%d]=%.2f\n", 
 					entry->key, entry->name, pos, tmp_budget[pos], i, tmp_hasbudget[i]);
-			}
-
 			#endif
-
-
-
 		}
 
 
 		// compute spent for each transaction */
-		DB( g_print(" ** compute spent for each categories\n") );
+		DB( g_print("+ compute spent from transactions\n") );
 
 
 		list = g_list_first(GLOBALS->ope_list);
@@ -740,13 +728,12 @@ next1:
 
 
 		/* insert into the treeview */
-		for(i=0, id=0; i<=n_result; i++)
+		for(i=1, id=0; i<=n_result; i++)
 		{
 		gchar *name, *fullcatname;
 		Category *entry;
 
 			fullcatname = NULL;
-
 
 			entry = da_cat_get(i);
 			if( entry == NULL)
@@ -795,7 +782,7 @@ next1:
 
 				DB( g_print(" eval insert '%s' : %.2f %.2f %.2f\n", name, tmp_budget[pos], tmp_hasbudget[pos], tmp_spent[pos]) );
 
-				if(tmp_budget[pos] || entry->flags & GF_FORCED /*|| tmp_spent[pos]*/)
+				if((entry->flags & (GF_BUDGET|GF_FORCED)) || tmp_budget[pos] /*|| tmp_spent[pos]*/)
 				{
 				gdouble result, rawrate;
 				gchar *status;
@@ -961,7 +948,7 @@ static void repbudget_setup(struct repbudget_data *data)
 	data->filter->option[FILTER_PAYMODE] = 1;
 	data->filter->paymode[PAYMODE_INTXFER] = FALSE;
 
-	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
+	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, 0);
 	
 	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
 	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);

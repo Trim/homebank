@@ -67,9 +67,9 @@
 /* = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-#define HB_UNSTABLE			FALSE
-#define HB_VERSION			"5.0.0"
-#define FILE_VERSION		5.0
+#define HB_UNSTABLE			TRUE
+#define HB_VERSION			"5.0.1"
+#define FILE_VERSION		1.1
 #define PREF_VERSION		500
 
 #if HB_UNSTABLE == FALSE
@@ -111,7 +111,10 @@
 
 /* miscellaneous */
 #define PHI 1.61803399
-#define GTK_RESPONSE_ADD	 1
+	/* official GTK_RESPONSE are negative */
+#define GTK_RESPONSE_ADD		 1
+#define GTK_RESPONSE_ADDKEEP	 2
+
 #define HB_NUMBER_SAMPLE	20457.99
 
 
@@ -185,8 +188,6 @@ enum
 #define ICONNAME_HB_SHOW_RATE	    "hb-rate"	    // obsolete ?
 #define ICONNAME_HB_FILTER          "hb-filter"		 //"edit-filter"
 
-#define ICONNAME_HB_OPE_CLEARED     "hb-ope-cleared"
-#define ICONNAME_HB_OPE_RECONCILED  "hb-ope-reconciled"
 #define ICONNAME_HB_FILE_IMPORT		"hb-file-import"	//document-import
 #define ICONNAME_HB_FILE_EXPORT		"hb-file-export"	//document-export
 #define ICONNAME_HB_FILE_VALID		"hb-file-valid"
@@ -204,7 +205,9 @@ enum
 #define ICONNAME_HB_ASSIGN_RUN      "hb-assign-run"
 
 #define ICONNAME_HB_OPE_VALID       "hb-ope-valid"  // obsolete ?
-#define ICONNAME_HB_OPE_REMIND      "hb-ope-remind" // obsolete ?
+#define ICONNAME_HB_OPE_CLEARED     "hb-ope-cleared"
+#define ICONNAME_HB_OPE_RECONCILED  "hb-ope-reconciled"
+#define ICONNAME_HB_OPE_REMIND      "hb-ope-remind"
 
 
 /*
@@ -213,7 +216,7 @@ enum
 struct HomeBank
 {
 	// hbfile storage
-	GHashTable		*h_cur;			//currencies
+	//GHashTable		*h_cur;			//currencies
 	GHashTable		*h_acc;			//accounts
 	GHashTable		*h_pay;			//payees
 	GHashTable		*h_cat;			//categories
@@ -224,6 +227,8 @@ struct HomeBank
 
 	GList			*arc_list;		//archives
 	GList			*ope_list;		//transactions
+	//#1419304 we keep the deleted txn to a stack trash
+	GTrashStack		*txn_stk;
 
 	// hbfile (saved properties)
 	gchar			*owner;

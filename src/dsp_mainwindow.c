@@ -27,7 +27,7 @@
 #include "list_topspending.h"
 
 #include "dsp_account.h"
-//#include "ui-assist-import.h"
+#include "ui-assist-import.h"
 #include "imp_qif.h"
 #include "ui-assist-start.h"
 #include "ui-account.h"
@@ -39,7 +39,6 @@
 #include "ui-pref.h"
 #include "ui-hbfile.h"
 #include "ui-transaction.h"
-#include "ui-assist-import.h"
 
 #include "rep_balance.h"
 #include "rep_budget.h"
@@ -1061,7 +1060,7 @@ struct hbfile_data *data;
 GtkWidget *window;
 gint result = 1;
 guint32 date;
-gint account = 1, count;
+gint account, count;
 
 	DB( g_print("\n[ui-mainwindow] add transactions\n") );
 
@@ -1069,22 +1068,27 @@ gint account = 1, count;
 
 	/* init the transaction */
 	date = homebank_app_date_get_julian();
+	//todo: maybe think about set a default account here
+	account = 1;
 	if(data->acc != NULL)
 		account = data->acc->key;
 
 	window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD);
 	count = 0;
-	while(result == GTK_RESPONSE_ADD)
+	while(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP)
 	{
 	Transaction *ope;
 
 		/* fill in the transaction */
-		ope = da_transaction_malloc();
-		ope->date    = date;
-		ope->kacc = account;
+		if( result == GTK_RESPONSE_ADD )
+		{
+			ope = da_transaction_malloc();
+			ope->date    = date;
+			ope->kacc = account;
 
-		if( PREFS->heritdate == FALSE ) //fix: 318733
-			ope->date = GLOBALS->today;
+			if( PREFS->heritdate == FALSE ) //fix: 318733
+				ope->date = GLOBALS->today;
+		}
 
 		deftransaction_set_transaction(window, ope);
 
@@ -1092,7 +1096,7 @@ gint account = 1, count;
 
 		DB( g_print(" -> dialog result is %d\n", result) );
 
-		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
+		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
 		{
 			deftransaction_get(window, NULL);
 			transaction_add(ope, NULL, ope->kacc);
@@ -1102,12 +1106,15 @@ gint account = 1, count;
 			ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 			
 			count++;
-			//store last date
+			//todo: still usefull ? store last date
 			date = ope->date;
 		}
 
-		da_transaction_free(ope);
-		ope = NULL;
+		if( result == GTK_RESPONSE_ADD )
+		{
+			da_transaction_free(ope);
+			ope = NULL;
+		}
 
 	}
 
@@ -1162,7 +1169,7 @@ gdouble total, other;
 	if(range == FLT_RANGE_OTHER)
 		return;
 	
-	filter_preset_daterange_set(data->filter, range);
+	filter_preset_daterange_set(data->filter, range, 0);
 	
 	
 	n_result = da_cat_get_max_key() + 1;
@@ -2405,7 +2412,7 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 
 			if( filetype == FILETYPE_HOMEBANK)
 			{
-				hbfile_change_filepath(path);
+				hbfile_change_filepath(g_strdup(path));
 				ui_mainwindow_open_internal(GTK_WIDGET(window), NULL);
 			}
 			else

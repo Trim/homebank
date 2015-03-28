@@ -1436,21 +1436,29 @@ ImportContext *ictx = &data->ictx;
 	// if fail, try to load with different date format
 	if( ictx->cnt_err_date > 0)
 	{
+	const gchar *encoding = ictx->encoding;
 	gint i;
 
 		for(i=0;i<NUM_PRF_DATEFMT;i++)
 		{
 			if(i != PREFS->dtex_datefmt)	//don't reload with user pref date format
 			{
+				DB( g_print(" fail, reload with '%s'\n", CYA_IMPORT_DATEORDER[i]) );
 				_import_context_clear (&data->ictx);
+				ictx->encoding = encoding; //#1425986 keep encoding with us
 				ictx->datefmt = i;
 				_import_tryload_file(data);
+
+				DB( g_print(" -> reloaded: nbtrans=%d, date errors=%d\n", ictx->cnt_new_ope, ictx->cnt_err_date) );
+
 				if(ictx->cnt_err_date == 0)
 					break;
 			}
 		}
 	}
-	
+
+	DB( g_print(" end of try import\n") );
+
 	// sort by date
 	ictx->trans_list = da_transaction_sort(ictx->trans_list);
 

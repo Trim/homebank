@@ -1800,17 +1800,17 @@ gboolean retval = FALSE;
 		strval = chart_print_double(chart, chart->buffer1, item->serie1);
 		if( !chart->dual )
 		{
-
+			//#1420495 don't use g_markup_printf_escaped
 			if( chart->type == CHART_TYPE_PIE )
-				buffer = g_markup_printf_escaped("%s\n%s\n%.2f%%", item->label, strval, item->rate);
+				buffer = g_strdup_printf("%s\n%s\n%.2f%%", item->label, strval, item->rate);
 			else
-				buffer = g_markup_printf_escaped("%s\n%s", item->label, strval);
+				buffer = g_strdup_printf("%s\n%s", item->label, strval);
 
 		}
 		else
 		{
 			strval2 = chart_print_double(chart, chart->buffer2, item->serie2);
-			buffer = g_markup_printf_escaped("%s\n+%s\n%s", item->label, strval2, strval);
+			buffer = g_strdup_printf("%s\n+%s\n%s", item->label, strval2, strval);
 		}
 		
 		gtk_tooltip_set_text(tooltip, buffer);

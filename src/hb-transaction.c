@@ -246,8 +246,10 @@ guint count;
 Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
 {
 	//txn->date		= 0;
-	txn->amount		= arc->amount;
-	txn->kacc		= arc->kacc;
+	txn->amount	= arc->amount;
+	//#1258344 keep the current account if tpl is empty
+	if(arc->kacc)
+		txn->kacc	= arc->kacc;
 	txn->paymode	= arc->paymode;
 	txn->flags		= arc->flags | OF_ADDED;
 	txn->status		= arc->status;
@@ -445,8 +447,8 @@ guint i, nbsplit;
 			split->kcat = 0;
 		}
 	}
-	//# 1416624 empty category when split
-	if(nbsplit > 0)
+	//# 1416624 empty category when split + add control on kcat for v5.0.1
+	if(nbsplit > 0 && item->kcat > 0)
 	{
 		g_warning("txn consistency: fixed invalid cat on split txn");
 		item->kcat = 0;

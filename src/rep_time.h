@@ -100,6 +100,8 @@ struct ui_reptime_data
 	gint charttype;
 	gulong		handler_id[MAX_REPTIME_HID];
 
+	guint32		accnum;
+
 	Filter		*filter;
 };
 

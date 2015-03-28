@@ -96,7 +96,7 @@ gint range;
 
 	if(range != 11)
 	{
-		filter_preset_daterange_set(data->filter, range);
+		filter_preset_daterange_set(data->filter, range, 0);
 
 		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPVEHICLE_MINDATE]);
 		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPVEHICLE_MAXDATE]);
@@ -500,7 +500,7 @@ static void repvehicle_setup(struct repvehicle_data *data)
 	data->filter->option[FILTER_PAYMODE] = 1;
 	data->filter->paymode[PAYMODE_INTXFER] = FALSE;
 
-	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
+	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, 0);
 	
 	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPVEHICLE_MINDATE]);
 	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPVEHICLE_MAXDATE]);

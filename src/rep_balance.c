@@ -86,6 +86,7 @@ struct repbalance_data
 
 	Filter		*filter;
 
+	guint32		accnum;
 	gdouble		minimum;
 
 	gboolean	detail;
@@ -239,6 +240,27 @@ struct repbalance_data *data;
 }
 
 
+static void repbalance_update_quickdate(GtkWidget *widget, gpointer user_data)
+{
+struct repbalance_data *data;
+
+	DB( g_print("(repbalance) update quickdate\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
+	
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+
+}
+
+
+
 static void repbalance_range_change(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
@@ -252,16 +274,9 @@ gint range;
 
 	if(range != FLT_RANGE_OTHER)
 	{
-		filter_preset_daterange_set(data->filter, range);
+		filter_preset_daterange_set(data->filter, range, data->accnum);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
-		
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
-		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		repbalance_update_quickdate(widget, NULL);
 
 		repbalance_compute(widget, NULL);
 		repbalance_update_daterange(widget, NULL);
@@ -617,6 +632,7 @@ Account *acc;
 	data->nbope = 0;
 	data->nbbalance = 0;
 	data->minimum = 0;
+	data->accnum = 0;
 
 	// for a single account
 	if(!selectall)
@@ -625,15 +641,20 @@ Account *acc;
 		if(acc != NULL)
 		{
 			data->minimum = acc->minimum;
+			data->accnum = acc->key;
 			//ui_repbalance_list_set_cur(GTK_TREE_VIEW(data->LV_report), acc->kcur);
 			//gtk_chart_set_currency(GTK_CHART(data->RE_line), acc->kcur);
 		}
 	}
 	else
 	{
+	
 		//ui_repbalance_list_set_cur(GTK_TREE_VIEW(data->LV_report), GLOBALS->kcur);
 		//gtk_chart_set_currency(GTK_CHART(data->RE_line), GLOBALS->kcur);
 	}
+
+	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	repbalance_update_quickdate(widget, NULL);
 
 	repbalance_compute_full_datas(acckey, selectall, data);
 
@@ -749,7 +770,8 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
 
-	filter_preset_daterange_set(data->filter, PREFS->date_range_rep);
+	data->accnum = accnum;
+	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, data->accnum);
 	
 	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
 	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);

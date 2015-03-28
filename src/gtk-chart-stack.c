@@ -159,7 +159,7 @@ GtkWidget *widget, *hbox, *scrollwin;
 	
 	gtk_container_add( GTK_CONTAINER(scrollwin), chart->drawarea );
 	gtk_widget_set_size_request(chart->drawarea, 150, 150 );
-	gtk_widget_set_has_tooltip(chart->drawarea, TRUE);
+	gtk_widget_set_has_tooltip(chart->drawarea, FALSE);
 	gtk_widget_show(chart->drawarea);
 	
 	/* scrollbar */

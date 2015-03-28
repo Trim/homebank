@@ -52,7 +52,7 @@ gchar *list_txn_column_label[] = {
 	N_("Category"),
 	N_("Tags"    ),
 	N_("Balance" ),
-	"C",
+	N_("Status"),
 	NULL
 };
 
@@ -297,15 +297,22 @@ Transaction *ope;
 static void list_txn_payee_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
-Payee *pay;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
-	pay = da_pay_get(ope->kpay);
-	if(pay != NULL)
-		g_object_set(renderer, "text", pay->name, NULL);
+	//#926782
+	if(ope->paymode == PAYMODE_INTXFER)
+	{
+	Account *acc = da_acc_get(ope->kxferacc);
+		
+		g_object_set(renderer, "text", (acc != NULL) ? acc->name : "", NULL);
+	}
 	else
-		g_object_set(renderer, "text", "", NULL);
+	{
+	Payee *pay = da_pay_get(ope->kpay);
+		
+		g_object_set(renderer, "text", pay != NULL ? pay->name : "", NULL);
+	}
 }
 
 /*
@@ -349,17 +356,24 @@ Transaction *ope;
 static void list_txn_clr_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
-const gchar *c = "";
+gchar *iconname = NULL;
+//const gchar *c = "";
 	
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 	switch(ope->status)
 	{
-		case TXN_STATUS_CLEARED: c = "c"; break;
+		/*case TXN_STATUS_CLEARED: c = "c"; break;
 		case TXN_STATUS_RECONCILED: c = "R"; break;
-		case TXN_STATUS_REMIND: c = "!"; break;
+		case TXN_STATUS_REMIND: c = "!"; break;*/
+		case TXN_STATUS_CLEARED:	iconname = ICONNAME_HB_OPE_CLEARED; break;
+		case TXN_STATUS_RECONCILED: iconname = ICONNAME_HB_OPE_RECONCILED; break;
+		case TXN_STATUS_REMIND:     iconname = ICONNAME_HB_OPE_REMIND; break;
+		
 	}
 
-	g_object_set(renderer, "text", c, NULL);
+	//g_object_set(renderer, "text", c, NULL);
+	g_object_set(renderer, "icon-name", iconname, NULL);
+	
 }
 
 
@@ -877,10 +891,11 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	column = list_txn_column_text_create(list_type, _("Memo"), LST_DSPOPE_WORDING, list_txn_wording_cell_data_function, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
-	/* column CLR */
+	/* column status CLR */
 	column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(column, "C");	/* untranslated = normal */
-	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_set_title(column, _("Status"));
+	//renderer = gtk_cell_renderer_text_new ();
+	renderer = gtk_cell_renderer_pixbuf_new();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, list_txn_clr_cell_data_function, NULL, NULL);
@@ -953,6 +968,8 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 }
 
 
+/* ---------------------------------------------- */
+/*  import list : soon obsolete */
 /* ---------------------------------------------- */
 
 /*

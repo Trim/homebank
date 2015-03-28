@@ -20,7 +20,7 @@
 #ifndef __HB_MISC__H__
 #define __HB_MISC__H__
 
-double arrondi(const double x, unsigned n);
+double arrondi(const double x, unsigned int n);
 gdouble amount_to_euro(gdouble amount);
 
 gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur, gboolean showsymbol);

@@ -66,8 +66,7 @@ static void register_panel_export_csv(GtkWidget *widget, gpointer user_data);
 
 static void register_panel_make_archive(GtkWidget *widget, gpointer user_data);
 
-static void reconcile_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer userdata);
-static void clear_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer userdata);
+static void status_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer userdata);
 Transaction *get_active_transaction(GtkTreeView *treeview);
 static void register_panel_selection(GtkTreeSelection *treeselection, gpointer user_data);
 static void register_panel_onRowActivated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer userdata);
@@ -123,7 +122,12 @@ struct register_panel_data *data = user_data;
 	register_panel_action(data->window, GINT_TO_POINTER(ACTION_ACCOUNT_CLEAR));
 }
 
+static void register_panel_action_none(GtkAction *action, gpointer user_data)
+{
+struct register_panel_data *data = user_data;
 
+	register_panel_action(data->window, GINT_TO_POINTER(ACTION_ACCOUNT_NONE));
+}
 
 static void register_panel_action_remove(GtkAction *action, gpointer user_data)
 {
@@ -466,7 +470,7 @@ gint range;
 
 	if(range != FLT_RANGE_OTHER)
 	{
-		filter_preset_daterange_set(data->filter, range);
+		filter_preset_daterange_set(data->filter, range, data->accnum);
 		register_panel_collect_filtered_txn(data->LV_ope);
 		register_panel_listview_populate(data->LV_ope);
 	}
@@ -525,7 +529,7 @@ struct register_panel_data *data;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	filter_default_all_set(data->filter);
-	filter_preset_daterange_set (data->filter, PREFS->date_range_txn);
+	filter_preset_daterange_set (data->filter, PREFS->date_range_txn, data->accnum);
 	if(PREFS->hidereconciled)
 		filter_preset_status_set (data->filter, 1);
 
@@ -773,62 +777,62 @@ gint count = 0;
 }
 
 
-
-static void clear_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer			 userdata)
+static void status_selected_foreach_func (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer userdata)
 {
+gint targetstatus = GPOINTER_TO_INT(userdata);
 Transaction *txn;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &txn, -1);
 
 	account_balances_sub(txn);
 	
-	switch(txn->status)
+	switch(targetstatus)
 	{
 		case TXN_STATUS_NONE:
-			txn->status = TXN_STATUS_CLEARED;
-			txn->flags |= OF_CHANGED;
+			switch(txn->status)
+			{
+				case TXN_STATUS_CLEARED:
+				case TXN_STATUS_RECONCILED:
+					txn->status = TXN_STATUS_NONE;
+					txn->flags |= OF_CHANGED;
+					break;
+			}
 			break;
+
 		case TXN_STATUS_CLEARED:
-			txn->status = TXN_STATUS_NONE;
-			txn->flags |= OF_CHANGED;
+			switch(txn->status)
+			{
+				case TXN_STATUS_NONE:
+					txn->status = TXN_STATUS_CLEARED;
+					txn->flags |= OF_CHANGED;
+					break;
+				case TXN_STATUS_CLEARED:
+					txn->status = TXN_STATUS_NONE;
+					txn->flags |= OF_CHANGED;
+					break;
+			}
 			break;
-	}
-
-	account_balances_add(txn);
-	
-	/* #492755 let the child transfer unchnaged */
-
-}
-
-
-static void reconcile_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer			 userdata)
-{
-Transaction *txn;
-
-	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &txn, -1);
-
-	account_balances_sub(txn);
-
-	switch(txn->status)
-	{
-		case TXN_STATUS_NONE:
-		case TXN_STATUS_CLEARED:
-			txn->status = TXN_STATUS_RECONCILED;
-			txn->flags |= OF_CHANGED;
-			break;
+			
 		case TXN_STATUS_RECONCILED:
-			txn->status = TXN_STATUS_CLEARED;
-			txn->flags |= OF_CHANGED;
+			switch(txn->status)
+			{
+				case TXN_STATUS_NONE:
+				case TXN_STATUS_CLEARED:
+					txn->status = TXN_STATUS_RECONCILED;
+					txn->flags |= OF_CHANGED;
+					break;
+				case TXN_STATUS_RECONCILED:
+					txn->status = TXN_STATUS_CLEARED;
+					txn->flags |= OF_CHANGED;
+					break;
+			}
 			break;
+
 	}
 
-	/*txn->flags ^= OF_VALID;
-	//#1308745 remind flags is exclusive with reconciled
-	if(txn->flags & OF_VALID)
-		txn->flags &= ~(OF_REMIND);*/
 
 	account_balances_add(txn);
-
+	
 	/* #492755 let the child transfer unchnaged */
 
 }
@@ -922,23 +926,28 @@ gboolean result;
 			{
 				DB( g_print("(transaction) inherit multiple\n") );
 				src_txn = da_transaction_clone(get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
+				//#1432204
+				src_txn->status = TXN_STATUS_NONE;
 				type = TRANSACTION_EDIT_INHERIT;
 			}
 
 			dialog = create_deftransaction_window(GTK_WINDOW(data->window), type);
 			result = GTK_RESPONSE_ADD;
-			while(result == GTK_RESPONSE_ADD)
+			while(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP)
 			{
 				/* clone source transaction */
-				data->cur_ope = da_transaction_clone (src_txn);
+				if( result == GTK_RESPONSE_ADD )
+				{
+					data->cur_ope = da_transaction_clone (src_txn);
 
-				if( PREFS->heritdate == FALSE ) //fix: 318733 / 1335285
-					data->cur_ope->date = GLOBALS->today;
+					if( PREFS->heritdate == FALSE ) //fix: 318733 / 1335285
+						data->cur_ope->date = GLOBALS->today;
+				}
 
 				deftransaction_set_transaction(dialog, data->cur_ope);
 
 				result = gtk_dialog_run (GTK_DIALOG (dialog));
-				if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
+				if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
 				{
 					deftransaction_get(dialog, NULL);
 					transaction_add(data->cur_ope, data->LV_ope, data->accnum);
@@ -949,8 +958,13 @@ gboolean result;
 					src_txn->date = data->cur_ope->date;
 				}
 
-				da_transaction_free (data->cur_ope);
+				if( result == GTK_RESPONSE_ADD )
+				{
+					da_transaction_free (data->cur_ope);
+				}
+
 			}
+
 			deftransaction_dispose(dialog, NULL);
 			da_transaction_free (src_txn);
 
@@ -1136,8 +1150,11 @@ gboolean result;
 					}
 
 					gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+					
 					GLOBALS->ope_list = g_list_remove(GLOBALS->ope_list, entry);
-					da_transaction_free(entry);
+					//#1419304 we keep the deleted txn to a trash stack	
+					//da_transaction_free(entry);
+					g_trash_stack_push(&GLOBALS->txn_stk, entry);
 
 					GLOBALS->changes_count++;
 
@@ -1160,13 +1177,54 @@ gboolean result;
 		}
 		break;
 
+		//none
+		case ACTION_ACCOUNT_NONE:
+		{
+		GtkTreeSelection *selection;
+		gint count, result;
+			
+			count = txn_list_get_count_reconciled(GTK_TREE_VIEW(data->LV_ope));
+
+			if(count > 0 )
+			{
+			
+			result = ui_dialog_msg_confirm_alert(
+					GTK_WINDOW(data->window),
+					_("Are you sure you want to change the status to None?"),
+					_("Some transaction in your selection are already Reconciled."),
+					_("_Change")
+				);
+			}
+			else
+				result = GTK_RESPONSE_OK;
+				
+			if( result == GTK_RESPONSE_OK )
+			{
+				selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_ope));
+				gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)status_selected_foreach_func, 
+					GINT_TO_POINTER(TXN_STATUS_NONE));
+
+				DB( g_print(" - none\n") );
+
+				gtk_widget_queue_draw (data->LV_ope);
+				//gtk_widget_queue_resize (data->LV_acc);
+
+				register_panel_update(widget, GINT_TO_POINTER(UF_BALANCE));
+
+				data->acc->flags |= AF_CHANGED;
+				GLOBALS->changes_count++;
+			}
+
+		}
+		break;
 		//clear
 		case ACTION_ACCOUNT_CLEAR:
 		{
 			GtkTreeSelection *selection;
 			
 			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_ope));
-			gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)clear_selected_foreach_func, data);
+			gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)status_selected_foreach_func, 
+				GINT_TO_POINTER(TXN_STATUS_CLEARED));
 
 			DB( g_print(" - clear\n") );
 
@@ -1178,8 +1236,8 @@ gboolean result;
 			data->acc->flags |= AF_CHANGED;
 			GLOBALS->changes_count++;
 		}
+		break;
 
-			break;
 
 		//reconcile
 		case ACTION_ACCOUNT_RECONCILE:
@@ -1205,7 +1263,8 @@ gboolean result;
 			if( result == GTK_RESPONSE_OK )
 			{
 				selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_ope));
-				gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)reconcile_selected_foreach_func, data);
+				gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)status_selected_foreach_func, 
+					GINT_TO_POINTER(TXN_STATUS_RECONCILED));
 
 				DB( g_print(" - reconcile\n") );
 
@@ -1219,8 +1278,7 @@ gboolean result;
 			}
 
 		}
-
-			break;
+		break;
 
 
 		case ACTION_ACCOUNT_FILTER:
@@ -1325,19 +1383,21 @@ gint count = 0;
 		
 		sensitive = (count > 0 ) ? TRUE : FALSE;
 		// no selection: disable reconcile, delete
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Cleared"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Reconciled"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Delete"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Template"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/None"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/Cleared"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/Reconciled"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Delete"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Template"), sensitive);
 
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/TxnBar/Delete"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/TxnBar/Cleared"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/TxnBar/Reconciled"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/TxnBar/Template"), sensitive);
 
 		// multiple: disable inherit, edit
 		sensitive = (count != 1 ) ? FALSE : TRUE;
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Inherit"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TransactionMenu/Edit"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Inherit"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Edit"), sensitive);
 
 		// euro convert
 		sensitive = PREFS->euro_active;
@@ -1467,7 +1527,7 @@ GtkTreeIter iter;
 gint col_id, count;
 GList *selection, *list;
 Transaction *ope;
-gchar *tagstr, *txt;
+gchar *tagstr;
 gboolean refreshbalance;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
@@ -1530,7 +1590,7 @@ gboolean refreshbalance;
 				widget1 = make_paymode(NULL);
 				widget2 = make_string(NULL);
 				gtk_combo_box_set_active(GTK_COMBO_BOX(widget1), ope->paymode);
-				gtk_entry_set_text(GTK_ENTRY(widget2), ope->info);
+				gtk_entry_set_text(GTK_ENTRY(widget2), (ope->info != NULL) ? ope->info : "");
 				break;
 			case LST_DSPOPE_PAYEE:
 				gtk_window_set_title (GTK_WINDOW (dialog), _("Modify payee..."));
@@ -1541,7 +1601,7 @@ gboolean refreshbalance;
 			case LST_DSPOPE_WORDING:
 				gtk_window_set_title (GTK_WINDOW (dialog), _("Modify description..."));
 				widget1 = make_string(NULL);
-				gtk_entry_set_text(GTK_ENTRY(widget1), ope->wording);
+				gtk_entry_set_text(GTK_ENTRY(widget1), (ope->wording != NULL) ? ope->wording : "");
 				break;
 			case LST_DSPOPE_EXPENSE:
 			case LST_DSPOPE_INCOME:
@@ -1559,11 +1619,8 @@ gboolean refreshbalance;
 			case LST_DSPOPE_TAGS:
 				gtk_window_set_title (GTK_WINDOW (dialog), _("Modify tags..."));
 				widget1 = make_string(NULL);
-
 				tagstr = transaction_tags_tostring(ope);
-
-				txt = (tagstr != NULL) ? tagstr : "";
-				gtk_entry_set_text(GTK_ENTRY(widget1), txt);
+				gtk_entry_set_text(GTK_ENTRY(widget1), (tagstr != NULL) ? tagstr : "");
 				g_free(tagstr);
 
 				break;
@@ -1810,6 +1867,9 @@ static void
 quick_search_activate_cb (GtkEntry  *entry, gpointer  user_data)
 {
 struct register_panel_data *data = user_data;
+
+	DB( g_print("quick search activate !\n") );
+
 	
 	register_panel_listview_populate (data->LV_ope);
 }
@@ -1864,11 +1924,12 @@ static GtkActionEntry entries[] = {
 
 	/* name, icon-name, label */
 	{ "AccountMenu"	   , NULL, N_("_Account"), NULL, NULL, NULL },
-	{ "TransactionMenu", NULL, N_("Transacti_on"), NULL, NULL, NULL },
+	{ "TxnMenu"        , NULL, N_("Transacti_on"), NULL, NULL, NULL },
+	{ "TxnStatusMenu"  , NULL, N_("_Status"), NULL, NULL, NULL },
 	{ "ActionsMenu"	   , NULL, N_("_Actions"), NULL, NULL, NULL },
 	{ "ToolsMenu"	   , NULL, N_("_Tools"), NULL, NULL, NULL },
 
-	{ "Close"			, ICONNAME_CLOSE	     , N_("_Close")				, NULL, N_("Close the current account"),		G_CALLBACK (register_panel_action_close) },
+	{ "Close"			, ICONNAME_CLOSE	     , N_("_Close")				, "<control>W", N_("Close the current account"),		G_CALLBACK (register_panel_action_close) },
 
 	/* name, icon-name, label, accelerator, tooltip */
 	{ "Filter"			, ICONNAME_HB_FILTER     , N_("_Filter..."), NULL,		N_("Open the list filter"), G_CALLBACK (register_panel_action_editfilter) },
@@ -1877,8 +1938,9 @@ static GtkActionEntry entries[] = {
 	{ "Add"				, ICONNAME_HB_OPE_ADD	 , N_("_Add..."), NULL,		N_("Add a new transaction"), G_CALLBACK (register_panel_action_add) },
 	{ "Inherit"			, ICONNAME_HB_OPE_HERIT	 , N_("_Inherit..."), NULL, N_("Inherit from the active transaction"), G_CALLBACK (register_panel_action_inherit) },
 	{ "Edit"			, ICONNAME_HB_OPE_EDIT	 , N_("_Edit..."), NULL, N_("Edit the active transaction"),	G_CALLBACK (register_panel_action_edit) },
-	{ "Cleared"	    	, ICONNAME_HB_OPE_CLEARED, N_("_Cleared"), "c",		N_("Toggle cleared for selected transaction(s)"), G_CALLBACK (register_panel_action_clear) },
-	{ "Reconciled"		, ICONNAME_HB_OPE_RECONCILED, N_("_Reconciled"), "r",		N_("Toggle reconciled for selected transaction(s)"), G_CALLBACK (register_panel_action_reconcile) },
+	{ "None"	    	, NULL                   , N_("_None"), "<control>N",		N_("Toggle none for selected transaction(s)"), G_CALLBACK (register_panel_action_none) },
+	{ "Cleared"	    	, ICONNAME_HB_OPE_CLEARED, N_("_Cleared"), "<control>C",		N_("Toggle cleared for selected transaction(s)"), G_CALLBACK (register_panel_action_clear) },
+	{ "Reconciled"		, ICONNAME_HB_OPE_RECONCILED, N_("_Reconciled"), "<control>R",		N_("Toggle reconciled for selected transaction(s)"), G_CALLBACK (register_panel_action_reconcile) },
 	{ "Delete"			, ICONNAME_HB_OPE_DELETE , N_("_Delete..."), NULL,		N_("Delete selected transaction(s)"), G_CALLBACK (register_panel_action_remove) },
 	{ "Template"    	, ICONNAME_CONVERT       , N_("Create template..."), NULL,		N_("Create template"), G_CALLBACK (register_panel_action_createtemplate) },
 
@@ -1897,14 +1959,18 @@ static const gchar *ui_info =
 "			<menuitem action='Close'/>"
 "		</menu>"
 
-"		<menu action='TransactionMenu'>"
+"		<menu action='TxnMenu'>"
 "			<menuitem action='Add'/>"
 "			<menuitem action='Inherit'/>"
 "			<menuitem action='Edit'/>"
 "			<menuitem action='Delete'/>"
 "				<separator/>"
-"			<menuitem action='Cleared'/>"
-"			<menuitem action='Reconciled'/>"
+"		   <menu action='TxnStatusMenu'>"
+"				<menuitem action='None'/>"
+"				<menuitem action='Cleared'/>"
+"				<menuitem action='Reconciled'/>"
+"		   </menu>"
+
 "				<separator/>"
 "			<menuitem action='Template'/>"
 "		</menu>"
@@ -2227,7 +2293,7 @@ GError *error = NULL;
 //todo: test context menu
 	/*
 	menu = gtk_menu_new();
-	menu_items = gtk_ui_manager_get_widget (ui, "/MenuBar/TransactionMenu/Add");
+	menu_items = gtk_ui_manager_get_widget (ui, "/MenuBar/TxnMenu/Add");
 
 	menu_items = gtk_menu_item_new_with_label ("test");
 	gtk_widget_show(menu_items);

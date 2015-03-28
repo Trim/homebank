@@ -53,7 +53,8 @@ static void homebank_upgrade_lower_v06(void);
 static void homebank_upgrade_to_v06(void);
 static void homebank_upgrade_to_v07(void);
 static void homebank_upgrade_to_v08(void);
-static void homebank_upgrade_to_v50(void);
+static void homebank_upgrade_to_v10(void);
+static void homebank_upgrade_to_v11(void);
 
 static void
 start_element_handler (GMarkupParseContext *context,
@@ -442,8 +443,10 @@ gboolean rc;
 		DB( g_print("- id line: --(%.50s)\n\n", v_buffer) );
 
 		version = g_ascii_strtod(v_buffer+13, NULL);	/* a little hacky, but works ! */
-		if( version == 0.0 )
+		if( version == 0.0 ) 
 			version = 0.1;
+		else if( version == 5.0 ) //was a mistake
+			version = 1.0;
 
 		ctx.version = version;
 
@@ -512,7 +515,7 @@ gboolean rc;
 				homebank_upgrade_to_v07();
 				hbfile_sanity_check();
 			}
-			if( version <= 0.7 )   // <= 4.5
+			if( version <= 0.7 )	// <= 4.5
 			{	
 				homebank_upgrade_to_v08();
 			}
@@ -523,13 +526,15 @@ gboolean rc;
 			if( version <= 0.9 )	// <= 4.6.3
 			{
 				hbfile_sanity_check();
-				homebank_upgrade_to_v50();
+				homebank_upgrade_to_v10();
 			}
-			if( version == 5.0 )	// 5.0.0 rc 
+			if( version <= 1.0 )	// <= 5.0.0 
 			{
 				hbfile_sanity_check();
+				homebank_upgrade_to_v11();
 			}
 			// next ?
+
 			
 		}
 	}
@@ -691,16 +696,43 @@ GList *list;
 }
 
 
-static void homebank_upgrade_to_v50(void)
+static void homebank_upgrade_to_v10(void)
 {
 GList *list;
 
-	DB( g_print("\n[hb-xml] homebank_upgrade_to_v50\n") );
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v10\n") );
 
 	list = g_list_first(GLOBALS->ope_list);
 	while (list != NULL)
 	{
 	Transaction *entry = list->data;
+
+		entry->status = TXN_STATUS_NONE;
+		if(entry->flags & OF_OLDVALID)
+			entry->status = TXN_STATUS_RECONCILED;
+		else 
+			if(entry->flags & OF_OLDREMIND)
+				entry->status = TXN_STATUS_REMIND;
+
+		//remove those flags
+		entry->flags &= ~(OF_OLDVALID|OF_OLDREMIND);
+
+		list = g_list_next(list);
+	}
+
+}
+
+
+static void homebank_upgrade_to_v11(void)
+{
+GList *list;
+
+	DB( g_print("\n[hb-xml] homebank_upgrade_to_v11\n") );
+
+	list = g_list_first(GLOBALS->arc_list);
+	while (list != NULL)
+	{
+	Archive *entry = list->data;
 
 		entry->status = TXN_STATUS_NONE;
 		if(entry->flags & OF_OLDVALID)

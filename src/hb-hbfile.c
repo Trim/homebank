@@ -331,6 +331,8 @@ guint cnt, i;
 
 void hbfile_cleanup(gboolean file_clear)
 {
+Transaction *txn;
+
 	DB( g_print("\n[hbfile] cleanup\n") );
 	DB( g_print("- file clear is %d\n", file_clear) );
 	
@@ -344,6 +346,13 @@ void hbfile_cleanup(gboolean file_clear)
 	g_hash_table_destroy(GLOBALS->h_memo);
 	da_archive_destroy(GLOBALS->arc_list);
 	da_transaction_destroy(GLOBALS->ope_list);
+
+	txn = g_trash_stack_pop(&GLOBALS->txn_stk);
+	while( txn != NULL )
+	{
+		da_transaction_free (txn);
+		txn = g_trash_stack_pop(&GLOBALS->txn_stk);
+	}
 
 	hbfile_change_owner(NULL);
 
@@ -370,7 +379,7 @@ void hbfile_setup(gboolean file_clear)
 	GLOBALS->h_memo = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify)g_free, NULL);
 	GLOBALS->arc_list = NULL;
 	GLOBALS->ope_list = NULL;
-
+	GLOBALS->txn_stk = NULL;
 
 	if(file_clear == TRUE)
 	{

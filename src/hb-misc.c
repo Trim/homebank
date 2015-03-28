@@ -38,7 +38,7 @@ static const double fac[7] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
 
 double arrondi(const double x, unsigned int digits)
 {
-    return round(x*fac[digits])/fac[digits];
+    return floor((x * fac[digits]) + 0.5) / fac[digits];
 }
 
 

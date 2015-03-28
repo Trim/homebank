@@ -28,13 +28,21 @@ struct _archive
 {
 	gdouble		amount;
 	guint32		kacc;
-	guint32		kxferacc;
 	gushort		paymode;
 	gushort		flags;
 	guint32		kpay;
 	guint32		kcat;
 	gchar		*wording;
+
+	//guint32		date;
+	//gushort		pos;
 	gushort     status;
+	//gchar		*info;
+	//guint32		*tags;
+	//guint32		kxfer;		//strong link xfer key
+	guint32		kxferacc;
+	
+	//Split		*splits[TXN_MAX_SPLIT+1];
 
 	guint32		nextdate;
 	gushort		every;

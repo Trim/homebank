@@ -78,8 +78,8 @@ GDate *date;
 
 static void filter_default_date_set(Filter *flt)
 {
-	flt->mindate = 693596;	//01/01/1900
-	flt->maxdate = 803533;	//31/12/2200
+	flt->mindate = HB_MINDATE;
+	flt->maxdate = HB_MAXDATE;
 }
 
 
@@ -123,31 +123,63 @@ gint i;
 	for(i=0;i<NUM_PAYMODE_MAX;i++)
 		flt->paymode[i] = TRUE;
 
-	filter_preset_daterange_set(flt, flt->range);
+	filter_preset_daterange_set(flt, flt->range, 0);
 
 }
 
 
-void filter_preset_daterange_set(Filter *flt, gint range)
+void filter_preset_daterange_set(Filter *flt, gint range, guint32 kacc)
 {
 GDate *date;
 GList *list;
 guint32 refjuliandate, month, year, qnum;
+gboolean accounts[da_acc_get_max_key ()+1];
+guint i;
 
-	// any date :: todo : get date of current account only when account 
-	flt->range = range;
-	if(g_list_length(GLOBALS->ope_list) > 0) // get all transaction date bound
+	DB( g_print("(filter) daterange set %p %d\n", flt, range) );
+
+	//todo: get date of current account only when account 
+	//todo: don't consider closed account !!
+	//beware: g_list_last get into every node !!
+
+	filter_default_date_set(flt);
+
+	if(g_list_length(GLOBALS->ope_list) > 0)
 	{
-		//5.0 useless
-		//GLOBALS->ope_list = da_transaction_sort(GLOBALS->ope_list);
-		list = g_list_first(GLOBALS->ope_list);
-		flt->mindate = ((Transaction *)list->data)->date;
-		list = g_list_last(GLOBALS->ope_list);
-		flt->maxdate = ((Transaction *)list->data)->date;
-	}
-	else
-		filter_default_date_set(flt);
+		// open/closed acccount vector
+		for(i=1;i<=da_acc_get_max_key ();i++)
+		{
+		Account * acc = da_acc_get(i);
+			if(acc)
+			{
+				accounts[i] = acc->flags & AF_CLOSED ? FALSE: TRUE;
+				//in case we focus on an account, consider the account as disabled
+				if(kacc != 0 && i != kacc)
+					accounts[i] = FALSE;
+
+				DB( g_print("acc '%s' %d\n", acc->name, accounts[i]) );
+			}
+		}
 	
+		//parse all: in waiting other storage, as g_list_last will do anyway
+		// find first no account closed account
+		list = g_list_first(GLOBALS->ope_list);
+		flt->mindate = HB_MAXDATE;
+		flt->maxdate = HB_MINDATE;
+		while (list != NULL)
+		{
+		Transaction *item = list->data;
+
+			if(accounts[item->kacc] == TRUE)
+			{
+				flt->mindate = MIN(flt->mindate, item->date);
+				flt->maxdate = MAX(flt->maxdate, item->date);
+			}
+			list = g_list_next(list);
+		}
+	}
+
+	flt->range = range;
 	
 	// by default refjuliandate is today
 	// but we adjust if to max transaction date found

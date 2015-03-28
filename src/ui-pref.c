@@ -2417,7 +2417,7 @@ gint i;
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter,
 			COLUMN_VISIBLE, visible,
-	  		COLUMN_NAME, list_txn_column_label[id],
+	  		COLUMN_NAME, _(list_txn_column_label[id]),
 	  		COLUMN_ID  , id,
 	  		-1);
 		
