@@ -2454,7 +2454,7 @@ GtkRecentFilter *filter;
 					GTK_RECENT_SORT_MRU);
 	//todo: add a user pref for this
 	gtk_recent_chooser_set_limit(GTK_RECENT_CHOOSER (toolbar_recent_menu),
-					5);
+					10);
 
 
 	//gtk_recent_chooser_set_show_icons (GTK_RECENT_CHOOSER (toolbar_recent_menu), FALSE);

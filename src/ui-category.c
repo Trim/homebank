@@ -249,8 +249,9 @@ gchar type;
 		
 		hb_string_replace_space(sortname);
 		
-		gtk_list_store_append (GTK_LIST_STORE(ctx->model), &iter);
-		gtk_list_store_set (GTK_LIST_STORE(ctx->model), &iter,
+		//gtk_list_store_append (GTK_LIST_STORE(ctx->model), &iter);
+		//gtk_list_store_set (GTK_LIST_STORE(ctx->model), &iter,
+		gtk_list_store_insert_with_values(GTK_LIST_STORE(ctx->model), &iter, -1,
 			LST_CMBCAT_DATAS, item,
 			LST_CMBCAT_FULLNAME, fullname,
 			LST_CMBCAT_SORTNAME, sortname,
@@ -285,29 +286,33 @@ void
 ui_cat_comboboxentry_populate_except(GtkComboBox *entry_box, GHashTable *hash, guint except_key)
 {
 GtkTreeModel *model;
-GtkEntryCompletion *completion;
+//GtkEntryCompletion *completion;
 struct catPopContext ctx;
 
     DB( g_print ("ui_cat_comboboxentry_populate()\n") );
 
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(entry_box));
-	completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
+	//completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	/* keep our model alive and detach from comboboxentry and completion */
-	g_object_ref(model);
-	gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), NULL);
-	gtk_entry_completion_set_model (completion, NULL);
+	//g_object_ref(model);
+	//gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), NULL);
+	//gtk_entry_completion_set_model (completion, NULL);
 
 	/* clear and populate */
+	
 	ctx.model = model;
 	ctx.except_key = except_key;
 	gtk_list_store_clear (GTK_LIST_STORE(model));
+	
+	//gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(GTK_LIST_STORE(model)), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+	
 	g_hash_table_foreach(hash, (GHFunc)ui_cat_comboboxentry_populate_ghfunc, &ctx);
 
 	/* reatach our model */
-	gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), model);
-	gtk_entry_completion_set_model (completion, model);
-	g_object_unref(model);
+	//gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), model);
+	//gtk_entry_completion_set_model (completion, model);
+	//g_object_unref(model);
 
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 

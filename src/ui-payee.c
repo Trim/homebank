@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "homebank.h"
 
 #include "ui-payee.h"
@@ -168,8 +169,10 @@ Payee *pay = value;
 
 	if( ( pay->key != ctx->except_key ) )
 	{
-		gtk_list_store_append (GTK_LIST_STORE(ctx->model), &iter);
-		gtk_list_store_set (GTK_LIST_STORE(ctx->model), &iter, 0, pay->name, -1);
+		//gtk_list_store_append (GTK_LIST_STORE(ctx->model), &iter);
+		//gtk_list_store_set (GTK_LIST_STORE(ctx->model), &iter, 0, pay->name, -1);
+		gtk_list_store_insert_with_values(GTK_LIST_STORE(ctx->model), &iter, -1,
+			0, pay->name, -1);
 	}
 }
 
@@ -191,34 +194,37 @@ void
 ui_pay_comboboxentry_populate_except(GtkComboBox *entry_box, GHashTable *hash, guint except_key)
 {
 GtkTreeModel *model;
-GtkEntryCompletion *completion;
+//GtkEntryCompletion *completion;
 struct payPopContext ctx;
 
     DB( g_print ("ui_pay_comboboxentry_populate\n") );
 
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(entry_box));
-	completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
+	//completion = gtk_entry_get_completion(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 
 	/* keep our model alive and detach from comboboxentry and completion */
-	g_object_ref(model);
-	gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), NULL);
-	gtk_entry_completion_set_model (completion, NULL);
+	//g_object_ref(model);
+	//gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), NULL);
+	//gtk_entry_completion_set_model (completion, NULL);
 
 	/* clear and populate */
 	ctx.model = model;
 	ctx.except_key = except_key;
 	gtk_list_store_clear (GTK_LIST_STORE(model));
-	g_hash_table_foreach(hash, (GHFunc)ui_pay_comboboxentry_populate_ghfunc, &ctx);
 
-	/* reatach our model */
-	gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), model);
-	gtk_entry_completion_set_model (completion, model);
-	g_object_unref(model);
+	//gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(GTK_LIST_STORE(model)), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
+	g_hash_table_foreach(hash, (GHFunc)ui_pay_comboboxentry_populate_ghfunc, &ctx);
 
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 
+	/* reatach our model */
+	//g_print("reattach\n");
+	//gtk_combo_box_set_model(GTK_COMBO_BOX(entry_box), model);
+	//gtk_entry_completion_set_model (completion, model);
+	//g_object_unref(model);
+	
 }
-
 
 
 static gint
@@ -457,10 +463,11 @@ static void ui_pay_listview_populate_ghfunc(gpointer key, gpointer value, GtkTre
 GtkTreeIter	iter;
 Payee *item = value;
 
-	DB( g_print(" populate: %p\n", key) );
+	//DB( g_print(" populate: %p\n", key) );
 
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+	//gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	//gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+	gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, -1,
 		LST_DEFPAY_TOGGLE	, FALSE,
 		LST_DEFPAY_DATAS, item,
 		-1);
@@ -470,18 +477,19 @@ void ui_pay_listview_populate(GtkWidget *view)
 {
 GtkTreeModel *model;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+	DB( g_print("ui_pay_listview_populate \n") );
 
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
-	gtk_tree_view_set_model(GTK_TREE_VIEW(view), NULL); /* Detach model from view */
+	//g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(view), NULL); /* Detach model from view */
 
 	/* populate */
 	g_hash_table_foreach(GLOBALS->h_pay, (GHFunc)ui_pay_listview_populate_ghfunc, model);
 
-	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model); /* Re-attach model to view */
-	g_object_unref(model);
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(view), model); /* Re-attach model to view */
+	//g_object_unref(model);
 }
 
 

@@ -195,7 +195,7 @@ static gint csvtype[7] = {
 void homebank_file_ensure_xhb(void)
 {
 gchar *newfilepath;
-	
+
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
 
 	newfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb");
@@ -287,7 +287,7 @@ gchar *errmsg;
 	errmsg = g_win32_error_message(retval);
 	DB( g_print ("%s\n", errmsg) );
 	g_free(errmsg);
-	
+
 	return FALSE;
 }
 
@@ -434,8 +434,71 @@ gsize length;
 
 /* = = = = = = = = = = = = = = = = = = = = */
 /* Main homebank */
+#ifdef G_OS_WIN32
+static GtkCssProvider *provider;
 
+static void
+homebank_theme_changed (GtkSettings *settings, GParamSpec  *pspec, gpointer     data)
+{
 
+	if (pspec == NULL || g_str_equal (pspec->name, "gtk-theme-name"))
+	{
+		gchar *theme;
+		GdkScreen *screen;
+
+		g_object_get (settings, "gtk-theme-name", &theme, NULL);
+		screen = gdk_screen_get_default ();
+
+		DB( g_print("theme %s\n", theme) );
+
+		if (g_str_equal (theme, "gtk-win32"))
+		{
+			if (provider == NULL)
+			{
+				gchar *filename;
+
+                filename = g_build_filename(homebank_app_get_datas_dir(), "homebank-gtk-win32.css", NULL );
+                DB( g_print("tweak file %s\n", filename) );
+
+                if( g_file_test(filename, G_FILE_TEST_EXISTS) )
+                {
+                    provider = gtk_css_provider_new ();
+                    gtk_css_provider_load_from_path (provider, filename, NULL);
+                }
+                g_free (filename);
+			}
+
+            if(provider != NULL)
+            {
+                DB( g_print(" assign provider %p to sreen %p\n", provider, screen) );
+
+                gtk_style_context_add_provider_for_screen (screen,
+                                       GTK_STYLE_PROVIDER (provider),
+                                       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+            }
+		}
+		else if (provider != NULL)
+		{
+			gtk_style_context_remove_provider_for_screen (screen,
+								      GTK_STYLE_PROVIDER (provider));
+			g_clear_object (&provider);
+		}
+
+		g_free (theme);
+	}
+}
+
+static void
+homebank_setup_theme_extensions (void)
+{
+	GtkSettings *settings;
+
+	settings = gtk_settings_get_default ();
+	provider = NULL;
+	g_signal_connect (settings, "notify", G_CALLBACK (homebank_theme_changed), NULL);
+	homebank_theme_changed (settings, NULL, NULL);
+}
+#endif
 
 
 static void
@@ -450,20 +513,20 @@ homebank_icon_theme_setup()
 	//DB( g_print(" -> append theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
 	//gtk_icon_theme_append_search_path (GLOBALS->icontheme, homebank_app_get_pixmaps_dir());
 
-	
+
 	#if MYDEBUG == 1
 	GtkIconTheme *ic = gtk_icon_theme_get_default();
 	guint i;
 	gchar **paths;
 
 		DB( g_print(" -> get default icon theme\n") );
-	
+
 		gtk_icon_theme_get_search_path(ic, &paths, NULL);
 		for(i=0;i<g_strv_length(paths);i++)
 		{
 			g_print("-> path %d: %s\n", i, paths[i]);
 		}
-	
+
 		g_strfreev(paths);
 
 	#endif
@@ -524,12 +587,12 @@ build_package_paths (void)
 	pixmaps_dir  = g_build_filename (prefix, "share", PACKAGE, "icons", NULL);
 	help_dir     = g_build_filename (prefix, "share", PACKAGE, "help", NULL);
 	datas_dir    = g_build_filename (prefix, "share", PACKAGE, "datas", NULL);
-#ifdef PORTABLE_APP
-	DB( g_print("- app is portable under windows\n") );
-	config_dir   = g_build_filename(prefix, "config", NULL);
-#else
-	config_dir   = g_build_filename(g_get_user_config_dir(), HB_DATA_PATH, NULL);
-#endif
+	#ifdef PORTABLE_APP
+		DB( g_print("- app is portable under windows\n") );
+		config_dir   = g_build_filename(prefix, "config", NULL);
+	#else
+		config_dir   = g_build_filename(g_get_user_config_dir(), HB_DATA_PATH, NULL);
+	#endif
 	g_free (prefix);
 #else
 	locale_dir   = g_build_filename (DATA_DIR, "locale", NULL);
@@ -538,7 +601,7 @@ build_package_paths (void)
 	help_dir     = g_build_filename (DATA_DIR, PACKAGE, "help", NULL);
 	datas_dir    = g_build_filename (DATA_DIR, PACKAGE, "datas", NULL);
 	config_dir   = g_build_filename(g_get_user_config_dir(), HB_DATA_PATH, NULL);
-	
+
 	//#870023 Ubuntu packages the help files in "/usr/share/doc/homebank-data/help/" for some strange reason
 	if(! g_file_test(help_dir, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
 	{
@@ -620,7 +683,7 @@ gboolean exists;
 		g_mkdir(configdir, 0755);
 	}
 #endif
-	
+
 	/* check for XDG .config/homebank */
 	configdir = homebank_app_get_config_dir();
 	DB( g_print("- config_dir is: '%s'\n", configdir) );
@@ -722,6 +785,10 @@ static gboolean homebank_setup()
 
 	homebank_icon_theme_setup();
 
+#ifdef G_OS_WIN32
+	homebank_setup_theme_extensions();
+#endif
+
 	homebank_app_date_get_julian();
 
 
@@ -802,7 +869,7 @@ homebank_init_i18n (void)
    */
 
 	setlocale (LC_ALL, "");
-	
+
 	bindtextdomain (GETTEXT_PACKAGE, homebank_app_get_locale_dir ());
 //#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");

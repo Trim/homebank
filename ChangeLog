@@ -1,16 +1,20 @@
 
 
-2015-03-28  Maxime Doyen
+2015-04-06  Maxime Doyen
 
- Made 5.0.1  rc release.
+ Made 5.0.1 release.
 
  * change: xhb data file format (v1.1)
+ * wish  : #1439015 use Segoe UI as UI font on Windows 
+ * wish  : #1432204 inherit txn should set status to none
+ * wish  : #1435944 appdata is missing long description and screenshot
  * wish  : #1432204 inherit txn should set status to none
  * wish  : #1421326 "Fill from template" showed by default
  * wish  : #1419986 reconciled icons, text and translation
  * wish  : #1413874 keyboard shortcut to transaction none status
  * wish  : #1377640 txn same consecutive entry
- * wish  : #926782  for transfers, display target/source account as payee 
+ * wish  : #926782  for transfers, display target/source account as payee
+ * bugfix: #1437883 edit/modify transaction box takes >10 sec. to open
  * bugfix: #1429410 document the "Cleared" ("Pointée") operation status
  * bugfix: #1429407 shortcut clashes with search or other text entry widgets
  * bugfix: #1427798 -0,00€ for total of account
@@ -18,6 +22,7 @@
  * bugfix: #1425986 QIF import sometimes fails in v5.0
  * bugfix: #1424437 gtk warning from console
  * bugfix: #1422617 trend time report shows dates from closed accounts
+ * bugfix: #1420859 alternate row colors not working
  * bugfix: #1420495 typo problem in chart tooltip (apos)
  * bugfix: #1420098 ctrl+w no longer closes account window
  * bugfix: #1419992 visible column names are not localized in preferences dialog
@@ -25,6 +30,11 @@
  * bugfix: #1419476 edit transaction dialog empty category
  * bugfix: #1419304 crash if Balance report is open and transaction is deleted
  * bugfix: #1415740 budget line with value of 0 not shown in Budget Report
+
+
+2015-03-28  Maxime Doyen
+
+ Made 5.0.1  rc release.
 
 
 2015-02-08  Maxime Doyen
@@ -46,6 +56,7 @@
  * new   : reinforced the io error control on file save
  * new   : charts now uses your system fonts
  * new   : icon set was reworked
+ * change: xhb data file format (v1.0)
  * change: win32: downgraded to libofx 0.8.3
  * change: payee/category: renamed the action move to merge, as it is more relevant 
  * change: reworked all the confirmation dialogs

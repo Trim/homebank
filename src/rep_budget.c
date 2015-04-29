@@ -235,7 +235,7 @@ gint nbmonth;
 	date1 = g_date_new_julian(mindate);
 	date2 = g_date_new_julian(maxdate);
 
-	nbmonth = 1;
+	nbmonth = 0;
 	while(g_date_compare(date1, date2) < 0)
 	{
 		nbmonth++;

@@ -680,11 +680,12 @@ guint i, qs_flag;
 	DB( g_print("\n[register_panel] listview_populate\n") );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
-	gtk_list_store_clear (GTK_LIST_STORE(model));
 
 	// ref model to keep it
-	g_object_ref(model);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_ope), NULL);
+	//g_object_ref(model);
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_ope), NULL);
+	gtk_list_store_clear (GTK_LIST_STORE(model));
+
 
 	// perf: if you leave the sort, insert is damned slow
 	gtk_tree_sortable_get_sort_column_id (GTK_TREE_SORTABLE(GTK_LIST_STORE(model)), &sort_column_id, &order);
@@ -716,9 +717,9 @@ guint i, qs_flag;
 
 		if(insert)
 		{
-			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-
-	 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+			//gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	 		//gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+	 		gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, -1,
 				LST_DSPOPE_DATAS, txn,
 				-1);
 
@@ -727,8 +728,8 @@ guint i, qs_flag;
 		}
 	}
 	
-	gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_ope), model); /* Re-attach model to view */
-	g_object_unref(model);
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_ope), model); /* Re-attach model to view */
+	//g_object_unref(model);
 
 	// push back the sort id
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(GTK_LIST_STORE(model)), sort_column_id, order);
