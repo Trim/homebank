@@ -34,7 +34,7 @@ gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 //void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur);
 //gint hb_strfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
 
-gchar *hb_filename_new_with_extention(gchar *filename, const gchar *extension);
+gchar *hb_util_filename_new_with_extension(gchar *filename, const gchar *extension);
 
 gchar *get_normal_color_amount(gdouble value);
 gchar *get_minimum_color_amount(gdouble value, gdouble minvalue);

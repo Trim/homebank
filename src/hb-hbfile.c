@@ -43,7 +43,7 @@ gboolean hbfile_file_hasbackup(gchar *filepath)
 {
 gchar *bakfilepath;
 
-	bakfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb~");
+	bakfilepath = hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~");
 	GLOBALS->xhb_hasbak = g_file_test(bakfilepath, G_FILE_TEST_EXISTS);
 	g_free(bakfilepath);
 	//todo check here if need to return something

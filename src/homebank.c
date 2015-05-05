@@ -187,21 +187,21 @@ static gint csvtype[7] = {
 /* = = = = = = = = = = = = = = = = = = = = */
 
 
-
-
 /*
 ** ensure the filename ends with '.xhb'
 */
-void homebank_file_ensure_xhb(void)
+void homebank_file_ensure_xhb(gchar *filename)
 {
-gchar *newfilepath;
-
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
-
-	newfilepath = hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb");
-	hbfile_change_filepath(newfilepath);
-
-	DB( g_print("- out: %s\n", GLOBALS->xhb_filepath) );
+	filename = (filename == NULL) ? GLOBALS->xhb_filepath : filename;
+	if( g_str_has_suffix (filename, ".xhb") == FALSE )
+	{
+	gchar *newfilename;
+	
+		newfilename = hb_util_filename_new_with_extension(filename, "xhb");
+		hbfile_change_filepath(newfilename);
+		DB( g_print(" - changed to: '%s'\n", GLOBALS->xhb_filepath) );
+	}
 }
 
 
@@ -218,51 +218,32 @@ gboolean retval = FALSE;
 		{
 			retval = TRUE;
 		}
+		g_free(buffer);
 	}
 	return retval;
 }
 
 
-
-void homebank_backup_current_file(gchar *pathname)
+void homebank_backup_current_file(void)
 {
-gchar *basename;
-gchar *dirname;
-gchar *filename;
-gchar *newname;
-gchar **str_array;
+gchar *bakfilename;
 
 	DB( g_print("\n[homebank] backup_current_file\n") );
 
-	basename = g_path_get_basename(pathname);
-	dirname  = g_path_get_dirname (pathname);
-
-	if( g_str_has_suffix(basename, ".xhb") )
+	bakfilename = hb_util_filename_new_with_extension (GLOBALS->xhb_filepath, "xhb~");
+	if( g_file_test(bakfilename, G_FILE_TEST_EXISTS) )
 	{
-		str_array = g_strsplit(basename, ".", 0);
-		filename = g_strdup_printf("%s.xhb~", str_array[0]);
-		newname = g_build_filename(dirname, filename, NULL);
-		g_free(filename);
-
-		if( g_file_test(newname, G_FILE_TEST_EXISTS) )
-		{
-			DB( g_print("- delete existing: %s\n", newname) );
-			g_remove(newname);
-		}
-
-		DB( g_print("- copy %s => %s\n", pathname, newname) );
-
-		homebank_copy_file (pathname, newname);
-		//#512046
-		//retval = g_rename(pathname, newname);
-
-		//DB( g_print("retval %d\n", retval) );
-
-		g_strfreev(str_array);
-		g_free(newname);
+		DB( g_print(" - delete existing: '%s'\n", bakfilename) );
+		g_remove(bakfilename);
 	}
-	g_free(basename);
-	g_free(dirname);
+
+	DB( g_print(" - copy '%s' => '%s'\n", GLOBALS->xhb_filepath, bakfilename) );
+
+	//#512046 copy file not to broke potential links
+	//retval = g_rename(pathname, newname);
+	homebank_copy_file (GLOBALS->xhb_filepath, bakfilename);
+	
+	g_free(bakfilename);
 }
 
 /* = = = = = = = = = = = = = = = = = = = = */
@@ -357,25 +338,25 @@ gchar *group, *filename, *lastfilename;
 
 		filename = g_build_filename(homebank_app_get_config_dir(), "lastopenedfiles", NULL );
 
-		DB( g_print(" -> filename: %s\n", filename) );
+		DB( g_print(" - filename: %s\n", filename) );
 
 		if(g_key_file_load_from_file (keyfile, filename, G_KEY_FILE_NONE, NULL))
 		{
 			group = "HomeBank";
 
-            DB( g_print(" -> load keyfile ok\n") );
+            DB( g_print(" - load keyfile ok\n") );
 
 			if(g_key_file_has_key(keyfile, group, "LastOpenedFile", NULL))
 			{
-                DB( g_print(" -> keyfile has key ok\n") );
+                DB( g_print(" - keyfile has key ok\n") );
 
 				lastfilename = g_key_file_get_string  (keyfile, group, "LastOpenedFile", NULL);
 
-				DB( g_print(" -> lastfile loaded: %s\n", lastfilename ) );
+				DB( g_print(" - lastfile loaded: %s\n", lastfilename ) );
 				// #593082
 				if (g_file_test (lastfilename, G_FILE_TEST_EXISTS) != FALSE)
 				{
-					DB( g_print(" -> file exists\n") );
+					DB( g_print(" - file exists\n") );
 
 					hbfile_change_filepath(lastfilename);
 
@@ -387,7 +368,7 @@ gchar *group, *filename, *lastfilename;
 		g_key_file_free (keyfile);
 	}
 
-	DB( g_print(" -> return: %d\n", retval) );
+	DB( g_print(" - return: %d\n", retval) );
 
 	return retval;
 }
@@ -407,10 +388,11 @@ gsize length;
 
 	if( GLOBALS->xhb_filepath != NULL )
 	{
-
 		keyfile = g_key_file_new();
 		if(keyfile )
 		{
+			DB( g_print(" - saving '%s'\n", GLOBALS->xhb_filepath) );
+
 			group = "HomeBank";
 			g_key_file_set_string  (keyfile, group, "LastOpenedFile", GLOBALS->xhb_filepath);
 
@@ -508,9 +490,9 @@ homebank_icon_theme_setup()
 
 	GLOBALS->icontheme = gtk_icon_theme_get_default();
 
-	DB( g_print(" -> prepend theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
+	DB( g_print(" - prepend theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
 	gtk_icon_theme_prepend_search_path (GLOBALS->icontheme, homebank_app_get_pixmaps_dir());
-	//DB( g_print(" -> append theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
+	//DB( g_print(" - append theme search path: %s\n", homebank_app_get_pixmaps_dir()) );
 	//gtk_icon_theme_append_search_path (GLOBALS->icontheme, homebank_app_get_pixmaps_dir());
 
 
@@ -519,12 +501,12 @@ homebank_icon_theme_setup()
 	guint i;
 	gchar **paths;
 
-		DB( g_print(" -> get default icon theme\n") );
+		DB( g_print(" - get default icon theme\n") );
 
 		gtk_icon_theme_get_search_path(ic, &paths, NULL);
 		for(i=0;i<g_strv_length(paths);i++)
 		{
-			g_print("-> path %d: %s\n", i, paths[i]);
+			g_print(" - path %d: %s\n", i, paths[i]);
 		}
 
 		g_strfreev(paths);
@@ -588,7 +570,7 @@ build_package_paths (void)
 	help_dir     = g_build_filename (prefix, "share", PACKAGE, "help", NULL);
 	datas_dir    = g_build_filename (prefix, "share", PACKAGE, "datas", NULL);
 	#ifdef PORTABLE_APP
-		DB( g_print("- app is portable under windows\n") );
+		DB( g_print(" - app is portable under windows\n") );
 		config_dir   = g_build_filename(prefix, "config", NULL);
 	#else
 		config_dir   = g_build_filename(g_get_user_config_dir(), HB_DATA_PATH, NULL);
@@ -610,12 +592,12 @@ build_package_paths (void)
 	}
 #endif
 
-	DB( g_print("- config_dir : %s\n", config_dir) );
-	DB( g_print("- images_dir : %s\n", images_dir) );
-	DB( g_print("- pixmaps_dir: %s\n", pixmaps_dir) );
-	DB( g_print("- locale_dir : %s\n", locale_dir) );
-	DB( g_print("- help_dir   : %s\n", help_dir) );
-	DB( g_print("- datas_dir  : %s\n", datas_dir) );
+	DB( g_print(" - config_dir : %s\n", config_dir) );
+	DB( g_print(" - images_dir : %s\n", images_dir) );
+	DB( g_print(" - pixmaps_dir: %s\n", pixmaps_dir) );
+	DB( g_print(" - locale_dir : %s\n", locale_dir) );
+	DB( g_print(" - help_dir   : %s\n", help_dir) );
+	DB( g_print(" - datas_dir  : %s\n", datas_dir) );
 
 }
 
@@ -676,47 +658,47 @@ gboolean exists;
 	/* check if <userdir>/.config exist */
 #ifndef G_OS_WIN32
 	configdir = g_get_user_config_dir();
-	DB( g_print("- check '%s' exists\n", configdir) );
+	DB( g_print(" - check '%s' exists\n", configdir) );
 	if(!g_file_test(configdir, G_FILE_TEST_IS_DIR))
 	{
-		DB( g_print("- creating dir\n") );
+		DB( g_print(" - creating dir\n") );
 		g_mkdir(configdir, 0755);
 	}
 #endif
 
 	/* check for XDG .config/homebank */
 	configdir = homebank_app_get_config_dir();
-	DB( g_print("- config_dir is: '%s'\n", configdir) );
+	DB( g_print(" - config_dir is: '%s'\n", configdir) );
 	exists = g_file_test(configdir, G_FILE_TEST_IS_DIR);
 	if(exists)
 	{
 		/* just update folder security */
-		DB( g_print("- chmod 0700\n") );
+		DB( g_print(" - chmod 0700\n") );
 		g_chmod(configdir, 0700);
 		GLOBALS->first_run = FALSE;
 	}
 	else
 	{
 		/* create the config dir */
-		DB( g_print("- create config_dir\n") );
+		DB( g_print(" - create config_dir\n") );
 		g_mkdir(configdir, 0755);
 		g_chmod(configdir, 0700);
 
 		/* any old homedir configuration out there ? */
 		homedir = g_build_filename(g_get_home_dir (), ".homebank", NULL );
-		DB(	g_print("- homedir is: '%s'\n", homedir) );
+		DB(	g_print(" - homedir is: '%s'\n", homedir) );
 
 		exists = g_file_test(homedir, G_FILE_TEST_IS_DIR);
 		if(exists)
 		{
 		gboolean f1, f2;
 			/* we must do the migration properly */
-			DB( g_print("- migrate old 2 files\n") );
+			DB( g_print(" - migrate old 2 files\n") );
 			f1 = homebank_check_app_dir_migrate_file(homedir, config_dir, "preferences");
 			f2 = homebank_check_app_dir_migrate_file(homedir, config_dir, "lastopenedfiles");
 			if(f1 && f2)
 			{
-				DB( g_print("- removing old dir\n") );
+				DB( g_print(" - removing old dir\n") );
 				g_rmdir(homedir);
 			}
 		}
@@ -733,7 +715,7 @@ gboolean exists;
 static void homebank_cleanup()
 {
 
-	DB( g_print("\n\n[homebank] cleanup\n") );
+	DB( g_print("\n[homebank] cleanup\n") );
 
 	//v3.4 save windows size/position
 	homebank_pref_save();
@@ -794,17 +776,17 @@ static gboolean homebank_setup()
 
 	#if MYDEBUG == 1
 
-	g_print("- user_name: %s\n", g_get_user_name ());
-	g_print("- real_name: %s\n", g_get_real_name ());
-	g_print("- user_cache_dir: %s\n", g_get_user_cache_dir());
-	g_print("- user_data_dir: %s\n", g_get_user_data_dir ());
-	g_print("- user_config_dir: %s\n", g_get_user_config_dir ());
-	//g_print("- system_data_dirs: %s\n", g_get_system_data_dirs ());
-	//g_print("- system_config_dirs: %s\n", g_get_system_config_dirs ());
+	g_print(" - user_name: %s\n", g_get_user_name ());
+	g_print(" - real_name: %s\n", g_get_real_name ());
+	g_print(" - user_cache_dir: %s\n", g_get_user_cache_dir());
+	g_print(" - user_data_dir: %s\n", g_get_user_data_dir ());
+	g_print(" - user_config_dir: %s\n", g_get_user_config_dir ());
+	//g_print(" - system_data_dirs: %s\n", g_get_system_data_dirs ());
+	//g_print(" - system_config_dirs: %s\n", g_get_system_config_dirs ());
 
-	g_print("- home_dir: %s\n", g_get_home_dir ());
-	g_print("- tmp_dir: %s\n", g_get_tmp_dir ());
-	g_print("- current_dir: %s\n", g_get_current_dir ());
+	g_print(" - home_dir: %s\n", g_get_home_dir ());
+	g_print(" - tmp_dir: %s\n", g_get_tmp_dir ());
+	g_print(" - current_dir: %s\n", g_get_current_dir ());
 
 	#endif
 
@@ -823,7 +805,7 @@ GtkWidget *frame, *vbox, *image;
 //gchar *ver_string, *markup, *version;
 gchar *pathfilename;
 
-	DB( g_print("[homebank_construct_splash]\n") );
+	DB( g_print("\n[homebank_construct_splash]\n") );
 
 	window = gtk_window_new(GTK_WINDOW_POPUP);	//TOPLEVEL DONT WORK
 	gtk_window_set_type_hint (GTK_WINDOW (window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
@@ -879,7 +861,7 @@ homebank_init_i18n (void)
 
 	/*#ifdef G_OS_WIN32
 	gchar *wl = g_win32_getlocale ();
-	DB( g_print(" -> win32 locale is '%s'\n", wl) );
+	DB( g_print(" - win32 locale is '%s'\n", wl) );
 	g_free(wl);
 	#endif*/
 
@@ -973,7 +955,7 @@ gboolean openlast;
 
 		gtk_window_set_default_icon_name ("homebank");
 
-		DB( g_print(" -> creating window\n" ) );
+		DB( g_print(" - creating window\n" ) );
 
 		mainwin = (GtkWidget *)create_hbfile_window (NULL);
 
@@ -1023,7 +1005,7 @@ gboolean openlast;
 				gtk_main_iteration ();
 
 
-			DB( g_print(" -> open last file ?\n" ) );
+			DB( g_print(" - open last file ?\n" ) );
 
 			// load a file ?
 			/* load 1st file specified on commandline */
@@ -1032,7 +1014,7 @@ gboolean openlast;
 			{
 				if (g_file_test (files[0], G_FILE_TEST_EXISTS) != FALSE)
 				{
-					DB( g_print(" -> should load %s\n", files[0] ) );
+					DB( g_print(" - should load %s\n", files[0] ) );
 					hbfile_change_filepath(g_strdup(files[0]));
 					ui_mainwindow_open_internal(mainwin, NULL);
 					openlast = FALSE;
@@ -1046,7 +1028,7 @@ gboolean openlast;
 			}
 
 
-			DB( g_print(" -> GLOBALS->xhb_filepath: '%s'\n", GLOBALS->xhb_filepath ) );
+			DB( g_print(" - GLOBALS->xhb_filepath: '%s'\n", GLOBALS->xhb_filepath ) );
 
 			if( openlast )
 			{
@@ -1057,7 +1039,7 @@ gboolean openlast;
 			/* update the mainwin display */
 			ui_mainwindow_update(mainwin, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_BALANCE+UF_VISUAL));
 
-		DB( g_print(" -> gtk_main()\n" ) );
+		DB( g_print(" - gtk_main()\n" ) );
 
 			gtk_main ();
 		}

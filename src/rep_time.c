@@ -745,8 +745,9 @@ guint32 selkey;
 	/* do nothing if no transaction */
 	if(g_list_length(GLOBALS->ope_list) == 0) return;
 
-	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
-	ui_reptime_update_quickdate(widget, NULL);
+	//to remove > 5.0.2
+	//filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	//ui_reptime_update_quickdate(widget, NULL);
 
 	//get our min max date
 	from = data->filter->mindate;

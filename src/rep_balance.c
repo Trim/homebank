@@ -653,8 +653,9 @@ Account *acc;
 		//gtk_chart_set_currency(GTK_CHART(data->RE_line), GLOBALS->kcur);
 	}
 
-	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
-	repbalance_update_quickdate(widget, NULL);
+	//to remove > 5.0.2
+	//filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	//repbalance_update_quickdate(widget, NULL);
 
 	repbalance_compute_full_datas(acckey, selectall, data);
 

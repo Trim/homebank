@@ -68,7 +68,7 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 #define HB_UNSTABLE			FALSE
-#define HB_VERSION			"5.0.1"
+#define HB_VERSION			"5.0.2"
 #define FILE_VERSION		1.1
 #define PREF_VERSION		500
 
@@ -261,8 +261,8 @@ struct HomeBank
 gint homebank_alienfile_recognize(gchar *filename);
 gchar *homebank_filepath_with_extention(gchar *path, gchar *extension);
 gchar *homebank_filename_without_extention(gchar *path);
-void homebank_file_ensure_xhb(void);
-void homebank_backup_current_file(gchar *pathname);
+void homebank_file_ensure_xhb(gchar *filename);
+void homebank_backup_current_file(void);
 gboolean homebank_util_url_show (const gchar *url);
 gboolean homebank_lastopenedfiles_load(void);
 gboolean homebank_lastopenedfiles_save(void);

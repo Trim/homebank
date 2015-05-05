@@ -73,6 +73,10 @@ struct _GtkDateEntryPrivate
 	GDate	mindate, maxdate;
 	GdkDevice   *device;
 	gboolean	has_grab;
+	gboolean    popup_in_progress;
+
+	GdkDevice *grab_pointer;
+	GdkDevice *grab_keyboard;
 };
 
 

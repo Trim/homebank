@@ -38,7 +38,7 @@ struct ui_pay_manage_dialog_data
 	GtkWidget	*BT_merge;
 	GtkWidget	*BT_delete;
 
-	gint	change;
+	gint		change;
 };
 
 struct payPopContext

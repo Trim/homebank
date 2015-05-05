@@ -28,7 +28,6 @@
 
 #include "dsp_account.h"
 #include "ui-assist-import.h"
-#include "imp_qif.h"
 #include "ui-assist-start.h"
 #include "ui-account.h"
 #include "ui-payee.h"
@@ -383,9 +382,9 @@ gint result;
 	{
 		DB( g_print(" - should revert\n") );
 		
-		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb~"));
+		hbfile_change_filepath(hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~"));
 		ui_mainwindow_open_internal(widget, NULL);
-		hbfile_change_filepath(hb_filename_new_with_extention(GLOBALS->xhb_filepath, "xhb"));
+		hbfile_change_filepath(hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb"));
 	}
 
 }
@@ -1031,19 +1030,19 @@ GList *lacc, *elt;
 */
 void ui_mainwindow_clear(GtkWidget *widget, gpointer user_data)
 {
-//struct hbfile_data *data;
+struct hbfile_data *data;
 gboolean file_clear = GPOINTER_TO_INT(user_data);
 
 	DB( g_print("\n[ui-mainwindow] clear\n") );
 
-	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	// Close opened account window
 	// Clear TreeView
 	ui_mainwindow_close_openbooks();
-	//gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc))));
-	//gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_upc))));
-	//gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_top))));
+	gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc))));
+	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_upc))));
+	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_top))));
 	
 	hbfile_cleanup(file_clear);
 	hbfile_setup(file_clear);
@@ -1094,14 +1093,14 @@ gint account, count;
 
 		result = gtk_dialog_run (GTK_DIALOG (window));
 
-		DB( g_print(" -> dialog result is %d\n", result) );
+		DB( g_print(" - dialog result is %d\n", result) );
 
 		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
 		{
 			deftransaction_get(window, NULL);
 			transaction_add(ope, NULL, ope->kacc);
 
-			DB( g_print(" -> added 1 transaction to %d\n", ope->kacc) );
+			DB( g_print(" - added 1 transaction to %d\n", ope->kacc) );
 
 			ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 			
@@ -1418,7 +1417,7 @@ struct hbfile_data *data = user_data;
 
 				result = gtk_dialog_run (GTK_DIALOG (window));
 
-				DB( g_print(" -> dialog result is %d\n", result) );
+				DB( g_print(" - dialog result is %d\n", result) );
 
 				if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
 				{
@@ -1428,7 +1427,7 @@ struct hbfile_data *data = user_data;
 		
 					scheduled_date_advance(arc);
 
-					DB( g_print(" -> added 1 transaction to %d\n", txn->kacc) );
+					DB( g_print(" - added 1 transaction to %d\n", txn->kacc) );
 				}
 
 				da_transaction_free(txn);
@@ -1691,7 +1690,7 @@ gint r;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print(" -> filename: '%s'\n", GLOBALS->xhb_filepath) );
+	DB( g_print(" - filename: '%s'\n", GLOBALS->xhb_filepath) );
 
 	if( GLOBALS->xhb_filepath != NULL )
 	{
@@ -1701,7 +1700,7 @@ gint r;
 		r = homebank_load_xml(GLOBALS->xhb_filepath);
 		if( r == XML_OK )
 		{
-			DB( g_print(" -> file loaded ok : rcode=%d\n", r) );
+			DB( g_print(" - file loaded ok : rcode=%d\n", r) );
 			
 			hbfile_file_hasbackup(GLOBALS->xhb_filepath);
 			
@@ -1714,9 +1713,6 @@ gint r;
 			account_compute_balances();
 
 			ui_mainwindow_recent_add(data, GLOBALS->xhb_filepath);
-			ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
-			ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
-			ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
 		}
 		else
 		{
@@ -1745,6 +1741,9 @@ gint r;
 
 		}
 
+		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
 		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_VISUAL));
 	}
 
@@ -1772,10 +1771,9 @@ gint r = XML_UNSET;
 	{
 		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_SAVE, &filename) == TRUE)
 		{
-			DB( g_print(" + should save as %s\n", GLOBALS->xhb_filepath) );
-			hbfile_change_filepath(filename);
-			homebank_backup_current_file(GLOBALS->xhb_filepath);
-			homebank_file_ensure_xhb();
+			DB( g_print(" + should save as '%s'\n", filename) );
+			homebank_file_ensure_xhb(filename);
+			homebank_backup_current_file();
 			r = homebank_save_xml(GLOBALS->xhb_filepath);
 			GLOBALS->hbfile_is_new = FALSE;
 		}
@@ -1785,8 +1783,8 @@ gint r = XML_UNSET;
 	else
 	{
 		DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
-		homebank_backup_current_file(GLOBALS->xhb_filepath);
-		homebank_file_ensure_xhb();
+		homebank_file_ensure_xhb(NULL);
+		homebank_backup_current_file();
 		r = homebank_save_xml(GLOBALS->xhb_filepath);
 	}
 
@@ -1836,7 +1834,7 @@ gdouble gtbank, gttoday, gtfuture;
 		//#1339572
 		if( !(acc->flags & (AF_CLOSED|AF_NOSUMMARY)) )
 		{
-			DB( g_print(" -> insert %d:%s\n", acc->key, acc->name) );
+			DB( g_print(" - insert %d:%s\n", acc->key, acc->name) );
 
 			if(typeacc[acc->type] == NULL)
 				typeacc[acc->type] = g_ptr_array_sized_new(da_acc_length ());
@@ -1849,7 +1847,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 	gtbank = gttoday = gtfuture = 0;
 
-	DB( g_print(" -> populate listview\n") );
+	DB( g_print(" - populate listview\n") );
 
 
 	/* then populate the listview */
@@ -1866,7 +1864,7 @@ gdouble gtbank, gttoday, gtfuture;
 		{
 			nbtype++;
 			//1: Header: Bank, Cash, ...
-			DB( g_print(" -> append type '%s'\n", CYA_ACC_TYPE[i]) );
+			DB( g_print(" - append type '%s'\n", CYA_ACC_TYPE[i]) );
 
 			gtk_tree_store_append (GTK_TREE_STORE(model), &iter1, NULL);
 			gtk_tree_store_set (GTK_TREE_STORE(model), &iter1,
@@ -1955,7 +1953,7 @@ gdouble gtbank, gttoday, gtfuture;
 
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(data->LV_acc));
 
-	DB( g_print(" -> free ressources\n") );
+	DB( g_print(" - free ressources\n") );
 
 
 	/* free all temp stuff */
@@ -2324,7 +2322,7 @@ void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path)
 
 	DB( g_print("\n[ui-mainwindow] recent_add\n") );
 
-	DB( g_print(" - suffix xhb %d", g_str_has_suffix (path, ".xhb") ) );
+	DB( g_print(" - file has .xhb suffix = %d\n", g_str_has_suffix (path, ".xhb") ) );
 
 	if( g_str_has_suffix (path, ".xhb") == FALSE )	//ignore reverted file
 		return;
@@ -2381,7 +2379,7 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 			guint info, guint time, GtkWindow *window)
 {
 	gchar **uris, **str;
-	gchar *data;
+	gchar *newseldata;
 	gint filetype, slen;
 
 	if (info != TARGET_URI_LIST)
@@ -2391,11 +2389,11 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 
 	/* On MS-Windows, it looks like `selection_data->data' is not NULL terminated. */
 	slen = gtk_selection_data_get_length(selection_data);
-	data = g_new (gchar, slen + 1);
-	memcpy (data, gtk_selection_data_get_data(selection_data), slen);
-	data[slen] = 0;
+	newseldata = g_new (gchar, slen + 1);
+	memcpy (newseldata, gtk_selection_data_get_data(selection_data), slen);
+	newseldata[slen] = 0;
 
-	uris = g_uri_list_extract_uris (data);
+	uris = g_uri_list_extract_uris (newseldata);
 
 	str = uris;
 	//for (str = uris; *str; str++)
@@ -2438,6 +2436,8 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 		g_free (path);
 	}
 	g_strfreev (uris);
+	
+	g_free(newseldata);
 }
 
 

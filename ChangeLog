@@ -1,5 +1,16 @@
 
 
+2015-05-06  Maxime Doyen
+
+ Made 5.0.2 release.
+
+ * bugfix: #1448549 importing CSV files automatically creates 3 new accounts
+ * bugfix: #1443782 date filter From/To fields not working in Trend time and Balance reports
+ * bugfix: #1443048 saving cut file name after a dot
+ * bugfix: #1443047 budget amount is wrong (seems twice)
+ * bugfix: #1429414 calendar widget can't be dismissed by clicking on the arrow or text entry 
+
+
 2015-04-06  Maxime Doyen
 
  Made 5.0.1 release.

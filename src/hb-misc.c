@@ -17,6 +17,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+//nota: this file should be renamed hb-utils
+
 #include "homebank.h"
 #include "hb-misc.h"
 
@@ -756,11 +759,11 @@ GDate *date;
 gint n1, n2, n3, d, m, y;
 guint32 julian = 0;
 
-	DB( g_print("hb_date_get_julian: %s, %d\n", string, datefmt) );
+	DB( g_print("hb_date_get_julian: '%s', '%d'\n", string, datefmt) );
 	
 	if( hb_date_parser_get_nums(string, &n1, &n2, &n3) )
 	{
-		DB( g_print("-> %d %d %d\n", n1, n2, n3) );
+		DB( g_print("-> '%d' '%d' '%d'\n", n1, n2, n3) );
 
 		switch(datefmt)
 		{
@@ -812,49 +815,34 @@ guint32 julian = 0;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
-gchar *hb_filename_new_with_extention(gchar *filename, const gchar *extension)
+gchar *hb_util_filename_new_with_extension(gchar *filename, const gchar *extension)
 {
-gchar *dirname;
-gchar *basename;
-gchar *newbasename;
+gchar *lastdot, *fwe;
 gchar *newfilename;
-gchar **str_array;
 
-	dirname  = g_path_get_dirname (filename);
-	basename = g_path_get_basename(filename);
-	str_array = g_strsplit(basename, ".", 0);
-	newbasename = g_strdup_printf("%s.%s", str_array[0], extension);
-	newfilename = g_build_filename(dirname, newbasename, NULL);
+	DB( g_print("\n[util] filename with extension\n") );
 
-	g_strfreev(str_array);
-	g_free(basename);
-	g_free(dirname);
-	g_free(newbasename);
+	DB( g_print(" - orig: '%s' => '%s'\n", filename, extension) );
+
+	//duplicate without extensions
+	lastdot = g_strrstr(filename, ".");
+	if(lastdot != NULL)
+	{
+		fwe = g_strndup(filename, strlen(filename) - strlen(lastdot));
+		DB( g_print(" - fwe: '%s'\n", fwe) );
+		newfilename = g_strdup_printf("%s.%s", fwe, extension);
+		g_free(fwe);
+	}
+	else
+	{
+		newfilename = g_strdup_printf("%s.%s", filename, extension);
+	}
+
+	DB( g_print(" - new: '%s'\n", newfilename) );
 
 	return newfilename;
 }
 
-
-/* file backup, qif export */
-
-
-/*gchar *homebank_filename_without_extention(gchar *path)
-{
-gchar *basename;
-gchar *newname;
-gchar **str_array;
-
-	basename = g_path_get_basename(path);
-
-	str_array = g_strsplit(basename, ".", 0);
-
-	newname = g_strdup(str_array[0]);
-
-	g_strfreev(str_array);
-	g_free(basename);
-
-	return newname;
-}*/
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 

@@ -389,7 +389,7 @@ gchar *string;
 		name = entry->name;
 
 	#if MYDEBUG
-		string = g_strdup_printf ("%d > %s [ft=%d im=%d]", entry->key, name, entry->filter, entry->imported);
+		string = g_strdup_printf ("%d > %s [ft=%d]", entry->key, name, entry->filter);
 		g_object_set(renderer, "text", string, NULL);
 		g_free(string);
 	#else
@@ -397,7 +397,6 @@ gchar *string;
 	#endif
 
 }
-
 
 
 /* = = = = = = = = = = = = = = = = */
@@ -635,6 +634,7 @@ gchar *filename = NULL;
 		g_free( filename );
 	}
 }
+
 
 /**
  * ui_pay_manage_dialog_add:

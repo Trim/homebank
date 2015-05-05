@@ -515,7 +515,7 @@ GtkTreeModel *model;
 GtkTreeIter  iter;
 GList *list;
 guint n_result, id;
-gdouble *tmp_spent, *tmp_budget, *tmp_hasbudget;
+gdouble *tmp_spent, *tmp_budget;
 gint nbmonth = 1;
 gchar *title;
 
@@ -545,9 +545,8 @@ gchar *title;
 	/* allocate some memory */
 	tmp_spent  = g_malloc0((n_result+1) * sizeof(gdouble));
 	tmp_budget = g_malloc0((n_result+1) * sizeof(gdouble));
-	tmp_hasbudget = g_malloc0((n_result+1) * sizeof(gdouble));
 
-	if(tmp_spent && tmp_budget && tmp_hasbudget)
+	if(tmp_spent && tmp_budget)
 	{
 	guint i = 0;
 		/* compute the results */
@@ -566,7 +565,7 @@ gchar *title;
 			if( entry == NULL)
 				continue;
 
-			DB( g_print("+ catgory %d:'%s' custom=%d\n", entry->key, entry->name, (entry->flags & GF_CUSTOM)) );
+			DB( g_print("+ category %d:'%s' hasbudget=%d custom=%d\n", entry->key, entry->name, (entry->flags & GF_BUDGET), (entry->flags & GF_CUSTOM)) );
 
 			//debug
 			#if MYDEBUG == 1
@@ -597,7 +596,6 @@ gchar *title;
 			{
 				DB( g_print(" -> monthly %.2f\n", entry->budget[0]) );
 				tmp_budget[pos] += entry->budget[0]*nbmonth;
-				tmp_hasbudget[i] += entry->budget[0]*nbmonth;
 			}
 			//otherwise	sum each month from mindate month
 			else
@@ -606,21 +604,19 @@ gchar *title;
 			gint j;
 
 				DB( g_print(" -> custom each month for %d months\n", nbmonth) );
-				for(j=0;j<nbmonth;j++)
-				{
+				for(j=0;j<nbmonth;j++) {
 					DB( g_print(" -> j=%d month=%d budg=%.2f\n", j, month, entry->budget[month]) );
-
 					tmp_budget[pos] += entry->budget[month];
-					tmp_hasbudget[i] += entry->budget[month];
 					month++;
-					if(month > 12) month = 1;
+					if(month > 12) {
+						month = 1;
+					}
 				}
 			}
 
 			//debug
 			#if MYDEBUG == 1
-			g_print(" final budget: %d '%s' : budg[%d]=%.2f hasbudg[%d]=%.2f\n", 
-					entry->key, entry->name, pos, tmp_budget[pos], i, tmp_hasbudget[i]);
+			g_print(" final budget: %d:'%s' : budg[%d]=%.2f\n", entry->key, entry->name, pos, tmp_budget[pos] );
 			#endif
 		}
 
@@ -780,7 +776,7 @@ next1:
 				if( tmpkind == 2 && tmp_budget[pos] < 0)
 					continue;
 
-				DB( g_print(" eval insert '%s' : %.2f %.2f %.2f\n", name, tmp_budget[pos], tmp_hasbudget[pos], tmp_spent[pos]) );
+				DB( g_print(" eval insert '%s' : bud=%.2f spen=%.2f\n", name, tmp_budget[pos], tmp_spent[pos]) );
 
 				if((entry->flags & (GF_BUDGET|GF_FORCED)) || tmp_budget[pos] /*|| tmp_spent[pos]*/)
 				{
@@ -861,7 +857,6 @@ next1:
 	/* free our memory */
 	g_free(tmp_spent);
 	g_free(tmp_budget);
-	g_free(tmp_hasbudget);
 
 }
 

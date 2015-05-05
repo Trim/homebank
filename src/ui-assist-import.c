@@ -1444,7 +1444,8 @@ ImportContext *ictx = &data->ictx;
 			if(i != PREFS->dtex_datefmt)	//don't reload with user pref date format
 			{
 				DB( g_print(" fail, reload with '%s'\n", CYA_IMPORT_DATEORDER[i]) );
-				_import_context_clear (&data->ictx);
+				//#1448549
+				import_clearall(data);
 				ictx->encoding = encoding; //#1425986 keep encoding with us
 				ictx->datefmt = i;
 				_import_tryload_file(data);

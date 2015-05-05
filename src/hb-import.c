@@ -140,24 +140,24 @@ Account *tmp_acc, *dst_acc;
 
 	if(data.account_id_valid==true)
 	{
-		DB( g_print("  account_id: %s\n", data.account_id) );
-		DB( g_print("  account_name: %s\n", data.account_name) );
+		DB( g_print("  account_id: '%s'\n", data.account_id) );
+		DB( g_print("  account_name: '%s'\n", data.account_name) );
 	}
 
 	//if(data.account_number_valid==true)
 	//{
-		DB( g_print("  account_number: %s\n", data.account_number) );
+		DB( g_print("  account_number: '%s'\n", data.account_number) );
 	//}
 
 
 	if(data.account_type_valid==true)
 	{
-		DB( g_print("  account_type: %d\n", data.account_type) );
+		DB( g_print("  account_type: '%d'\n", data.account_type) );
 	}
 
 	if(data.currency_valid==true)
 	{
-		DB( g_print("  currency: %s\n", data.currency) );
+		DB( g_print("  currency: '%s'\n", data.currency) );
 	}
 
 

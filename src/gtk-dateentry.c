@@ -49,7 +49,10 @@ static void gtk_date_entry_destroy         (GtkWidget     *dateentry);
 
 static void gtk_date_entry_entry_activate(GtkWidget * calendar, gpointer user_data);
 static gint gtk_date_entry_entry_key_pressed (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
-static gint	gtk_date_entry_button_toggled     (GtkWidget * widget, GtkDateEntry * dateentry);
+static void	gtk_date_entry_button_clicked     (GtkWidget * widget, GtkDateEntry * dateentry);
+
+static void
+gtk_date_entry_popup(GtkDateEntry * dateentry, GdkEvent *event);
 
 static gint gtk_date_entry_popup_key_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 static gint gtk_date_entry_popup_button_press (GtkWidget * widget, GdkEvent * event, gpointer data);
@@ -270,7 +273,7 @@ gtk_date_entry_entry_focus_out(GtkWidget *widget, GdkEventFocus *event, gpointer
 {
 GtkDateEntry *dateentry = user_data;
 
-	DB( g_print("\n[dateentry] focus-out-event %d\n", gtk_widget_is_focus(GTK_WIDGET(dateentry))) );
+	DB( g_print("\n[dateentry] entry focus-out-event %d\n", gtk_widget_is_focus(GTK_WIDGET(dateentry))) );
 
 	gtk_date_entry_entry_activate(GTK_WIDGET(dateentry), dateentry);
 
@@ -294,6 +297,7 @@ GtkDateEntryPrivate *priv;
 	/* initialize datas */
 	priv->date = g_date_new();
 	priv->device = NULL;
+	priv->popup_in_progress = FALSE;
 	priv->has_grab = FALSE;
 
 	g_date_set_time_t(priv->date, time(NULL));
@@ -312,29 +316,32 @@ GtkDateEntryPrivate *priv;
 	
 	gtk_box_pack_start (GTK_BOX (dateentry), priv->entry, TRUE, TRUE, 0);
 
-	g_signal_connect (priv->entry, "activate",
-				G_CALLBACK (gtk_date_entry_entry_activate), dateentry);
-
-	g_signal_connect (priv->entry, "focus-out-event",
-				G_CALLBACK (gtk_date_entry_entry_focus_out), dateentry);
-
 	g_signal_connect (priv->entry, "key-press-event",
 				G_CALLBACK (gtk_date_entry_entry_key_pressed), dateentry);
 
+	g_signal_connect_after (priv->entry, "focus-out-event",
+				G_CALLBACK (gtk_date_entry_entry_focus_out), dateentry);
+
+	g_signal_connect (priv->entry, "activate",
+				G_CALLBACK (gtk_date_entry_entry_activate), dateentry);
+
 	
-	priv->button = gtk_toggle_button_new ();
-	priv->arrow = gtk_arrow_new (GTK_ARROW_DOWN, GTK_SHADOW_IN);
+	priv->button = gtk_button_new ();
+	priv->arrow = gtk_arrow_new (GTK_ARROW_DOWN, GTK_SHADOW_NONE);
+	//priv->arrow = gtk_image_new_from_icon_name ("pan-down-symbolic", GTK_ICON_SIZE_BUTTON);
 	gtk_container_add (GTK_CONTAINER (priv->button), priv->arrow);
 	gtk_box_pack_end (GTK_BOX (dateentry), priv->button, FALSE, FALSE, 0);
 	gtk_widget_show_all (priv->button);
 
-	g_signal_connect (priv->button, "toggled",
-				G_CALLBACK (gtk_date_entry_button_toggled), dateentry);
-	
+	g_signal_connect (priv->button, "clicked",
+				G_CALLBACK (gtk_date_entry_button_clicked), dateentry);
+
 
 	priv->popup_window = gtk_window_new (GTK_WINDOW_POPUP);
+	gtk_window_set_type_hint (
+		GTK_WINDOW (priv->popup_window), GDK_WINDOW_TYPE_HINT_COMBO);
 	gtk_widget_set_events (priv->popup_window,
-				gtk_widget_get_events(priv->popup_window) | GDK_KEY_PRESS_MASK);
+		gtk_widget_get_events(priv->popup_window) | GDK_KEY_PRESS_MASK);
 
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (priv->popup_window), priv->frame);
@@ -476,7 +483,7 @@ void gtk_date_entry_set_mindate(GtkDateEntry *dateentry, guint32 julian_days)
 {
 GtkDateEntryPrivate *priv = dateentry->priv;
 	
-	DB( g_print(" \n[dateentry] set date\n") );
+	DB( g_print(" \n[dateentry] set mindate\n") );
 
 	g_return_if_fail (GTK_IS_DATE_ENTRY (dateentry));
 
@@ -494,7 +501,7 @@ void gtk_date_entry_set_maxdate(GtkDateEntry *dateentry, guint32 julian_days)
 {
 GtkDateEntryPrivate *priv = dateentry->priv;
 	
-	DB( g_print(" \n[dateentry] set date\n") );
+	DB( g_print(" \n[dateentry] set maxdate\n") );
 
 	g_return_if_fail (GTK_IS_DATE_ENTRY (dateentry));
 
@@ -559,7 +566,7 @@ GtkDateEntry *dateentry = user_data;
 GtkDateEntryPrivate *priv = dateentry->priv;
 const gchar *str;
 
-	DB( g_print("\n[dateentry] entry_parse\n") );
+	DB( g_print("\n[dateentry] entry_activate\n") );
 
  	str = gtk_entry_get_text (GTK_ENTRY (priv->entry));
 
@@ -608,7 +615,7 @@ gtk_date_entry_calendar_getfrom(GtkWidget * calendar, GtkDateEntry * dateentry)
 GtkDateEntryPrivate *priv = dateentry->priv;
 guint year, month, day;
 
-	DB( g_print(" (dateentry) get from calendar\n") );
+	DB( g_print(" (dateentry) calendar_getfrom\n") );
 
 	gtk_calendar_get_date (GTK_CALENDAR (priv->calendar), &year, &month, &day);
 	g_date_set_dmy (priv->date, day, month + 1, year);
@@ -723,29 +730,37 @@ GtkAllocation allocation;
 
 
 static void
-gtk_date_entry_popup(GtkDateEntry * dateentry)
+gtk_date_entry_button_clicked (GtkWidget * widget, GtkDateEntry * dateentry)
+{
+GdkEvent *event;
+
+	DB( g_print("\n[dateentry] button_clicked\n") );
+
+/* Obtain the GdkEvent that triggered
+	 * the date button's "clicked" signal. */
+	event = gtk_get_current_event ();
+	
+	gtk_date_entry_popup(dateentry, event);
+
+}
+
+
+static void
+gtk_date_entry_popup(GtkDateEntry * dateentry, GdkEvent *event)
 {
 GtkDateEntryPrivate *priv = dateentry->priv;
-GtkWidget *toplevel;
 const char *str;
 int month;
-
-  //gint height, width, x, y;
-  //gint old_width, old_height;
-
-  if (gtk_widget_get_mapped (priv->popup_window))
-    return;
-
-  if (priv->has_grab)
-    return;
+GdkDevice *event_device;
+GdkDevice *assoc_device;
+GdkDevice *keyboard_device;
+GdkDevice *pointer_device;
+GdkWindow *window;
+GdkGrabStatus grab_status;
+guint event_time;
 
 
-	
 	DB( g_print("\n[dateentry] popup_display\n****\n\n") );
-
-  //old_width = priv->popup_window->allocation.width;
-  //old_height  = priv->popup_window->allocation.height;
-
 
 /* update */
 	str = gtk_entry_get_text (GTK_ENTRY (priv->entry));
@@ -762,34 +777,69 @@ int month;
 				 g_date_get_day (priv->date));
 	}
 
-	gtk_widget_show_all (GTK_WIDGET(dateentry));
 
+	/* popup */
 	gtk_date_entry_popup_position(dateentry);
-
-	toplevel = gtk_widget_get_toplevel (priv->entry);
-	if (GTK_IS_WINDOW (toplevel))
-	gtk_window_group_add_window (gtk_window_get_group (GTK_WINDOW (toplevel)),
-		                         GTK_WINDOW (priv->popup_window));
-
 	gtk_widget_show (priv->popup_window);
-	
-	gtk_widget_grab_focus (priv->calendar);
+	gtk_widget_grab_focus (priv->popup_window);
+	gtk_grab_add (priv->popup_window);
 
-	GdkDevice *device = gtk_get_current_event_device();
+	window = gtk_widget_get_window (priv->popup_window);
 
-	if(!priv->device)
-		priv->device = device;
-	
-	gtk_device_grab_add (priv->popup_window, priv->device, TRUE);
-	gdk_device_grab (priv->device, gtk_widget_get_window (priv->popup_window),
-                   GDK_OWNERSHIP_WINDOW, TRUE,
-                   GDK_BUTTON_PRESS_MASK
-                   | GDK_BUTTON_RELEASE_MASK
-                   | GDK_POINTER_MOTION_MASK,
-                   NULL, GDK_CURRENT_TIME);
+	g_return_if_fail (priv->grab_keyboard == NULL);
+	g_return_if_fail (priv->grab_pointer == NULL);
 
-	priv->has_grab = TRUE;
-	
+	event_device = gdk_event_get_device (event);
+	assoc_device = gdk_device_get_associated_device (event_device);
+
+if (gdk_device_get_source (event_device) == GDK_SOURCE_KEYBOARD) {
+		keyboard_device = event_device;
+		pointer_device = assoc_device;
+	} else {
+		keyboard_device = assoc_device;
+		pointer_device = event_device;
+	}
+
+	if (keyboard_device != NULL) {
+		grab_status = gdk_device_grab (
+			keyboard_device,
+			window,
+			GDK_OWNERSHIP_WINDOW,
+			TRUE,
+			GDK_KEY_PRESS_MASK |
+			GDK_KEY_RELEASE_MASK,
+			NULL,
+			event_time);
+		if (grab_status == GDK_GRAB_SUCCESS) {
+			priv->grab_keyboard =
+				g_object_ref (keyboard_device);
+		}
+	}
+
+	if (pointer_device != NULL) {
+		grab_status = gdk_device_grab (
+			pointer_device,
+			window,
+			GDK_OWNERSHIP_WINDOW,
+			TRUE,
+			GDK_BUTTON_PRESS_MASK |
+			GDK_BUTTON_RELEASE_MASK |
+			GDK_POINTER_MOTION_MASK,
+			NULL,
+			event_time);
+		if (grab_status == GDK_GRAB_SUCCESS) {
+			priv->grab_pointer =
+				g_object_ref (pointer_device);
+		} else if (priv->grab_keyboard != NULL) {
+			gdk_device_ungrab (
+				priv->grab_keyboard,
+				event_time);
+			g_object_unref (priv->grab_keyboard);
+			priv->grab_keyboard = NULL;
+		}
+	}
+
+	gdk_window_focus (window, event_time);
 
 }
 
@@ -800,48 +850,30 @@ gtk_date_entry_popdown(GtkDateEntry *dateentry)
 GtkDateEntryPrivate *priv = dateentry->priv;
 
 	DB( g_print("\n[dateentry] popdown\n") );
-	
-	if (!gtk_widget_get_mapped (priv->popup_window))
-		return;
 
+  gtk_widget_hide (priv->popup_window);
+  gtk_grab_remove (priv->popup_window);
 
-	if (priv->has_grab)
-    {
-		gdk_device_ungrab (priv->device, GDK_CURRENT_TIME);
-		gtk_device_grab_remove (priv->popup_window, priv->device);
-		priv->has_grab = FALSE;
-    }
-	
-	gtk_widget_hide(priv->popup_window);
-
-
-	//g_signal_handlers_block_by_func(priv->button, gtk_date_entry_button_toggled, NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->button), FALSE);
-	//g_signal_handlers_unblock_by_func(priv->button, gtk_date_entry_button_toggled, NULL);
-		
-}
-
-
-static gint
-gtk_date_entry_button_toggled (GtkWidget * widget, GtkDateEntry * dateentry)
-{
-GtkToggleButton *button;
-
-	DB( g_print("\n[dateentry] button_toggled\n") );
-
-	button = GTK_TOGGLE_BUTTON(widget);
-
-	if(!gtk_toggle_button_get_active(button))
-	{
-		gtk_date_entry_popdown(dateentry);
-
-		//gtk_date_entry_calendar_getfrom(NULL, dateentry);
-		return TRUE;
+	if (priv->grab_keyboard != NULL) {
+		gdk_device_ungrab (
+			priv->grab_keyboard,
+			GDK_CURRENT_TIME);
+		g_object_unref (priv->grab_keyboard);
+		priv->grab_keyboard = NULL;
 	}
 
-	gtk_date_entry_popup(dateentry);
-	return TRUE;
+	if (priv->grab_pointer != NULL) {
+		gdk_device_ungrab (
+			priv->grab_pointer,
+			GDK_CURRENT_TIME);
+		g_object_unref (priv->grab_pointer);
+		priv->grab_pointer = NULL;
+	}
+
 }
+
+
+
 
 
 static gint
@@ -869,21 +901,28 @@ gtk_date_entry_popup_button_press (GtkWidget * widget, GdkEvent * event, gpointe
 {
 GtkDateEntry *dateentry = user_data;
 GtkDateEntryPrivate *priv = dateentry->priv;
-GdkWindow *window, *topevent;
-	
-  if (!gtk_widget_get_mapped (priv->popup_window))
-    return FALSE;
-	
+GtkWidget *child;
+
 	DB( g_print("\n[dateentry] popup_button_press\n") );
 
-	topevent = gdk_window_get_effective_toplevel(event->button.window);
-	window = gtk_widget_get_window (priv->entry);
+	child = gtk_get_event_widget (event);
 
-	if(window == topevent)
-	{
-		DB( g_print(" - should close\n") );
-		gtk_date_entry_popdown(dateentry);
+	/* We don't ask for button press events on the grab widget, so
+	 *  if an event is reported directly to the grab widget, it must
+	 *  be on a window outside the application (and thus we remove
+	 *  the popup window). Otherwise, we check if the widget is a child
+	 *  of the grab widget, and only remove the popup window if it
+	 *  is not.
+	 */
+	if (child != widget) {
+		while (child) {
+			if (child == widget)
+				return FALSE;
+			child = gtk_widget_get_parent (child);
+		}
 	}
+
+	gtk_date_entry_popdown(dateentry);
 
 	return TRUE;
 }
