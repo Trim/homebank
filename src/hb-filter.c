@@ -333,8 +333,8 @@ GList *lcat, *list;
 	flt->option[FILTER_STATUS] = 0;
 	flt->reconciled = TRUE;
 	flt->cleared  = TRUE;
-	flt->forceadd = FALSE;
-	flt->forcechg = FALSE;
+	flt->forceadd = TRUE;
+	flt->forcechg = TRUE;
 
 	flt->option[FILTER_CATEGORY] = 0;
 	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);

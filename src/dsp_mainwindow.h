@@ -41,8 +41,9 @@ struct hbfile_data
 	GtkWidget	*GR_upc;
 	GtkWidget	*LV_upc;
 	GtkWidget   *LB_maxpostdate;
-	GtkToolItem *BT_sched_post;
-	GtkToolItem *BT_sched_skip;
+	GtkWidget   *BT_sched_skip;
+	GtkWidget   *BT_sched_post;
+	GtkWidget   *BT_sched_editpost;
 
 	GtkWidget   *RA_type;
 	

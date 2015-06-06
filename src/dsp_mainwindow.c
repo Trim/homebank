@@ -1072,7 +1072,7 @@ gint account, count;
 	if(data->acc != NULL)
 		account = data->acc->key;
 
-	window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD);
+	window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, FALSE);
 	count = 0;
 	while(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP)
 	{
@@ -1381,6 +1381,59 @@ GtkTreeIter			 iter;
 }
 
 
+static void ui_mainwindow_scheduled_do_post(Archive *arc, gboolean doedit, gpointer user_data)
+{
+struct hbfile_data *data = user_data;
+GtkWidget *window;
+gint result;
+Transaction *txn;
+
+	window =  create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, TRUE);
+
+	/* fill in the transaction */
+	txn = da_transaction_malloc();
+	da_transaction_init_from_template(txn, arc);
+	txn->date = scheduled_get_postdate(arc, arc->nextdate);
+
+	deftransaction_set_transaction(window, txn);
+
+	result = gtk_dialog_run (GTK_DIALOG (window));
+
+	DB( g_print(" - dialog result is %d\n", result) );
+
+	if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
+	{
+		deftransaction_get(window, NULL);
+		transaction_add(txn, NULL, txn->kacc);
+		GLOBALS->changes_count++;
+
+		scheduled_date_advance(arc);
+
+		DB( g_print(" - added 1 transaction to %d\n", txn->kacc) );
+	}
+
+	da_transaction_free(txn);
+
+	deftransaction_dispose(window, NULL);
+	gtk_widget_destroy (window);
+
+}
+
+
+static void ui_mainwindow_scheduled_editpost_cb(GtkWidget *widget, gpointer user_data)
+{
+struct hbfile_data *data = user_data;
+
+	Archive *arc = ui_mainwindow_scheduled_get_selected_item(GTK_TREE_VIEW(data->LV_upc));
+
+	if( (arc != NULL) )
+	{
+		ui_mainwindow_scheduled_do_post(arc, TRUE, data);
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_REFRESHALL));
+	}
+}
+
+
 static void ui_mainwindow_scheduled_post_cb(GtkWidget *widget, gpointer user_data)
 {
 struct hbfile_data *data = user_data;
@@ -1404,45 +1457,11 @@ struct hbfile_data *data = user_data;
 		}
 		else
 		{
-		GtkWidget *window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD);
-		gint result;
-			Transaction *txn;
-
-				/* fill in the transaction */
-				txn = da_transaction_malloc();
-				da_transaction_init_from_template(txn, arc);
-				txn->date = scheduled_get_postdate(arc, arc->nextdate);
-
-				deftransaction_set_transaction(window, txn);
-
-				result = gtk_dialog_run (GTK_DIALOG (window));
-
-				DB( g_print(" - dialog result is %d\n", result) );
-
-				if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
-				{
-					deftransaction_get(window, NULL);
-					transaction_add(txn, NULL, txn->kacc);
-					GLOBALS->changes_count++;
-		
-					scheduled_date_advance(arc);
-
-					DB( g_print(" - added 1 transaction to %d\n", txn->kacc) );
-				}
-
-				da_transaction_free(txn);
-			
-				deftransaction_dispose(window, NULL);
-				gtk_widget_destroy (window);
-		
+			ui_mainwindow_scheduled_do_post(arc, FALSE, data);
 		}
 
 		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_REFRESHALL));
-		
 	}
-	
-
-
 }
 
 
@@ -1478,13 +1497,15 @@ struct hbfile_data *data;
 	{
 		DB( g_print("archive is %s\n", arc->wording) );
 		
-		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_post), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_skip), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_post), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_editpost), TRUE);
 	}
 	else
 	{
-		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_post), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_skip), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_post), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_editpost), FALSE);
 	}
 
 }
@@ -2699,8 +2720,8 @@ GtkWidget *label, *align, *widget;
 
 static GtkWidget *ui_mainwindow_scheduled_create(struct hbfile_data *data)
 {
-GtkWidget *mainvbox, *hbox, *vbox, *sw, *tbar;
-GtkWidget *label, *image, *align, *widget;
+GtkWidget *mainvbox, *hbox, *vbox, *bbox, *sw, *tbar;
+GtkWidget *label, *align, *widget;
 GtkToolItem *toolitem;
 	
 	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
@@ -2744,16 +2765,28 @@ GtkToolItem *toolitem;
 	tbar = gtk_toolbar_new();
 	gtk_toolbar_set_icon_size (GTK_TOOLBAR(tbar), GTK_ICON_SIZE_MENU);
 	gtk_toolbar_set_style(GTK_TOOLBAR(tbar), GTK_TOOLBAR_ICONS);
+	gtk_style_context_add_class (gtk_widget_get_style_context (tbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
 	gtk_box_pack_start (GTK_BOX (vbox), tbar, FALSE, FALSE, 0);
 
-	gtk_style_context_add_class (gtk_widget_get_style_context (tbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
+	bbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), bbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
 
-	/*widget = gtk_tool_item_new ();
-	label = gtk_label_new("test");
-	gtk_container_add(GTK_CONTAINER(widget), label);
-	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(widget), -1);*/
-	
-	image = gtk_image_new_from_icon_name (ICONNAME_HB_SCHED_SKIP, GTK_ICON_SIZE_MENU);
+	widget = gtk_button_new_with_label(_("Skip"));
+	data->BT_sched_skip = widget;
+	gtk_box_pack_start (GTK_BOX (bbox), widget, FALSE, FALSE, 0);
+
+	widget = gtk_button_new_with_label(_("Edit & Post"));
+	data->BT_sched_editpost = widget;
+	gtk_box_pack_start (GTK_BOX (bbox), widget, FALSE, FALSE, 0);
+
+	widget = gtk_button_new_with_label (_("Post"));
+	data->BT_sched_post = widget;
+	gtk_box_pack_start (GTK_BOX (bbox), widget, FALSE, FALSE, 0);
+
+
+/*	image = gtk_image_new_from_icon_name (ICONNAME_HB_SCHED_SKIP, GTK_ICON_SIZE_MENU);
 	toolitem = gtk_tool_button_new(image, NULL);
 	data->BT_sched_skip = toolitem;
 	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
@@ -2764,7 +2797,7 @@ GtkToolItem *toolitem;
 	data->BT_sched_post = toolitem;
 	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
 	gtk_widget_set_tooltip_text(GTK_WIDGET(toolitem), _("Post"));
-
+*/
 
 	
 	return mainvbox;
@@ -2896,8 +2929,9 @@ GtkWidget *bar, *label;
 	g_signal_connect (GTK_TREE_VIEW(data->LV_acc), "row-activated", G_CALLBACK (ui_mainwindow_onRowActivated), GINT_TO_POINTER(2));
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_upc)), "changed", G_CALLBACK (ui_mainwindow_scheduled_selection_cb), NULL);
-	g_signal_connect (G_OBJECT (data->BT_sched_post), "clicked", G_CALLBACK (ui_mainwindow_scheduled_post_cb), data);
 	g_signal_connect (G_OBJECT (data->BT_sched_skip), "clicked", G_CALLBACK (ui_mainwindow_scheduled_skip_cb), data);
+	g_signal_connect (G_OBJECT (data->BT_sched_editpost), "clicked", G_CALLBACK (ui_mainwindow_scheduled_editpost_cb), data);
+	g_signal_connect (G_OBJECT (data->BT_sched_post), "clicked", G_CALLBACK (ui_mainwindow_scheduled_post_cb), data);
 	
 	widget = radio_get_nth_widget(GTK_CONTAINER(data->RA_type), 1);
 	if(widget)

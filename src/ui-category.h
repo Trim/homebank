@@ -87,6 +87,9 @@ struct ui_cat_manage_dialog_data
 	GtkWidget	*BT_edit;
 	GtkWidget	*BT_merge;
 	GtkWidget	*BT_delete;
+	
+	GtkWidget	*BT_expand;
+	GtkWidget	*BT_collapse;
 
 	GtkWidget	*LA_category;
 

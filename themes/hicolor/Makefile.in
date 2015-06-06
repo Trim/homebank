@@ -115,12 +115,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATALOGS = @CATALOGS@
+CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+DATADIRNAME = @DATADIRNAME@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DEPS_CFLAGS = @DEPS_CFLAGS@
@@ -131,6 +134,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
+GMOFILES = @GMOFILES@
 GMSGFMT = @GMSGFMT@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -138,6 +142,8 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+INSTOBJEXT = @INSTOBJEXT@
+INTLLIBS = @INTLLIBS@
 INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
 INTLTOOL_MERGE = @INTLTOOL_MERGE@
 INTLTOOL_PERL = @INTLTOOL_PERL@
@@ -153,7 +159,9 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
+MSGFMT_OPTS = @MSGFMT_OPTS@
 MSGMERGE = @MSGMERGE@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -167,6 +175,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+POFILES = @POFILES@
+POSUB = @POSUB@
+PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
+PO_IN_DATADIR_TRUE = @PO_IN_DATADIR_TRUE@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -226,6 +238,12 @@ public_icons = \
 	$(NULL)
 
 private_icons = \
+	hicolor_actions_16x16_btn-collapse.png \
+	hicolor_actions_16x16_btn-expand.png \
+	hicolor_status_16x16_btn-split.png \
+	hicolor_status_16x16_flt-exclude.png \
+	hicolor_status_16x16_flt-inactive.png \
+	hicolor_status_16x16_flt-include.png \
 	hicolor_actions_16x16_hb-ope-auto.png \
 	hicolor_actions_16x16_hb-ope-budget.png \
 	hicolor_actions_16x16_hb-ope-edit.png \
@@ -266,10 +284,6 @@ private_icons = \
 	hicolor_actions_24x24_hb-view-list.png \
 	hicolor_actions_24x24_hb-view-pie.png \
 	hicolor_actions_24x24_hb-view-stack.png \
-	hicolor_status_16x16_btn-split.png \
-	hicolor_status_16x16_flt-exclude.png \
-	hicolor_status_16x16_flt-inactive.png \
-	hicolor_status_16x16_flt-include.png \
 	hicolor_status_16x16_pm-none.png \
 	hicolor_status_16x16_pm-ccard.png \
 	hicolor_status_16x16_pm-dcard.png \

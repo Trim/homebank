@@ -792,7 +792,9 @@ guint event_time;
 	event_device = gdk_event_get_device (event);
 	assoc_device = gdk_device_get_associated_device (event_device);
 
-if (gdk_device_get_source (event_device) == GDK_SOURCE_KEYBOARD) {
+	event_time = gdk_event_get_time (event);
+
+	if (gdk_device_get_source (event_device) == GDK_SOURCE_KEYBOARD) {
 		keyboard_device = event_device;
 		pointer_device = assoc_device;
 	} else {
@@ -900,7 +902,7 @@ static gint
 gtk_date_entry_popup_button_press (GtkWidget * widget, GdkEvent * event, gpointer user_data)
 {
 GtkDateEntry *dateentry = user_data;
-GtkDateEntryPrivate *priv = dateentry->priv;
+//GtkDateEntryPrivate *priv = dateentry->priv;
 GtkWidget *child;
 
 	DB( g_print("\n[dateentry] popup_button_press\n") );

@@ -396,7 +396,7 @@ gint i;
 	PREFS->budg_showdetail = FALSE;
 	PREFS->report_color_scheme = CHART_COLMAP_HOMEBANK;
 
-	PREFS->chart_legend = FALSE;
+	//PREFS->chart_legend = FALSE;
 
 	PREFS->vehicle_unit_ismile = FALSE;
 	PREFS->vehicle_unit_isgal  = FALSE;

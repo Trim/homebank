@@ -253,15 +253,14 @@ static void list_txn_date_cell_data_function (GtkTreeViewColumn *col, GtkCellRen
 {
 Transaction *ope;
 gchar buffer[256];
-GDate *date;
+GDate date;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
 	if(ope->date > 0)
 	{
-		date = g_date_new_julian (ope->date);
-		g_date_strftime (buffer, 256-1, PREFS->date_format, date);
-		g_date_free(date);
+		g_date_set_julian (&date, ope->date);
+		g_date_strftime (buffer, 256-1, PREFS->date_format, &date);
 
 		//g_snprintf(buf, sizeof(buf), "%d", ope->ope_Date);
 

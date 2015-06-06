@@ -480,8 +480,6 @@ GtkCellRenderer    *renderer;
 					    ui_cat_comboboxentry_test,
 					    NULL, NULL);
 
-
-
 	gtk_entry_set_completion (GTK_ENTRY (gtk_bin_get_child(GTK_BIN (comboboxentry))), completion);
 
 	g_object_unref(store);
@@ -1473,6 +1471,31 @@ gint result;
 }
 
 
+
+static void ui_cat_manage_dialog_expand_all(GtkWidget *widget, gpointer user_data)
+{
+struct ui_cat_manage_dialog_data *data;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	DB( g_print("\n(defcategory) expand all (data=%x)\n", (guint)data) );
+
+	gtk_tree_view_expand_all(GTK_TREE_VIEW(data->LV_cat));
+
+}
+
+
+static void ui_cat_manage_dialog_collapse_all(GtkWidget *widget, gpointer user_data)
+{
+struct ui_cat_manage_dialog_data *data;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	DB( g_print("\n(defcategory) collapse all (data=%x)\n", (guint)data) );
+
+	gtk_tree_view_collapse_all(GTK_TREE_VIEW(data->LV_cat));
+
+}
+
+
 static void ui_cat_manage_dialog_update(GtkWidget *treeview, gpointer user_data)
 {
 struct ui_cat_manage_dialog_data *data;
@@ -1667,8 +1690,9 @@ static void ui_cat_manage_type_changed_cb (GtkToggleButton *button, gpointer use
 GtkWidget *ui_cat_manage_dialog (void)
 {
 struct ui_cat_manage_dialog_data data;
-GtkWidget *window, *content, *mainvbox, *bbox, *table, *hbox, *label, *scrollwin, *treeview;
-GtkWidget *menu, *menuitem, *widget, *image;
+GtkWidget *window, *content, *mainvbox, *bbox, *table, *hbox, *vbox, *label, *scrollwin, *treeview;
+GtkWidget *menu, *menuitem, *widget, *image, *tbar;
+GtkToolItem *toolitem;
 gint w, h, row;
 
 	window = gtk_dialog_new_with_buttons (_("Manage Categories"),
@@ -1762,15 +1786,73 @@ gint w, h, row;
 
 	//list
 	row++;
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	gtk_grid_attach (GTK_GRID (table), vbox, 0, row, 2, 1);
+	
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrollwin), HB_MINHEIGHT_LIST);
  	treeview = ui_cat_listview_new(FALSE);
 	data.LV_cat = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 	gtk_widget_set_hexpand (scrollwin, TRUE);
 	gtk_widget_set_vexpand (scrollwin, TRUE);
-	gtk_grid_attach (GTK_GRID (table), scrollwin, 0, row, 2, 1);
+	gtk_box_pack_start (GTK_BOX(vbox), scrollwin, TRUE, TRUE, 0);
+
+	//list toolbar
+	tbar = gtk_toolbar_new();
+	gtk_toolbar_set_icon_size (GTK_TOOLBAR(tbar), GTK_ICON_SIZE_MENU);
+	gtk_toolbar_set_style(GTK_TOOLBAR(tbar), GTK_TOOLBAR_ICONS);
+	gtk_style_context_add_class (gtk_widget_get_style_context (tbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
+	gtk_box_pack_start (GTK_BOX (vbox), tbar, FALSE, FALSE, 0);
+
+	/*widget = gtk_tool_item_new ();
+	label = gtk_label_new("test");
+	gtk_container_add(GTK_CONTAINER(widget), label);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(widget), -1);*/
+	
+	//hbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+	/*
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
+	
+		//widget = make_image_button("text-editor-symbolic", _("Edit"));
+		widget = gtk_button_new_with_mnemonic(_("_Edit"));
+		data.BT_edit = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+		//widget = make_image_button("merge-symbolic", _("Merge"));
+		widget = gtk_button_new_with_mnemonic(_("_Merge"));
+		data.BT_merge = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	
+		//widget = make_image_button(ICONNAME_SYM_EDIT_DELETE, _("Delete"));
+		widget = gtk_button_new_with_mnemonic(_("_Delete"));
+		data.BT_delete = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	*/
+	
+	toolitem = gtk_separator_tool_item_new ();
+	gtk_tool_item_set_expand (toolitem, TRUE);
+	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
+	
+		widget = make_image_button(ICONNAME_HB_BUTTON_EXPAND, _("Expand all"));
+		data.BT_expand = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+		widget = make_image_button(ICONNAME_HB_BUTTON_COLLAPSE, _("Collapse all"));
+		data.BT_collapse = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
 
 	row++;
 	bbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
@@ -1808,6 +1890,9 @@ gint w, h, row;
 	g_signal_connect (G_OBJECT (data.BT_edit), "clicked", G_CALLBACK (ui_cat_manage_dialog_edit), NULL);
 	g_signal_connect (G_OBJECT (data.BT_merge), "clicked", G_CALLBACK (ui_cat_manage_dialog_merge), NULL);
 	g_signal_connect (G_OBJECT (data.BT_delete), "clicked", G_CALLBACK (ui_cat_manage_dialog_delete), NULL);
+
+	g_signal_connect (G_OBJECT (data.BT_expand), "clicked", G_CALLBACK (ui_cat_manage_dialog_expand_all), NULL);
+	g_signal_connect (G_OBJECT (data.BT_collapse), "clicked", G_CALLBACK (ui_cat_manage_dialog_collapse_all), NULL);
 
 	//setup, init and show window
 	ui_cat_manage_dialog_setup(&data);

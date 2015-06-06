@@ -95,10 +95,11 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	gtk-dateentry.$(OBJEXT) hb-account.$(OBJEXT) \
 	hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) hb-category.$(OBJEXT) \
 	hb-encoding.$(OBJEXT) hb-export.$(OBJEXT) hb-filter.$(OBJEXT) \
-	hb-hbfile.$(OBJEXT) hb-import.$(OBJEXT) hb-misc.$(OBJEXT) \
-	hb-payee.$(OBJEXT) hb-preferences.$(OBJEXT) \
-	hb-report.$(OBJEXT) hb-tag.$(OBJEXT) hb-transaction.$(OBJEXT) \
-	hb-xml.$(OBJEXT) homebank.$(OBJEXT) imp_qif.$(OBJEXT) \
+	hb-hbfile.$(OBJEXT) hb-import.$(OBJEXT) \
+	hb-import-ofx.$(OBJEXT) hb-import-qif.$(OBJEXT) \
+	hb-import-csv.$(OBJEXT) hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) \
+	hb-preferences.$(OBJEXT) hb-report.$(OBJEXT) hb-tag.$(OBJEXT) \
+	hb-transaction.$(OBJEXT) hb-xml.$(OBJEXT) homebank.$(OBJEXT) \
 	language.$(OBJEXT) list_account.$(OBJEXT) \
 	list_operation.$(OBJEXT) list_topspending.$(OBJEXT) \
 	list_upcoming.$(OBJEXT) rep_balance.$(OBJEXT) \
@@ -176,12 +177,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATALOGS = @CATALOGS@
+CATOBJEXT = @CATOBJEXT@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+DATADIRNAME = @DATADIRNAME@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DEPS_CFLAGS = @DEPS_CFLAGS@
@@ -192,6 +196,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
+GMOFILES = @GMOFILES@
 GMSGFMT = @GMSGFMT@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -199,6 +204,8 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+INSTOBJEXT = @INSTOBJEXT@
+INTLLIBS = @INTLLIBS@
 INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
 INTLTOOL_MERGE = @INTLTOOL_MERGE@
 INTLTOOL_PERL = @INTLTOOL_PERL@
@@ -214,7 +221,9 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
+MSGFMT_OPTS = @MSGFMT_OPTS@
 MSGMERGE = @MSGMERGE@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -228,6 +237,10 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+POFILES = @POFILES@
+POSUB = @POSUB@
+PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
+PO_IN_DATADIR_TRUE = @PO_IN_DATADIR_TRUE@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -314,6 +327,10 @@ homebank_SOURCES = \
 	hb-hbfile.h \
 	hb-import.c \
 	hb-import.h \
+	hb-import-ofx.c \
+	hb-import-qif.c \
+	hb-import-qif.h \
+	hb-import-csv.c \
 	hb-misc.c \
 	hb-misc.h \
 	hb-payee.c \
@@ -330,8 +347,6 @@ homebank_SOURCES = \
 	hb-xml.h \
 	homebank.c \
 	homebank.h \
-	imp_qif.c \
-	imp_qif.h \
 	language.c \
 	language.h \
 	list_account.c \
@@ -491,6 +506,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-export.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-filter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-hbfile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-import-csv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-import-ofx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-import-qif.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-import.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-misc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-payee.Po@am__quote@
@@ -500,7 +518,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-transaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-xml.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/homebank.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imp_qif.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/language.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_account.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_operation.Po@am__quote@

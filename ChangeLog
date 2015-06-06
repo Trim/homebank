@@ -1,5 +1,20 @@
 
 
+2015-06-06  Maxime Doyen
+
+ Made 5.0.3 release.
+
+ * change: win32: upgraded to libofx 0.9.9 again
+ * wish  : #1460370	internal xfer credit should display from account
+ * wish  : #1444792	wish: button to expand/collapse all in "Manage Categories"
+ * wish  : #1429413	wish: thinking of icon credit vs debit card
+ * wish  : #1416957	wish: add ability to modify transaction when posting from template 
+ * bugfix: #1460390 Dont work: "Save file as". If I change the file name, it does not change.
+ * bugfix: #1434972 (libofx 0.8.3 bug) win32 : some OFX files leads to crash
+ * bugfix: #1424660 (libofx 0.8.3 bug) win32: memo field truncated
+ * bugfix: #1080093 (libofx bug 39) OFX imports incorrect date
+
+
 2015-05-06  Maxime Doyen
 
  Made 5.0.2 release.

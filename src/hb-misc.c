@@ -759,11 +759,13 @@ GDate *date;
 gint n1, n2, n3, d, m, y;
 guint32 julian = 0;
 
-	DB( g_print("hb_date_get_julian: '%s', '%d'\n", string, datefmt) );
+	DB( g_print("\n[utils] hb_date_get_julian\n") );
 	
+	DB( g_print(" - '%s' dateorder=%d\n", string, datefmt) );	
+
 	if( hb_date_parser_get_nums(string, &n1, &n2, &n3) )
 	{
-		DB( g_print("-> '%d' '%d' '%d'\n", n1, n2, n3) );
+		DB( g_print(" - '%d' '%d' '%d'\n", n1, n2, n3) );
 
 		switch(datefmt)
 		{
@@ -794,8 +796,6 @@ guint32 julian = 0;
 				y += 1900;
 		}
 
-		DB( g_print("-> %d %d %d\n", d, m, y) );
-
 		if(d <= 31 && m <= 12)
 		{
 			date = g_date_new();
@@ -806,6 +806,9 @@ guint32 julian = 0;
 			}
 			g_date_free(date);
 		}
+
+		DB( g_print(" > %d %d %d julian=%d\n", d, m, y, julian) );
+
 	}
 
 	return julian;

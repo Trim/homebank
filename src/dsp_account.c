@@ -932,7 +932,7 @@ gboolean result;
 				type = TRANSACTION_EDIT_INHERIT;
 			}
 
-			dialog = create_deftransaction_window(GTK_WINDOW(data->window), type);
+			dialog = create_deftransaction_window(GTK_WINDOW(data->window), type, FALSE);
 			result = GTK_RESPONSE_ADD;
 			while(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP)
 			{
@@ -981,7 +981,7 @@ gboolean result;
 			old_txn = get_active_transaction(GTK_TREE_VIEW(data->LV_ope));
 			if(old_txn)
 			{
-				dialog = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_MODIFY);
+				dialog = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_MODIFY, FALSE);
 
 				data->cur_ope = da_transaction_clone (old_txn); // to keep old datas, just in case
 				deftransaction_set_transaction(dialog, data->cur_ope);

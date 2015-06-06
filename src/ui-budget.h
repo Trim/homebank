@@ -43,6 +43,8 @@ struct ui_bud_manage_data
 	GtkWidget	*window;
 
 	GtkWidget	*LV_cat;
+	GtkWidget   *BT_expand;
+	GtkWidget   *BT_collapse;
 
 	GtkWidget	*RA_type;
 	GtkWidget   *label_budget;

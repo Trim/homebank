@@ -923,7 +923,6 @@ gboolean sensitive;
 					}
 				}
 			}
-
 		}
 	}
 
@@ -940,13 +939,27 @@ gboolean sensitive;
 	if(payment == PAYMODE_INTXFER)
 	{
 		page = 2;
-			// for internal transfer add, amount must be expense by default
+		// for internal transfer add, amount must be expense by default
+		gdouble amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 		if( data->type == TRANSACTION_EDIT_ADD )
 		{
-			gdouble amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 			if(amount > 0)
 				gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount *= -1);
 		}
+		//else //#1460370
+		//if( data->type == TRANSACTION_EDIT_MODIFY )
+	//	{
+			if(amount > 0)
+			{
+				gtk_label_set_text_with_mnemonic (GTK_LABEL(data->LB_accto), _("From acc_ount:"));
+			}
+			else
+			{
+				gtk_label_set_text_with_mnemonic (GTK_LABEL(data->LB_accto), _("To acc_ount:"));	
+			}
+		//}		
+		
+		
 	}
 
 	deftransaction_update_accto(widget, user_data);
@@ -1041,7 +1054,7 @@ static void deftransaction_setup(struct deftransaction_data *data)
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_acc), GLOBALS->h_acc, ACC_LST_INSERT_NORMAL);
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_accto), GLOBALS->h_acc, ACC_LST_INSERT_NORMAL);
 
-	if( (data->type != TRANSACTION_EDIT_MODIFY) && (da_archive_length() > 0))
+	if( data->showtemplate )
 		make_poparchive_populate(GTK_COMBO_BOX(data->PO_arc), GLOBALS->arc_list);
 
 }
@@ -1191,7 +1204,7 @@ gint row;
 }
 
 
-GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type)
+GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode)
 {
 struct deftransaction_data *data;
 GtkWidget *dialog, *content_area, *content_grid, *group_grid;
@@ -1225,11 +1238,21 @@ gint crow;
 	}
 	else
 	{
-		gtk_dialog_add_buttons (GTK_DIALOG(dialog),
-			_("_Close"), GTK_RESPONSE_REJECT,
-		    _("_Add & Keep"), GTK_RESPONSE_ADDKEEP,
-		    _("_Add"), GTK_RESPONSE_ADD,
-			NULL);
+		if(!postmode)
+		{
+			gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+				_("_Close"), GTK_RESPONSE_REJECT,
+				_("_Add & Keep"), GTK_RESPONSE_ADDKEEP,
+				_("_Add"), GTK_RESPONSE_ADD,
+				NULL);
+		}
+		else
+		{
+			gtk_dialog_add_buttons (GTK_DIALOG(dialog),
+				_("_Close"), GTK_RESPONSE_REJECT,
+				_("_Post"), GTK_RESPONSE_ADD,
+				NULL);
+		}
 	}
 
 	switch(type)
@@ -1264,9 +1287,12 @@ gint crow;
 	gtk_widget_set_hexpand (GTK_WIDGET(group_grid), TRUE);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 1, crow, 1, 1);
 
-	if( data->type != TRANSACTION_EDIT_MODIFY && da_archive_length() > 0)
+	data->showtemplate = FALSE;
+	if( data->type != TRANSACTION_EDIT_MODIFY && da_archive_length() > 0 && !postmode)
 	{
 	GtkWidget *expander, *hbox;
+
+		data->showtemplate = TRUE;
 
 		crow++;
 		expander = gtk_expander_new (_("Fill in with a template"));

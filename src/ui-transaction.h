@@ -50,9 +50,10 @@ struct deftransaction_data
 	GtkWidget	*ST_tags;
 	GtkWidget   *CY_status;
 
-	gint	action;
-	gint	accnum;
-	gint	type;
+	gint		action;
+	gint		accnum;
+	gint		type;
+	gboolean	showtemplate;
 
 	Transaction *ope;
 
@@ -85,7 +86,7 @@ struct ui_txn_split_dialog_data
 
 
 
-GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type);
+GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode);
 void deftransaction_set_amount(GtkWidget *widget, gdouble amount);
 void deftransaction_set_transaction(GtkWidget *widget, Transaction *ope);
 void deftransaction_get			(GtkWidget *widget, gpointer user_data);

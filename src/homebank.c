@@ -202,6 +202,11 @@ void homebank_file_ensure_xhb(gchar *filename)
 		hbfile_change_filepath(newfilename);
 		DB( g_print(" - changed to: '%s'\n", GLOBALS->xhb_filepath) );
 	}
+	//#1460390
+	else
+	{
+		hbfile_change_filepath(filename);
+	}
 }
 
 

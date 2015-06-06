@@ -597,6 +597,29 @@ GIOChannel *io;
 }
 
 
+static void ui_bud_manage_expand_all(GtkWidget *widget, gpointer user_data)
+{
+struct ui_bud_manage_data *data;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	DB( g_print("\n(ui_bud_manage) expand all (data=%x)\n", (guint)data) );
+
+	gtk_tree_view_expand_all(GTK_TREE_VIEW(data->LV_cat));
+
+}
+
+
+static void ui_bud_manage_collapse_all(GtkWidget *widget, gpointer user_data)
+{
+struct ui_bud_manage_data *data;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	DB( g_print("\n(ui_bud_manage) collapse all (data=%x)\n", (guint)data) );
+
+	gtk_tree_view_collapse_all(GTK_TREE_VIEW(data->LV_cat));
+
+}
+
 static void ui_bud_manage_update(GtkWidget *treeview, gpointer user_data)
 {
 struct ui_bud_manage_data *data;
@@ -949,8 +972,9 @@ GtkWidget *ui_bud_manage_dialog (void)
 struct ui_bud_manage_data data;
 GtkWidget *dialog, *content_area;
 GtkWidget *content_grid, *group_grid, *scrollwin, *label;
-GtkWidget *treeview, *hpaned, *bbox;
-GtkWidget *menu, *menuitem, *widget, *image;
+GtkWidget *treeview, *hpaned, *bbox, *vbox, *hbox;
+GtkWidget *menu, *menuitem, *widget, *image, *tbar;
+GtkToolItem *toolitem;
 guint i;
 gint w, h;
 gint crow, row;
@@ -985,6 +1009,11 @@ gint crow, row;
 	gtk_container_add(GTK_CONTAINER(content_area), hpaned);
 
 	/* left area */
+	//list
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	gtk_widget_set_margin_right(vbox, SPACING_SMALL);
+	gtk_paned_pack1 (GTK_PANED(hpaned), vbox, TRUE, FALSE);
+	
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
@@ -993,8 +1022,33 @@ gint crow, row;
 	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
 	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), PREFS->rules_hint);
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
-	gtk_widget_set_margin_right(scrollwin, SPACING_SMALL);
-	gtk_paned_pack1 (GTK_PANED(hpaned), scrollwin, TRUE, FALSE);
+	gtk_box_pack_start (GTK_BOX(vbox), scrollwin, TRUE, TRUE, 0);
+
+	//list toolbar
+	tbar = gtk_toolbar_new();
+	gtk_toolbar_set_icon_size (GTK_TOOLBAR(tbar), GTK_ICON_SIZE_MENU);
+	gtk_toolbar_set_style(GTK_TOOLBAR(tbar), GTK_TOOLBAR_ICONS);
+	gtk_box_pack_start (GTK_BOX (vbox), tbar, FALSE, FALSE, 0);
+
+	gtk_style_context_add_class (gtk_widget_get_style_context (tbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
+
+	toolitem = gtk_separator_tool_item_new ();
+	gtk_tool_item_set_expand (toolitem, TRUE);
+	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
+	
+		widget = make_image_button(ICONNAME_HB_BUTTON_EXPAND, _("Expand all"));
+		data.BT_expand = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+		widget = make_image_button(ICONNAME_HB_BUTTON_COLLAPSE, _("Collapse all"));
+		data.BT_collapse = widget;
+		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	
 	/* right area */
@@ -1133,11 +1187,12 @@ gint crow, row;
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_cat)), "changed", G_CALLBACK (ui_bud_manage_selection), NULL);
 	//g_signal_connect (GTK_TREE_VIEW(data.LV_cat), "row-activated", G_CALLBACK (ui_bud_manage_onRowActivated), NULL);
 
+	g_signal_connect (G_OBJECT (data.BT_expand), "clicked", G_CALLBACK (ui_bud_manage_expand_all), NULL);
+	g_signal_connect (G_OBJECT (data.BT_collapse), "clicked", G_CALLBACK (ui_bud_manage_collapse_all), NULL);
+
 	data.handler_id[HID_CUSTOM] = g_signal_connect (data.CM_type[0], "toggled", G_CALLBACK (ui_bud_manage_toggle), NULL);
 
-
 	g_signal_connect (G_OBJECT (data.BT_clear), "clicked", G_CALLBACK (ui_bud_manage_clear), NULL);
-
 
 	//data.custom = FALSE;
 	//gtk_widget_set_sensitive(data.table, FALSE);

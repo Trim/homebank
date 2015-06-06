@@ -25,6 +25,8 @@ GtkWidget *make_label(char *str, gfloat xalign, gfloat yalign);
 GtkWidget *make_label_group(gchar *label);
 GtkWidget *make_text(gfloat xalign);
 GtkWidget *make_string(GtkWidget *label);
+GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text);
+
 GtkWidget *make_memo_entry(GtkWidget *label);
 GtkWidget *make_string_maxlength(GtkWidget *label, guint max_length);
 GtkWidget *make_amount(GtkWidget *label);

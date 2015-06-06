@@ -43,6 +43,10 @@ homebank_SOURCES =  \
 	hb-hbfile.h \
 	hb-import.c \
 	hb-import.h \
+	hb-import-ofx.c \
+	hb-import-qif.c \
+	hb-import-qif.h \
+	hb-import-csv.c \
 	hb-misc.c \
 	hb-misc.h \
 	hb-payee.c \
@@ -59,8 +63,6 @@ homebank_SOURCES =  \
 	hb-xml.h \
 	homebank.c \
 	homebank.h \
-	imp_qif.c \
-	imp_qif.h \
 	language.c \
 	language.h \
 	list_account.c \

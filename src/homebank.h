@@ -68,7 +68,7 @@
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 #define HB_UNSTABLE			FALSE
-#define HB_VERSION			"5.0.2"
+#define HB_VERSION			"5.0.3"
 #define FILE_VERSION		1.1
 #define PREF_VERSION		500
 
@@ -107,7 +107,7 @@
 #define HB_MINWIDTH_LIST	161
 #define HB_MINWIDTH_SEARCH	240
 #define HB_MINWIDTH_COLUMN  48
-
+#define HB_MINHEIGHT_LIST	260
 
 /* miscellaneous */
 #define PHI 1.61803399
@@ -158,8 +158,8 @@ enum
 #define ICONNAME_PREFERENCES		"preferences-system"	  //obsolete
 #define ICONNAME_REFRESH			"view-refresh"		
 
-#define ICONNAME_HB_SCHED_SKIP		"media-skip-forward"
-#define ICONNAME_HB_SCHED_POST		"media-playback-start"
+//#define ICONNAME_HB_SCHED_SKIP		"media-skip-forward"
+//#define ICONNAME_HB_SCHED_POST		"media-playback-start"
 
 #define ICONNAME_HB_BUTTON_MENU		"open-menu-symbolic"	//gnome not found
 
@@ -193,6 +193,8 @@ enum
 #define ICONNAME_HB_FILE_VALID		"hb-file-valid"
 #define ICONNAME_HB_FILE_INVALID	"hb-file-invalid"
 
+#define ICONNAME_HB_BUTTON_COLLAPSE	"btn-collapse"
+#define ICONNAME_HB_BUTTON_EXPAND	"btn-expand"
 #define ICONNAME_HB_BUTTON_SPLIT	"btn-split"
 
 #define ICONNAME_HB_OPE_AUTO        "hb-ope-auto"   //? 

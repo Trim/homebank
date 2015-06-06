@@ -10,6 +10,12 @@ public_icons = \
 	$(NULL)
 
 private_icons = \
+	hicolor_actions_16x16_btn-collapse.png \
+	hicolor_actions_16x16_btn-expand.png \
+	hicolor_status_16x16_btn-split.png \
+	hicolor_status_16x16_flt-exclude.png \
+	hicolor_status_16x16_flt-inactive.png \
+	hicolor_status_16x16_flt-include.png \
 	hicolor_actions_16x16_hb-ope-auto.png \
 	hicolor_actions_16x16_hb-ope-budget.png \
 	hicolor_actions_16x16_hb-ope-edit.png \
@@ -50,10 +56,6 @@ private_icons = \
 	hicolor_actions_24x24_hb-view-list.png \
 	hicolor_actions_24x24_hb-view-pie.png \
 	hicolor_actions_24x24_hb-view-stack.png \
-	hicolor_status_16x16_btn-split.png \
-	hicolor_status_16x16_flt-exclude.png \
-	hicolor_status_16x16_flt-inactive.png \
-	hicolor_status_16x16_flt-include.png \
 	hicolor_status_16x16_pm-none.png \
 	hicolor_status_16x16_pm-ccard.png \
 	hicolor_status_16x16_pm-dcard.png \

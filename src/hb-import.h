@@ -52,6 +52,7 @@ struct _ImportContext
 Account *import_create_account(gchar *name, gchar *number);
 GList *homebank_ofx_import(gchar *filename, ImportContext *ictx);
 
+GList *homebank_csv_import(gchar *filename, ImportContext *ictx);
 
 #endif
 

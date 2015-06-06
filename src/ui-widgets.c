@@ -260,6 +260,24 @@ GtkWidget *entry;
 	return entry;
 }
 
+
+GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text)
+{
+GtkWidget *button, *image;
+
+	//todo 3.10 use gtk_button_new_from_icon_name 
+
+	button = gtk_button_new();
+	image = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);
+	g_object_set (button, "image", image, NULL);
+	if(tooltip_text != NULL)
+		gtk_widget_set_tooltip_text(button, tooltip_text);
+
+	return button;
+}
+
+
+
 /*
 **
 */
