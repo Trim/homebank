@@ -193,7 +193,7 @@ static gint csvtype[7] = {
 void homebank_file_ensure_xhb(gchar *filename)
 {
 	DB( g_print("\n[homebank] file_ensure_xhb\n") );
-	filename = (filename == NULL) ? GLOBALS->xhb_filepath : filename;
+	filename = (filename == NULL) ? g_strdup(GLOBALS->xhb_filepath) : filename;
 	if( g_str_has_suffix (filename, ".xhb") == FALSE )
 	{
 	gchar *newfilename;
