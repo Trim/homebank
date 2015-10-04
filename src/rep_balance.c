@@ -676,6 +676,9 @@ Account *acc;
 	guint32 posdate;
 
 		posdate = omin->date + i;
+		
+		DB( g_print("omin->date=%d posdate=%d\n", omin->date, posdate) );
+		
 
 		balance += data->tmp_expense[i];
 		balance += data->tmp_income[i];

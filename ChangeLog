@@ -1,16 +1,40 @@
 
 
+2015-09-19  Maxime Doyen
+
+ Made 5.0.5 release.
+
+ * bugfix: revert back fix for #1464961 inconsistency in internal xfer 
+
+
+2015-09-12  Maxime Doyen
+
+ Made 5.0.4 release.
+
+ * change: win32: upgraded to gtk+ 3.16
+ * change: amount toggle sign button changed from text button to entry icon
+ * change: added/changed transaction are always showed by default filter
+ * bugfix: #1492634 using memo filter does not list memos in split catagories
+ * bugfix: #1475969 no help file. F1 does nothing. Windows 10
+ * bugfix: #1473717 year on statistics is preset to 1900 instead of e.g. current year
+ * bugfix: #1464961 inconsistency in internal xfer
+ * bugfix: #1391506 win32: (gtk3.6.4 bug) Dropdown list appear on the wrong Screen (dualscreen)
+ * wish  : #1469424 bank Account window should remember user column arrangement
+ * wish  : #1338052 add option to show x days future ledger txn
+ * wish  : #1330156 in the ledger, a way to identify graphically the past from the future.
+
+
 2015-06-06  Maxime Doyen
 
  Made 5.0.3 release.
 
  * change: win32: upgraded to libofx 0.9.9 again
- * wish  : #1460370	internal xfer credit should display from account
- * wish  : #1444792	wish: button to expand/collapse all in "Manage Categories"
- * wish  : #1429413	wish: thinking of icon credit vs debit card
- * wish  : #1416957	wish: add ability to modify transaction when posting from template 
- * bugfix: #1460390 Dont work: "Save file as". If I change the file name, it does not change.
- * bugfix: #1434972 (libofx 0.8.3 bug) win32 : some OFX files leads to crash
+ * wish  : #1460370	internal xfer credit should display 'From account'
+ * wish  : #1444792	button to expand/collapse all in "Manage Categories"
+ * wish  : #1429413	thinking of icon credit vs debit card
+ * wish  : #1416957	add ability to modify transaction when posting from template 
+ * bugfix: #1460390 Saving a file as do not work since last 5.0.2
+ * bugfix: #1434972 (libofx 0.8.3 bug) win32: some OFX files leads to crash
  * bugfix: #1424660 (libofx 0.8.3 bug) win32: memo field truncated
  * bugfix: #1080093 (libofx bug 39) OFX imports incorrect date
 
@@ -459,7 +483,7 @@
  * change: ofx/qfx import set credit card payment for credit card account
  * change: xhb data file format (v0.5)
  * change: remember last folder location during import assistant
- * change: #427710 wish: Total into the automated transactions list
+ * wish  : #427710 Total into the automated transactions list
  * bugfix: #378992 win32: libofx not always convert string to utf-8 causes partial load on file reopen
  * bugfix: #528923 slackware64+kde4: crashes on start / load saved files
  * bugfix: #528993 opening other wallet with account window open causes a crash

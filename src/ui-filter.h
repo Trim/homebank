@@ -65,7 +65,7 @@ struct ui_flt_manage_data
 };
 
 
-gint ui_flt_manage_dialog_new(Filter *filter, gboolean show_account);
+gint ui_flt_manage_dialog_new(GtkWidget *widget, Filter *filter, gboolean show_account);
 
 
 #endif

@@ -38,7 +38,8 @@ struct _assign
 #define ASGF_EXACT	(1<<0)
 #define ASGF_DOPAY	(1<<1)
 #define ASGF_DOCAT	(1<<2)
-
+#define ASGF_OVWPAY	(1<<3)
+#define ASGF_OVWCAT	(1<<4)
 
 void
 da_asg_free(Assign *item);

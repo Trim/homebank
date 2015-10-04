@@ -79,6 +79,7 @@ struct Preferences
 	gboolean    showremind;
 	gint		date_range_wal;
 	gint		date_range_txn;
+	gint		date_future_nbdays;
 	gint		date_range_rep;
 
 	gshort		fisc_year_day;

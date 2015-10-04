@@ -113,9 +113,6 @@ struct _filter
 	guint		last_tab;
 };
 
-#define HB_MINDATE  693596;	//01/01/1900
-#define HB_MAXDATE  803533;	//31/12/2200
-
 
 Filter *da_filter_malloc(void);
 void da_filter_free(Filter *flt);
@@ -123,6 +120,7 @@ void da_filter_free(Filter *flt);
 void filter_default_all_set(Filter *flt);
 void filter_preset_daterange_set(Filter *flt, gint range, guint32 kacc);
 void filter_preset_type_set(Filter *flt, gint value);
+void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays);
 void filter_preset_status_set(Filter *flt, gint value);
 gchar *filter_daterange_text_get(Filter *flt);
 gboolean filter_txn_search_match(gchar *needle, Transaction *txn, gint flags);

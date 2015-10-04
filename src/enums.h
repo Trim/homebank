@@ -109,7 +109,7 @@ enum
 	LST_DSPOPE_BALANCE, /* 11 fake column */
 	LST_DSPOPE_CLR,     /* 12 fake column */
 	/* here we insert account column, only used for detail */
-	LST_DSPOPE_ACCOUNT, /* 13 fake column */
+	LST_DSPOPE_ACCOUNT, /* 13 fake column : not stored */
 	NUM_LST_DSPOPE
 };
 

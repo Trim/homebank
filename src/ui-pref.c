@@ -1020,6 +1020,7 @@ GdkRGBA rgba;
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_daterange_wal), PREFS->date_range_wal);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_daterange_txn), PREFS->date_range_txn);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_datefuture_nbdays), PREFS->date_future_nbdays);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_daterange_rep), PREFS->date_range_rep);
 	
 	/* euro */
@@ -1176,6 +1177,7 @@ const gchar *lang;
 
 	PREFS->date_range_wal = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_daterange_wal));
 	PREFS->date_range_txn = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_daterange_txn));
+	PREFS->date_future_nbdays  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_datefuture_nbdays));
 	PREFS->date_range_rep = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_daterange_rep));
 
 	PREFS->euro_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_enable));
@@ -1640,7 +1642,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Use _galons for fuel"));
+	widget = gtk_check_button_new_with_mnemonic (_("Use _gallon for fuel"));
 	data->CM_unitisgal = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
 
@@ -1674,6 +1676,19 @@ gint crow, row;
 	widget = make_daterange(label, FALSE);
 	data->CY_daterange_txn = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label(_("_Show:"), 0, 0.5);
+	//----------------------------------------- l, r, t, b
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_numeric(NULL, 0, 366);
+	
+	data->ST_datefuture_nbdays = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	//TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
+	label = make_label(_("days in advance the current date"), 0, 0.5);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 3, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Hide reconciled transactions"));
@@ -2072,6 +2087,7 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	gtk_widget_show (vbox);
 
 	ebox = gtk_event_box_new();
+	gtk_style_context_add_class (gtk_widget_get_style_context (ebox), GTK_STYLE_CLASS_LIST_ROW);
 	gtk_widget_set_state_flags(ebox, GTK_STATE_FLAG_SELECTED, TRUE);
 	gtk_box_pack_start (GTK_BOX (vbox), ebox, FALSE, TRUE, 0);
 	gtk_widget_show (ebox);
@@ -2310,9 +2326,6 @@ gint i;
 
 
 extern gchar *list_txn_column_label[];
-
-
-//static gint n_ope_list_columns = G_N_ELEMENTS (ope_list_columns);
 
 
 static void

@@ -1725,7 +1725,7 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_column_set_cell_data_func(column, renderer, ope_result_cell_data_function, NULL, NULL);
 	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_REPTIME_TITLE);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_REPTIME_NAME);
-	//gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 

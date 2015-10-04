@@ -213,7 +213,7 @@ gint crow, row, count;
 	label = make_label(_("Transaction"), 0, 0.5);
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
-	count = g_list_length(GLOBALS->ope_list);
+	count = da_transaction_length();
 	ui_label_set_integer(GTK_LABEL(widget), count);
 	gtk_widget_set_hexpand(widget, TRUE);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
@@ -590,23 +590,25 @@ static void ui_dialog_transaction_xfer_select_child_selection_cb(GtkTreeSelectio
 }
 
 
-Transaction *ui_dialog_transaction_xfer_select_child(GList *matchlist)
+Transaction *ui_dialog_transaction_xfer_select_child(GtkWidget *treeview, GList *matchlist)
 {
 struct xfer_data data;
-GtkWidget *window, *content, *mainvbox, *vbox, *sw, *label;
+GtkWidget *parentwindow, *window, *content, *mainvbox, *vbox, *sw, *label;
 GtkTreeModel		 *newmodel;
 GtkTreeIter			 newiter;
 Transaction *retval = NULL;
 
-			window = gtk_dialog_new_with_buttons (NULL,
-						    //GTK_WINDOW (parentwindow),
-			    			NULL,
-						    0,
+	parentwindow = gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW);
+
+	window = gtk_dialog_new_with_buttons (
+    			NULL,
+    			GTK_WINDOW (parentwindow),
+			    0,
 			    _("_Cancel"),
-						    GTK_RESPONSE_REJECT,
-						    _("_OK"),
-						    GTK_RESPONSE_ACCEPT,
-						    NULL);
+			    GTK_RESPONSE_REJECT,
+			    _("_OK"),
+			    GTK_RESPONSE_ACCEPT,
+			    NULL);
 
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
 	data.window = window;

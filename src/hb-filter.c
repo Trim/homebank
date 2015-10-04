@@ -128,24 +128,23 @@ gint i;
 }
 
 
-void filter_preset_daterange_set(Filter *flt, gint range, guint32 kacc)
+static void filter_set_date_bounds(Filter *flt, guint32 kacc)
 {
-GDate *date;
 GList *list;
-guint32 refjuliandate, month, year, qnum;
 gboolean accounts[da_acc_get_max_key ()+1];
 guint i;
 
-	DB( g_print("(filter) daterange set %p %d\n", flt, range) );
+	DB( g_print("(filter) set date bounds %p\n", flt) );
 
 	//todo: get date of current account only when account 
 	//todo: don't consider closed account !!
 	//beware: g_list_last get into every node !!
 
-	filter_default_date_set(flt);
+	flt->mindate = 0;
+	flt->maxdate = 0;
 
-	if(g_list_length(GLOBALS->ope_list) > 0)
-	{
+	//if(g_list_length(GLOBALS->ope_list) > 0)
+	//{
 		// open/closed acccount vector
 		for(i=1;i<=da_acc_get_max_key ();i++)
 		{
@@ -164,28 +163,76 @@ guint i;
 		//parse all: in waiting other storage, as g_list_last will do anyway
 		// find first no account closed account
 		list = g_list_first(GLOBALS->ope_list);
-		flt->mindate = HB_MAXDATE;
-		flt->maxdate = HB_MINDATE;
+
 		while (list != NULL)
 		{
 		Transaction *item = list->data;
 
 			if(accounts[item->kacc] == TRUE)
 			{
-				flt->mindate = MIN(flt->mindate, item->date);
-				flt->maxdate = MAX(flt->maxdate, item->date);
+				if( flt->mindate == 0 )
+					flt->mindate = item->date;
+				else
+					flt->mindate = MIN(flt->mindate, item->date);
+
+				if( flt->maxdate == 0 )
+					flt->maxdate = item->date;
+				else
+					flt->maxdate = MAX(flt->maxdate, item->date);
+
 			}
 			list = g_list_next(list);
 		}
+	//}
+
+	if( flt->mindate == 0 )
+		flt->mindate = HB_MINDATE;
+	
+	if( flt->maxdate == 0 )
+		flt->maxdate = HB_MAXDATE;	
+	
+}
+
+void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
+{
+
+	if( nbdays <= 0 )
+		return;
+		
+	switch( filter->range )
+	{
+		case FLT_RANGE_THISMONTH:
+		case FLT_RANGE_THISQUARTER:
+		case FLT_RANGE_THISYEAR:
+		case FLT_RANGE_LAST30DAYS:
+		case FLT_RANGE_LAST60DAYS:
+		case FLT_RANGE_LAST90DAYS:
+		case FLT_RANGE_LAST12MONTHS:
+			filter->maxdate += nbdays;
+			break;
 	}
+
+}
+
+
+void filter_preset_daterange_set(Filter *flt, gint range, guint32 kacc)
+{
+GDate *date;
+guint32 refjuliandate, month, year, qnum;
+
+	DB( g_print("(filter) daterange set %p %d\n", flt, range) );
+
+	//filter_default_date_set(flt);
+	filter_set_date_bounds(flt, kacc);
 
 	flt->range = range;
 	
 	// by default refjuliandate is today
 	// but we adjust if to max transaction date found
+	// removed for 5.0.4
 	refjuliandate = GLOBALS->today;
-	if(flt->maxdate < refjuliandate)
-		refjuliandate = flt->maxdate;
+	/*if(flt->maxdate < refjuliandate)
+		refjuliandate = flt->maxdate;*/
 
 	date  = g_date_new_julian(refjuliandate);
 	month = g_date_get_month(date);
@@ -614,9 +661,29 @@ gint insert;
 
 		if(flt->wording)
 		{
-			if(txn->wording)
+			if(txn->flags & OF_SPLIT)
 			{
-				insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
+			guint count, i;
+			Split *split;
+
+				count = da_transaction_splits_count(txn);
+				for(i=0;i<count;i++)
+				{
+				gint tmpinsert = 0;
+			
+					split = txn->splits[i];
+					tmpinsert = filter_text_compare(split->memo, flt->wording, flt->exact);
+					insert2 |= tmpinsert;
+					if( tmpinsert )
+						break;
+				}
+			}
+			else
+			{
+				if(txn->wording)
+				{
+					insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
+				}
 			}
 		}
 		else

@@ -39,7 +39,7 @@ struct deftransaction_data
 	GtkWidget	*PO_pay;
 	GtkWidget	*PO_arc;
 	GtkWidget	*ST_word;
-	GtkWidget	*ST_amount, *BT_amount, *BT_split;
+	GtkWidget	*ST_amount, *BT_split;
 	GtkWidget	*CM_cheque;
 
 	GtkWidget	*NU_mode;

@@ -1,6 +1,7 @@
 # List of source files containing translatable strings.
 
 data/homebank.desktop.in.in
+data/homebank.appdata.xml.in
 
 # Main application
 src/dsp_account.c
@@ -9,7 +10,9 @@ src/hb-archive.c
 src/hb-category.c
 src/hb-filter.c
 src/hb-hbfile.c
+src/hb-preferences.c
 src/homebank.c
+src/hb-import-csv.c
 src/hb-import.c
 src/list_account.c
 src/list_operation.c

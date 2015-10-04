@@ -1309,10 +1309,10 @@ GtkWidget *container, *part;
 /*
 **
 */
-gint ui_flt_manage_dialog_new(Filter *filter, gboolean show_account)
+gint ui_flt_manage_dialog_new(GtkWidget *widget, Filter *filter, gboolean show_account)
 {
 struct ui_flt_manage_data data;
-GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
+GtkWidget *parentwindow, *window, *content, *mainbox, *notebook, *label, *page;
 
 	//data = g_malloc0(sizeof(struct ui_flt_manage_data));
 	//if(!data) return NULL;
@@ -1320,9 +1320,10 @@ GtkWidget *window, *content, *mainbox, *notebook, *label, *page;
 
 	data.filter = filter;
 
+	parentwindow = gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW);
+
 	window = gtk_dialog_new_with_buttons (_("Edit Filter"),
-					    //GTK_WINDOW (do_widget),
-					    NULL,
+					    GTK_WINDOW (parentwindow),
 					    0,
 					    _("_Reset"),
 					    55,

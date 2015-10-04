@@ -402,10 +402,10 @@ activate_url (GtkAboutDialog *about,
 
 static void hbfile_about(void)
 {
-GtkWidget *about;
-gchar *pathfilename;
+GtkWidget *dialog;
 GdkPixbuf *pixbuf;
-
+gchar *pathfilename;
+gchar *version;
 
   static const gchar *artists[] = {
     "Maxime DOYEN",
@@ -427,77 +427,56 @@ GdkPixbuf *pixbuf;
   };
 */
 
-	static const gchar license[] =
-		"This program is free software; you can redistribute it and/or modify\n"
-		  "it under the terms of the GNU General Public License as\n"
-		  "published by the Free Software Foundation; either version 2 of the\n"
-		  "License, or (at your option) any later version.\n\n"
-		  "This program is distributed in the hope that it will be useful,\n"
-		  "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-		  "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-		  "GNU General Public License for more details.\n\n"
-		  "You should have received a copy of the GNU General Public License\n"
-		  "along with this program; if not, write to the Free Software\n"
-		  "Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
-		  "MA 02110-1301, USA.";
-
 	static const gchar *copyright = "Copyright \xc2\xa9 1995-2015 - Maxime DOYEN";
 
+
+
+	version = g_strdup_printf (PACKAGE_VERSION "\n<small>Running against GTK+ %d.%d.%d</small>",
+                                                     gtk_get_major_version (),
+                                                     gtk_get_minor_version (),
+                                                     gtk_get_micro_version ());
+	
+	dialog = gtk_about_dialog_new();
+
+	gtk_window_set_transient_for (GTK_WINDOW(dialog), GTK_WINDOW(GLOBALS->mainwindow));
+	gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+	
+	gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(dialog), g_get_application_name ());
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), version);
+	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), copyright);
+	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("Free, easy, personal accounting for everyone"));
+	gtk_about_dialog_set_license_type (GTK_ABOUT_DIALOG(dialog), GTK_LICENSE_GPL_2_0);
+	
+	//gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), );
+	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "http://homebank.free.fr");
+	//gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Visit the HomeBank website");
+
+	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog), "homebank");
 
 	pathfilename = g_build_filename(homebank_app_get_images_dir(), "splash.png", NULL);
 	pixbuf = gdk_pixbuf_new_from_file(pathfilename, NULL);
 	g_free(pathfilename);
 
-	about  = gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG(about), g_get_application_name ());
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about), g_strdup_printf ("%s\n\nRunning against GTK+ %d.%d.%d",
-                                                     PACKAGE_VERSION,
-                                                     gtk_get_major_version (),
-                                                     gtk_get_minor_version (),
-                                                     gtk_get_micro_version ()));
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(about), copyright);
-	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(about), _("Free, easy, personal accounting for everyone."));
-	gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(about), license);
-	//gtk_about_dialog_set_license_type (GTK_ABOUT_DIALOG(about), GTK_LICENSE_GPL_2_0);
+	if( pixbuf )
+	{
+		gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), pixbuf);
+		g_object_unref (pixbuf);
+	}
 	
-	//gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(about), );
-	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(about), "http://homebank.free.fr");
-	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(about), "Visit the HomeBank website");
-	gtk_about_dialog_set_authors(GTK_ABOUT_DIALOG(about), authors);
-	gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(about), artists);
-	//gtk_about_dialog_set_documenters(GTK_ABOUT_DIALOG(about), );
-	//gtk_about_dialog_set_translator_credits(GTK_ABOUT_DIALOG(about), );
-	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(about), "homebank");
-	gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(about), pixbuf);
+	gtk_about_dialog_set_authors(GTK_ABOUT_DIALOG(dialog), authors);
+	gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(dialog), artists);
+	//gtk_about_dialog_set_documenters(GTK_ABOUT_DIALOG(dialog), );
+	//gtk_about_dialog_set_translator_credits(GTK_ABOUT_DIALOG(dialog), );
+
+	g_signal_connect (dialog, "activate-link", G_CALLBACK (activate_url), NULL);
+
+	gtk_dialog_run (GTK_DIALOG (dialog));
+
+	gtk_widget_destroy (dialog);
+
+	g_free(version);
 	
-	/*
- 	gtk_show_about_dialog(GTK_WINDOW(GLOBALS->mainwindow),
-		"name", g_get_application_name (),
-		"logo-icon-name", "homebank",
-		"logo"      , pixbuf,
-		"artists"	, artists,
-		"authors"	, authors,
-	//	"translator-credits"	, "trans",
-		"comments"	, _("Free, easy, personal accounting for everyone."),
-		"license"	, license,
-		"copyright"	, copyright,
-		"version"	, PACKAGE_VERSION,
-		"website"	, "http://homebank.free.fr",
-		"website-label", "Visit the HomeBank website",
-        NULL);
-	*/
-	g_signal_connect (about, "activate-link", G_CALLBACK (activate_url), NULL);
-
-	gtk_dialog_run (GTK_DIALOG (about));
-
-	gtk_widget_destroy (about);
-
-	g_object_unref (pixbuf);
 }
-
-
-
-
 
 
 /* hbfile action functions -------------------- */
@@ -584,7 +563,7 @@ gchar *secondtext;
 	title = _("Are you sure you want to anonymize the file?");
 
 	secondtext = 
-		_("Proceeding will changes any texts to anonymized ones, \n"
+		_("Proceeding will anonymize any text, \n"
 		"like 'account x', 'payee y', 'memo z', ...");
 
 	result = ui_dialog_msg_confirm_alert(
@@ -889,7 +868,7 @@ GtkWidget *mainvbox, *widget, *label;
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, 0);
 
-	label = make_label (_("Free, easy, personal accounting for everyone."), 0, 0);
+	label = make_label (_("Free, easy, personal accounting for everyone"), 0, 0);
 	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, 0);
 
 	widget = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
@@ -2100,10 +2079,12 @@ gint flags;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBalance"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RVehiculeCost"), sensitive);
 
-	// empty category list: disable Budget & Budget report
+	// empty category list: disable Budget
 		sensitive = da_cat_length() > 1 ? TRUE : FALSE;
-
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
+
+		//#1501129
+		sensitive = ((da_cat_length() > 1) || (da_pay_length() > 1)) ? TRUE : FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
 
 	// empty archive list: disable scheduled check
@@ -2781,6 +2762,8 @@ GtkToolItem *toolitem;
 	data->BT_sched_editpost = widget;
 	gtk_box_pack_start (GTK_BOX (bbox), widget, FALSE, FALSE, 0);
 
+	//TRANSLATORS: Posting a scheduled transaction is the action to materialize it into its target account.
+	//TRANSLATORS: Before that action the automated transaction occurrence is pending and not yet really existing.
 	widget = gtk_button_new_with_label (_("Post"));
 	data->BT_sched_post = widget;
 	gtk_box_pack_start (GTK_BOX (bbox), widget, FALSE, FALSE, 0);

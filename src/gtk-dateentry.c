@@ -306,6 +306,8 @@ GtkDateEntryPrivate *priv;
 	g_date_set_dmy(&priv->maxdate, 31, 12, 2200);
 
 
+	gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(dateentry)), GTK_STYLE_CLASS_LINKED);
+
 	//widget=GTK_WIDGET(dateentry);
 	
 	priv->entry = gtk_entry_new ();
@@ -327,8 +329,7 @@ GtkDateEntryPrivate *priv;
 
 	
 	priv->button = gtk_button_new ();
-	priv->arrow = gtk_arrow_new (GTK_ARROW_DOWN, GTK_SHADOW_NONE);
-	//priv->arrow = gtk_image_new_from_icon_name ("pan-down-symbolic", GTK_ICON_SIZE_BUTTON);
+	priv->arrow = gtk_image_new_from_icon_name ("pan-down-symbolic", GTK_ICON_SIZE_BUTTON);
 	gtk_container_add (GTK_CONTAINER (priv->button), priv->arrow);
 	gtk_box_pack_end (GTK_BOX (dateentry), priv->button, FALSE, FALSE, 0);
 	gtk_widget_show_all (priv->button);

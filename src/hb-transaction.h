@@ -95,8 +95,6 @@ GList *da_transaction_sort(GList *list);
 gboolean da_transaction_prepend(Transaction *item);
 gboolean da_transaction_insert_sorted(Transaction *item);
 
-guint32 da_transaction_get_max_kxfer(void);
-
 /*
 ** transaction edit type
 */
@@ -116,12 +114,11 @@ Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
 guint transaction_splits_parse(Transaction *ope, gchar *cats, gchar *amounts, gchar *memos);
 guint transaction_splits_tostring(Transaction *ope, gchar **cats, gchar **amounts, gchar **memos);
 
+guint da_transaction_length(void);
 void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 
 Transaction *transaction_strong_get_child_transfer(Transaction *src);
-GList *transaction_match_get_child_transfer(Transaction *src);
-Transaction *ui_dialog_transaction_xfer_select_child(GList *matchlist);
 void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview);
 void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);

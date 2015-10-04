@@ -604,8 +604,6 @@ Archive *arcitem;
 
 	gtk_widget_set_sensitive(data->GR_txnleft, sensitive);
 	gtk_widget_set_sensitive(data->GR_txnright, sensitive);
-	
-
 
 	gtk_widget_set_sensitive(data->CM_auto, sensitive);
 
@@ -646,19 +644,23 @@ Archive *arcitem;
 /*
 **
 */
-static void ui_arc_manage_toggleamount(GtkWidget *widget, gpointer user_data)
+static void ui_arc_manage_toggleamount(GtkWidget *widget, GtkEntryIconPosition icon_pos, GdkEvent *event, gpointer user_data)
 {
 struct ui_arc_manage_data *data;
 gdouble value;
 
 	DB( g_print("\n[ui_scheduled] toggleamount\n") );
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	if(icon_pos == GTK_ENTRY_ICON_PRIMARY)
+	{
 
-	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
-	value *= -1;
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value);
+		data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_amount));
+
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+		value *= -1;
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value);
 
 	/*
 	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
@@ -666,6 +668,8 @@ gdouble value;
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value * type);
 	*/
+	}
+
 }
 
 
@@ -773,13 +777,10 @@ gint row;
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_widget_set_hexpand (hbox, TRUE);
 
-	widget = gtk_button_new_with_label("+/-");
-	data->BT_amount = widget;
-	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-	gtk_widget_set_tooltip_text(widget, _("Toggle amount sign"));
-
 	widget = make_amount(label);
 	data->ST_amount = widget;
+	gtk_entry_set_icon_from_icon_name(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY, ICONNAME_HB_TOGGLE_SIGN);
+	gtk_entry_set_icon_tooltip_text(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY, _("Toggle amount sign"));
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
 	gtk_grid_attach (GTK_GRID (group_grid), hbox, 2, row, 1, 1);
@@ -1042,7 +1043,7 @@ gint w, h;
 	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_arc)), "changed", G_CALLBACK (ui_arc_manage_selection), NULL);
-	g_signal_connect (G_OBJECT (data.BT_amount), "clicked", G_CALLBACK (ui_arc_manage_toggleamount), NULL);
+	g_signal_connect (G_OBJECT (data.ST_amount), "icon-release", G_CALLBACK (ui_arc_manage_toggleamount), NULL);
 
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_arc_manage_add), NULL);
 	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_arc_manage_delete), NULL);

@@ -471,12 +471,16 @@ gint range;
 	if(range != FLT_RANGE_OTHER)
 	{
 		filter_preset_daterange_set(data->filter, range, data->accnum);
+		// add eventual x days into future display
+		if( PREFS->date_future_nbdays > 0 )
+			filter_preset_daterange_add_futuregap(data->filter, PREFS->date_future_nbdays);
+		
 		register_panel_collect_filtered_txn(data->LV_ope);
 		register_panel_listview_populate(data->LV_ope);
 	}
 	else
 	{
-		if(ui_flt_manage_dialog_new(data->filter, FALSE) != GTK_RESPONSE_REJECT)
+		if(ui_flt_manage_dialog_new(data->window, data->filter, FALSE) != GTK_RESPONSE_REJECT)
 		{
 			register_panel_collect_filtered_txn(data->LV_ope);
 			register_panel_listview_populate(data->LV_ope);
@@ -1285,7 +1289,7 @@ gboolean result;
 		case ACTION_ACCOUNT_FILTER:
 		{
 
-			if(ui_flt_manage_dialog_new(data->filter, FALSE) != GTK_RESPONSE_REJECT)
+			if(ui_flt_manage_dialog_new(data->window, data->filter, FALSE) != GTK_RESPONSE_REJECT)
 			{
 				register_panel_collect_filtered_txn(data->LV_ope);
 				register_panel_listview_populate(data->LV_ope);

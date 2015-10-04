@@ -20,8 +20,6 @@
 #ifndef __HB_XML_H__
 #define __HB_XML_H__
 
-gint homebank_load_xml(gchar *filename);
-gint homebank_save_xml(gchar *filename);
 
 enum
 {
@@ -31,6 +29,18 @@ enum
 	XML_FILE_ERROR,
 	XML_VERSION_ERROR,
 };
+
+
+typedef struct _ParseContext ParseContext;
+struct _ParseContext
+{
+	gdouble	file_version;	//version of the xml structure
+	gint	data_version;   //last hb version file was saved with
+};
+
+
+gint homebank_load_xml(gchar *filename);
+gint homebank_save_xml(gchar *filename);
 
 
 #endif

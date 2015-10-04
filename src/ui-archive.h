@@ -43,7 +43,7 @@ struct ui_arc_manage_data
 	GtkWidget   *GR_txnleft;
 	GtkWidget	*PO_pay;
 	GtkWidget	*ST_word;
-	GtkWidget	*ST_amount, *BT_amount;	//, *BT_split;
+	GtkWidget	*ST_amount;	//, *BT_split;
 	GtkWidget	*GR_cheque;
 	GtkWidget	*CM_cheque;
 	GtkWidget   *CY_status;

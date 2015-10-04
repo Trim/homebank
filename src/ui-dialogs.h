@@ -36,7 +36,7 @@ gboolean ui_dialog_msg_savechanges(GtkWidget *widget, gpointer user_data);
 
 void ui_dialog_file_statistics(void);
 
-Transaction *ui_dialog_transaction_xfer_select_child(GList *matchlist);
+Transaction *ui_dialog_transaction_xfer_select_child(GtkWidget *treeview, GList *matchlist);
 
 #endif
 

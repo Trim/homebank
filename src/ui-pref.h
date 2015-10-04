@@ -82,6 +82,7 @@ struct defpref_data
 
 	GtkWidget	*CY_daterange_wal;
 	GtkWidget	*CY_daterange_txn;
+	GtkWidget   *ST_datefuture_nbdays;
 	GtkWidget	*CY_daterange_rep;
 	
 	/* currencies 

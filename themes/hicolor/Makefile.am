@@ -76,6 +76,7 @@ private_icons = \
 	hicolor_status_48x48_prf-import.png \
 	hicolor_status_48x48_prf-interface.png \
 	hicolor_status_48x48_prf-report.png \
+	hicolor_actions_scalable_toggle-sign-symbolic.svg \
 	$(NULL)
 
 

@@ -38,512 +38,9 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-typedef struct _ParseContext ParseContext;
-struct _ParseContext
-{
-	gdouble	version;
-
-};
-
-static void homebank_upgrade_to_v02(void);
-static void homebank_upgrade_to_v03(void);
-static void homebank_upgrade_to_v04(void);
-static void homebank_upgrade_to_v05(void);
-static void homebank_upgrade_lower_v06(void);
-static void homebank_upgrade_to_v06(void);
-static void homebank_upgrade_to_v07(void);
-static void homebank_upgrade_to_v08(void);
-static void homebank_upgrade_to_v10(void);
-static void homebank_upgrade_to_v11(void);
-
-static void
-start_element_handler (GMarkupParseContext *context,
-		       const gchar         *element_name,
-		       const gchar        **attribute_names,
-		       const gchar        **attribute_values,
-		       gpointer             user_data,
-		       GError             **error)
-{
-ParseContext *ctx = user_data;
-//GtkUIManager *self = ctx->self;
-gint i, j;
-
-	//DB( g_print("** start element: %s\n", element_name) );
-
-	switch(element_name[0])
-	{
-		//get file version
-		/*
-		case 'h':
-		{
-			if(!strcmp (element_name, "homebank"))
-			{
-			     if(!strcmp (attribute_names[0], "v" ))
-			     {
-					version = g_ascii_strtod(attribute_values[0], NULL);
-			     	DB( g_print(" version %f\n", version) );
-			     }
-
-			}
-		}
-		*/
-
-		case 'a':
-		{
-			if(!strcmp (element_name, "account"))
-			{
-			Account *entry = da_acc_malloc();
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "pos"     )) { entry->pos   = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "type"    )) { entry->type = atoi(attribute_values[i]); }
-					//else if(!strcmp (attribute_names[i], "curr"    )) { entry->kcur = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "number"  )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->number = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "bankname")) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->bankname = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "initial" )) { entry->initial = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "minimum" )) { entry->minimum = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "cheque1" )) { entry->cheque1 = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "cheque2" )) { entry->cheque2 = atoi(attribute_values[i]); }
-
-				}
-
-				//version upgrade: type was added in 0.2
-
-				DB( g_print(" version %f\n", ctx->version) );
-
-				//upgrade to v0.2 file
-				// we must change account reference by making a +1 to its index references
-				if( ctx->version == 0.1 )
-				{
-					entry->key++;
-					entry->pos = entry->key;
-				}
-
-				//all attribute loaded: append
-				da_acc_insert(entry);
-			}
-
-			//assign
-			else if(!strcmp (element_name, "asg"))
-			{
-			Assign *entry = da_asg_malloc();
-			gint exact = 0;
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "field"   )) { entry->field = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "payee"   )) { entry->kpay = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "category")) { entry->kcat = atoi(attribute_values[i]); }
-					//else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
-					// prior v08
-					else if(!strcmp (attribute_names[i], "exact" )) { exact = atoi(attribute_values[i]); }
-				}
-
-				/* in v08 exact moved to flag */
-				if( ctx->version <= 0.7)
-				{
-					entry->flags = (ASGF_DOCAT|ASGF_DOPAY);
-					if( exact > 0 )
-					   entry->flags |= ASGF_EXACT;
-				}
-
-				//all attribute loaded: append
-				da_asg_append(entry);
-
-			}
-
-		}
-		break;
-
-		case 'p':
-		{
-			if(!strcmp (element_name, "pay"))
-			{
-			Payee *entry = da_pay_malloc();
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
-					//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name" )) { entry->name = g_strdup(attribute_values[i]); }
-				}
-
-				//all attribute loaded: append
-				da_pay_insert(entry);
-
-			}
-			else if(!strcmp (element_name, "properties"))
-			{
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					     if(!strcmp (attribute_names[i], "title"       )) { g_free(GLOBALS->owner); GLOBALS->owner = g_strdup(attribute_values[i]); }
-					//else if(!strcmp (attribute_names[i], "curr"        )) { GLOBALS->kcur = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "car_category")) { GLOBALS->vehicle_category = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "auto_smode"  )) { GLOBALS->auto_smode = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "auto_weekday")) { GLOBALS->auto_weekday = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "auto_nbdays" )) { GLOBALS->auto_nbdays = atoi(attribute_values[i]); }
-				}
-			}
-		}
-		break;
-
-		case 'c':
-		{
-			if(!strcmp (element_name, "cat"))
-			{
-			Category *entry = da_cat_malloc();
-			gboolean budget;
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "key"   )) { entry->key = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "parent")) { entry->parent = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "flags" )) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name"  )) { entry->name = g_strdup(attribute_values[i]); }
-
-					budget = FALSE;
-					for(j=0;j<=12;j++)
-					{
-					gchar *tmpname;
-
-						tmpname = g_strdup_printf ("b%d", j);
-						if(!(strcmp (attribute_names[i], tmpname))) { entry->budget[j] = g_ascii_strtod(attribute_values[i], NULL); }
-						g_free(tmpname);
-
-						if(entry->budget[j]) budget = TRUE;
-					}
-					if(budget == TRUE)
-						entry->flags |= GF_BUDGET;
-
-				}
-
-				//all attribute loaded: append
-				da_cat_insert( entry);
-			}
-/*			else if(!strcmp (element_name, "cur"))
-			{
-			Currency *entry = da_cur_malloc ();
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-						 if(!strcmp (attribute_names[i], "key"    )) { entry->key = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name"  )) { entry->name = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "iso"   )) { entry->iso_code = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "symb"  )) { entry->symbol = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "syprf" )) { entry->sym_prefix = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "dchar" )) { entry->decimal_char = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "gchar" )) { entry->grouping_char = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "frac"  )) { entry->frac_digits = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "rate"  )) { entry->rate = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "mdate ")) { entry->mdate = atoi(attribute_values[i]); }
-
-				}
-
-				//all attribute loaded: append
-				da_cur_insert (entry);
-			}
-			*/
-		}
-		break;
-
-		case 't':
-		{
-			if(!strcmp (element_name, "tags"))
-			{
-			Tag *entry = da_tag_malloc();
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
-					//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "name" )) { entry->name = g_strdup(attribute_values[i]); }
-				}
-
-				//all attribute loaded: append
-				da_tag_insert(entry);
-
-			}
-		}
-
-		case 'f':
-		{
-			if(!strcmp (element_name, "fav"))
-			{
-			Archive *entry = da_archive_malloc();
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "amount"     )) { entry->amount = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "account"    )) { entry->kacc = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "dst_account")) { entry->kxferacc = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "paymode"    )) { entry->paymode = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "st"         )) { entry->status = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "flags"      )) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "payee"      )) { entry->kpay = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "category"   )) { entry->kcat = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "wording"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->wording = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "nextdate"   )) { entry->nextdate = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "every"      )) { entry->every = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "unit"       )) { entry->unit = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "limit"      )) { entry->limit = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "weekend"    )) { entry->weekend = atoi(attribute_values[i]); }
-
-				}
-
-				//all attribute loaded: append
-				GLOBALS->arc_list = g_list_append(GLOBALS->arc_list, entry);
-
-			}
-		}
-		break;
-
-		/*
-		case 'r':
-		{
-		}
-		break;
-		*/
-
-		case 'o':
-		{
-			if(!strcmp (element_name, "ope"))
-			{
-			Transaction *entry = da_transaction_malloc();
-			gchar *scat = NULL;
-			gchar *samt = NULL;
-			gchar *smem = NULL;
-			gboolean split = FALSE;
-
-				for (i = 0; attribute_names[i] != NULL; i++)
-				{
-					//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
-
-					     if(!strcmp (attribute_names[i], "date"       )) { entry->date = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "amount"     )) { entry->amount = g_ascii_strtod(attribute_values[i], NULL); }
-					else if(!strcmp (attribute_names[i], "account"    )) { entry->kacc = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "dst_account")) { entry->kxferacc = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "paymode"    )) { entry->paymode = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "st"         )) { entry->status = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "flags"      )) { entry->flags = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "payee"      )) { entry->kpay = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "category"   )) { entry->kcat = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "wording"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->wording = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "info"       )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->info = g_strdup(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "tags"       ))
-					{
-						if(attribute_values[i] != NULL && strlen(attribute_values[i]) > 0 && strcmp(attribute_values[i],"(null)") != 0 )
-						{
-							transaction_tags_parse(entry, attribute_values[i]);
-						}
-					}
-					else if(!strcmp (attribute_names[i], "kxfer"    )) { entry->kxfer = atoi(attribute_values[i]); }
-					else if(!strcmp (attribute_names[i], "scat"     )) { scat = (gchar *)attribute_values[i]; split = TRUE; }
-					else if(!strcmp (attribute_names[i], "samt"     )) { samt = (gchar *)attribute_values[i]; split = TRUE; }
-					else if(!strcmp (attribute_names[i], "smem"     )) { smem = (gchar *)attribute_values[i]; split = TRUE; }
-				}
-
-				//bugfix 303886
-				//if(entry->kcat < 0)
-				//	entry->kcat = 0;
-
-				if(split == TRUE)
-				{
-					transaction_splits_parse(entry, scat, samt, smem);
-				}
-				
-				//all attribute loaded: append
-				// we use prepend here, the list will be reversed later for perf reason
-				da_transaction_prepend(entry);
-			}
-		}
-		break;
-
-
-
-	}
-
-}
-
-/*
-static void
-end_element_handler (GMarkupParseContext *context,
-		     const gchar         *element_name,
-		     gpointer             user_data,
-		     GError             **error)
-{
-  ParseContext *ctx = user_data;
-
-	//DB( g_print("-- end element: %s\n", element_name) );
-
-
-}
-*/
-
-static GMarkupParser hb_parser = {
-  start_element_handler,
-  NULL,	//end_element_handler,
-  NULL, //text_handler,
-  NULL,
-  NULL  //cleanup
-};
-
-/*
-** XML load homebank file: hbfile
-*/
-gint homebank_load_xml(gchar *filename)
-{
-gint retval;
-gchar *buffer;
-gsize length;
-GError *error = NULL;
-ParseContext ctx = { 0 };
-GMarkupParseContext *context;
-gboolean rc;
-
-	DB( g_print("\n[hb-xml] homebank_load_xml\n") );
-
-	retval = XML_OK;
-	if (!g_file_get_contents (filename, &buffer, &length, &error))
-	{
-		//g_message ("%s", error->message);
-		retval = XML_IO_ERROR;
-		g_error_free (error);
-	}
-	else
-	{
-	gchar *v_buffer;
-	gdouble version;
-
-		/* v3.4 add :: prevent load of future file version */
-		v_buffer = g_strstr_len(buffer, 50, "<homebank v=");
-		if( v_buffer == NULL )
-			return XML_FILE_ERROR;
-
-		DB( g_print("- id line: --(%.50s)\n\n", v_buffer) );
-
-		version = g_ascii_strtod(v_buffer+13, NULL);	/* a little hacky, but works ! */
-		if( version == 0.0 ) 
-			version = 0.1;
-		else if( version == 5.0 ) //was a mistake
-			version = 1.0;
-
-		ctx.version = version;
-
-		if( version > FILE_VERSION )
-		{
-			DB( g_print("- failed: version %f is not supported (max is %f)\n", version, FILE_VERSION) );
-			return XML_VERSION_ERROR;
-		}
-		else
-		{
-			DB( g_print("- ok : version=%.1f\n", version) );
-
-			/* 1st: validate the file is well in utf-8 */
-			DB( g_print("- ensure UTF-8\n") );
-			buffer = homebank_utf8_ensure(buffer);
-
-			/* then process the buffer */
-			#if MYDEBUG == 1
-				GTimer *t = g_timer_new();
-				g_print("- start parse\n");
-			#endif
-
-			context = g_markup_parse_context_new (&hb_parser, 0, &ctx, NULL);
-
-			error = NULL;
-			rc = g_markup_parse_context_parse (context, buffer, length, &error);
-
-			if( error )
-				g_print("failed: %s\n", error->message);
-
-			if( rc == FALSE )
-			{
-				error = NULL;
-				g_markup_parse_context_end_parse(context, &error);
-
-				if( error )
-					g_print("failed: %s\n", error->message);
-			}
-
-			g_markup_parse_context_free (context);
-			g_free (buffer);
-
-			//reverse the glist (see g_list append idiom to perf for reason
-			// we use prepend and then reverse
-			GLOBALS->ope_list = g_list_reverse(GLOBALS->ope_list);
-			
-			DB( g_print("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
-			DB( g_timer_destroy (t) );
-
-			/* file upgrade / bugfix */
-			if( version <= 0.1 )
-				homebank_upgrade_to_v02();
-			if( version <= 0.2 )
-				homebank_upgrade_to_v03();
-			if( version <= 0.3 )
-				homebank_upgrade_to_v04();
-			if( version <= 0.4 )
-				homebank_upgrade_to_v05();
-			if( version <= 0.5 )
-			{
-				homebank_upgrade_to_v06();
-				homebank_upgrade_lower_v06();
-			}
-			if( version <= 0.6 )
-			{
-				homebank_upgrade_to_v07();
-				hbfile_sanity_check();
-			}
-			if( version <= 0.7 )	// <= 4.5
-			{	
-				homebank_upgrade_to_v08();
-			}
-			if( version <= 0.8 )	// <= 4.6
-			{
-				hbfile_sanity_check();
-			}
-			if( version <= 0.9 )	// <= 4.6.3
-			{
-				hbfile_sanity_check();
-				homebank_upgrade_to_v10();
-			}
-			if( version <= 1.0 )	// <= 5.0.0 
-			{
-				hbfile_sanity_check();
-				homebank_upgrade_to_v11();
-			}
-			// next ?
-
-			
-		}
-	}
-
-	return retval;
-}
-
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
 
 // v0.1 to v0.2 : we must change account reference by making a +1 to its index references
 static void homebank_upgrade_to_v02(void)
@@ -847,9 +344,554 @@ GList *lrul, *list;
 		list = g_list_next(list);
 	}
 	g_list_free(lrul);
+}
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+
+static void homebank_load_xml_acc(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Account *entry = da_acc_malloc();
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "pos"     )) { entry->pos   = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "type"    )) { entry->type = atoi(attribute_values[i]); }
+		//else if(!strcmp (attribute_names[i], "curr"    )) { entry->kcur = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "number"  )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->number = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "bankname")) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->bankname = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "initial" )) { entry->initial = g_ascii_strtod(attribute_values[i], NULL); }
+		else if(!strcmp (attribute_names[i], "minimum" )) { entry->minimum = g_ascii_strtod(attribute_values[i], NULL); }
+		else if(!strcmp (attribute_names[i], "cheque1" )) { entry->cheque1 = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "cheque2" )) { entry->cheque2 = atoi(attribute_values[i]); }
+
+	}
+
+	//version upgrade: type was added in 0.2
+
+	DB( g_print(" version %f\n", ctx->file_version) );
+
+	//upgrade to v0.2 file
+	// we must change account reference by making a +1 to its index references
+	if( ctx->file_version == 0.1 )
+	{
+		entry->key++;
+		entry->pos = entry->key;
+	}
+
+	//all attribute loaded: append
+	da_acc_insert(entry);
+}
+
+
+static void homebank_load_xml_asg(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Assign *entry = da_asg_malloc();
+gint exact = 0;
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "field"   )) { entry->field = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "payee"   )) { entry->kpay = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "category")) { entry->kcat = atoi(attribute_values[i]); }
+		//else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
+		// prior v08
+		else if(!strcmp (attribute_names[i], "exact" )) { exact = atoi(attribute_values[i]); }
+	}
+
+	/* in v08 exact moved to flag */
+	if( ctx->file_version <= 0.7)
+	{
+		entry->flags = (ASGF_DOCAT|ASGF_DOPAY);
+		if( exact > 0 )
+		   entry->flags |= ASGF_EXACT;
+	}
+
+	//all attribute loaded: append
+	da_asg_append(entry);
+
+}
+
+
+static void homebank_load_xml_pay(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Payee *entry = da_pay_malloc();
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+			 if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
+		//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name" )) { entry->name = g_strdup(attribute_values[i]); }
+	}
+
+	//all attribute loaded: append
+	da_pay_insert(entry);
+}
+
+
+static void homebank_load_xml_prop(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		     if(!strcmp (attribute_names[i], "title"       )) { g_free(GLOBALS->owner); GLOBALS->owner = g_strdup(attribute_values[i]); }
+		//else if(!strcmp (attribute_names[i], "curr"        )) { GLOBALS->kcur = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "car_category")) { GLOBALS->vehicle_category = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "auto_smode"  )) { GLOBALS->auto_smode = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "auto_weekday")) { GLOBALS->auto_weekday = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "auto_nbdays" )) { GLOBALS->auto_nbdays = atoi(attribute_values[i]); }
+	}
+}
+
+
+static void homebank_load_xml_cat(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Category *entry = da_cat_malloc();
+gboolean budget;
+gint i, j;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "key"   )) { entry->key = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "parent")) { entry->parent = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "flags" )) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name"  )) { entry->name = g_strdup(attribute_values[i]); }
+
+		budget = FALSE;
+		for(j=0;j<=12;j++)
+		{
+		gchar *tmpname;
+
+			tmpname = g_strdup_printf ("b%d", j);
+			if(!(strcmp (attribute_names[i], tmpname))) { entry->budget[j] = g_ascii_strtod(attribute_values[i], NULL); }
+			g_free(tmpname);
+
+			if(entry->budget[j]) budget = TRUE;
+		}
+		if(budget == TRUE)
+			entry->flags |= GF_BUDGET;
+
+	}
+
+	//all attribute loaded: append
+	da_cat_insert( entry);
+}
+
+
+/*static void homebank_load_xml_cur(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Currency *entry = da_cur_malloc ();
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+			 if(!strcmp (attribute_names[i], "key"    )) { entry->key = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name"  )) { entry->name = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "iso"   )) { entry->iso_code = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "symb"  )) { entry->symbol = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "syprf" )) { entry->sym_prefix = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "dchar" )) { entry->decimal_char = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "gchar" )) { entry->grouping_char = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "frac"  )) { entry->frac_digits = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "rate"  )) { entry->rate = g_ascii_strtod(attribute_values[i], NULL); }
+		else if(!strcmp (attribute_names[i], "mdate ")) { entry->mdate = atoi(attribute_values[i]); }
+
+	}
+
+	//all attribute loaded: append
+	da_cur_insert (entry);
+}*/
+
+
+static void homebank_load_xml_tag(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Tag *entry = da_tag_malloc();
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
+		//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name" )) { entry->name = g_strdup(attribute_values[i]); }
+	}
+
+	//all attribute loaded: append
+	da_tag_insert(entry);
+}
+
+
+static void homebank_load_xml_fav(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Archive *entry = da_archive_malloc();
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "amount"     )) { entry->amount = g_ascii_strtod(attribute_values[i], NULL); }
+		else if(!strcmp (attribute_names[i], "account"    )) { entry->kacc = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "dst_account")) { entry->kxferacc = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "paymode"    )) { entry->paymode = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "st"         )) { entry->status = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "flags"      )) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "payee"      )) { entry->kpay = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "category"   )) { entry->kcat = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "wording"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->wording = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "nextdate"   )) { entry->nextdate = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "every"      )) { entry->every = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "unit"       )) { entry->unit = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "limit"      )) { entry->limit = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "weekend"    )) { entry->weekend = atoi(attribute_values[i]); }
+
+	}
+
+	//all attribute loaded: append
+	GLOBALS->arc_list = g_list_append(GLOBALS->arc_list, entry);
+}
+
+
+static void homebank_load_xml_ope(ParseContext *ctx, const gchar **attribute_names, const gchar **attribute_values)
+{
+Transaction *entry = da_transaction_malloc();
+gchar *scat = NULL;
+gchar *samt = NULL;
+gchar *smem = NULL;
+gboolean split = FALSE;
+gint i;
+
+	for (i = 0; attribute_names[i] != NULL; i++)
+	{
+		//DB( g_print(" att=%s val=%s\n", attribute_names[i], attribute_values[i]) );
+
+		     if(!strcmp (attribute_names[i], "date"       )) { entry->date = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "amount"     )) { entry->amount = g_ascii_strtod(attribute_values[i], NULL); }
+		else if(!strcmp (attribute_names[i], "account"    )) { entry->kacc = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "dst_account")) { entry->kxferacc = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "paymode"    )) { entry->paymode = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "st"         )) { entry->status = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "flags"      )) { entry->flags = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "payee"      )) { entry->kpay = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "category"   )) { entry->kcat = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "wording"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->wording = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "info"       )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->info = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "tags"       ))
+		{
+			if(attribute_values[i] != NULL && strlen(attribute_values[i]) > 0 && strcmp(attribute_values[i],"(null)") != 0 )
+			{
+				transaction_tags_parse(entry, attribute_values[i]);
+			}
+		}
+		else if(!strcmp (attribute_names[i], "kxfer"    )) { entry->kxfer = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "scat"     )) { scat = (gchar *)attribute_values[i]; split = TRUE; }
+		else if(!strcmp (attribute_names[i], "samt"     )) { samt = (gchar *)attribute_values[i]; split = TRUE; }
+		else if(!strcmp (attribute_names[i], "smem"     )) { smem = (gchar *)attribute_values[i]; split = TRUE; }
+	}
+
+	//bugfix 303886
+	//if(entry->kcat < 0)
+	//	entry->kcat = 0;
+
+	if(split == TRUE)
+	{
+		transaction_splits_parse(entry, scat, samt, smem);
+	}
+	
+	//all attribute loaded: append
+	// we use prepend here, the list will be reversed later for perf reason
+	da_transaction_prepend(entry);
+}
+
+
+
+
+static void
+start_element_handler (GMarkupParseContext *context,
+		       const gchar         *element_name,
+		       const gchar        **attribute_names,
+		       const gchar        **attribute_values,
+		       gpointer             user_data,
+		       GError             **error)
+{
+ParseContext *ctx = user_data;
+//GtkUIManager *self = ctx->self;
+
+	//DB( g_print("** start element: %s\n", element_name) );
+
+	switch(element_name[0])
+	{
+		case 'a':
+		{
+			if(!strcmp (element_name, "account"))   //account
+			{
+				homebank_load_xml_acc(ctx, attribute_names, attribute_values);
+			}
+			else if(!strcmp (element_name, "asg"))  //assign
+			{
+				homebank_load_xml_asg(ctx, attribute_names, attribute_values);
+			}
+		}
+		break;
+
+		case 'p':
+		{
+			if(!strcmp (element_name, "pay"))
+			{
+				homebank_load_xml_pay(ctx, attribute_names, attribute_values);
+			}
+			else if(!strcmp (element_name, "properties"))
+			{
+				homebank_load_xml_prop(ctx, attribute_names, attribute_values);
+			}
+		}
+		break;
+
+		case 'c':
+		{
+			if(!strcmp (element_name, "cat"))
+			{
+				homebank_load_xml_cat(ctx, attribute_names, attribute_values);
+			}
+			/*else if(!strcmp (element_name, "cur"))
+			{
+				homebank_load_xml_cur(ctx, attribute_names, attribute_values);
+			}*/
+		}
+		break;
+
+		case 't':
+		{
+			if(!strcmp (element_name, "tags"))
+			{
+				homebank_load_xml_tag(ctx, attribute_names, attribute_values);
+			}
+		}
+
+		case 'f':
+		{
+			if(!strcmp (element_name, "fav"))
+			{
+				homebank_load_xml_fav(ctx, attribute_names, attribute_values);
+			}
+		}
+		break;
+
+		case 'o':
+		{
+			if(!strcmp (element_name, "ope"))
+			{
+				homebank_load_xml_ope(ctx, attribute_names, attribute_values);
+			}
+		}
+		break;
+	}
+}
+
+
+/*
+static void
+end_element_handler (GMarkupParseContext *context,
+		     const gchar         *element_name,
+		     gpointer             user_data,
+		     GError             **error)
+{
+  ParseContext *ctx = user_data;
+
+	//DB( g_print("-- end element: %s\n", element_name) );
 
 
 }
+*/
+
+static GMarkupParser hb_parser = {
+	start_element_handler,
+	NULL,	//end_element_handler,
+	NULL, //text_handler,
+	NULL,
+	NULL  //cleanup
+};
+
+
+static gboolean hb_xml_get_version(ParseContext *ctx, gchar *buffer)
+{
+gchar *v_buffer;
+
+	ctx->file_version = 0.0;
+	ctx->data_version = 0;
+
+	/* v3.4 add :: prevent load of future file version */
+	v_buffer = g_strstr_len(buffer, 50, "<homebank v=");
+	if( v_buffer == NULL )
+		return FALSE;
+
+	DB( g_print("- id line: --(%.50s)\n\n", v_buffer) );
+
+	ctx->file_version = g_ascii_strtod(v_buffer+13, NULL);	/* a little hacky, but works ! */
+	if( ctx->file_version == 0.0 ) 
+		ctx->file_version = 0.1;
+	else if( ctx->file_version == 5.0 ) //was a mistake
+		ctx->file_version = 1.0;
+
+	v_buffer = g_strstr_len(buffer+13, 50, "d=");
+	if( v_buffer )
+	{
+		DB( g_print(" d=%s)\n\n", v_buffer) );
+	
+		ctx->data_version = atoi(v_buffer+3);
+	}
+	return TRUE;
+}
+
+
+/*
+** XML load homebank file: hbfile
+*/
+gint homebank_load_xml(gchar *filename)
+{
+gint retval;
+gchar *buffer;
+gsize length;
+GError *error = NULL;
+ParseContext ctx;
+GMarkupParseContext *context;
+gboolean rc;
+
+	DB( g_print("\n[hb-xml] homebank_load_xml\n") );
+
+	retval = XML_OK;
+	if (!g_file_get_contents (filename, &buffer, &length, &error))
+	{
+		//g_message ("%s", error->message);
+		retval = XML_IO_ERROR;
+		g_error_free (error);
+	}
+	else
+	{
+		if( hb_xml_get_version(&ctx, buffer) == FALSE )
+		{
+			return XML_FILE_ERROR;
+		}
+
+		if( ctx.file_version > FILE_VERSION )
+		{
+			DB( g_print("- failed: version %f is not supported (max is %f)\n", ctx.file_version, FILE_VERSION) );
+			return XML_VERSION_ERROR;
+		}
+		else
+		{
+			DB( g_print("- file ok : v=%.1f data_v=%06d\n", ctx.file_version, ctx.data_version) );
+
+			/* 1st: validate the file is well in utf-8 */
+			DB( g_print("- ensure UTF-8\n") );
+			buffer = homebank_utf8_ensure(buffer);
+
+			/* then process the buffer */
+			#if MYDEBUG == 1
+				GTimer *t = g_timer_new();
+				g_print("- start parse\n");
+			#endif
+
+			context = g_markup_parse_context_new (&hb_parser, 0, &ctx, NULL);
+
+			error = NULL;
+			rc = g_markup_parse_context_parse (context, buffer, length, &error);
+
+			if( error )
+				g_print("failed: %s\n", error->message);
+
+			if( rc == FALSE )
+			{
+				error = NULL;
+				g_markup_parse_context_end_parse(context, &error);
+
+				if( error )
+					g_print("failed: %s\n", error->message);
+			}
+
+			g_markup_parse_context_free (context);
+			g_free (buffer);
+
+			//reverse the glist (see g_list append idiom to perf for reason
+			// we use prepend and then reverse
+			GLOBALS->ope_list = g_list_reverse(GLOBALS->ope_list);
+			
+			DB( g_print("- end parse : %f sec\n", g_timer_elapsed(t, NULL)) );
+			DB( g_timer_destroy (t) );
+
+			/* file upgrade / bugfix */
+			if( ctx.file_version <= 0.1 )
+				homebank_upgrade_to_v02();
+			if( ctx.file_version <= 0.2 )
+				homebank_upgrade_to_v03();
+			if( ctx.file_version <= 0.3 )
+				homebank_upgrade_to_v04();
+			if( ctx.file_version <= 0.4 )
+				homebank_upgrade_to_v05();
+			if( ctx.file_version <= 0.5 )
+			{
+				homebank_upgrade_to_v06();
+				homebank_upgrade_lower_v06();
+			}
+			if( ctx.file_version <= 0.6 )
+			{
+				homebank_upgrade_to_v07();
+				hbfile_sanity_check();
+			}
+			if( ctx.file_version <= 0.7 )	// <= 4.5
+			{	
+				homebank_upgrade_to_v08();
+			}
+			if( ctx.file_version <= 0.8 )	// <= 4.6
+			{
+				hbfile_sanity_check();
+			}
+			if( ctx.file_version <= 0.9 )	// <= 4.6.3
+			{
+				hbfile_sanity_check();
+				homebank_upgrade_to_v10();
+			}
+			if( ctx.file_version <= 1.0 )	// <= 5.0.0 
+			{
+				hbfile_sanity_check();
+				homebank_upgrade_to_v11();
+			}
+			//starting 5.0.4 data upgrade is done without changing file_version
+			if( ctx.data_version < 050004 )	// <= 5.0.4 
+			{
+				hbfile_sanity_check();
+			}
+			// next ?
+
+			
+		}
+	}
+
+	return retval;
+}
+
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -890,6 +932,7 @@ char buf[G_ASCII_DTOSTR_BUF_SIZE];
 }
 
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
 /*
@@ -1356,7 +1399,7 @@ GError *error = NULL;
 	{
 		g_io_channel_write_chars(io, "<?xml version=\"1.0\"?>\n", -1, NULL, NULL);
 
-		outstr = g_strdup_printf("<homebank v=\"%s\">\n", g_ascii_dtostr (buf1, sizeof (buf1), FILE_VERSION));
+		outstr = g_strdup_printf("<homebank v=\"%s\" d=\"%06d\">\n", g_ascii_dtostr (buf1, sizeof (buf1), FILE_VERSION), HB_VERSION_NUM);
 		g_io_channel_write_chars(io, outstr, -1, NULL, NULL);
 		g_free(outstr);
 

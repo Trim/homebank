@@ -1,7 +1,7 @@
 [Desktop Entry]
 _Name=HomeBank
 _GenericName=Personal finance
-_Comment=Free, easy, personal accounting for everyone.
+_Comment=Free, easy, personal accounting for everyone
 _Keywords=finance;accounting;budget;personal;money;
 Exec=homebank %f
 Terminal=false

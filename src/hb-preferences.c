@@ -230,27 +230,30 @@ static void _homebank_pref_init_measurement_units(void)
 	// unit is miles
 	else
 	{
-		PREFS->vehicle_unit_dist = "%d m.";
-		PREFS->vehicle_unit_100  = "100 m.";
+		PREFS->vehicle_unit_dist = "%d mi.";
+		PREFS->vehicle_unit_100  = "100 mi.";
 	}
 
 	// unit is Liters
 	if(!PREFS->vehicle_unit_isgal)
 	{
-		PREFS->vehicle_unit_vol  = "%.2f L";
+		//TRANSLATORS: format a liter number with l/L as abbreviation
+		PREFS->vehicle_unit_vol  = _("%.2f l");
 		if(!PREFS->vehicle_unit_ismile)
-			PREFS->vehicle_unit_distbyvol  = "km/L";
+			//TRANSLATORS: kilometer per liter
+			PREFS->vehicle_unit_distbyvol  = _("km/l");
 		else
-			PREFS->vehicle_unit_distbyvol  = "m./L";
+			//TRANSLATORS: miles per liter
+			PREFS->vehicle_unit_distbyvol  = _("mi./l");
 	}
 	// unit is gallon
 	else
 	{
-		PREFS->vehicle_unit_vol  = "%.2f gal";
+		PREFS->vehicle_unit_vol  = "%.2f gal.";
 		if(!PREFS->vehicle_unit_ismile)
-			PREFS->vehicle_unit_distbyvol  = "km/gal";
+			PREFS->vehicle_unit_distbyvol  = "km/gal.";
 		else
-			PREFS->vehicle_unit_distbyvol  = "m./gal";
+			PREFS->vehicle_unit_distbyvol  = "mi./gal.";
 	}
 
 }
@@ -378,6 +381,7 @@ gint i;
 
 	PREFS->date_range_wal = FLT_RANGE_LASTMONTH;
 	PREFS->date_range_txn = FLT_RANGE_LAST12MONTHS;
+	PREFS->date_future_nbdays = 0;
 	PREFS->date_range_rep = FLT_RANGE_THISYEAR;
 
 
@@ -826,6 +830,7 @@ GError *error = NULL;
 
 				homebank_pref_get_integer(keyfile, group, "DateRangeWal", &PREFS->date_range_wal);
 				homebank_pref_get_integer(keyfile, group, "DateRangeTxn", &PREFS->date_range_txn);
+				homebank_pref_get_integer(keyfile, group, "DateFutureNbDays", &PREFS->date_future_nbdays);
 				homebank_pref_get_integer(keyfile, group, "DateRangeRep", &PREFS->date_range_rep);
 
 				if(version <= 7)
@@ -1046,6 +1051,7 @@ gsize length;
 		group = "Filter";
 		g_key_file_set_integer (keyfile, group, "DateRangeWal", PREFS->date_range_wal);
 		g_key_file_set_integer (keyfile, group, "DateRangeTxn", PREFS->date_range_txn);
+		g_key_file_set_integer (keyfile, group, "DateFutureNbdays", PREFS->date_future_nbdays);
 		g_key_file_set_integer (keyfile, group, "DateRangeRep", PREFS->date_range_rep);
 
 		DB( g_print(" -> ** euro\n") );

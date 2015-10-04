@@ -38,6 +38,8 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
+
 
 gboolean hbfile_file_hasbackup(gchar *filepath)
 {
@@ -123,7 +125,7 @@ void hbfile_sanity_check(void)
 {
 GList *lxxx, *list;
 
-	DB( g_print("\n[hbfile] sanity_check\n") );
+	DB( g_print("\n[hbfile] !! sanity_check !! \n") );
 
 
 	list = g_list_first(GLOBALS->ope_list);

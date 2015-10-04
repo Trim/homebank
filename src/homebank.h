@@ -67,8 +67,15 @@
 /* = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-#define HB_UNSTABLE			FALSE
-#define HB_VERSION			"5.0.3"
+#define HB_UNSTABLE		FALSE
+
+#define HB_VERSION_MAJOR	5
+#define HB_VERSION_MINOR	0
+#define HB_VERSION_MICRO	6
+
+#define HB_VERSION			"5.0.6"
+#define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
+
 #define FILE_VERSION		1.1
 #define PREF_VERSION		500
 
@@ -102,6 +109,9 @@
 #define SPACING_MEDIUM		12
 #define SPACING_LARGE		18
 
+
+#define HB_MINDATE  693596	  //01/01/1900
+#define HB_MAXDATE  803533	  //31/12/2200
 
 /* widget minimum width */
 #define HB_MINWIDTH_LIST	161
@@ -158,6 +168,10 @@ enum
 #define ICONNAME_PREFERENCES		"preferences-system"	  //obsolete
 #define ICONNAME_REFRESH			"view-refresh"		
 
+#define ICONNAME_HB_TOGGLE_SIGN		"toggle-sign-symbolic"
+
+
+
 //#define ICONNAME_HB_SCHED_SKIP		"media-skip-forward"
 //#define ICONNAME_HB_SCHED_POST		"media-playback-start"
 
@@ -210,6 +224,7 @@ enum
 #define ICONNAME_HB_OPE_CLEARED     "hb-ope-cleared"
 #define ICONNAME_HB_OPE_RECONCILED  "hb-ope-reconciled"
 #define ICONNAME_HB_OPE_REMIND      "hb-ope-remind"
+
 
 
 /*

@@ -243,7 +243,7 @@ struct ui_repdist_data *data = user_data;
 	//debug
 	//create_deffilter_window(data->filter, TRUE);
 
-	if(ui_flt_manage_dialog_new(data->filter, TRUE) != GTK_RESPONSE_REJECT)
+	if(ui_flt_manage_dialog_new(data->window, data->filter, TRUE) != GTK_RESPONSE_REJECT)
 	{
 		ui_repdist_compute(data->window, NULL);
 		ui_repdist_update_daterange(data->window, NULL);
@@ -378,7 +378,7 @@ gint range;
 	}
 	else
 	{
-		if(ui_flt_manage_dialog_new(data->filter, TRUE) != GTK_RESPONSE_REJECT)
+		if(ui_flt_manage_dialog_new(data->window, data->filter, TRUE) != GTK_RESPONSE_REJECT)
 		{
 			ui_repdist_compute(data->window, NULL);
 			ui_repdist_update_daterange(widget, NULL);
@@ -1859,7 +1859,7 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_column_set_cell_data_func(column, renderer, ope_result_cell_data_function, NULL, NULL);
 	gtk_tree_view_column_add_attribute(column, renderer, "text", LST_REPDIST_NAME);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_REPDIST_NAME);
-	//gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 

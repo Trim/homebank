@@ -177,8 +177,7 @@ gchar *color;
 		else
 			g_object_set(renderer, "text", NULL, 
 		    NULL);
-			
-		
+	
 	}
 	else
 	{
@@ -239,8 +238,7 @@ GtkCellRenderer    *renderer;
 	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, float_cell_data_function, GINT_TO_POINTER(id), NULL);
-	//gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_column_set_spacing( column, 16 );
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_BANK);
@@ -331,6 +329,8 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
 	//			       COLUMN_DESCRIPTION);
 
+	//gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW (view), TRUE);
+
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_SINGLE);
 
     /* Status */
@@ -350,31 +350,24 @@ GtkTreeViewColumn  *column;
 
 	/* Account */
 	column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Accounts"));
-	
+	gtk_tree_view_column_set_title(column, _("Accounts"));
+
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, text_cell_data_function, GINT_TO_POINTER(1), NULL);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
-
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	gtk_tree_view_set_expander_column(GTK_TREE_VIEW (view), column);
-
-
-
-
 
     /* Bank */
 	column = amount_list_account_column(_("Bank"), LST_DSPACC_BANK);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
-
     /* Today */
 	column = amount_list_account_column(_("Today"), LST_DSPACC_TODAY);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
-
 
     /* Future */
 	column = amount_list_account_column(_("Future"), LST_DSPACC_FUTURE);

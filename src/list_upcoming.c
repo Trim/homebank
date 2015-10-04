@@ -319,7 +319,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_cell_data_func(column, renderer, sched_latetext_cell_data_function, NULL, NULL);
 
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPUPC_NB_LATE);
-	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -332,7 +331,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, remaining_cell_data_function, NULL, NULL);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPUPC_REMAINING);
-	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 	*/
@@ -344,7 +342,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, date_cell_data_function, NULL, NULL);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPUPC_DATE);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -354,9 +351,9 @@ GtkTreeViewColumn  *column;
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, payee_cell_data_function, NULL, NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -366,9 +363,9 @@ GtkTreeViewColumn  *column;
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, wording_cell_data_function, NULL, NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", 2);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -380,7 +377,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, amount_cell_data_function, GINT_TO_POINTER(-1), NULL);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -392,7 +388,6 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, amount_cell_data_function, GINT_TO_POINTER(1), NULL);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
-	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
@@ -400,11 +395,10 @@ GtkTreeViewColumn  *column;
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Account"));
 	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, "xalign", 1.0, NULL);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, account_cell_data_function, NULL, NULL);
-	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	gtk_tree_view_column_set_resizable(column, TRUE);
+	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 

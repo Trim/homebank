@@ -3,6 +3,7 @@
 
 AC_PREREQ(2.52)
 AC_INIT([homebank], [trunk])
+#AC_INIT([homebank], [x.x-rc])
 
 AM_CONFIG_HEADER(config.h)
 
@@ -37,7 +38,7 @@ CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
 CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 
 # extended flags
-#CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
+CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
 # profiling valgrind/gprof flags
 #CFLAGS="${CFLAGS} -g -O0 -pg"

@@ -757,7 +757,7 @@ gdouble amount;
 }
 
 
-static void deftransaction_toggleamount(GtkWidget *widget, gpointer user_data)
+static void deftransaction_toggleamount(GtkWidget *widget, GtkEntryIconPosition icon_pos, GdkEvent *event, gpointer user_data)
 {
 struct deftransaction_data *data;
 guint count, i;
@@ -766,23 +766,28 @@ gdouble value;
 
 	DB( g_print("(ui_transaction) toggleamount\n") );
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-
-	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
-	value *= -1;
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value);
-	
-	if( data->ope->flags & OF_SPLIT )
+	if(icon_pos == GTK_ENTRY_ICON_PRIMARY)
 	{
-		count = da_transaction_splits_count(data->ope);
-		DB( g_print("- count = %d\n", count) );
-		for(i=0;i<count;i++)
+		data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_amount));
+		
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+		value *= -1;
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value);
+	
+		if( data->ope->flags & OF_SPLIT )
 		{
-			split = data->ope->splits[i];
-			split->amount *= -1;
+			count = da_transaction_splits_count(data->ope);
+			DB( g_print("- count = %d\n", count) );
+			for(i=0;i<count;i++)
+			{
+				split = data->ope->splits[i];
+				split->amount *= -1;
+			}
 		}
 	}
-	
+
 }
 
 
@@ -1086,13 +1091,10 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), hbox, 1, row, 1, 1);
 	gtk_widget_set_hexpand (hbox, TRUE);
 
-		widget = gtk_button_new_with_label("+/-");
-		data->BT_amount = widget;
-		gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-		gtk_widget_set_tooltip_text(widget, _("Toggle amount sign"));
-
 		widget = make_amount(label);
 		data->ST_amount = widget;
+		gtk_entry_set_icon_from_icon_name(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY, ICONNAME_HB_TOGGLE_SIGN);
+		gtk_entry_set_icon_tooltip_text(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY, _("Toggle amount sign"));
 		gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
 		image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_SPLIT, GTK_ICON_SIZE_MENU);
@@ -1312,8 +1314,8 @@ gint crow;
 	}
 
 	//connect all our signals
-	g_signal_connect (G_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), data);
-	g_signal_connect (G_OBJECT (data->BT_amount), "clicked", G_CALLBACK (deftransaction_toggleamount), NULL);
+	g_signal_connect (G_OBJECT (data->ST_amount), "focus-out-event", G_CALLBACK (deftransaction_amount_focusout), NULL);
+	g_signal_connect (G_OBJECT (data->ST_amount), "icon-release", G_CALLBACK (deftransaction_toggleamount), NULL);
 	g_signal_connect (G_OBJECT (data->BT_split), "clicked", G_CALLBACK (deftransaction_button_split_cb), NULL);
 
 	g_signal_connect (data->NU_mode, "changed", G_CALLBACK (deftransaction_paymode), NULL);
