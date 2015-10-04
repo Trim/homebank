@@ -1091,7 +1091,7 @@ gint changes = 0;
 							if(split->kcat != rul->kcat) { changed = TRUE; }
 							split->kcat = rul->kcat;
 						}
-					
+					}
 				}
 			}
 

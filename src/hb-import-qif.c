@@ -744,22 +744,22 @@ GList *list = NULL;
 			{
 			QIFSplit *s = &item->splits[nsplit];
 			Split *hbs;
+			guint32 kcat = 0;
 		
 				DB( g_print(" -> append split %d: '%s' '%.2f' '%s'\n", nsplit, s->category, s->amount, s->memo) );
-		
+
 				if( s->category != NULL )
 				{
 					catitem = da_cat_append_ifnew_by_fullname(s->category, TRUE ); // TRUE = imported
 					if( catitem != NULL )
 					{
-						DB( g_print(" -> append ok\n" ) );
-
-						hbs = da_split_new(catitem->key, s->amount, s->memo);
-						da_transaction_splits_append(newope, hbs);
-						hbs = NULL;				
+						kcat = catitem->key;
 					}
-				}	
-		
+				}
+
+				hbs = da_split_new(kcat, s->amount, s->memo);
+				da_transaction_splits_append(newope, hbs);
+				hbs = NULL;				
 			}
 		}
 
