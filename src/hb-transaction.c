@@ -1074,7 +1074,7 @@ gint changes = 0;
 
 			if( ope->flags & OF_SPLIT )
 			{
-			guint i, nbsplit = da_splits_count(ope->splits);
+			guint i, nbsplit = da_transaction_splits_count (ope);
 
 				for(i=0;i<nbsplit;i++)
 				{

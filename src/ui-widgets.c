@@ -823,6 +823,7 @@ char *paymode_label_names[NUM_PAYMODE_MAX] =
 	N_("Standing order"),
 	N_("Electronic payment"),
 	N_("Deposit"),
+	//TRANSLATORS: Financial institution fee
 	N_("FI fee"),
 	N_("Direct Debit")
 };
