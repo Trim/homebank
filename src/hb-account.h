@@ -30,22 +30,26 @@ struct _account
 	guint32		key;
 	gushort		flags;
 	gushort		type;
-	guint32		pos;		//position in list
+	guint32		pos;		//display position
 	//guint32		kcur;
 	gchar		*name;
 	gchar		*number;
 	gchar		*bankname;
 	gdouble		initial;
+
 	gdouble		minimum;
 	guint32		cheque1;
 	guint32		cheque2;
 	//note ?
 
 	/* unsaved datas */
+
+	GtkWindow	*window;	//dsp_account window opened
+
 	gdouble     bal_bank;	//bank balance (reconciled transaction)
 	gdouble     bal_today;	//today balance (every transaction until today)
 	gdouble     bal_future;	//future balance (every transaction)
-	GtkWindow	*window;	//dsp_account window opened
+
 	gboolean	filter;		//true if selected into filter
 
 	// import datas
@@ -83,7 +87,6 @@ enum
 
 
 
-Account *da_acc_clone(Account *src_item);
 Account *da_acc_malloc(void);
 void da_acc_free(Account *item);
 Account *da_acc_malloc(void);
@@ -104,7 +107,6 @@ void da_acc_consistency(Account *item);
 
 
 gboolean account_is_used(guint32 key);
-void account_move(guint32 key1, guint32 key2);
 gboolean account_exists(gchar *name);
 gboolean account_rename(Account *item, gchar *newname);
 void account_compute_balances(void);
@@ -112,4 +114,6 @@ gboolean account_balances_add(Transaction *trn);
 gboolean account_balances_sub(Transaction *trn);
 
 GList *account_glist_sorted(gint column);
+
+void account_convert_euro(Account *acc);
 #endif

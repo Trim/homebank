@@ -60,9 +60,14 @@ enum {
 
 struct ui_reptime_data
 {
-	GtkWidget	*window;
 
-	gint	busy;
+	Filter		*filter;
+
+	gboolean	detail;
+	gint		charttype;
+	guint32		accnum;
+
+	GtkWidget	*window;
 
 	GtkUIManager	*ui;
 	GtkActionGroup *actions;
@@ -95,14 +100,8 @@ struct ui_reptime_data
 	GtkWidget	*GR_detail;
 	GtkWidget	*LV_detail;
 
-	gboolean	detail;
-
-	gint charttype;
 	gulong		handler_id[MAX_REPTIME_HID];
 
-	guint32		accnum;
-
-	Filter		*filter;
 };
 
 

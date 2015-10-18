@@ -2083,9 +2083,9 @@ gint flags;
 		sensitive = da_cat_length() > 1 ? TRUE : FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
 
-		//#1501129
-		sensitive = ((da_cat_length() > 1) || (da_pay_length() > 1)) ? TRUE : FALSE;
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
+		//#1501129 no need to disable, P & C can be created from assigne dialog
+		//sensitive = ((da_cat_length() > 1) || (da_pay_length() > 1)) ? TRUE : FALSE;
+		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Assign"), sensitive);
 
 	// empty archive list: disable scheduled check
 		sensitive = g_list_length(GLOBALS->arc_list) > 0 ? TRUE : FALSE;
@@ -2551,7 +2551,7 @@ GError *error = NULL;
 		g_error_free (error);
 	}
 
-
+	//todo: this generate a warning
 	data->menubar = gtk_ui_manager_get_widget (manager, "/MenuBar");
 	gtk_box_pack_start (GTK_BOX (mainvbox),
 			    data->menubar,
@@ -2567,8 +2567,6 @@ GError *error = NULL;
 			    0);
 
 	/* recent files menu */
-
-
 
 	data->recent_manager = gtk_recent_manager_get_default ();
 

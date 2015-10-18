@@ -221,7 +221,7 @@ GtkWidget *scrollwin, *treeview;
 	g_signal_connect( G_OBJECT(chart->drawarea), "query-tooltip", G_CALLBACK(drawarea_querytooltip_callback), chart );
 	g_signal_connect( G_OBJECT(chart->drawarea), "motion-notify-event", G_CALLBACK(drawarea_motionnotifyevent_callback), chart );
 #endif
-	g_signal_connect (G_OBJECT(chart->adjustment), "value_changed", G_CALLBACK (colchart_first_changed), chart);
+	g_signal_connect (G_OBJECT(chart->adjustment), "value-changed", G_CALLBACK (colchart_first_changed), chart);
 
 	//g_signal_connect( G_OBJECT(chart->drawarea), "map-event", G_CALLBACK(chart_map), chart ) ;
 	//g_signal_connect( G_OBJECT(chart->drawarea), "button-press-event", G_CALLBACK(chart_button_press), chart );
@@ -2375,7 +2375,7 @@ GtkTreeViewColumn  *column;
 	nfd = pango_font_description_copy(desc);
 	nfsize = pango_font_description_get_size (desc) / PANGO_SCALE;
 	pango_font_description_set_size(nfd, MAX(8, nfsize-2) * PANGO_SCALE);
-	gtk_widget_modify_font(GTK_WIDGET(view), nfd);
+	gtk_widget_override_font(GTK_WIDGET(view), nfd);
 	pango_font_description_free (nfd);
 	
 

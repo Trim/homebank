@@ -536,12 +536,30 @@ void da_cat_consistency(Category *item)
 {
 gboolean isIncome;
 
+	if((item->flags & GF_SUB) && item->key > 0)
+	{
+		//check for existing parent
+		if( da_cat_get(item->parent) == NULL )
+		{
+		Category *parent = da_cat_append_ifnew_by_fullname ("orphaned", FALSE);
+
+			item->parent = parent->key;
+			
+			g_warning("category consistency: fixed missing parent %d", item->parent);
+		}
+	}
+
 	// ensure type equal for categories and its children
 	if(!(item->flags & GF_SUB) && item->key > 0)
 	{
 		isIncome = (item->flags & GF_INCOME) ? TRUE : FALSE;
-		category_change_type(item, isIncome);
+		if( category_change_type(item, isIncome) > 0 )
+		{
+			g_warning("category consistency: fixed type for child");
+			GLOBALS->changes_count++;
+		}
 	}
+	
 	g_strstrip(item->name);
 }
 
@@ -1002,11 +1020,21 @@ GList *lcat, *list;
 }
 
 
+static gint category_change_type_eval(Category *item, gboolean isIncome)
+{
+	if( (item->flags & (GF_INCOME)) && !isIncome )
+		return 1;
+	return 0;
+}
+
+
 gint category_change_type(Category *item, gboolean isIncome)
 {
-gint changes = 1;
+gint changes = 0;
 GList *lcat, *list;
 
+	changes += category_change_type_eval(item, isIncome);
+	
 	item->flags &= ~(GF_INCOME);	//delete flag
 	if(isIncome == TRUE)
 		item->flags |= GF_INCOME;
@@ -1019,10 +1047,10 @@ GList *lcat, *list;
 
 		if(child->parent == item->key)
 		{
+			changes += category_change_type_eval(child, isIncome);
 			child->flags &= ~(GF_INCOME);	//delete flag
 			if(isIncome == TRUE)
 				child->flags |= GF_INCOME;
-			changes++;
 		}
 		list = g_list_next(list);
 	}

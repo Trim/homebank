@@ -53,6 +53,8 @@ struct lconv *lc = localeconv();
 
 	DB( g_print("\n[preferences] monetary unix\n") );
 
+	DB( g_print("int_curr_symbol '%s'\n", lc->int_curr_symbol) );
+	
 	DB( g_print("mon_decimal_point is utf8: %d\n", g_utf8_validate(lc->mon_decimal_point, -1, NULL)) );
 	DB( g_print("mon_decimal_point '%s'\n", lc->mon_decimal_point) );
 	DB( g_print("mon_decimal_point %x %x %x %x\n", lc->mon_decimal_point[0], lc->mon_decimal_point[1], lc->mon_decimal_point[2], lc->mon_decimal_point[3]) );

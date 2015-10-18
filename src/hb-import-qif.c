@@ -20,7 +20,7 @@
 #include "homebank.h"
 
 //#include "ui-assist-import.h"
-#include "hb-import-qif.h"
+#include "hb-import.h"
 
 /****************************************************************************/
 /* Debug macros                                                             */

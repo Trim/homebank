@@ -533,6 +533,7 @@ next1:
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), model);
 		g_object_unref(model);
 
+		gtk_tree_view_columns_autosize( GTK_TREE_VIEW(data->LV_detail) );
 	}
 
 }
@@ -742,9 +743,6 @@ guint32 selkey;
 
 	DB( g_print(" for=%d, view by=%d :: key=%d\n", tmpfor, tmpslice, selkey) );
 
-	/* do nothing if no transaction */
-	if(g_list_length(GLOBALS->ope_list) == 0) return;
-
 	//to remove > 5.0.2
 	//filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
 	//ui_reptime_update_quickdate(widget, NULL);
@@ -869,7 +867,6 @@ guint32 selkey;
 									include = TRUE;
 							}
 						}
-						
 					}
 						break;
 					case FOR_REPTIME_PAYEE:
@@ -1206,11 +1203,11 @@ static void ui_reptime_setup(struct ui_reptime_data *data, guint32 accnum)
 {
 	DB( g_print("\n[reptime] setup\n") );
 
-	data->detail = 0;
-
 
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
+
+	data->detail = 0;
 
 	/* 3.4 : make int transfer out of stats */
 	data->filter->option[FILTER_PAYMODE] = 1;
@@ -1301,7 +1298,7 @@ GtkWidget *ui_reptime_window_new(guint32 accnum)
 struct ui_reptime_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview;
-GtkWidget *label, *widget, *table, *alignment;
+GtkWidget *label, *widget, *table;
 gint row;
 GtkUIManager *ui;
 GtkActionGroup *actions;
@@ -1340,10 +1337,8 @@ GError *error = NULL;
 
 	//control part
 	table = gtk_grid_new ();
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-    gtk_box_pack_start (GTK_BOX (hbox), alignment, FALSE, FALSE, 0);
+	gtk_widget_set_hexpand (GTK_WIDGET(table), FALSE);
+    gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
 
 	gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_SMALL);
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);

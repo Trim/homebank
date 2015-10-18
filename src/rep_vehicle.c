@@ -560,7 +560,7 @@ GtkWidget *repcost_window_new(void)
 struct repvehicle_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *treeview;
-GtkWidget *label, *widget, *table, *alignment;
+GtkWidget *label, *widget, *table;
 gint row, col;
 
 	data = g_malloc0(sizeof(struct repvehicle_data));
@@ -595,10 +595,8 @@ gint row, col;
 
 	//control part
 	table = gtk_grid_new ();
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-    gtk_box_pack_start (GTK_BOX (hbox), alignment, FALSE, FALSE, 0);
+	gtk_widget_set_hexpand (GTK_WIDGET(table), FALSE);
+    gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
 
 	gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_SMALL);
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
@@ -668,10 +666,8 @@ gint row, col;
 
 	// total
 	table = gtk_grid_new ();
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 0.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-    gtk_box_pack_start (GTK_BOX (vbox), alignment, FALSE, FALSE, 0);
+	gtk_widget_set_hexpand (GTK_WIDGET(table), FALSE);
+    gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
 
 	gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_SMALL);
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);

@@ -181,7 +181,7 @@ GtkWidget *widget, *hbox, *scrollwin;
 	g_signal_connect( G_OBJECT(chart->drawarea), "scroll-event", G_CALLBACK(drawarea_scroll_event_callback), chart ) ;
 	g_signal_connect( G_OBJECT(chart->drawarea), "motion-notify-event", G_CALLBACK(drawarea_motionnotifyevent_callback), chart );
 
-	g_signal_connect (G_OBJECT(chart->adjustment), "value_changed", G_CALLBACK (ui_chart_stack_first_changed), chart);
+	g_signal_connect (G_OBJECT(chart->adjustment), "value-changed", G_CALLBACK (ui_chart_stack_first_changed), chart);
 
 	/*
 	g_signal_connect( G_OBJECT(chart->drawarea), "leave-notify-event", G_CALLBACK(ui_chart_stack_leave), chart );

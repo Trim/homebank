@@ -100,14 +100,15 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
-	gtk-chart.$(OBJEXT) gtk-chart-stack.$(OBJEXT) \
-	gtk-dateentry.$(OBJEXT) hb-account.$(OBJEXT) \
-	hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) hb-category.$(OBJEXT) \
-	hb-encoding.$(OBJEXT) hb-export.$(OBJEXT) hb-filter.$(OBJEXT) \
-	hb-hbfile.$(OBJEXT) hb-import.$(OBJEXT) \
-	hb-import-ofx.$(OBJEXT) hb-import-qif.$(OBJEXT) \
-	hb-import-csv.$(OBJEXT) hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) \
-	hb-preferences.$(OBJEXT) hb-report.$(OBJEXT) hb-tag.$(OBJEXT) \
+	gtk-chart.$(OBJEXT) gtk-chart-colors.$(OBJEXT) \
+	gtk-chart-stack.$(OBJEXT) gtk-dateentry.$(OBJEXT) \
+	hb-account.$(OBJEXT) hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) \
+	hb-category.$(OBJEXT) hb-encoding.$(OBJEXT) \
+	hb-export.$(OBJEXT) hb-filter.$(OBJEXT) hb-hbfile.$(OBJEXT) \
+	hb-import.$(OBJEXT) hb-import-ofx.$(OBJEXT) \
+	hb-import-qif.$(OBJEXT) hb-import-csv.$(OBJEXT) \
+	hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) hb-preferences.$(OBJEXT) \
+	hb-report.$(OBJEXT) hb-tag.$(OBJEXT) hb-split.$(OBJEXT) \
 	hb-transaction.$(OBJEXT) hb-xml.$(OBJEXT) homebank.$(OBJEXT) \
 	language.$(OBJEXT) list_account.$(OBJEXT) \
 	list_operation.$(OBJEXT) list_topspending.$(OBJEXT) \
@@ -118,8 +119,8 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	ui-assist-import.$(OBJEXT) ui-assist-start.$(OBJEXT) \
 	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) ui-dialogs.$(OBJEXT) \
 	ui-filter.$(OBJEXT) ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) \
-	ui-pref.$(OBJEXT) ui-transaction.$(OBJEXT) \
-	ui-widgets.$(OBJEXT) gtk-chart-colors.$(OBJEXT)
+	ui-pref.$(OBJEXT) ui-split.$(OBJEXT) ui-transaction.$(OBJEXT) \
+	ui-widgets.$(OBJEXT)
 homebank_OBJECTS = $(am_homebank_OBJECTS)
 am__DEPENDENCIES_1 =
 homebank_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -316,6 +317,8 @@ homebank_SOURCES = \
 	enums.h \
 	gtk-chart.c \
 	gtk-chart.h \
+	gtk-chart-colors.c \
+	gtk-chart-colors.h \
 	gtk-chart-stack.c \
 	gtk-chart-stack.h \
 	gtk-dateentry.c \
@@ -340,7 +343,6 @@ homebank_SOURCES = \
 	hb-import.h \
 	hb-import-ofx.c \
 	hb-import-qif.c \
-	hb-import-qif.h \
 	hb-import-csv.c \
 	hb-misc.c \
 	hb-misc.h \
@@ -352,6 +354,8 @@ homebank_SOURCES = \
 	hb-report.h \
 	hb-tag.c \
 	hb-tag.h \
+	hb-split.c \
+	hb-split.h \
 	hb-transaction.c \
 	hb-transaction.h \
 	hb-xml.c \
@@ -402,12 +406,12 @@ homebank_SOURCES = \
 	ui-payee.h \
 	ui-pref.c \
 	ui-pref.h \
+	ui-split.c \
+	ui-split.h \
 	ui-transaction.c \
 	ui-transaction.h \
 	ui-widgets.c \
-	ui-widgets.h \
-	gtk-chart-colors.c \
-	gtk-chart-colors.h
+	ui-widgets.h
 
 homebank_LDADD = $(DEPS_LIBS) \
 	$(LIBSOUP_LIBS)
@@ -524,6 +528,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-payee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-preferences.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-report.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-tag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-transaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-xml.Po@am__quote@
@@ -550,6 +555,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-hbfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-payee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-pref.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-transaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-widgets.Po@am__quote@
 

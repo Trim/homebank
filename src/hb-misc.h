@@ -49,7 +49,7 @@ void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey);
 gint hb_string_utf8_compare(gchar *s1, gchar *s2);
 
 void hb_string_strip_crlf(gchar *str);
-void hb_string_replace_space(gchar *str);
+void hb_string_replace_char(gchar c, gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
 gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);

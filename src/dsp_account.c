@@ -191,29 +191,8 @@ gint result;
 
 	if(result == GTK_RESPONSE_OK)
 	{
-	GList *list;
-
-		list = g_list_first(GLOBALS->ope_list);
-		while (list != NULL)
-		{
-		Transaction *ope = list->data;
-		gdouble oldamount = ope->amount;
-
-			if(ope->kacc == data->accnum)
-			{
-				ope->amount = amount_to_euro(oldamount);
-				
-				DB( g_print("%10.6f => %10.6f, %s\n", oldamount, ope->amount, ope->wording) );
-
-			}
-			list = g_list_next(list);
-		}
-
-		data->acc->initial = amount_to_euro(data->acc->initial);
-		data->acc->minimum = amount_to_euro(data->acc->minimum);
-
+		account_convert_euro(data->acc);
 		register_panel_update(data->LV_ope, GINT_TO_POINTER(UF_BALANCE));
-
 	}
 }
 
@@ -223,7 +202,6 @@ static void register_panel_action_assign(GtkAction *action, gpointer user_data)
 struct register_panel_data *data = user_data;
 gint count;
 gboolean usermode = TRUE;
-
 
 	count = transaction_auto_assign(GLOBALS->ope_list, data->accnum);
 	gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_ope));

@@ -21,6 +21,7 @@
 #define __HB_ARCHIVE_H__
 
 #include "hb-transaction.h"
+#include "hb-split.h"
 
 typedef struct _archive		Archive;
 

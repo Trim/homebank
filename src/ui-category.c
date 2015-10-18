@@ -221,11 +221,13 @@ gchar type;
 
 	if( ( item->key != ctx->except_key ) )
 	{
-		type = (item->flags & GF_INCOME) ? '+' : '-';
-
-		fullname = da_cat_get_fullname(item);
 		pitem = da_cat_get(item->parent);
 
+		type = (item->flags & GF_INCOME) ? '+' : '-';
+		fullname = da_cat_get_fullname(item);
+		sortname = NULL;
+		name = NULL;
+		
 		//DB( g_print ("cat combo populate [%d:%d] %s\n", item->parent, item->key, fullname) );
 
 		if(item->key == 0)
@@ -242,12 +244,15 @@ gchar type;
 			}
 			else
 			{
-				name = g_strdup_printf(" %c %s", type, item->name);
-				sortname = g_strdup_printf("%s_%s", pitem->name, item->name);
+				if(pitem)
+				{
+					name = g_strdup_printf(" %c %s", type, item->name);
+					sortname = g_strdup_printf("%s_%s", pitem->name, item->name);
+				}
 			}
 		}
 		
-		hb_string_replace_space(sortname);
+		hb_string_replace_char(' ', sortname);
 		
 		//gtk_list_store_append (GTK_LIST_STORE(ctx->model), &iter);
 		//gtk_list_store_set (GTK_LIST_STORE(ctx->model), &iter,
@@ -1880,8 +1885,8 @@ gint w, h, row;
 	g_signal_connect (G_OBJECT (data.ST_name1), "activate", G_CALLBACK (ui_cat_manage_dialog_add), GINT_TO_POINTER(FALSE));
 	g_signal_connect (G_OBJECT (data.ST_name2), "activate", G_CALLBACK (ui_cat_manage_dialog_add), GINT_TO_POINTER(TRUE));
 
-	g_signal_connect(G_OBJECT(data.ST_name1), "insert_text", G_CALLBACK(ui_cat_manage_filter_text_handler), NULL);
-	g_signal_connect(G_OBJECT(data.ST_name2), "insert_text", G_CALLBACK(ui_cat_manage_filter_text_handler), NULL);
+	g_signal_connect(G_OBJECT(data.ST_name1), "insert-text", G_CALLBACK(ui_cat_manage_filter_text_handler), NULL);
+	g_signal_connect(G_OBJECT(data.ST_name2), "insert-text", G_CALLBACK(ui_cat_manage_filter_text_handler), NULL);
 
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_cat)), "changed", G_CALLBACK (ui_cat_manage_dialog_selection), NULL);

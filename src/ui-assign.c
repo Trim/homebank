@@ -281,9 +281,9 @@ GtkTreeViewColumn	*column;
 static gboolean
 assign_rename(Assign *item, gchar *newname)
 {
-Account *existitem;
+Assign *existitem;
 
-	existitem = da_acc_get_by_name(newname);
+	existitem = da_asg_get_by_name(newname);
 	if( existitem == NULL )
 	{
 		g_free(item->name);
@@ -298,8 +298,6 @@ Account *existitem;
 
 static void ui_asg_manage_getlast(struct ui_asg_manage_data *data)
 {
-gchar *txt;
-gboolean bool;
 Assign *item;
 gint active;
 
@@ -314,7 +312,7 @@ gint active;
 
 		item->field = radio_get_active(GTK_CONTAINER(data->CY_field));
 		
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
+		/*txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
 		if (txt && *txt)
 		{
 			bool = assign_rename(item, txt);
@@ -326,7 +324,7 @@ gint active;
 			{
 				gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->name);
 			}
-		}
+		}*/
 
 		item->flags = 0;
 		
@@ -539,33 +537,45 @@ static void ui_asg_manage_rename(GtkWidget *widget, gpointer user_data)
 {
 struct ui_asg_manage_data *data;
 guint32 key;
-gboolean ok;
+gboolean error;
 gchar *txt;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	DB( g_print("\n(ui_asg_manage_rename) (data=%x)\n", (guint)data) );
 
+	error = FALSE;
+	
 	key = ui_asg_listview_get_selected_key(GTK_TREE_VIEW(data->LV_rul));
 	if( key > 0 )
 	{
-		Assign *item = da_asg_get(key);
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
-		if (txt && *txt)
-		{
-			ok = assign_rename(item, txt);
-			if(ok)
-			{
-				gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_rul));
-			}
+	Assign *item = da_asg_get(key);
 
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
+		if( txt == NULL || *txt == '\0' )
+		{
+			error = TRUE;
+			goto end;
 		}
 
-		data->change++;
+		if( strcmp(txt, item->name) )
+		{
+			if( assign_rename(item, txt) == TRUE )
+			{
+				//todo: review this count
+				data->change++;
+				gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_rul));
+			}
+			else
+				error = TRUE;
+		}
 	}
+
+end:
+	gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
+
+	if( error == TRUE )
+		gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
 }
-
-
-
 
 
 /*
@@ -694,7 +704,7 @@ gint w, h, row;
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	//gtk_box_pack_start (GTK_BOX (mainbox), table, FALSE, FALSE, 0);
-	gtk_widget_set_margin_right(table, SPACING_SMALL);
+	gtk_widget_set_margin_end(table, SPACING_SMALL);
 	gtk_paned_pack1 (GTK_PANED(hpaned), table, FALSE, FALSE);
 
 	row = 0;
@@ -723,7 +733,7 @@ gint w, h, row;
 	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
 	//gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
-	gtk_widget_set_margin_left(content_grid, SPACING_SMALL);
+	gtk_widget_set_margin_start(content_grid, SPACING_SMALL);
 	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
 	// group :: Condition
@@ -770,7 +780,6 @@ gint w, h, row;
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Category:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_cat = widget;
@@ -785,7 +794,6 @@ gint w, h, row;
 	
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Payee:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_pay = widget;

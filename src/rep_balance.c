@@ -45,63 +45,6 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-enum {
-	HID_MINDATE,
-	HID_MAXDATE,
-	HID_RANGE,
-	MAX_HID
-};
-
-
-
-struct repbalance_data
-{
-	GtkWidget	*window;
-
-	gint	busy;
-
-	GtkUIManager	*ui;
-	GtkActionGroup *actions;
-
-	GtkWidget	*TB_bar;
-
-	GtkWidget	*TX_info;
-	GtkWidget	*TX_daterange;
-	GtkWidget	*CM_minor;
-	GtkWidget	*LV_report;
-	GtkWidget	*PO_acc;
-	GtkWidget	*CM_selectall;
-	GtkWidget	*CM_eachday;
-	GtkWidget	*RG_zoomx, *LB_zoomx;
-
-	GtkWidget	*PO_mindate, *PO_maxdate;
-
-	GtkWidget	*CY_range;
-	GtkWidget	*GR_result;
-
-	GtkWidget	*RE_line;
-
-	GtkWidget	*GR_detail;
-	GtkWidget	*LV_detail;
-
-	Filter		*filter;
-
-	guint32		accnum;
-	gdouble		minimum;
-
-	gboolean	detail;
-
-	gdouble		*tmp_income;
-	gdouble		*tmp_expense;
-	guint		n_result;
-	guint		nbbalance, nbope;
-
-	gulong		handler_id[MAX_HID];
-
-
-};
-
-
 
 /* prototypes */
 static void repbalance_action_viewlist(GtkAction *action, gpointer user_data);
@@ -113,6 +56,16 @@ static void repbalance_update_detail(GtkWidget *widget, gpointer user_data);
 static void repbalance_toggle_detail(GtkWidget *widget, gpointer user_data);
 static void repbalance_detail(GtkWidget *widget, gpointer user_data);
 static void repbalance_sensitive(GtkWidget *widget, gpointer user_data);
+/* prototypes */
+static void repbalance_date_change(GtkWidget *widget, gpointer user_data);
+static void repbalance_range_change(GtkWidget *widget, gpointer user_data);
+static void repbalance_update_info(GtkWidget *widget, gpointer user_data);
+static void repbalance_toggle_minor(GtkWidget *widget, gpointer user_data);
+static void repbalance_compute(GtkWidget *widget, gpointer user_data);
+static void repbalance_setup(struct repbalance_data *data, guint32 accnum);
+static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static GtkWidget *create_list_repbalance(void);
+
 
 //todo amiga/linux
 //prev
@@ -148,29 +101,10 @@ static const gchar *ui_info =
 "  </toolbar>"
 "</ui>";
 
-/* list stat */
-enum
-{
-	LST_OVER_OVER,
-	LST_OVER_DATE,
-	LST_OVER_DATESTR,
-	LST_OVER_EXPENSE,
-	LST_OVER_INCOME,
-	LST_OVER_BALANCE,
-	NUM_LST_OVER
-};
+
 
 //extern gchar *CYA_FLT_SELECT[];
 
-/* prototypes */
-static void repbalance_date_change(GtkWidget *widget, gpointer user_data);
-static void repbalance_range_change(GtkWidget *widget, gpointer user_data);
-static void repbalance_update_info(GtkWidget *widget, gpointer user_data);
-static void repbalance_toggle_minor(GtkWidget *widget, gpointer user_data);
-static void repbalance_compute(GtkWidget *widget, gpointer user_data);
-static void repbalance_setup(struct repbalance_data *data, guint32 accnum);
-static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-static GtkWidget *create_list_repbalance(void);
 
 
 
@@ -229,9 +163,9 @@ struct repbalance_data *data;
 	gtk_date_entry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
 	gtk_date_entry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 	
-	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_block(data->CY_range, data->handler_id[HID_REPBALANCE_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
-	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_REPBALANCE_RANGE]);
 
 
 	repbalance_compute(widget, NULL);
@@ -248,14 +182,14 @@ struct repbalance_data *data;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
 	
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 	
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
 
 }
 
@@ -777,14 +711,14 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 	data->accnum = accnum;
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, data->accnum);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
 
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
 
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_acc), GLOBALS->h_acc, ACC_LST_INSERT_REPORT);
 	ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_acc), accnum);
@@ -1068,10 +1002,10 @@ GError *error = NULL;
 	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (repbalance_toggle_minor), NULL);
 
 
-    data->handler_id[HID_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (repbalance_date_change), (gpointer)data);
-    data->handler_id[HID_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (repbalance_date_change), (gpointer)data);
+    data->handler_id[HID_REPBALANCE_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (repbalance_date_change), (gpointer)data);
+    data->handler_id[HID_REPBALANCE_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (repbalance_date_change), (gpointer)data);
 
-	data->handler_id[HID_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (repbalance_range_change), NULL);
+	data->handler_id[HID_REPBALANCE_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (repbalance_range_change), NULL);
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (repbalance_selection), NULL);
 

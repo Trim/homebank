@@ -668,7 +668,7 @@ gchar *p = str;
 }
 
 
-void hb_string_replace_space(gchar *str)
+void hb_string_replace_char(gchar c, gchar *str)
 {
 gchar *s = str;
 gchar *d = str;
@@ -677,7 +677,7 @@ gchar *d = str;
 	{
 		while( *s )
 		{
-			if( *s != ' ')
+			if( *s != c )
 			{
 				*d++ = *s;
 			}

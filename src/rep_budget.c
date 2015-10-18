@@ -41,67 +41,28 @@
 #define DB(x);
 #endif
 
-enum {
-	HID_MINDATE,
-	HID_MAXDATE,
-	HID_RANGE,
-	MAX_HID
-};
+
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
-struct repbudget_data
-{
-	GtkWidget	*window;
-	GtkUIManager	*ui;
-
-	GtkWidget	*TB_bar;
-
-	GtkWidget	*TX_info;
-	GtkWidget	*TX_daterange;
-	GtkWidget	*CM_minor;
-	GtkWidget	*CY_for;
-	GtkWidget	*CY_kind;
-
-	GtkWidget	*LV_report;
-
-	GtkWidget	*PO_mindate, *PO_maxdate;
-
-	GtkWidget	*CY_range;
-	GtkWidget	*GR_result;
-
-	GtkWidget	*TX_total[3];
-
-	GtkWidget	*RE_stack;
-
-	GtkWidget	*GR_detail;
-	GtkWidget	*LV_detail;
-
-	Filter		*filter;
-
-	gdouble		total_spent;
-	gdouble		total_budget;
-
-	gboolean	detail;
-	gboolean	legend;
-
-	gulong		handler_id[MAX_HID];
-};
-
-/* prototypes */
 static void repbudget_action_viewlist(GtkAction *action, gpointer user_data);
 static void repbudget_action_viewbar(GtkAction *action, gpointer user_data);
 static void repbudget_action_detail(GtkAction *action, gpointer user_data);
 static void repbudget_action_refresh(GtkAction *action, gpointer user_data);
-
-enum
-{
-	BUDG_CATEGORY,
-	BUDG_SUBCATEGORY,
-};
+static void repbudget_date_change(GtkWidget *widget, gpointer user_data);
+static void repbudget_range_change(GtkWidget *widget, gpointer user_data);
+static void repbudget_toggle_detail(GtkWidget *widget, gpointer user_data);
+static void repbudget_detail(GtkWidget *widget, gpointer user_data);
+static void repbudget_compute(GtkWidget *widget, gpointer user_data);
+static void repbudget_update_total(GtkWidget *widget, gpointer user_data);
+static void repbudget_sensitive(GtkWidget *widget, gpointer user_data);
+static void repbudget_toggle(GtkWidget *widget, gpointer user_data);
+static GtkWidget *create_list_budget(void);
+static void repbudget_update_detail(GtkWidget *widget, gpointer user_data);
+static void repbudget_update_daterange(GtkWidget *widget, gpointer user_data);
 
 gchar *CYA_BUDGSELECT[] = { N_("Category"), N_("Subcategory"), NULL };
 
@@ -143,32 +104,7 @@ static const gchar *ui_info =
 "  </toolbar>"
 "</ui>";
 
-/* list stat */
-enum
-{
-	LST_BUDGET_POS,
-	LST_BUDGET_KEY,
-	LST_BUDGET_NAME,
-	LST_BUDGET_SPENT,
-	LST_BUDGET_BUDGET,
-	LST_BUDGET_RESULT,
-	LST_BUDGET_STATUS,
-	NUM_LST_BUDGET
-};
 
-/* prototypes */
-
-static void repbudget_date_change(GtkWidget *widget, gpointer user_data);
-static void repbudget_range_change(GtkWidget *widget, gpointer user_data);
-static void repbudget_toggle_detail(GtkWidget *widget, gpointer user_data);
-static void repbudget_detail(GtkWidget *widget, gpointer user_data);
-static void repbudget_compute(GtkWidget *widget, gpointer user_data);
-static void repbudget_update_total(GtkWidget *widget, gpointer user_data);
-static void repbudget_sensitive(GtkWidget *widget, gpointer user_data);
-static void repbudget_toggle(GtkWidget *widget, gpointer user_data);
-static GtkWidget *create_list_budget(void);
-static void repbudget_update_detail(GtkWidget *widget, gpointer user_data);
-static void repbudget_update_daterange(GtkWidget *widget, gpointer user_data);
 
 /* action functions -------------------- */
 static void repbudget_action_viewlist(GtkAction *action, gpointer user_data)
@@ -279,9 +215,9 @@ struct repbudget_data *data;
 	gtk_date_entry_set_maxdate(GTK_DATE_ENTRY(data->PO_mindate), data->filter->maxdate);
 	gtk_date_entry_set_mindate(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->mindate);
 
-	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_block(data->CY_range, data->handler_id[HID_REPBUDGET_RANGE]);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
-	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_RANGE]);
+	g_signal_handler_unblock(data->CY_range, data->handler_id[HID_REPBUDGET_RANGE]);
 
 
 	repbudget_compute(widget, NULL);
@@ -306,14 +242,14 @@ gint range;
 	{
 		filter_preset_daterange_set(data->filter, range, 0);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPBUDGET_MINDATE]);
+		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPBUDGET_MAXDATE]);
 		
 		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPBUDGET_MINDATE]);
+		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPBUDGET_MAXDATE]);
 
 		repbudget_compute(widget, NULL);
 		repbudget_update_daterange(widget, NULL);
@@ -722,7 +658,6 @@ next1:
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_report), NULL); /* Detach model from view */
 
-
 		/* insert into the treeview */
 		for(i=1, id=0; i<=n_result; i++)
 		{
@@ -750,8 +685,6 @@ next1:
 			if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY) )
 			{
 			guint pos;
-
-
 
 				pos = 0;
 				switch(tmpfor)
@@ -823,7 +756,6 @@ next1:
 			}
 
 			g_free(fullcatname);
-
 
 		}
 
@@ -945,14 +877,14 @@ static void repbudget_setup(struct repbudget_data *data)
 
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, 0);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPBUDGET_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPBUDGET_MAXDATE]);
 
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
 	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
 
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_MAXDATE]);
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPBUDGET_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPBUDGET_MAXDATE]);
 
 }
 
@@ -1245,13 +1177,13 @@ GError *error = NULL;
 	g_signal_connect (data->CM_minor, "toggled", G_CALLBACK (repbudget_toggle), NULL);
 
 
-	data->handler_id[HID_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (repbudget_range_change), NULL);
+	data->handler_id[HID_REPBUDGET_RANGE] = g_signal_connect (data->CY_range, "changed", G_CALLBACK (repbudget_range_change), NULL);
 
     g_signal_connect (data->CY_for , "changed", G_CALLBACK (repbudget_compute), (gpointer)data);
     g_signal_connect (data->CY_kind, "changed", G_CALLBACK (repbudget_compute), (gpointer)data);
 
-    data->handler_id[HID_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (repbudget_date_change), (gpointer)data);
-    data->handler_id[HID_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (repbudget_date_change), (gpointer)data);
+    data->handler_id[HID_REPBUDGET_MINDATE] = g_signal_connect (data->PO_mindate, "changed", G_CALLBACK (repbudget_date_change), (gpointer)data);
+    data->handler_id[HID_REPBUDGET_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (repbudget_date_change), (gpointer)data);
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (repbudget_selection), NULL);
 

@@ -40,6 +40,15 @@ enum {
 
 struct repvehicle_data
 {
+
+	GList		*vehicle_list;
+	Filter		*filter;
+
+	guint		total_dist;
+	gdouble		total_fuel;
+	gdouble		total_fuelcost;
+	gdouble		total_misccost;
+
 	GtkWidget	*window;
 
 	//GtkWidget	*TX_info;
@@ -54,16 +63,6 @@ struct repvehicle_data
 
 	GtkWidget	*LA_avera[MAX_CAR_RES];
 	GtkWidget	*LA_total[MAX_CAR_RES];
-
-	GList		*vehicle_list;
-
-	guint		total_dist;
-	gdouble		total_fuel;
-	gdouble		total_fuelcost;
-	gdouble		total_misccost;
-
-
-	Filter		*filter;
 
 	gulong		handler_id[MAX_REPVEHICLE_HID];
 };

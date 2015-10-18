@@ -213,7 +213,7 @@ ui_start_assistant_create_page1 (GtkWidget *assistant, struct assist_start_data 
 static void
 ui_start_assistant_create_page2 (GtkWidget *assistant, struct assist_start_data *data)
 {
-  GtkWidget *box, *hbox, *label, *table, *widget, *alignment;
+GtkWidget *box, *hbox, *label, *table, *widget;
 gint row;
 
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
@@ -224,10 +224,7 @@ gint row;
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL*2);
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM*2);
 
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (box), alignment, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
 	row = 0;
 	label = make_label(_("System detection"), 0.0, 0.5);
@@ -279,7 +276,7 @@ gint row;
 static void
 ui_start_assistant_create_page3 (GtkWidget *assistant, struct assist_start_data *data)
 {
-GtkWidget *box, *label, *widget, *table, *alignment;
+GtkWidget *box, *label, *widget, *table;
 gint row;
 
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
@@ -290,11 +287,7 @@ gint row;
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
-
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-	gtk_box_pack_start (GTK_BOX (box), alignment, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
 	row = 0;
 	label = make_label(_("Informations"), 0.0, 0.5);
@@ -326,9 +319,7 @@ gint row;
 	data->ST_number = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
-
 //other
-
 
 	//row = 0;
 	row++;
@@ -338,41 +329,23 @@ gint row;
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Initial:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_initial = widget;
-
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_grid_attach (GTK_GRID (table), alignment, 2, row, 1, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	label = gtk_label_new_with_mnemonic (_("_Overdrawn at:"));
-	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_minimum = widget;
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.5, 0.33, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), widget);
-	gtk_grid_attach (GTK_GRID (table), alignment, 2, row, 1, 1);
-
-
-
-
-  gtk_widget_show_all (box);
-  gtk_assistant_append_page (GTK_ASSISTANT (assistant), box);
+	gtk_widget_show_all (box);
+	gtk_assistant_append_page (GTK_ASSISTANT (assistant), box);
 
 	gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("Create an account"));
-
-
 }
-
-
-
 
 
 static void

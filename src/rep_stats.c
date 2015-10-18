@@ -556,6 +556,8 @@ next1:
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), model);
 		g_object_unref(model);
 
+		gtk_tree_view_columns_autosize( GTK_TREE_VIEW(data->LV_detail) );
+
 	}
 
 }
@@ -779,11 +781,6 @@ gdouble exprate, incrate, balrate;
 
 
 	DB( g_print(" for=%d,kind=%d\n", tmpfor, tmpkind) );
-
-
-
-	/* do nothing if no transaction */
-	if(g_list_length(GLOBALS->ope_list) == 0) return;
 
 	//get our min max date
 	from = data->filter->mindate;
@@ -1312,6 +1309,10 @@ static void ui_repdist_setup(struct ui_repdist_data *data)
 {
 	DB( g_print("\n[repdist] setup\n") );
 
+	data->filter = da_filter_malloc();
+	filter_default_all_set(data->filter);
+
+
 	data->detail = PREFS->stat_showdetail;
 	data->legend = 1;
 	data->rate = PREFS->stat_showrate^1;
@@ -1320,8 +1321,6 @@ static void ui_repdist_setup(struct ui_repdist_data *data)
 	ui_repdist_toggle_rate(data->window, NULL);
 
 
-	data->filter = da_filter_malloc();
-	filter_default_all_set(data->filter);
 
 	/* 3.4 : make int transfer out of stats */
 	data->filter->option[FILTER_PAYMODE] = 1;
@@ -1399,7 +1398,7 @@ GtkWidget *ui_repdist_window_new(void)
 struct ui_repdist_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainvbox, *hbox, *vbox, *notebook, *treeview, *vpaned, *sw;
-GtkWidget *label, *widget, *table, *alignment, *entry;
+GtkWidget *label, *widget, *table, *entry;
 gint row;
 GtkUIManager *ui;
 GtkActionGroup *actions;
@@ -1438,11 +1437,8 @@ GError *error = NULL;
 
 	//control part
 	table = gtk_grid_new ();
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
 	gtk_widget_set_hexpand (GTK_WIDGET(table), FALSE);
-    gtk_box_pack_start (GTK_BOX (hbox), alignment, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, FALSE, 0);
 
 	gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_SMALL);
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);

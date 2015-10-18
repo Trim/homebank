@@ -21,6 +21,8 @@
 #define __HB_IMPORT_H__
 
 
+
+
 typedef struct _OfxContext OfxContext;
 struct _OfxContext
 {
@@ -47,6 +49,64 @@ struct _ImportContext
 	gint			cnt_err_date;
 	gint			nb_duplicate;
 };
+
+typedef struct _QifContext QifContext;
+typedef struct _qif_split	QIFSplit;
+typedef struct _qif_tran	QIF_Tran;
+
+#define QIF_UNKNOW_ACCOUNT_NAME "(unknown)"
+
+struct _QifContext
+{
+	GList   *q_acc;
+	GList   *q_cat;
+	GList   *q_pay;
+	GList   *q_tra;
+
+	gboolean	is_ccard;
+};
+
+struct _qif_split
+{
+	gchar		*category;
+	gdouble		amount;
+	gchar		*memo;
+};
+
+struct _qif_tran
+{
+	gchar		*account;
+	gchar		*date;
+	gdouble		amount;
+	gboolean	reconciled;
+	gboolean	cleared;
+	gchar		*info;
+	gchar		*payee;
+	gchar		*memo;
+	gchar		*category;
+
+	gint		nb_splits;
+	QIFSplit	splits[TXN_MAX_SPLIT];
+};
+
+
+enum QIF_Type
+{
+	QIF_NONE,
+	QIF_HEADER,
+	QIF_ACCOUNT,
+	QIF_CATEGORY,
+	QIF_CLASS,
+	QIF_MEMORIZED,
+	QIF_TRANSACTION,
+	QIF_SECURITY,
+	QIF_PRICES
+};
+
+
+GList *account_import_qif(gchar *filename, ImportContext *ictx);
+gdouble hb_qif_parser_get_amount(gchar *string);
+
 
 
 Account *import_create_account(gchar *name, gchar *number);

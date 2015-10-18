@@ -1192,7 +1192,7 @@ gint w, h, row;
 	/* left area */
 	vbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	//gtk_box_pack_start (GTK_BOX (mainbox), vbox, FALSE, FALSE, 0);
-	gtk_widget_set_margin_right(vbox, SPACING_TINY);
+	gtk_widget_set_margin_end(vbox, SPACING_TINY);
 	gtk_paned_pack1 (GTK_PANED(hpaned), vbox, FALSE, FALSE);
 
 	table = gtk_grid_new ();
@@ -1226,7 +1226,7 @@ gint w, h, row;
 	notebook = gtk_notebook_new();
 	data.notebook = notebook;
 	//gtk_box_pack_start (GTK_BOX (mainbox), notebook, TRUE, TRUE, 0);
-	gtk_widget_set_margin_left(notebook, SPACING_TINY);
+	gtk_widget_set_margin_start(notebook, SPACING_TINY);
 	gtk_paned_pack2 (GTK_PANED(hpaned), notebook, FALSE, FALSE);
 
 	/* page :: General */

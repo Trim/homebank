@@ -879,12 +879,12 @@ gboolean rc;
 				homebank_upgrade_to_v11();
 			}
 			//starting 5.0.4 data upgrade is done without changing file_version
-			if( ctx.data_version < 050004 )	// <= 5.0.4 
+			if( ctx.data_version < 050005 )	// <= 5.0.5 
 			{
 				hbfile_sanity_check();
 			}
-			// next ?
 
+			// next ?
 			
 		}
 	}
@@ -1179,7 +1179,7 @@ GError *error = NULL;
 
 		if(item->key != 0)
 		{
-			tmpstr = g_markup_printf_escaped("<tag key=\"%d\" name=\"%s\" />\n",
+			tmpstr = g_markup_printf_escaped("<tag key=\"%d\" name=\"%s\"/>\n",
 				item->key,
 				item->name
 			);

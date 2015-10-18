@@ -20,14 +20,11 @@
 #ifndef __HB_TRANSACTION_GTK_H__
 #define __HB_TRANSACTION_GTK_H__
 
+#include "ui-split.h"
+
 enum {
 	HID_AMOUNT,
 	MAX_HID_AMOUNT
-};
-
-enum {
-	TXN_SPLIT_NEW,
-	TXN_SPLIT_AMOUNT
 };
 
 
@@ -58,32 +55,6 @@ struct deftransaction_data
 	Transaction *ope;
 
 };
-
-struct ui_txn_split_dialog_data
-{
-	GtkWidget	*dialog;
-	GtkWidget	*BT_rem[TXN_MAX_SPLIT];
-	GtkWidget	*BT_add[TXN_MAX_SPLIT];
-	GtkWidget	*PO_cat[TXN_MAX_SPLIT];
-	GtkWidget	*ST_amount[TXN_MAX_SPLIT];
-	GtkWidget	*ST_memo[TXN_MAX_SPLIT];
-
-	GtkWidget	*LB_sumsplit;
-	GtkWidget	*LB_remain;
-	GtkWidget	*LB_txnamount;
-
-	Transaction *ope;
-	gdouble		amount;
-	gdouble		sumsplit;
-	gdouble		remsplit;
-
-	gint		nbsplit;
-	gint		splittype;
-	gint		activeline;
-	
-	gulong		handler_id[TXN_MAX_SPLIT];
-};
-
 
 
 GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode);

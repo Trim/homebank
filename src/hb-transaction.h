@@ -22,20 +22,10 @@
 
 
 
-#define TXN_MAX_SPLIT 10
 
-typedef struct _split Split;
 typedef struct _transaction	Transaction;
 
-#include "hb-archive.h"
-
-struct _split
-{
-	guint32		kcat;
-	gdouble		amount;
-	gchar		*memo;
-};
-
+#include "hb-split.h"
 
 struct _transaction
 {
@@ -61,6 +51,8 @@ struct _transaction
 	GList		*same;		//used for import todo: change this
 	gdouble		balance;
 };
+
+#include "hb-archive.h"
 
 #define OF_OLDVALID	(1<<0)  //deprecated since 5.x
 #define OF_INCOME	(1<<1)
@@ -95,6 +87,7 @@ GList *da_transaction_sort(GList *list);
 gboolean da_transaction_prepend(Transaction *item);
 gboolean da_transaction_insert_sorted(Transaction *item);
 
+
 /*
 ** transaction edit type
 */
@@ -105,14 +98,6 @@ enum
 	TRANSACTION_EDIT_MODIFY
 };
 
-void da_transaction_splits_append(Transaction *txn, Split *split);
-void da_transaction_splits_free(Transaction *txn);
-guint da_transaction_splits_count(Transaction *txn);
-void da_transaction_splits_clone(Transaction *stxn, Transaction *dtxn);
-
-Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
-guint transaction_splits_parse(Transaction *ope, gchar *cats, gchar *amounts, gchar *memos);
-guint transaction_splits_tostring(Transaction *ope, gchar **cats, gchar **amounts, gchar **memos);
 
 guint da_transaction_length(void);
 void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);

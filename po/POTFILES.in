@@ -35,5 +35,6 @@ src/ui-filter.c
 src/ui-hbfile.c
 src/ui-payee.c
 src/ui-pref.c
+src/ui-split.c
 src/ui-transaction.c
 src/ui-widgets.c

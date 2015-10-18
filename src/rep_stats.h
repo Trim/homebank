@@ -55,9 +55,17 @@ enum
 
 struct ui_repdist_data
 {
-	GtkWidget	*window;
 
-	gint	busy;
+	Filter		*filter;
+
+	gboolean	detail;
+	gboolean	legend;
+	gboolean	rate;
+	gdouble		total_expense;
+	gdouble		total_income;
+	gdouble		total_balance;
+
+	GtkWidget	*window;
 
 	GtkUIManager	*ui;
 	GtkActionGroup *actions;
@@ -85,17 +93,9 @@ struct ui_repdist_data
 	GtkWidget	*GR_detail;
 	GtkWidget	*LV_detail;
 
-	gdouble		total_expense;
-	gdouble		total_income;
-	gdouble		total_balance;
 
-	gboolean	detail;
-	gboolean	legend;
-	gboolean	rate;
 
 	gulong		handler_id[MAX_REPDIST_HID];
-
-	Filter		*filter;
 
 };
 

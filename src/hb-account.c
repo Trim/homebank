@@ -35,26 +35,6 @@
 extern struct HomeBank *GLOBALS;
 
 
-
-
-
-Account *
-da_acc_clone(Account *src_item)
-{
-Account *new_item = g_memdup(src_item, sizeof(Account));
-
-	DB( g_print("da_acc_clone\n") );
-	if(new_item)
-	{
-		//duplicate the string
-		new_item->name		= g_strdup(src_item->name);
-		new_item->number	= g_strdup(src_item->number);
-		new_item->bankname	= g_strdup(src_item->bankname);
-	}
-	return new_item;
-}
-
-
 void
 da_acc_free(Account *item)
 {
@@ -373,33 +353,6 @@ GList *list;
 	return FALSE;
 }
 
-void
-account_move(guint32 key1, guint32 key2)
-{
-GList *list;
-
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
-	{
-	Transaction *entry = list->data;
-		if(entry->kacc == key1)
-			entry->kacc = key2;
-		if(entry->kxferacc == key1)
-			entry->kxferacc = key2;
-		list = g_list_next(list);
-	}
-
-	list = g_list_first(GLOBALS->arc_list);
-	while (list != NULL)
-	{
-	Archive *entry = list->data;
-		if(entry->kacc == key1)
-			entry->kacc = key2;
-		if(entry->kxferacc == key1)
-			entry->kxferacc = key2;
-		list = g_list_next(list);
-	}
-}
 
 static gchar *
 account_get_stripname(gchar *name)
@@ -590,6 +543,28 @@ Transaction *trn;
 }
 
 
+void account_convert_euro(Account *acc)
+{
+GList *list;
 
+	list = g_list_first(GLOBALS->ope_list);
+	while (list != NULL)
+	{
+	Transaction *ope = list->data;
+	gdouble oldamount = ope->amount;
 
+		if(ope->kacc == acc->key)
+		{
+			ope->amount = amount_to_euro(oldamount);
+			
+			DB( g_print("%10.6f => %10.6f, %s\n", oldamount, ope->amount, ope->wording) );
+
+		}
+		list = g_list_next(list);
+	}
+
+	acc->initial = amount_to_euro(acc->initial);
+	acc->minimum = amount_to_euro(acc->minimum);
+
+}
 

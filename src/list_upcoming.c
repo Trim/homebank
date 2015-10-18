@@ -307,6 +307,7 @@ GtkTreeViewColumn  *column;
 
 	/* column : Late */
 	column = gtk_tree_view_column_new();
+	//TRANSLATORS: title of list column to inform the scheduled transaction is Late
 	gtk_tree_view_column_set_title(column, _("Late"));
 
 	renderer = gtk_cell_renderer_pixbuf_new ();

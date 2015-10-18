@@ -20,6 +20,77 @@
 #ifndef __HOMEBANK_REPBUDGET_H__
 #define __HOMEBANK_REPBUDGET_H__
 
+enum {
+	HID_REPBUDGET_MINDATE,
+	HID_REPBUDGET_MAXDATE,
+	HID_REPBUDGET_RANGE,
+	MAX_REPBUDGET_HID
+};
+
+
+/* list stat */
+enum
+{
+	LST_BUDGET_POS,
+	LST_BUDGET_KEY,
+	LST_BUDGET_NAME,
+	LST_BUDGET_SPENT,
+	LST_BUDGET_BUDGET,
+	LST_BUDGET_RESULT,
+	LST_BUDGET_STATUS,
+	NUM_LST_BUDGET
+};
+
+struct repbudget_data
+{
+
+	Filter		*filter;
+
+	gdouble		total_spent;
+	gdouble		total_budget;
+
+	gboolean	detail;
+	gboolean	legend;
+
+
+	GtkWidget	*window;
+
+	GtkUIManager	*ui;
+
+	GtkWidget	*TB_bar;
+
+	GtkWidget	*TX_info;
+	GtkWidget	*TX_daterange;
+	GtkWidget	*CM_minor;
+	GtkWidget	*CY_for;
+	GtkWidget	*CY_kind;
+
+	GtkWidget	*LV_report;
+
+	GtkWidget	*PO_mindate, *PO_maxdate;
+
+	GtkWidget	*CY_range;
+	GtkWidget	*GR_result;
+
+	GtkWidget	*TX_total[3];
+
+	GtkWidget	*RE_stack;
+
+	GtkWidget	*GR_detail;
+	GtkWidget	*LV_detail;
+
+	gulong		handler_id[MAX_REPBUDGET_HID];
+};
+
+
+
+enum
+{
+	BUDG_CATEGORY,
+	BUDG_SUBCATEGORY,
+};
+
+
 GtkWidget *repbudget_window_new(void);
 
 

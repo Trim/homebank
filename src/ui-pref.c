@@ -573,9 +573,6 @@ GtkCellRenderer *renderer;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
-
-
-
 /*
 **
 */
@@ -644,7 +641,6 @@ struct iso4217format *curfmt;
 
 }
 */
-
 
 
 static void defpref_pathselect(GtkWidget *widget, gpointer user_data)
@@ -2092,15 +2088,14 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	gtk_box_pack_start (GTK_BOX (vbox), ebox, FALSE, TRUE, 0);
 	gtk_widget_show (ebox);
 
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox), SPACING_SMALL);
-  gtk_container_add (GTK_CONTAINER (ebox), hbox);
-  gtk_widget_show (hbox);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER (hbox), SPACING_SMALL);
+	gtk_container_add (GTK_CONTAINER (ebox), hbox);
+	gtk_widget_show (hbox);
 
-  label = gtk_label_new (NULL);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-	gtk_widget_set_margin_left (label, SPACING_MEDIUM);
-  gimp_label_set_attributes (GTK_LABEL (label),
+	label = gtk_label_new (NULL);
+	gtk_widget_set_margin_start(label, SPACING_MEDIUM);
+	gimp_label_set_attributes (GTK_LABEL (label),
                              PANGO_ATTR_SCALE,  PANGO_SCALE_XX_LARGE,
                              PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD,
                              -1);

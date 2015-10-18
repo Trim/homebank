@@ -21,6 +21,8 @@ homebank_SOURCES =  \
 	enums.h \
 	gtk-chart.c \
 	gtk-chart.h \
+	gtk-chart-colors.c \
+	gtk-chart-colors.h \
 	gtk-chart-stack.c \
 	gtk-chart-stack.h \
 	gtk-dateentry.c \
@@ -45,7 +47,6 @@ homebank_SOURCES =  \
 	hb-import.h \
 	hb-import-ofx.c \
 	hb-import-qif.c \
-	hb-import-qif.h \
 	hb-import-csv.c \
 	hb-misc.c \
 	hb-misc.h \
@@ -57,6 +58,8 @@ homebank_SOURCES =  \
 	hb-report.h \
 	hb-tag.c \
 	hb-tag.h \
+	hb-split.c \
+	hb-split.h \
 	hb-transaction.c \
 	hb-transaction.h \
 	hb-xml.c \
@@ -107,12 +110,12 @@ homebank_SOURCES =  \
 	ui-payee.h \
 	ui-pref.c \
 	ui-pref.h \
+	ui-split.c \
+	ui-split.h \
 	ui-transaction.c \
 	ui-transaction.h \
 	ui-widgets.c \
-	ui-widgets.h \
-	gtk-chart-colors.c \
-	gtk-chart-colors.h 
+	ui-widgets.h
 
 homebank_LDADD = $(DEPS_LIBS) \
 	$(LIBSOUP_LIBS)

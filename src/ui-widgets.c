@@ -205,7 +205,8 @@ GtkWidget *make_label_group(gchar *str)
 {
 GtkWidget *label = gtk_label_new (str);
 
-	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+	gtk_widget_set_valign (label, GTK_ALIGN_CENTER);
+	gtk_widget_set_halign (label, GTK_ALIGN_START);
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
 	return label;
 }
@@ -377,7 +378,7 @@ const gchar *numtext;
 		gtk_editable_insert_text (editable, result, count, position);
 		g_signal_handlers_unblock_by_func (G_OBJECT (editable), G_CALLBACK (hb_amount_insert_text_handler), data);
 	}
-	g_signal_stop_emission_by_name (G_OBJECT (editable), "insert_text");
+	g_signal_stop_emission_by_name (G_OBJECT (editable), "insert-text");
 
 	g_free (result);
 }
@@ -397,7 +398,7 @@ GtkAdjustment *adj;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), spinner);
 
-	g_signal_connect(G_OBJECT(spinner), "insert_text",
+	g_signal_connect(G_OBJECT(spinner), "insert-text",
 			 G_CALLBACK(hb_amount_insert_text_handler),
 			 NULL);
 
