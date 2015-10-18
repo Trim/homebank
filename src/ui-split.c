@@ -274,7 +274,7 @@ gint line;
 }
 
 
-void ui_split_dialog_get(struct ui_split_dialog_data *data)
+static void ui_split_dialog_get(struct ui_split_dialog_data *data)
 {
 guint i;
 Split *split;
@@ -304,7 +304,7 @@ gdouble amount;
 }
 
 
-void ui_split_dialog_set(struct ui_split_dialog_data *data)
+static void ui_split_dialog_set(struct ui_split_dialog_data *data)
 {
 guint count, i;
 Split *split;
