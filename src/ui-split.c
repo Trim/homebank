@@ -477,8 +477,8 @@ gint row, i;
 		gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
 		widget = gtk_label_new(NULL);
 		gtk_widget_set_halign (widget, GTK_ALIGN_END);
-		gtk_widget_set_margin_start(widget, 20);
-		gtk_widget_set_margin_end(widget, 20);
+		gtk_widget_set_margin_left(widget, 20);
+		gtk_widget_set_margin_right(widget, 20);
 		data.LB_remain = widget;
 		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 
@@ -492,8 +492,8 @@ gint row, i;
 		gtk_grid_attach (GTK_GRID (table), label, 3, row, 1, 1);
 		widget = gtk_label_new(NULL);
 		gtk_widget_set_halign (widget, GTK_ALIGN_END);
-		gtk_widget_set_margin_start(widget, 20);
-		gtk_widget_set_margin_end(widget, 20);
+		gtk_widget_set_margin_left(widget, 20);
+		gtk_widget_set_margin_right(widget, 20);
 		data.LB_txnamount = widget;
 		gtk_grid_attach (GTK_GRID (table), widget, 4, row, 1, 1);
 	}

@@ -2094,7 +2094,7 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	gtk_widget_show (hbox);
 
 	label = gtk_label_new (NULL);
-	gtk_widget_set_margin_start(label, SPACING_MEDIUM);
+	gtk_widget_set_margin_left(label, SPACING_MEDIUM);
 	gimp_label_set_attributes (GTK_LABEL (label),
                              PANGO_ATTR_SCALE,  PANGO_SCALE_XX_LARGE,
                              PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD,

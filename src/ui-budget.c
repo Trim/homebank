@@ -1011,7 +1011,7 @@ gint crow, row;
 	/* left area */
 	//list
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	gtk_widget_set_margin_end(vbox, SPACING_SMALL);
+	gtk_widget_set_margin_right(vbox, SPACING_SMALL);
 	gtk_paned_pack1 (GTK_PANED(hpaned), vbox, TRUE, FALSE);
 	
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
@@ -1056,7 +1056,7 @@ gint crow, row;
 	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
 	//gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
-	gtk_widget_set_margin_start(content_grid, SPACING_SMALL);
+	gtk_widget_set_margin_left(content_grid, SPACING_SMALL);
 	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
 	crow = 0;

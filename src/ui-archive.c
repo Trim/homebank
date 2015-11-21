@@ -985,7 +985,7 @@ gint w, h;
 	hgrid = gtk_grid_new ();
 	gtk_grid_set_row_spacing (GTK_GRID (hgrid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (hgrid), SPACING_MEDIUM);
-	gtk_widget_set_margin_end(hgrid, SPACING_SMALL);
+	gtk_widget_set_margin_right(hgrid, SPACING_SMALL);
 	gtk_paned_pack1 (GTK_PANED(hpaned), hgrid, FALSE, FALSE);
 
 	// listview
@@ -1014,7 +1014,7 @@ gint w, h;
 	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
 	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
 	//gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
-	gtk_widget_set_margin_start(content_grid, SPACING_SMALL);
+	gtk_widget_set_margin_left(content_grid, SPACING_SMALL);
 	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
 	hgrid = gtk_grid_new ();
