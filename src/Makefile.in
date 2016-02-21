@@ -103,27 +103,28 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	gtk-chart.$(OBJEXT) gtk-chart-colors.$(OBJEXT) \
 	gtk-chart-stack.$(OBJEXT) gtk-dateentry.$(OBJEXT) \
 	hb-account.$(OBJEXT) hb-archive.$(OBJEXT) hb-assign.$(OBJEXT) \
-	hb-category.$(OBJEXT) hb-encoding.$(OBJEXT) \
-	hb-export.$(OBJEXT) hb-filter.$(OBJEXT) hb-hbfile.$(OBJEXT) \
-	hb-import.$(OBJEXT) hb-import-ofx.$(OBJEXT) \
-	hb-import-qif.$(OBJEXT) hb-import-csv.$(OBJEXT) \
-	hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) hb-preferences.$(OBJEXT) \
-	hb-report.$(OBJEXT) hb-tag.$(OBJEXT) hb-split.$(OBJEXT) \
-	hb-transaction.$(OBJEXT) hb-xml.$(OBJEXT) homebank.$(OBJEXT) \
-	language.$(OBJEXT) list_account.$(OBJEXT) \
+	hb-category.$(OBJEXT) hb-currency.$(OBJEXT) \
+	hb-encoding.$(OBJEXT) hb-export.$(OBJEXT) hb-filter.$(OBJEXT) \
+	hb-hbfile.$(OBJEXT) hb-import.$(OBJEXT) \
+	hb-import-ofx.$(OBJEXT) hb-import-qif.$(OBJEXT) \
+	hb-import-csv.$(OBJEXT) hb-misc.$(OBJEXT) hb-payee.$(OBJEXT) \
+	hb-preferences.$(OBJEXT) hb-report.$(OBJEXT) hb-tag.$(OBJEXT) \
+	hb-split.$(OBJEXT) hb-transaction.$(OBJEXT) hb-xml.$(OBJEXT) \
+	homebank.$(OBJEXT) language.$(OBJEXT) list_account.$(OBJEXT) \
 	list_operation.$(OBJEXT) list_topspending.$(OBJEXT) \
 	list_upcoming.$(OBJEXT) rep_balance.$(OBJEXT) \
 	rep_budget.$(OBJEXT) rep_stats.$(OBJEXT) rep_time.$(OBJEXT) \
 	rep_vehicle.$(OBJEXT) ui-account.$(OBJEXT) \
 	ui-archive.$(OBJEXT) ui-assign.$(OBJEXT) \
 	ui-assist-import.$(OBJEXT) ui-assist-start.$(OBJEXT) \
-	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) ui-dialogs.$(OBJEXT) \
-	ui-filter.$(OBJEXT) ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) \
-	ui-pref.$(OBJEXT) ui-split.$(OBJEXT) ui-transaction.$(OBJEXT) \
+	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) \
+	ui-currency.$(OBJEXT) ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) \
+	ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) ui-pref.$(OBJEXT) \
+	ui-split.$(OBJEXT) ui-transaction.$(OBJEXT) \
 	ui-widgets.$(OBJEXT)
 homebank_OBJECTS = $(am_homebank_OBJECTS)
 am__DEPENDENCIES_1 =
-homebank_DEPENDENCIES = $(am__DEPENDENCIES_1)
+homebank_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -229,6 +230,8 @@ INTLTOOL__v_MERGE_0 = @INTLTOOL__v_MERGE_0@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
+LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
@@ -331,6 +334,8 @@ homebank_SOURCES = \
 	hb-assign.h \
 	hb-category.c \
 	hb-category.h \
+	hb-currency.c \
+	hb-currency.h \
 	hb-encoding.c \
 	hb-encoding.h \
 	hb-export.c \
@@ -396,6 +401,8 @@ homebank_SOURCES = \
 	ui-budget.h \
 	ui-category.c \
 	ui-category.h \
+	ui-currency.c \
+	ui-currency.h \
 	ui-dialogs.c \
 	ui-dialogs.h \
 	ui-filter.c \
@@ -418,6 +425,7 @@ homebank_LDADD = $(DEPS_LIBS) \
 
 AM_CPPFLAGS = \
 	$(DEPS_CFLAGS) \
+	$(LIBSOUP_CFLAGS) \
 	$(common_defines)
 
 all: all-am
@@ -516,6 +524,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-archive.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-assign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-category.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-currency.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-encoding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-export.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hb-filter.Po@am__quote@
@@ -550,6 +559,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assist-start.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-budget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-category.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-currency.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-dialogs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-filter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-hbfile.Po@am__quote@

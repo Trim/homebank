@@ -28,6 +28,7 @@ private_icons = \
 	hicolor_actions_24x24_hb-assign-run.png \
 	hicolor_actions_24x24_hb-budget.png \
 	hicolor_actions_24x24_hb-category.png \
+	hicolor_actions_24x24_hb-currency.png \
 	hicolor_actions_24x24_hb-file-export.png \
 	hicolor_actions_24x24_hb-file-import.png \
 	hicolor_actions_24x24_hb-file-valid.png \
@@ -39,6 +40,7 @@ private_icons = \
 	hicolor_actions_24x24_hb-ope-delete.png \
 	hicolor_actions_24x24_hb-ope-edit.png \
 	hicolor_actions_24x24_hb-ope-herit.png \
+	hicolor_actions_24x24_hb-ope-multiedit.png \
 	hicolor_actions_24x24_hb-ope-reconciled.png \
 	hicolor_actions_24x24_hb-ope-convert.png \
 	hicolor_actions_24x24_hb-ope-show.png \

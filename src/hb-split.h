@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,7 +20,6 @@
 #ifndef __HB_SPLIT_H__
 #define __HB_SPLIT_H__
 
-#include "hb-transaction.h"
 
 #define TXN_MAX_SPLIT 10
 
@@ -35,14 +34,16 @@ struct _split
 };
 
 
-Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
-void da_transaction_splits_free(Transaction *txn);
-void da_transaction_splits_append(Transaction *txn, Split *split);
-void da_transaction_splits_clone(Transaction *stxn, Transaction *dtxn);
-guint transaction_splits_parse(Transaction *ope, gchar *cats, gchar *amounts, gchar *memos);
-guint transaction_splits_tostring(Transaction *ope, gchar **cats, gchar **amounts, gchar **memos);
-guint da_transaction_splits_count(Transaction *txn);
+void da_splits_append(Split *txn_splits[], Split *new_split);
+void da_splits_free(Split *txn_splits[]);
+guint da_splits_count(Split *txn_splits[]);
+guint da_splits_clone(Split *stxn_splits[], Split *dtxn_splits[]);
 
+Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
+guint da_splits_parse(Split *ope_splits[], gchar *cats, gchar *amounts, gchar *memos);
+guint da_splits_tostring(Split *ope_splits[], gchar **cats, gchar **amounts, gchar **memos);
+
+void split_cat_consistency (Split *txn_splits[]);
 
 
 #endif

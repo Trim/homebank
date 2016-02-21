@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -198,11 +198,13 @@ Archive *arc;
 gdouble expense, income, amount;
 gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 gint column = GPOINTER_TO_INT(user_data);
+Account *acc;
 gchar *color;
 gint weight;
 
 	gtk_tree_model_get(model, iter, 
 	    LST_DSPUPC_DATAS, &arc,
+		LST_DSPUPC_ACCOUNT, &acc,
 		LST_DSPUPC_EXPENSE, &expense,
 	    LST_DSPUPC_INCOME, &income,
 	    -1);
@@ -211,8 +213,11 @@ gint weight;
 		
 	if( amount != 0.0)
 	{
-		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, kcur);
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->minor);
+		if( acc != NULL )
+			hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, acc->kcur, GLOBALS->minor);
+		else
+			hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->kcur, GLOBALS->minor);
+
 		color = get_normal_color_amount(amount);
 
 		weight = arc == NULL ? PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL;
@@ -235,13 +240,13 @@ gint weight;
 */
 static void account_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-guint32 accid;
 Account *acc;
 gchar *name = NULL;
 
-	gtk_tree_model_get(model, iter, LST_DSPUPC_ACCOUNT, &accid, -1);
+	gtk_tree_model_get(model, iter, 
+		LST_DSPUPC_ACCOUNT, &acc,
+		-1);
 	/* 1378836 display acc or dstacc */
-	acc = da_acc_get(accid);
 	if( acc != NULL )
 	{
 		name = acc->name;
@@ -289,7 +294,7 @@ GtkTreeViewColumn  *column;
 		G_TYPE_STRING,	/* wording */
 		G_TYPE_DOUBLE,	/* expense */
 		G_TYPE_DOUBLE,	/* income */
-		G_TYPE_INT,		/* account */
+		G_TYPE_POINTER,	/* account */
 	    G_TYPE_BOOLEAN,	/* next on */
 		G_TYPE_INT,		/* remaining */
 		G_TYPE_INT		/* nb late */
@@ -299,7 +304,7 @@ GtkTreeViewColumn  *column;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (view), PREFS->grid_lines);
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
 	//			       COLUMN_DESCRIPTION);
 

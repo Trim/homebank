@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -43,7 +43,7 @@ struct _archive
 	//guint32		kxfer;		//strong link xfer key
 	guint32		kxferacc;
 	
-	//Split		*splits[TXN_MAX_SPLIT+1];
+	Split		*splits[TXN_MAX_SPLIT+1];
 
 	guint32		nextdate;
 	gushort		every;

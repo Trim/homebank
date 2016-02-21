@@ -238,23 +238,10 @@ ChartStack *chart = GTK_CHARTSTACK(object);
 static gchar *ui_chart_stack_print_int(ChartStack *chart, gdouble value)
 {
 
-	mystrfmon(chart->buffer, CHART_BUFFER_LENGTH-1, value, chart->minor);
-	//mystrfmon_int(chart->buffer, CHART_BUFFER_LENGTH-1, value, chart->minor);
-
+	hb_strfmon(chart->buffer, CHART_BUFFER_LENGTH-1, value, chart->kcur, chart->minor);
 	return chart->buffer;
 }
 
-/*
-** print a double number
-
-static gchar *ui_chart_stack_print_double(ChartStack *chart, gdouble value)
-{
-
-	mystrfmon(chart->buffer, CHART_BUFFER_LENGTH-1, value, chart->minor);
-
-	return chart->buffer;
-}
-*/
 
 static void ui_chart_stack_clear(ChartStack *chart, gboolean store)
 {
@@ -731,14 +718,14 @@ int tw, th;
 		h = floor(item->rate * chart->graph_width);	
 		if(item->warn)
 		{
-			cairo_user_set_rgbcol_over(cr, &chart->colors[chart->cs_red], idx == chart->active);
+			cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[chart->color_scheme.cs_red], idx == chart->active);
 		}   
 		else
 		{
 			if(item->rate > 0.8 && item->rate < 1.0)
-				cairo_user_set_rgbcol_over(cr, &chart->colors[chart->cs_orange], idx == chart->active);
+				cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[chart->color_scheme.cs_orange], idx == chart->active);
 			else
-				cairo_user_set_rgbcol_over(cr, &chart->colors[chart->cs_green], idx == chart->active);
+				cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[chart->color_scheme.cs_green], idx == chart->active);
 		}
 
 		
@@ -787,7 +774,7 @@ int tw, th;
 
 			if(item->warn)
 				//cairo_set_source_rgb(cr, COLTOCAIRO(164), COLTOCAIRO(0), COLTOCAIRO(0));
-				cairo_user_set_rgbcol(cr, &chart->colors[chart->cs_red]);
+				cairo_user_set_rgbcol(cr, &chart->color_scheme.colors[chart->color_scheme.cs_red]);
 			else
 				//cairo_user_set_rgbcol(cr, &global_colors[TEXT]);
 				cairo_user_set_rgbacol (cr, &global_colors[THTEXT], 0.78);
@@ -1262,76 +1249,27 @@ void ui_chart_stack_show_minor(ChartStack * chart, gboolean minor)
 
 }
 
-void ui_chart_stack_set_color_scheme(ChartStack * chart, gint colorscheme)
+void ui_chart_stack_set_color_scheme(ChartStack * chart, gint index)
 {
-
-	switch(colorscheme)
-	{
-		default:
-		case CHART_COLMAP_HOMEBANK:
-			chart->colors = homebank_colors;
-			chart->nb_cols = homebank_nbcolors;
-			chart->cs_green = 4;
-			chart->cs_red = 6;
-			chart->cs_orange = 2;
-			break;
-		case CHART_COLMAP_MSMONEY:
-			chart->colors = money_colors;
-			chart->nb_cols = money_nbcolors;
-			//chart->cs_blue = 1;
-			chart->cs_green = 19;
-			chart->cs_red = 18;
-			chart->cs_orange = 8;
-			break;
-		case CHART_COLMAP_QUICKEN:
-			chart->colors = quicken_colors;
-			chart->nb_cols = quicken_nbcolors;
-			//chart->cs_blue = 3;
-			chart->cs_green = 2;
-			chart->cs_red = 0;
-			chart->cs_orange = 9;
-			break;
-		case CHART_COLMAP_ANALYTICS:
-			chart->colors = analytics_colors;
-			chart->nb_cols = analytics_nbcolors;
-			chart->cs_green = 1;
-			chart->cs_red = 2;
-			chart->cs_orange = 6;
-			break;
-		case CHART_COLMAP_OFFICE2010:
-			chart->colors = office2010_colors;
-			chart->nb_cols = office2010_nbcolors;
-			chart->cs_green = 2;
-			chart->cs_red = 1;
-			chart->cs_orange = 5;
-			break;
-		case CHART_COLMAP_OFFICE2013:
-			chart->colors = office2013_colors;
-			chart->nb_cols = office2013_nbcolors;
-			chart->cs_green = 5;
-			chart->cs_red = 1;
-			chart->cs_orange = 1;
-			break;
-		case CHART_COLMAP_SAP:
-			chart->colors = sap_colors;
-			chart->nb_cols = sap_nbcolors;
-			chart->cs_green = 14;
-			chart->cs_red = 15;
-			chart->cs_orange = 20;
-			break;
-	}
-
+	colorscheme_init(&chart->color_scheme, index);
 }
 
 
 /*
 ** set the minor parameters
 */
-void ui_chart_stack_set_minor_prefs(ChartStack * chart, gdouble rate, gchar *symbol)
+/*void ui_chart_stack_set_minor_prefs(ChartStack * chart, gdouble rate, gchar *symbol)
 {
 	g_return_if_fail (GTK_IS_CHARTSTACK (chart));
 
 	chart->minor_rate   = rate;
 	chart->minor_symbol = symbol;
+}*/
+
+void ui_chart_stack_set_currency(ChartStack * chart, guint32 kcur)
+{
+	g_return_if_fail (GTK_IS_CHARTSTACK (chart));
+
+	chart->kcur = kcur;
 }
 

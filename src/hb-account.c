@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -43,10 +43,13 @@ da_acc_free(Account *item)
 	{
 		DB( g_print(" => %d, %s\n", item->key, item->name) );
 
-		g_free(item->imp_name);
 		g_free(item->name);
 		g_free(item->number);
 		g_free(item->bankname);
+		g_free(item->notes);
+		
+		g_queue_free (item->txn_queue);
+		
 		g_free(item);
 	}
 }
@@ -55,8 +58,12 @@ da_acc_free(Account *item)
 Account *
 da_acc_malloc(void)
 {
+Account *item;
+
 	DB( g_print("da_acc_malloc\n") );
-	return g_malloc0(sizeof(Account));
+	item = g_malloc0(sizeof(Account));
+	item->txn_queue = g_queue_new ();
+	return item;
 }
 
 
@@ -330,16 +337,37 @@ GList *list = g_hash_table_get_values(GLOBALS->h_acc);
 gboolean
 account_is_used(guint32 key)
 {
+Account *acc;
 GList *list;
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
 
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
+	acc = da_acc_get(key);
+	if( g_queue_get_length(acc->txn_queue) > 0 )
+		return TRUE;
+
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-	Transaction *entry = list->data;
-		if( key == entry->kacc || key == entry->kxferacc)
-			return TRUE;
-		list = g_list_next(list);
+	Account *acc = lnk_acc->data;
+	
+		if(acc->key != key)
+		{
+			lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+			while (lnk_txn != NULL)
+			{
+			Transaction *entry = lnk_txn->data;
+			
+				if( key == entry->kxferacc)
+					return TRUE;
+
+				lnk_txn = g_list_next(lnk_txn);
+			}
+		}
+		lnk_acc = g_list_next(lnk_acc);
 	}
+	g_list_free(lst_acc);
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -396,46 +424,44 @@ gchar *stripname = account_get_stripname(newname);
 	return FALSE;
 }
 
+
 /* when we change the currency of an account, we must ensure
  * xfer transaction account will be set to same currency
  */
- /*
-void account_set_currency(Account *item, guint32 kcur)
+void account_set_currency(Account *acc, guint32 kcur)
 {
 GList *list;
-Account *acc;
+Account *srcacc, *dstacc;
 
-	if(item->kcur != kcur)
+	if(acc->kcur == kcur)
+		return;
+
+	acc->kcur = kcur;
+
+	list = g_queue_peek_head_link(acc->txn_queue);
+	while (list != NULL)
 	{
-		item->kcur = kcur;
-	
-		list = g_list_first(GLOBALS->ope_list);
-		while (list != NULL)
-		{
-		Transaction *entry = list->data;
-			if(entry->paymode == PAYMODE_INTXFER)
-			{
-				if(entry->kacc == item->key)
-				{
-					// change target account
-					acc = da_acc_get (entry->kxferacc);
-					acc->kcur = kcur;
-				}
-				if(entry->kxferacc == item->key)
-				{
-					// change source account
-					acc = da_acc_get (entry->kacc);
-					acc->kcur = kcur;
-				}
-			}
-			
-			list = g_list_next(list);
-		}
-	}
-	
-}
-*/
+	Transaction *txn = list->data;
 
+		txn->kcur = kcur;
+
+		if(txn->paymode == PAYMODE_INTXFER)
+		{
+			if(txn->kacc == acc->key)
+			{
+				dstacc = da_acc_get (txn->kxferacc);
+				dstacc->kcur = kcur;
+			}
+			if(txn->kxferacc == acc->key)
+			{
+				srcacc = da_acc_get (txn->kacc);
+				srcacc->kcur = kcur;
+			}
+		}
+		
+		list = g_list_next(list);
+	}
+}
 
 
 /**
@@ -506,37 +532,33 @@ gboolean account_balances_add(Transaction *trn)
 
 void account_compute_balances(void)
 {
-GList *lacc, *list;
-Account *acc;
-Transaction *trn;
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
 
 	DB( g_print("\naccount_compute_balances start\n") );
 
-	/* set initial amount */
-	lacc = list = g_hash_table_get_values(GLOBALS->h_acc);
-	while (list != NULL)
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-		acc = list->data;
+	Account *acc = lnk_acc->data;
+	
+		/* set initial amount */
 		acc->bal_bank = acc->initial;
 		acc->bal_today = acc->initial;
 		acc->bal_future = acc->initial;
-		list = g_list_next(list);
-	}
-	g_list_free(lacc);
-
-
-	/* compute every transaction */
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
-	{
-		trn = list->data;
-
-		if(!(trn->status == TXN_STATUS_REMIND))
+		
+		/* add every txn */
+		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+		while (lnk_txn != NULL)
 		{
-			account_balances_add(trn);
+			account_balances_add_internal(acc, lnk_txn->data);
+			lnk_txn = g_list_next(lnk_txn);
 		}
-		list = g_list_next(list);
+		
+		lnk_acc = g_list_next(lnk_acc);
 	}
+	g_list_free(lst_acc);
 
 	DB( g_print("\naccount_compute_balances end\n") );
 
@@ -545,26 +567,22 @@ Transaction *trn;
 
 void account_convert_euro(Account *acc)
 {
-GList *list;
+GList *lnk_txn;
 
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
+	lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+	while (lnk_txn != NULL)
 	{
-	Transaction *ope = list->data;
-	gdouble oldamount = ope->amount;
+	Transaction *txn = lnk_txn->data;
+	gdouble oldamount = txn->amount;
 
-		if(ope->kacc == acc->key)
-		{
-			ope->amount = amount_to_euro(oldamount);
-			
-			DB( g_print("%10.6f => %10.6f, %s\n", oldamount, ope->amount, ope->wording) );
-
-		}
-		list = g_list_next(list);
+		txn->amount = hb_amount_to_euro(oldamount);
+		DB( g_print("%10.6f => %10.6f, %s\n", oldamount, txn->amount, txn->wording) );
+		//todo: sync child xfer
+		lnk_txn = g_list_next(lnk_txn);
 	}
 
-	acc->initial = amount_to_euro(acc->initial);
-	acc->minimum = amount_to_euro(acc->minimum);
-
+	acc->initial = hb_amount_to_euro(acc->initial);
+	acc->warning = hb_amount_to_euro(acc->warning);
+	acc->minimum = hb_amount_to_euro(acc->minimum);
 }
 

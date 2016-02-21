@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -31,19 +31,19 @@ struct _account
 	gushort		flags;
 	gushort		type;
 	guint32		pos;		//display position
-	//guint32		kcur;
+	guint32		kcur;
 	gchar		*name;
 	gchar		*number;
 	gchar		*bankname;
 	gdouble		initial;
-
+	gdouble		warning;
 	gdouble		minimum;
 	guint32		cheque1;
 	guint32		cheque2;
-	//note ?
+	gchar	    *notes;
 
 	/* unsaved datas */
-
+	GQueue		*txn_queue;
 	GtkWindow	*window;	//dsp_account window opened
 
 	gdouble     bal_bank;	//bank balance (reconciled transaction)
@@ -109,6 +109,7 @@ void da_acc_consistency(Account *item);
 gboolean account_is_used(guint32 key);
 gboolean account_exists(gchar *name);
 gboolean account_rename(Account *item, gchar *newname);
+void account_set_currency(Account *item, guint32 kcur);
 void account_compute_balances(void);
 gboolean account_balances_add(Transaction *trn);
 gboolean account_balances_sub(Transaction *trn);

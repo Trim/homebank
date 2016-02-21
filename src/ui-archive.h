@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -43,7 +43,7 @@ struct ui_arc_manage_data
 	GtkWidget   *GR_txnleft;
 	GtkWidget	*PO_pay;
 	GtkWidget	*ST_word;
-	GtkWidget	*ST_amount;	//, *BT_split;
+	GtkWidget	*ST_amount, *BT_split;
 	GtkWidget	*GR_cheque;
 	GtkWidget	*CM_cheque;
 	GtkWidget   *CY_status;
@@ -72,6 +72,6 @@ struct ui_arc_manage_data
 };
 
 
-GtkWidget *ui_arc_manage_dialog (void);
+GtkWidget *ui_arc_manage_dialog (Archive *ext_arc);
 
 #endif

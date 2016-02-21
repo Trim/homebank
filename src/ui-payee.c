@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -357,16 +357,32 @@ ui_pay_listview_toggled_cb (GtkCellRendererToggle *cell,
   gtk_tree_path_free (path);
 }
 
+
 static gint
 ui_pay_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
+gint sortcol = GPOINTER_TO_INT(userdata);
 Payee *entry1, *entry2;
+gint retval = 0;
 
-    gtk_tree_model_get(model, a, LST_DEFPAY_DATAS, &entry1, -1);
-    gtk_tree_model_get(model, b, LST_DEFPAY_DATAS, &entry2, -1);
+	gtk_tree_model_get(model, a, LST_DEFPAY_DATAS, &entry1, -1);
+	gtk_tree_model_get(model, b, LST_DEFPAY_DATAS, &entry2, -1);
 
-    return hb_string_utf8_compare(entry1->name, entry2->name);
+    switch (sortcol)
+    {
+		case LST_DEFPAY_SORT_NAME:
+			retval = hb_string_utf8_compare(entry1->name, entry2->name);
+			break;
+		case LST_DEFPAY_SORT_USED:
+			retval = entry1->usage_count - entry2->usage_count;
+			break;
+		default:
+			g_return_val_if_reached(0);
+	}
+		
+    return retval;
 }
+
 
 static void
 ui_pay_listview_name_cell_data_function (GtkTreeViewColumn *col,
@@ -396,6 +412,27 @@ gchar *string;
 		g_object_set(renderer, "text", name, NULL);
 	#endif
 
+}
+
+
+static void
+ui_pay_listview_count_cell_data_function (GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer user_data)
+{
+Payee *entry;
+gchar buffer[256];
+
+	gtk_tree_model_get(model, iter, LST_DEFPAY_DATAS, &entry, -1);
+	if(entry->usage_count > 0)
+	{
+		g_snprintf(buffer, 256-1, "%d", entry->usage_count);
+		g_object_set(renderer, "text", buffer, NULL);
+	}
+	else
+		g_object_set(renderer, "text", "", NULL);
 }
 
 
@@ -532,7 +569,7 @@ static gboolean ui_pay_listview_search_equal_func (GtkTreeModel *model,
 
 
 GtkWidget *
-ui_pay_listview_new(gboolean withtoggle)
+ui_pay_listview_new(gboolean withtoggle, gboolean withcount)
 {
 GtkListStore *store;
 GtkWidget *treeview;
@@ -550,8 +587,6 @@ GtkTreeViewColumn	*column;
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), TRUE);
-
 	// column 1: toggle
 	if( withtoggle == TRUE )
 	{
@@ -567,17 +602,33 @@ GtkTreeViewColumn	*column;
 
 	// column 2: name
 	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Name"));
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_name_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DEFPAY_SORT_NAME);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+
+	if( withcount == TRUE )
+	{
+		column = gtk_tree_view_column_new();
+		gtk_tree_view_column_set_title(column, _("Used"));
+		renderer = gtk_cell_renderer_text_new ();
+		//g_object_set(renderer, "xalign", 1.0, NULL);
+		gtk_tree_view_column_pack_start(column, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_count_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
+		gtk_tree_view_column_set_sort_column_id (column, LST_DEFPAY_SORT_USED);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	}
 
 	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(treeview), ui_pay_listview_search_equal_func, NULL, NULL);
 
 	// treeview attribute
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), withcount);
 
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_DATAS, ui_pay_listview_compare_func, NULL, NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_NAME, ui_pay_listview_compare_func, GINT_TO_POINTER(LST_DEFPAY_SORT_NAME), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_USED, ui_pay_listview_compare_func, GINT_TO_POINTER(LST_DEFPAY_SORT_USED), NULL);
+
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFPAY_DATAS, GTK_SORT_ASCENDING);
 
 	return treeview;
@@ -1062,7 +1113,7 @@ gint w, h, row;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	treeview = ui_pay_listview_new(FALSE);
+	treeview = ui_pay_listview_new(FALSE, TRUE);
 	data.LV_pay = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 	gtk_widget_set_hexpand (scrollwin, TRUE);
@@ -1096,6 +1147,7 @@ gint w, h, row;
 	g_signal_connect (G_OBJECT (data.BT_delete), "clicked", G_CALLBACK (ui_pay_manage_dialog_delete), NULL);
 
 	//setup, init and show window
+	payee_fill_usage();
 	ui_pay_listview_populate(data.LV_pay);
 	ui_pay_manage_dialog_update(data.LV_pay, NULL);
 

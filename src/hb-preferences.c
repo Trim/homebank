@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -41,7 +41,57 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+static void homebank_pref_init_monetary(void)
+{
+
+	DB( g_print("\n[system] get currency code\n") );
+	
+#ifdef G_OS_UNIX
+	struct lconv *lc = localeconv();
+
+	g_stpcpy (PREFS->IntCurrSymbol, lc->int_curr_symbol);
+	g_strstrip(PREFS->IntCurrSymbol);
+
+	DB( g_print("- stored '%s' from linux system\n", PREFS->IntCurrSymbol) );
+#else
+
+	#ifdef G_OS_WIN32
+    #define BUFFER_SIZE 512
+    char buffer[BUFFER_SIZE];
+    //LPWSTR wcBuffer = buffer;
+    LPSTR wcBuffer = buffer;
+    int iResult;
+    gsize toto;
+
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd464799%28v=vs.85%29.aspx
+
+	//LOCALE_SINTLSYMBOL
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SINTLSYMBOL, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_SINTLSYMBOL='%s'\n", buffer) );
+	 	g_stpcpy (PREFS->IntCurrSymbol, buffer);
+		g_strstrip(PREFS->IntCurrSymbol);
+
+		DB( g_print("- stored '%s' from windows system\n", PREFS->IntCurrSymbol) );
+    }
+	#else
+
+ 	g_stpcpy (PREFS->IntCurrSymbol, "USD");
+
+	DB( g_print("- stored '%s' as default\n", PREFS->IntCurrSymbol) );
+	
+	#endif
+	
+#endif
+	
+
+}
+
+
+/*
 static void homebank_pref_init_monetary(void)
 {
 	DB( g_print("\n[preferences] monetary\n") );
@@ -72,19 +122,18 @@ struct lconv *lc = localeconv();
 
 	DB( g_print("n_cs_precedes '%d'\n", lc->n_cs_precedes) );
 
-	/* ok assign */
-
+	//PREFS->base_cur.iso_code = g_strdup(g_strstrip(lc->int_curr_symbol));
 
 	if( lc->p_cs_precedes || lc->n_cs_precedes )
 	{
 		PREFS->base_cur.symbol = g_strdup(lc->currency_symbol);
-		PREFS->base_cur.is_prefix = TRUE;
+		PREFS->base_cur.sym_prefix = TRUE;
 		DB( g_print("locale mon cs is a prefix\n") );
 	}
 	else
 	{
 		PREFS->base_cur.symbol = g_strdup(lc->currency_symbol);
-		PREFS->base_cur.is_prefix = FALSE;
+		PREFS->base_cur.sym_prefix = FALSE;
 	}
 
 	PREFS->base_cur.decimal_char  = g_strdup(lc->mon_decimal_point);
@@ -109,7 +158,7 @@ struct lconv *lc = localeconv();
 
 #else
 	#ifdef G_OS_WIN32
-	//todo: to be really set by a win32 specialist from the registry...
+
     #define BUFFER_SIZE 512
     char buffer[BUFFER_SIZE];
     //LPWSTR wcBuffer = buffer;
@@ -117,6 +166,11 @@ struct lconv *lc = localeconv();
     int iResult;
     gsize toto;
 
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd464799%28v=vs.85%29.aspx
+
+	//LOCALE_SINTLSYMBOL
+
+	
     //see g_locale_to_utf8 here
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SCURRENCY, wcBuffer, BUFFER_SIZE);
     if(iResult > 0)
@@ -125,6 +179,9 @@ struct lconv *lc = localeconv();
         PREFS->base_cur.symbol = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
     }
 
+	// LOCALE_ICURRENCY
+	//PREFS->base_cur.sym_prefix =
+	
 	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, wcBuffer, BUFFER_SIZE);
     if(iResult > 0)
     {
@@ -139,12 +196,14 @@ struct lconv *lc = localeconv();
         PREFS->base_cur.grouping_char = g_locale_to_utf8(buffer, -1, NULL, &toto, NULL);
     }
 
+	// LOCALE_ICURRDIGITS
  	PREFS->base_cur.frac_digits   = 2;
 
 	#else
 
-	PREFS->base_cur.prefix_symbol = NULL; //g_strdup("");
-	PREFS->base_cur.suffix_symbol = NULL; //g_strdup("");
+	PREFS->base_cur.iso_code      = g_strdup("USD");
+	PREFS->base_cur.symbol        = NULL; //g_strdup("");
+	PREFS->base_cur.sym_prefix    = FALSE;
 	PREFS->base_cur.decimal_char  = g_strdup(".");
 	PREFS->base_cur.grouping_char = NULL; //g_strdup("");
 	PREFS->base_cur.frac_digits   = 2;
@@ -153,6 +212,7 @@ struct lconv *lc = localeconv();
 #endif
 
 }
+*/
 
 
 
@@ -163,57 +223,6 @@ static void homebank_pref_init_wingeometry(struct WinGeometry *wg, gint l, gint 
 	wg->w = w;
 	wg->h = h;
 	wg->s = 0;
-}
-
-
-/*
-** create the format string for monetary strfmon (major/minor)
-*/
-static void _homebank_pref_createformat(void)
-{
-struct CurrencyFmt *cur;
-
-	DB( g_print("\n[preferences] pref create format\n") );
-
-/*
-	if(PREFS->base_cur.grouping_char != NULL)
-		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%^.%dn", PREFS->base_cur.frac_digits);
-	else
-		g_snprintf(GLOBALS->fmt_maj_number, 15, "%%.%dn", PREFS->base_cur.frac_digits);
-
-	DB( g_print("+ major is: '%s'\n", GLOBALS->fmt_maj_number) );
-
-
-	if(PREFS->minor_cur.grouping_char != NULL)
-		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!^.%dn %s",
-			PREFS->minor_cur.prefix_symbol,
-			PREFS->minor_cur.frac_digits,
-			PREFS->minor_cur.suffix_symbol
-			);
-	else
-		g_snprintf(GLOBALS->fmt_min_number, 15, "%s %%!.%dn %s",
-			PREFS->minor_cur.prefix_symbol,
-			PREFS->minor_cur.frac_digits,
-			PREFS->minor_cur.suffix_symbol
-			);
-
-	DB( g_print("+ minor is: '%s'\n", GLOBALS->fmt_min_number) );
-*/
-
-	/* base mon format */
-	cur = &PREFS->base_cur;
-	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
-	g_snprintf(cur->monfmt, 32-1, (cur->is_prefix) ? "%s %%s" : "%%s %s", cur->symbol);
-	DB( g_print(" - format: '%s'\n", cur->format) );
-	DB( g_print(" - monfmt: '%s'\n", cur->monfmt) );
-
-	/* minor mon format */
-	cur = &PREFS->minor_cur;
-	g_snprintf(cur->format , 8-1, "%%.%df", cur->frac_digits);
-	g_snprintf(cur->monfmt, 32-1, (cur->is_prefix) ? "%s %%s" : "%%s %s", cur->symbol);
-	DB( g_print(" - format: '%s'\n", cur->format) );
-	DB( g_print(" - monfmt: '%s'\n", cur->monfmt) );
-
 }
 
 
@@ -279,9 +288,6 @@ void homebank_pref_free(void)
 
 	g_free(PREFS->language);
 
-	g_free(PREFS->base_cur.symbol);
-	g_free(PREFS->base_cur.decimal_char);
-	g_free(PREFS->base_cur.grouping_char);
 
 	g_free(PREFS->minor_cur.symbol);
 	g_free(PREFS->minor_cur.decimal_char);
@@ -322,6 +328,7 @@ gint i;
 	PREFS->color_inc  = g_strdup(DEFAULT_INC_COLOR);
 	PREFS->color_warn = g_strdup(DEFAULT_WARN_COLOR);
 	PREFS->rules_hint = FALSE;
+	PREFS->grid_lines = GTK_TREE_VIEW_GRID_LINES_NONE;
 
 	/* fiscal year */
 	PREFS->fisc_year_day = 1;
@@ -386,12 +393,22 @@ gint i;
 	PREFS->date_future_nbdays = 0;
 	PREFS->date_range_rep = FLT_RANGE_THISYEAR;
 
+	//import/export
+	PREFS->dtex_nointro = TRUE;
+	//PREFS->dtex_datefmt
+	PREFS->dtex_ofxname = 0;
+	PREFS->dtex_ofxmemo = 2;
+	PREFS->dtex_qifmemo = TRUE;
+	PREFS->dtex_qifswap = FALSE;
 
 	//todo: add intelligence here
 	PREFS->euro_active  = FALSE;
 
 	PREFS->euro_country = 0;
 	PREFS->euro_value   = 1.0;
+	
+	da_cur_initformat(&PREFS->minor_cur);
+	
 	//PREFS->euro_nbdec   = 2;
 	//PREFS->euro_thsep   = TRUE;
 	//PREFS->euro_symbol	= g_strdup("??");
@@ -407,7 +424,6 @@ gint i;
 	PREFS->vehicle_unit_ismile = FALSE;
 	PREFS->vehicle_unit_isgal  = FALSE;
 
-	_homebank_pref_createformat();
 	_homebank_pref_init_measurement_units();
 
 }
@@ -541,18 +557,18 @@ gchar *string;
 }
 
 
-static void homebank_pref_currfmt_convert(struct CurrencyFmt *cur, gchar *prefix, gchar *suffix)
+static void homebank_pref_currfmt_convert(Currency *cur, gchar *prefix, gchar *suffix)
 {
 
 	if( (prefix != NULL) && (strlen(prefix) > 0) )
 	{
 		cur->symbol = g_strdup(prefix);
-		cur->is_prefix = TRUE;
+		cur->sym_prefix = TRUE;
 	}
 	else if( (suffix != NULL) )
 	{
 		cur->symbol = g_strdup(suffix);
-		cur->is_prefix = FALSE;
+		cur->sym_prefix = FALSE;
 	}
 }
 
@@ -626,6 +642,7 @@ GError *error = NULL;
 					homebank_pref_get_string(keyfile, group, "ColorWarn", &PREFS->color_warn);
 
 					homebank_pref_get_boolean(keyfile, group, "RulesHint", &PREFS->rules_hint);
+					homebank_pref_get_short(keyfile, group, "GridLines", &PREFS->grid_lines);
 				}
 
 				DB( g_print(" - color exp: %s\n", PREFS->color_exp) );
@@ -777,39 +794,6 @@ GError *error = NULL;
 
 				homebank_pref_get_string(keyfile, group, "DateFmt", &PREFS->date_format);
 
-				if(version <= 1)
-				{
-					//retrieve old 0.1 preferences
-					homebank_pref_get_short(keyfile, group, "NumNbDec", &PREFS->base_cur.frac_digits);
-					//PREFS->base_cur.separator = g_key_file_get_boolean (keyfile, group, "NumSep", NULL);
-				}
-				else
-				{
-					if(version < 460)
-					{
-					gchar *prefix = NULL;
-					gchar *suffix = NULL;
-
-						homebank_pref_get_string(keyfile, group, "PreSymbol", &prefix);
-						homebank_pref_get_string(keyfile, group, "SufSymbol", &suffix);
-						homebank_pref_currfmt_convert(&PREFS->base_cur, prefix, suffix);
-						g_free(prefix);
-						g_free(suffix);
-					}
-					else
-					{
-						homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->base_cur.symbol);
-						homebank_pref_get_boolean(keyfile, group, "IsPrefix", &PREFS->base_cur.is_prefix);
-					}
-					homebank_pref_get_string(keyfile, group, "DecChar"  , &PREFS->base_cur.decimal_char);
-					homebank_pref_get_string(keyfile, group, "GroupChar", &PREFS->base_cur.grouping_char);
-					homebank_pref_get_short(keyfile, group, "FracDigits", &PREFS->base_cur.frac_digits);
-
-					//fix 378992/421228
-					if( PREFS->base_cur.frac_digits > MAX_FRAC_DIGIT )
-						PREFS->base_cur.frac_digits = MAX_FRAC_DIGIT;
-				}
-
 				if(version < 460)
 				{
 				gboolean useimperial;
@@ -884,7 +868,7 @@ GError *error = NULL;
 					else
 					{
 						homebank_pref_get_string(keyfile, group, "Symbol", &PREFS->minor_cur.symbol);
-						homebank_pref_get_boolean(keyfile, group, "IsPrefix", &PREFS->minor_cur.is_prefix);
+						homebank_pref_get_boolean(keyfile, group, "IsPrefix", &PREFS->minor_cur.sym_prefix);
 					}
 					homebank_pref_get_string(keyfile, group, "DecChar"  , &PREFS->minor_cur.decimal_char);
 					homebank_pref_get_string(keyfile, group, "GroupChar", &PREFS->minor_cur.grouping_char);
@@ -894,6 +878,7 @@ GError *error = NULL;
 					if( PREFS->minor_cur.frac_digits > MAX_FRAC_DIGIT )
 						PREFS->minor_cur.frac_digits = MAX_FRAC_DIGIT;
 
+					da_cur_initformat(&PREFS->minor_cur);
 				}
 
 			//PREFS->euro_symbol = g_locale_to_utf8(tmpstr, -1, NULL, NULL, NULL);
@@ -933,7 +918,6 @@ GError *error = NULL;
 		g_free(filename);
 		g_key_file_free (keyfile);
 
-		_homebank_pref_createformat();
 		_homebank_pref_init_measurement_units();
 	}
 
@@ -990,6 +974,7 @@ gsize length;
 		g_key_file_set_string (keyfile, group, "ColorWarn", PREFS->color_warn);
 
 		g_key_file_set_boolean (keyfile, group, "RulesHint", PREFS->rules_hint);
+		g_key_file_set_integer (keyfile, group, "GridLines", PREFS->grid_lines);
 
 
 		homebank_pref_set_string  (keyfile, group, "WalletPath"   , PREFS->path_hbfile);
@@ -1037,12 +1022,6 @@ gsize length;
 		group = "Format";
 		homebank_pref_set_string  (keyfile, group, "DateFmt"   , PREFS->date_format);
 
-		homebank_pref_set_string  (keyfile, group, "Symbol" , PREFS->base_cur.symbol);
-		g_key_file_set_boolean    (keyfile, group, "IsPrefix" , PREFS->base_cur.is_prefix);
-		homebank_pref_set_string  (keyfile, group, "DecChar"   , PREFS->base_cur.decimal_char);
-		homebank_pref_set_string  (keyfile, group, "GroupChar" , PREFS->base_cur.grouping_char);
-		g_key_file_set_integer (keyfile, group, "FracDigits", PREFS->base_cur.frac_digits);
-
 		//g_key_file_set_boolean (keyfile, group, "UKUnits" , PREFS->imperial_unit);
 		g_key_file_set_boolean (keyfile, group, "UnitIsMile" , PREFS->vehicle_unit_ismile);
 		g_key_file_set_boolean (keyfile, group, "UnitIsGal" , PREFS->vehicle_unit_isgal);
@@ -1071,7 +1050,7 @@ gsize length;
 			g_ascii_dtostr(ratestr, 63, PREFS->euro_value);
 			homebank_pref_set_string  (keyfile, group, "ChangeRate", ratestr);
 			homebank_pref_set_string  (keyfile, group, "Symbol" , PREFS->minor_cur.symbol);
-			g_key_file_set_boolean    (keyfile, group, "IsPrefix" , PREFS->minor_cur.is_prefix);
+			g_key_file_set_boolean    (keyfile, group, "IsPrefix" , PREFS->minor_cur.sym_prefix);
 			homebank_pref_set_string  (keyfile, group, "DecChar"   , PREFS->minor_cur.decimal_char);
 			homebank_pref_set_string  (keyfile, group, "GroupChar" , PREFS->minor_cur.grouping_char);
 			g_key_file_set_integer (keyfile, group, "FracDigits", PREFS->minor_cur.frac_digits);
@@ -1125,7 +1104,6 @@ gsize length;
 		g_key_file_free (keyfile);
 	}
 
-	_homebank_pref_createformat();
 	_homebank_pref_init_measurement_units();
 
 	return retval;

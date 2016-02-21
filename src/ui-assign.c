@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal ruleing for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -241,8 +241,6 @@ GtkTreeViewColumn	*column;
 	// treeview
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
-
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), TRUE);
 
 	// column 1: toggle
 	if( withtoggle == TRUE )
@@ -748,14 +746,14 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row++;
-	label = make_label(_("_Field:"), 0.0, 0.5);
+	label = make_label_widget(_("_Field:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_radio(CYA_ASG_FIELD, FALSE, GTK_ORIENTATION_HORIZONTAL);
 	data.CY_field = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
-	label = make_label(_("Con_tains:"), 0.0, 0.5);
+	label = make_label_widget(_("Con_tains:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	entry1 = make_string(label);
 	data.ST_text = entry1;
@@ -765,7 +763,7 @@ gint w, h, row;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Case _sensitive"));
 	data.CM_exact = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 3, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	// group :: Assignments
     group_grid = gtk_grid_new ();
@@ -779,7 +777,7 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 4, 1);
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Category:"));
+	label = make_label (_("_Category:"), 1.0, 0.5);
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_cat = widget;
@@ -793,7 +791,7 @@ gint w, h, row;
 	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
 	
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Payee:"));
+	label = make_label (_("_Payee:"), 1.0, 0.5);
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_check_button_new();
 	data.CM_pay = widget;

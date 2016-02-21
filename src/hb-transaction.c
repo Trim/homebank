@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -39,8 +39,6 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
-static GList *transaction_xfer_get_potential_child(Transaction *ope);
-
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 void
@@ -65,7 +63,8 @@ da_transaction_clean(Transaction *item)
 			item->tags = NULL;
 		}
 
-		da_transaction_splits_free(item);
+		da_splits_free(item->splits);
+		item->flags &= ~(OF_SPLIT); //Flag that Splits are cleared
 
 		if(item->same != NULL)
 		{
@@ -97,8 +96,6 @@ da_transaction_malloc(void)
 
 Transaction *da_transaction_copy(Transaction *src_txn, Transaction *dst_txn)
 {
-guint count;
-
 	DB( g_print("da_transaction_copy\n") );
 
 	da_transaction_clean (dst_txn);
@@ -110,13 +107,10 @@ guint count;
 	dst_txn->info = g_strdup(src_txn->info);
 
 	//duplicate tags
-	dst_txn->tags = NULL;
-	count = transaction_tags_count(src_txn);
-	if(count > 0)
-		//1501962: we must also copy the final 0
-		dst_txn->tags = g_memdup(src_txn->tags, (count+1)*sizeof(guint32));
+	transaction_tags_clone(src_txn, dst_txn);
 
-	da_transaction_splits_clone(src_txn, dst_txn);
+	if (da_splits_clone(src_txn->splits, dst_txn->splits) > 0)
+		dst_txn->flags |= OF_SPLIT; //Flag that Splits are active
 
 	return dst_txn;
 }
@@ -137,6 +131,8 @@ Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
 	txn->kxferacc	= arc->kxferacc;
 	txn->wording	= g_strdup(arc->wording);
 	txn->info		= NULL;
+	if( da_splits_clone(arc->splits, txn->splits) > 0)
+		txn->flags |= OF_SPLIT; //Flag that Splits are active
 
 	return txn;
 }
@@ -145,7 +141,6 @@ Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
 Transaction *da_transaction_clone(Transaction *src_item)
 {
 Transaction *new_item = g_memdup(src_item, sizeof(Transaction));
-guint count;
 
 	DB( g_print("da_transaction_clone\n") );
 
@@ -156,17 +151,15 @@ guint count;
 		new_item->info = g_strdup(src_item->info);
 
 		//duplicate tags
-		new_item->tags = NULL;
-		count = transaction_tags_count(src_item);
-		if(count > 0)
-			//1501962: we must also copy the final 0
-			new_item->tags = g_memdup(src_item->tags, (count+1)*sizeof(guint32));
-
-		da_transaction_splits_clone(src_item, new_item);
+		transaction_tags_clone(src_item, new_item);
+		
+		if( da_splits_clone(src_item->splits, new_item->splits) > 0)
+			new_item->flags |= OF_SPLIT; //Flag that Splits are active
 
 	}
 	return new_item;
 }
+
 
 GList *
 da_transaction_new(void)
@@ -178,24 +171,56 @@ da_transaction_new(void)
 guint
 da_transaction_length(void)
 {
-	return g_list_length(GLOBALS->ope_list);
-}
+GList *lst_acc, *lnk_acc;
+guint count = 0;
 
-
-void da_transaction_destroy(GList *list)
-{
-GList *tmplist = g_list_first(list);
-
-	while (tmplist != NULL)
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-	Transaction *item = tmplist->data;
-		da_transaction_free(item);
-		tmplist = g_list_next(tmplist);
+	Account *acc = lnk_acc->data;
+	
+		count += g_queue_get_length (acc->txn_queue);
+		lnk_acc = g_list_next(lnk_acc);
 	}
-	g_list_free(list);
+	g_list_free(lst_acc);
+	return count;
 }
 
 
+static void da_transaction_queue_free_ghfunc(Transaction *item, gpointer data)
+{
+	da_transaction_free (item);
+}
+
+
+void da_transaction_destroy(void)
+{
+GList *lacc, *list;
+
+	lacc = g_hash_table_get_values(GLOBALS->h_acc);
+	list = g_list_first(lacc);
+	while (list != NULL)
+	{
+	Account *acc = list->data;
+
+		g_queue_foreach(acc->txn_queue, (GFunc)da_transaction_queue_free_ghfunc, NULL);
+		list = g_list_next(list);
+	}
+	g_list_free(lacc);
+}
+
+
+static gint da_transaction_compare_datafunc(Transaction *a, Transaction *b, gpointer data)
+{
+	return ((gint)a->date - b->date);
+}
+
+
+void da_transaction_queue_sort(GQueue *queue)
+{
+	g_queue_sort(queue, (GCompareDataFunc)da_transaction_compare_datafunc, NULL);
+}
 
 
 static gint da_transaction_compare_func(Transaction *a, Transaction *b)
@@ -225,21 +250,26 @@ static void da_transaction_insert_memo(Transaction *item)
 
 gboolean da_transaction_insert_sorted(Transaction *newitem)
 {
-GList *tmplist = g_list_first(GLOBALS->ope_list);
+Account *acc;
+GList *lnk_txn;
 
-	// find the breaking date
-	while (tmplist != NULL)
+	acc = da_acc_get(newitem->kacc);
+	if(!acc) 
+		return FALSE;
+	
+	lnk_txn = g_queue_peek_tail_link(acc->txn_queue);
+	while (lnk_txn != NULL)
 	{
-	Transaction *item = tmplist->data;
+	Transaction *item = lnk_txn->data;
 
-		if(item->date > newitem->date)
+		if(item->date <= newitem->date)
 			break;
-
-		tmplist = g_list_next(tmplist);
+		
+		lnk_txn = g_list_previous(lnk_txn);
 	}
 
-	// here we're at the insert point, let's insert our new txn just before
-	GLOBALS->ope_list = g_list_insert_before(GLOBALS->ope_list, tmplist, newitem);
+	// we're at insert point, insert after txn
+	g_queue_insert_after(acc->txn_queue, lnk_txn, newitem);
 
 	da_transaction_insert_memo(newitem);
 	return TRUE;
@@ -249,7 +279,12 @@ GList *tmplist = g_list_first(GLOBALS->ope_list);
 // nota: this is called only when loading xml file
 gboolean da_transaction_prepend(Transaction *item)
 {
-	GLOBALS->ope_list = g_list_prepend(GLOBALS->ope_list, item);
+Account *acc;
+
+	acc = da_acc_get(item->kacc);
+	if(acc)
+		item->kcur = acc->kcur;
+	g_queue_push_tail(acc->txn_queue, item);
 	da_transaction_insert_memo(item);
 	return TRUE;
 }
@@ -260,23 +295,33 @@ gboolean da_transaction_prepend(Transaction *item)
 static guint32
 da_transaction_get_max_kxfer(void)
 {
-guint32 max_key = 0;
+GList *lst_acc, *lnk_acc;
 GList *list;
-Transaction *item;
+guint32 max_key = 0;
 
 	DB( g_print("da_transaction_get_max_kxfer\n") );
 
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-		item = list->data;
-		if( item->paymode == PAYMODE_INTXFER)
+	Account *acc = lnk_acc->data;
+
+		list = g_queue_peek_head_link(acc->txn_queue);
+		while (list != NULL)
 		{
-			if( item->kxfer > max_key)
-				max_key = item->kxfer;
+		Transaction *item = list->data;
+
+			if( item->paymode == PAYMODE_INTXFER )
+			{
+				max_key = MAX(max_key, item->kxfer);
+			}
+			list = g_list_next(list);
 		}
-		list = g_list_next(list);
+		
+		lnk_acc = g_list_next(lnk_acc);
 	}
+	g_list_free(lst_acc);
 
 	DB( g_print(" max_key : %d \n", max_key) );
 
@@ -305,7 +350,7 @@ void da_transaction_consistency(Transaction *item)
 Account *acc;
 Category *cat;
 Payee *pay;
-guint i, nbsplit;
+gint nbsplit;
 
 	// ensure date is between range
 	item->date = CLAMP(item->date, HB_MINDATE, HB_MAXDATE);
@@ -329,18 +374,10 @@ guint i, nbsplit;
 	}
 
 	// check split category #1340142
-	nbsplit = da_transaction_splits_count(item);
-	for(i=0;i<nbsplit;i++)
-	{
-	Split *split = item->splits[i];
-		cat = da_cat_get(split->kcat);
-		if(cat == NULL)
-		{
-			g_warning("txn consistency: fixed invalid split cat %d", split->kcat);
-			split->kcat = 0;
-		}
-	}
-	//# 1416624 empty category when split + add control on kcat for v5.0.1
+	split_cat_consistency(item->splits);
+
+	//# 1416624 empty category when split
+	nbsplit = da_splits_count(item->splits);
 	if(nbsplit > 0 && item->kcat > 0)
 	{
 		g_warning("txn consistency: fixed invalid cat on split txn");
@@ -381,10 +418,10 @@ guint i, nbsplit;
 	GList *matchlist;
 	gint count;
 	
-		child = transaction_strong_get_child_transfer (item);
+		child = transaction_xfer_child_strong_get (item);
 		if(child == NULL)
 		{
-			matchlist = transaction_xfer_get_potential_child(item);
+			matchlist = transaction_xfer_child_might_list_get(item);
 			count = g_list_length (matchlist);
 			if( count == 0 )
 			{
@@ -408,139 +445,32 @@ guint i, nbsplit;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 /* new transfer functions */
 
-
-
-
 //todo: add strong control and extend to payee, maybe memo ?
-static gboolean transaction_is_child_xfer(Transaction *stxn, Transaction *dtxn, gint daygap)
+/*static gboolean transaction_is_duplicate(Transaction *stxn, Transaction *dtxn, gint daygap)
 {
 gboolean retval = FALSE;
 
 	if(stxn == dtxn)
 		return FALSE;
 
-	if( stxn->date == dtxn->date &&
-	    stxn->kxferacc == dtxn->kacc &&
-	    ABS(stxn->amount) == ABS(dtxn->amount) &&
-	    dtxn->kxfer == 0)
+	if( (dtxn->amount == stxn->amount) && (dtxn->kacc == stxn->kacc) &&
+		(dtxn->date <= (stxn->date + daygap)) && (dtxn->date >= (stxn->date - daygap)) 
+		// add pos control here too ?
+	  )
 	{
 		retval = TRUE;
 	}
 	return retval;
-}
+}*/
 
-
-static GList *transaction_xfer_get_potential_child(Transaction *ope)
-{
-GList *list;
-GList *matchlist = NULL;
-
-	DB( g_print("\n[transaction]xfer_get_potential_child\n") );
-
-	//DB( g_print(" - search : %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
-
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
-	{
-	Transaction *item = list->data;
-
-		if( transaction_is_child_xfer(ope, item, 0) == TRUE )
-		{
-			//DB( g_print(" - match : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
-
-			matchlist = g_list_append(matchlist, item);
-		}
-		list = g_list_next(list);
-	}
-
-	DB( g_print(" - found : %d\n", g_list_length(matchlist)) );
-
-	return matchlist;
-}
-
-
-void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview)
-{
-GList *matchlist;
-gint count;
-
-	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
-
-	matchlist = transaction_xfer_get_potential_child(ope);
-	count = g_list_length(matchlist);
-
-	DB( g_print(" - found result is %d, switching\n", count) );
-
-	switch(count)
-	{
-		case 0:		//we should create the child
-			transaction_xfer_create_child(ope, treeview);
-			break;
-
-		//todo: maybe with just 1 match the user must choose ?
-		//#942346: bad idea so to no let the user confirm, so let him confirm
-		/*
-		case 1:		//transform the transaction to a child transfer
-		{
-			GList *list = g_list_first(matchlist);
-			transaction_xfer_change_to_child(ope, list->data);
-			break;
-		}
-		*/
-
-		default:	//the user must choose himself
-		{
-		Transaction *child;
-
-			child = ui_dialog_transaction_xfer_select_child(treeview, matchlist);
-			if(child == NULL)
-				transaction_xfer_create_child(ope, treeview);
-			else
-				transaction_xfer_change_to_child(ope, child);
-			break;
-		}
-	}
-
-	g_list_free(matchlist);
-
-}
-
-
-Transaction *transaction_strong_get_child_transfer(Transaction *src)
-{
-GList *list;
-
-	DB( g_print("\n[transaction] transaction_strong_get_child_transfer\n") );
-
-	DB( g_print(" - search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->kacc, src->kxferacc) );
-
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
-	{
-	Transaction *item = list->data;
-
-		//#1252230
-		//if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
-		if( item->paymode == PAYMODE_INTXFER && item->kxfer == src->kxfer && item != src )
-		{
-			DB( g_print(" - found : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->kacc, item->kxferacc) );
-			return item;
-		}
-		list = g_list_next(list);
-	}
-	DB( g_print(" - not found...\n") );
-	return NULL;
-}
-
-
-void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview)
+static void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview)
 {
 Transaction *child;
 Account *acc;
 gchar swap;
 
 	DB( g_print("\n[transaction] transaction_xfer_create_child\n") );
-
+	
 	if( ope->kxferacc > 0 )
 	{
 		child = da_transaction_clone(ope);
@@ -587,11 +517,159 @@ gchar swap;
 }
 
 
-void transaction_xfer_change_to_child(Transaction *ope, Transaction *child)
+//todo: add strong control and extend to payee, maybe memo ?
+static gboolean transaction_xfer_child_might(Transaction *stxn, Transaction *dtxn, gint daygap)
+{
+gboolean retval = FALSE;
+
+	if(stxn == dtxn)
+		return FALSE;
+
+	if( stxn->kcur == dtxn->kcur &&
+	    stxn->date == dtxn->date &&
+	    stxn->kxferacc == dtxn->kacc &&
+	    ABS(stxn->amount) == ABS(dtxn->amount) &&
+	    dtxn->kxfer == 0)
+	{
+		retval = TRUE;
+	}
+	return retval;
+}
+
+
+static GList *transaction_xfer_child_might_list_get(Transaction *ope)
+{
+GList *lst_acc, *lnk_acc;
+GList *list, *matchlist = NULL;
+
+	DB( g_print("\n[transaction]xfer_get_potential_child\n") );
+
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
+	{
+	Account *acc = lnk_acc->data;
+
+		if( !(acc->flags & AF_CLOSED) && (acc->key != ope->kacc) )
+		{
+			list = g_queue_peek_tail_link(acc->txn_queue);
+			while (list != NULL)
+			{
+			Transaction *item = list->data;
+	
+				// no need to go higher than src txn date
+				if(item->date < ope->date)
+					break;
+		
+				if( transaction_xfer_child_might(ope, item, 0) == TRUE )
+				{
+					//DB( g_print(" - match : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
+					matchlist = g_list_append(matchlist, item);
+				}
+				list = g_list_previous(list);
+			}
+		}
+		
+		lnk_acc = g_list_next(lnk_acc);
+	}
+	g_list_free(lst_acc);
+
+	return matchlist;
+}
+
+
+void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview)
+{
+GList *matchlist;
+gint count;
+
+	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
+
+	matchlist = transaction_xfer_child_might_list_get(ope);
+	count = g_list_length(matchlist);
+
+	DB( g_print(" - found result is %d, switching\n", count) );
+
+	switch(count)
+	{
+		case 0:		//we should create the child
+			transaction_xfer_create_child(ope, treeview);
+			break;
+
+		//todo: maybe with just 1 match the user must choose ?
+		//#942346: bad idea so to no let the user confirm, so let him confirm
+		/*
+		case 1:		//transform the transaction to a child transfer
+		{
+			GList *list = g_list_first(matchlist);
+			transaction_xfer_change_to_child(ope, list->data);
+			break;
+		}
+		*/
+
+		default:	//the user must choose himself
+		{
+		Transaction *child;
+
+			child = ui_dialog_transaction_xfer_select_child(treeview, matchlist);
+			if(child == NULL)
+				transaction_xfer_create_child(ope, treeview);
+			else
+				transaction_xfer_change_to_child(ope, child);
+			break;
+		}
+	}
+
+	g_list_free(matchlist);
+
+}
+
+
+Transaction *transaction_xfer_child_strong_get(Transaction *src)
 {
 Account *acc;
+GList *list;
+
+	DB( g_print("\n[transaction] transaction_xfer_child_strong_get\n") );
+
+	acc = da_acc_get(src->kxferacc);
+	if( !acc )
+		return NULL;
+
+	DB( g_print(" - search: %d %s %f %d=>%d - %d\n", src->date, src->wording, src->amount, src->kacc, src->kxferacc, src->kxfer) );
+
+	list = g_queue_peek_tail_link(acc->txn_queue);
+	while (list != NULL)
+	{
+	Transaction *item = list->data;
+
+		//#1252230
+		//if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
+		if( item->paymode == PAYMODE_INTXFER 
+		 && item->date == src->date //added in 5.1
+		 && item->kxfer == src->kxfer 
+		 && item != src )
+		{
+			DB( g_print(" - found : %d %s %f %d=>%d - %d\n", item->date, item->wording, item->amount, item->kacc, item->kxferacc, src->kxfer) );
+			return item;
+		}
+		list = g_list_previous(list);
+	}
+	DB( g_print(" - not found...\n") );
+	return NULL;
+}
+
+
+
+
+void transaction_xfer_change_to_child(Transaction *ope, Transaction *child)
+{
+Account *dstacc;
 
 	DB( g_print("\n[transaction] transaction_xfer_change_to_child\n") );
+
+	if(ope->kcur != child->kcur)
+		return;
 
 	child->paymode = PAYMODE_INTXFER;
 
@@ -599,9 +677,9 @@ Account *acc;
 	child->kxferacc = ope->kacc;
 
 	/* update acc flags */
-	acc = da_acc_get( child->kacc);
-	if(acc != NULL)
-		acc->flags |= AF_CHANGED;
+	dstacc = da_acc_get( child->kacc);
+	if(dstacc != NULL)
+		dstacc->flags |= AF_CHANGED;
 
 	//strong link
 	guint maxkey = da_transaction_get_max_kxfer();
@@ -640,7 +718,10 @@ void transaction_xfer_sync_child(Transaction *s_txn, Transaction *child)
 
 	account_balances_add (child);
 	
-	//todo: synchronise tags here also ?
+	//synchronise tags since 5.1
+	if(child->tags)
+		g_free(child->tags);
+	transaction_tags_clone (s_txn, child);
 
 }
 
@@ -651,17 +732,20 @@ Transaction *dst;
 
 	DB( g_print("\n[transaction] transaction_xfer_remove_child\n") );
 
-	dst = transaction_strong_get_child_transfer( src );
+	dst = transaction_xfer_child_strong_get( src );
 
 	DB( g_print(" -> return is %s, %p\n", dst->wording, dst) );
 
 	if( dst != NULL )
 	{
+	Account *acc = da_acc_get(dst->kacc);
+
 		DB( g_print("deleting...") );
 		src->kxfer = 0;
 		src->kxferacc = 0;
 		account_balances_sub(dst);
-		GLOBALS->ope_list = g_list_remove(GLOBALS->ope_list, dst);
+		g_queue_remove(acc->txn_queue, dst);
+		da_transaction_free (dst);
 	}
 }
 
@@ -669,13 +753,15 @@ Transaction *dst;
 // still useful for upgrade from < file v0.6 (hb v4.4 kxfer)
 Transaction *transaction_old_get_child_transfer(Transaction *src)
 {
+Account *acc;
 GList *list;
 
 	DB( g_print("\n[transaction] transaction_get_child_transfer\n") );
 
 	//DB( g_print(" search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
+	acc = da_acc_get(src->kxferacc);
 
-	list = g_list_first(GLOBALS->ope_list);
+	list = g_queue_peek_head_link(acc->txn_queue);
 	while (list != NULL)
 	{
 	Transaction *item = list->data;
@@ -719,13 +805,16 @@ Account *acc;
 	acc = da_acc_get(ope->kacc);
 	if(acc == NULL) return;
 
+	ope->kcur = acc->kcur;
+	
 	if(ope->paymode == PAYMODE_INTXFER)
 	{
 		acc = da_acc_get(ope->kxferacc);
 		if(acc == NULL) return;
 		
 		// delete any splits
-		da_transaction_splits_free(ope);
+		da_splits_free(ope->splits);
+		ope->flags &= ~(OF_SPLIT); //Flag that Splits are cleared
 	}
 
 	//allocate a new entry and copy from our edited structure
@@ -952,7 +1041,7 @@ gint changes = 0;
 
 			if( ope->flags & OF_SPLIT )
 			{
-			guint i, nbsplit = da_transaction_splits_count (ope);
+			guint i, nbsplit = da_splits_count(ope->splits);
 
 				for(i=0;i<nbsplit;i++)
 				{
@@ -1010,9 +1099,18 @@ guint32 *ptr = ope->tags;
 }
 
 
+void transaction_tags_clone(Transaction *src_txn, Transaction *dst_txn)
+{
+guint count;
 
-
-
+	dst_txn->tags = NULL;
+	count = transaction_tags_count(src_txn);
+	if(count > 0)
+	{
+		//1501962: we must also copy the final 0
+		dst_txn->tags = g_memdup(src_txn->tags, (count+1)*sizeof(guint32));
+	}
+}
 
 guint
 transaction_tags_parse(Transaction *ope, const gchar *tagstring)

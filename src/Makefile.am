@@ -35,6 +35,8 @@ homebank_SOURCES =  \
 	hb-assign.h \
 	hb-category.c \
 	hb-category.h \
+	hb-currency.c \
+	hb-currency.h \
 	hb-encoding.c \
 	hb-encoding.h \
 	hb-export.c \
@@ -100,6 +102,8 @@ homebank_SOURCES =  \
 	ui-budget.h \
 	ui-category.c \
 	ui-category.h \
+	ui-currency.c \
+	ui-currency.h \
 	ui-dialogs.c \
 	ui-dialogs.h \
 	ui-filter.c \
@@ -122,5 +126,6 @@ homebank_LDADD = $(DEPS_LIBS) \
 
 AM_CPPFLAGS = \
 	$(DEPS_CFLAGS) \
+	$(LIBSOUP_CFLAGS) \
 	$(common_defines)
 

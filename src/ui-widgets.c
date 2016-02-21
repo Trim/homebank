@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -200,6 +200,23 @@ void ui_gtk_entry_set_text(GtkWidget *widget, gchar *text)
 		gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
 
+void ui_gtk_entry_replace_text(GtkWidget *widget, gchar **storage)
+{
+const gchar *text;
+
+	DB( g_print(" storage is '%p' at '%p'\n", *storage, storage) );
+
+	/* free any previous string */
+	if( *storage != NULL )
+	{
+		g_free(*storage);
+	}
+
+	*storage = NULL;
+	text = gtk_entry_get_text(GTK_ENTRY(widget));
+	*storage = g_strdup(text);
+}
+
 
 GtkWidget *make_label_group(gchar *str)
 {
@@ -212,18 +229,24 @@ GtkWidget *label = gtk_label_new (str);
 }
 
 
+GtkWidget *make_label_widget(char *str)
+{
+GtkWidget *label = gtk_label_new_with_mnemonic (str);
+
+	gtk_widget_set_valign (label, GTK_ALIGN_CENTER);
+	gtk_widget_set_halign (label, GTK_ALIGN_END);
+	return label;
+}
 
 
-/*
-**
-*/
 GtkWidget *make_label(char *str, gfloat xalign, gfloat yalign)
 {
-GtkWidget *label;
+GtkWidget *label = gtk_label_new_with_mnemonic (str);
 
-	label = gtk_label_new_with_mnemonic (str);
+	//todo: deprecated in 3.14
 	gtk_misc_set_alignment (GTK_MISC (label), xalign, yalign);
-
+	//gtk_label_set_xalign(GTK_LABEL(label), xalign);
+	//gtk_label_set_yalign(GTK_LABEL(label), yalign);
 	return label;
 }
 
@@ -238,10 +261,6 @@ GtkWidget *entry;
 	entry = gtk_entry_new ();
 	gtk_editable_set_editable (GTK_EDITABLE(entry), FALSE);
 	g_object_set(entry, "xalign", xalign, NULL);
-
-	//entry = gtk_label_new(NULL);
-	//gtk_misc_set_padding (entry, 4, 2);
-	//gtk_misc_set_alignment(entry, xalign, 0.5);
 	return entry;
 }
 
@@ -406,12 +425,12 @@ GtkAdjustment *adj;
 }
 
 
-GtkWidget *make_euro(GtkWidget *label)
+GtkWidget *make_exchange_rate(GtkWidget *label)
 {
 GtkWidget *spinner;
 GtkAdjustment *adj;
 
-	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXINT32, G_MAXINT32, 0.01, 1.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, 0.0, 99999, 0.01, 1.0, 0.0);
 	spinner = gtk_spin_button_new (adj, 1.0, 6);
 	//gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), TRUE);
 	gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (spinner), TRUE);

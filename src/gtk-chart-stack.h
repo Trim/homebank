@@ -20,6 +20,8 @@
 #ifndef __CHARTSTACK_H__
 #define __CHARTSTACK_H__
 
+#include "gtk-chart-colors.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -104,18 +106,16 @@ struct _ChartStack
 	gchar	    *budget_title;
 	gchar	    *result_title;
 
-	gboolean		minor;
+	gboolean	minor;
+	guint32		kcur;
 	gdouble		minor_rate;
 	gchar		*minor_symbol;
 
 
 
 	/* color datas */
-	struct rgbcol		*colors;
-	gint	nb_cols;
-	gint	cs_red, cs_green, cs_orange, cs_blue;
+	GtkColorScheme color_scheme;
 
-	
 	/* cairo default value */
 	PangoFontDescription *pfd;
 	gint				pfd_size;
@@ -175,7 +175,9 @@ void ui_chart_stack_set_title(ChartStack * chart, gchar *title);
 void ui_chart_stack_set_subtitle(ChartStack * chart, gchar *subtitle);
 void ui_chart_stack_set_barw(ChartStack * chart, gdouble barw);
 void ui_chart_stack_show_minor(ChartStack * chart, gboolean minor);
+
 void ui_chart_stack_set_minor_prefs(ChartStack * chart, gdouble rate, gchar *symbol);
+void ui_chart_stack_set_currency(ChartStack * chart, guint32 kcur);
 
 #ifdef __cplusplus
 }

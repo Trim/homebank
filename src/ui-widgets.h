@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -21,8 +21,9 @@
 #define __HB_WIDGETS_GTK_H__
 
 
-GtkWidget *make_label(char *str, gfloat xalign, gfloat yalign);
-GtkWidget *make_label_group(gchar *label);
+GtkWidget *make_label(gchar *str, gfloat xalign, gfloat yalign);
+GtkWidget *make_label_group(gchar *str);
+GtkWidget *make_label_widget(gchar *str);
 GtkWidget *make_text(gfloat xalign);
 GtkWidget *make_string(GtkWidget *label);
 GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text);
@@ -30,7 +31,7 @@ GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text);
 GtkWidget *make_memo_entry(GtkWidget *label);
 GtkWidget *make_string_maxlength(GtkWidget *label, guint max_length);
 GtkWidget *make_amount(GtkWidget *label);
-GtkWidget *make_euro(GtkWidget *label);
+GtkWidget *make_exchange_rate(GtkWidget *label);
 GtkWidget *make_numeric(GtkWidget *label, gdouble min, gdouble max);
 GtkWidget *make_scale(GtkWidget *label);
 GtkWidget *make_long(GtkWidget *label);
@@ -51,6 +52,7 @@ gimp_label_set_attributes (GtkLabel *label,
 
 void hb_widget_visible(GtkWidget *widget, gboolean visible);
 void ui_gtk_entry_set_text(GtkWidget *widget, gchar *text);
+void ui_gtk_entry_replace_text(GtkWidget *widget, gchar **storage);
 
 guint make_popaccount_populate(GtkComboBox *combobox, GList *srclist);
 GtkWidget *make_popaccount(GtkWidget *label);

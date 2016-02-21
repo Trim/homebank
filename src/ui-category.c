@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -132,6 +132,25 @@ gchar *name;
 
 	return -1;
 }
+
+
+Category
+*ui_cat_comboboxentry_get(GtkComboBox *entry_box)
+{
+Category *item = NULL;
+gchar *name;
+
+	DB( g_print ("ui_cat_comboboxentry_get_key()\n") );
+
+	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
+	if(name == NULL)
+		return NULL;
+
+	item = da_cat_get_by_fullname(name);
+
+	return item;
+}
+
 
 gboolean
 ui_cat_comboboxentry_set_active(GtkComboBox *entry_box, guint32 key)
@@ -526,17 +545,30 @@ ui_cat_listview_fixed_toggled (GtkCellRendererToggle *cell,
 static gint
 ui_cat_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
-gint retval = 0;
+gint sortcol = GPOINTER_TO_INT(userdata);
 Category *entry1, *entry2;
-
+gint retval = 0;
+	
 	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
 	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
 
-	retval = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
-	if(!retval)
-	{
-		retval = hb_string_utf8_compare(entry1->name, entry2->name);
+
+    switch (sortcol)
+    {
+		case LST_DEFCAT_SORT_NAME:
+			retval = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
+			if(!retval)
+			{
+				retval = hb_string_utf8_compare(entry1->name, entry2->name);
+			}
+			break;
+		case LST_DEFCAT_SORT_USED:
+			retval = entry1->usage_count - entry2->usage_count;
+			break;
+		default:
+			g_return_val_if_reached(0);
 	}
+
     return retval;
 }
 
@@ -584,6 +616,28 @@ gchar *string;
 	g_free(string);
 
 }
+
+
+static void
+ui_cat_listview_count_cell_data_function (GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer user_data)
+{
+Category *entry;
+gchar buffer[256];
+
+	gtk_tree_model_get(model, iter, LST_DEFCAT_DATAS, &entry, -1);
+	if(entry->usage_count > 0)
+	{
+		g_snprintf(buffer, 256-1, "%d", entry->usage_count);
+		g_object_set(renderer, "text", buffer, NULL);
+	}
+	else
+		g_object_set(renderer, "text", "", NULL);
+}
+
 
 /* = = = = = = = = = = = = = = = = */
 
@@ -933,7 +987,7 @@ static gboolean ui_cat_listview_search_equal_func (GtkTreeModel *model,
 
 
 GtkWidget *
-ui_cat_listview_new(gboolean withtoggle)
+ui_cat_listview_new(gboolean withtoggle, gboolean withcount)
 {
 GtkTreeStore *store;
 GtkWidget *treeview;
@@ -952,8 +1006,6 @@ GtkTreeViewColumn	*column;
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), TRUE);
-
 	// column 1: toggle
 	if( withtoggle == TRUE )
 	{
@@ -969,17 +1021,34 @@ GtkTreeViewColumn	*column;
 
 	// column 2: name
 	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Name"));
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_cat_listview_text_cell_data_function, GINT_TO_POINTER(LST_DEFCAT_NAME), NULL);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DEFCAT_SORT_NAME);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
+	if( withcount == TRUE )
+	{
+		column = gtk_tree_view_column_new();
+		gtk_tree_view_column_set_title(column, _("Used"));
+		renderer = gtk_cell_renderer_text_new ();
+		//g_object_set(renderer, "xalign", 1.0, NULL);
+		gtk_tree_view_column_pack_start(column, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(column, renderer, ui_cat_listview_count_cell_data_function, GINT_TO_POINTER(LST_DEFCAT_DATAS), NULL);
+		gtk_tree_view_column_set_sort_column_id (column, LST_DEFCAT_SORT_USED);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	}
+
+	
 	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(treeview), ui_cat_listview_search_equal_func, NULL, NULL);
 
 	// treeview attribute
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), withcount);
 
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, ui_cat_listview_compare_func, NULL, NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_SORT_NAME, ui_cat_listview_compare_func, GINT_TO_POINTER(LST_DEFCAT_SORT_NAME), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_SORT_USED, ui_cat_listview_compare_func, GINT_TO_POINTER(LST_DEFCAT_SORT_USED), NULL);
+	
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, GTK_SORT_ASCENDING);
 
 	return treeview;
@@ -1798,7 +1867,7 @@ gint w, h, row;
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrollwin), HB_MINHEIGHT_LIST);
- 	treeview = ui_cat_listview_new(FALSE);
+ 	treeview = ui_cat_listview_new(FALSE, TRUE);
 	data.LV_cat = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 	gtk_widget_set_hexpand (scrollwin, TRUE);
@@ -1900,6 +1969,7 @@ gint w, h, row;
 	g_signal_connect (G_OBJECT (data.BT_collapse), "clicked", G_CALLBACK (ui_cat_manage_dialog_collapse_all), NULL);
 
 	//setup, init and show window
+	category_fill_usage();
 	ui_cat_manage_dialog_setup(&data);
 	ui_cat_manage_dialog_update(data.LV_cat, NULL);
 

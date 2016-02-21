@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,32 +20,30 @@
 #ifndef __HB_MISC__H__
 #define __HB_MISC__H__
 
-double arrondi(const double x, unsigned int n);
-gdouble amount_to_euro(gdouble amount);
+double hb_amount_round(const double x, unsigned int n);
+gdouble hb_amount_base(gdouble value, guint32 kcur);
+gdouble hb_amount_to_euro(gdouble amount);
 
-gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur, gboolean showsymbol);
-gint mystrfnum(gchar *outstr, gint outlen, gdouble value, gboolean minor);
-gint mystrfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
-gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor);
+gchar *hb_str_rate(gchar *outstr, gint outlen, gdouble rate);
 
-//gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur);
-//gdouble to_base_amount(gdouble value, guint32 kcur);
-//void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur);
-//void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur);
-//gint hb_strfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor);
+gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, Currency *cur, gboolean showsymbol);
+
+void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor);
+void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor);
+void hb_strfnum(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor);
 
 gchar *hb_util_filename_new_with_extension(gchar *filename, const gchar *extension);
 
 gchar *get_normal_color_amount(gdouble value);
 gchar *get_minimum_color_amount(gdouble value, gdouble minvalue);
 
-void hb_label_set_amount(GtkLabel *label, gdouble value, gboolean minor);
-void hb_label_set_colvalue(GtkLabel *label, gdouble value, gboolean minor);
-void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey);
+void hb_label_set_amount(GtkLabel *label, gdouble value, guint32 kcur, gboolean minor);
+void hb_label_set_colvalue(GtkLabel *label, gdouble value, guint32 kcur, gboolean minor);
 
 //void get_period_minmax(guint month, guint year, guint32 *mindate, guint32 *maxdate);
 //void get_range_minmax(guint32 refdate, gint range, guint32 *mindate, guint32 *maxdate);
 
+gint hb_string_compare(gchar *s1, gchar *s2);
 gint hb_string_utf8_compare(gchar *s1, gchar *s2);
 
 void hb_string_strip_crlf(gchar *str);

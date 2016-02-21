@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -17,15 +17,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef __HB_TRANSACTION_H__
 #define __HB_TRANSACTION_H__
 
-
+#include "hb-split.h"
 
 
 typedef struct _transaction	Transaction;
 
-#include "hb-split.h"
 
 struct _transaction
 {
@@ -49,6 +49,7 @@ struct _transaction
 
 	/* unsaved datas */
 	GList		*same;		//used for import todo: change this
+	guint32		kcur;
 	gdouble		balance;
 };
 
@@ -81,8 +82,9 @@ void da_transaction_clean(Transaction *item);
 void da_transaction_free(Transaction *item);
 
 GList *da_transaction_new(void);
-void da_transaction_destroy(GList *list);
+void da_transaction_destroy(void);
 
+void da_transaction_queue_sort(GQueue *queue);
 GList *da_transaction_sort(GList *list);
 gboolean da_transaction_prepend(Transaction *item);
 gboolean da_transaction_insert_sorted(Transaction *item);
@@ -103,15 +105,15 @@ guint da_transaction_length(void);
 void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 
-Transaction *transaction_strong_get_child_transfer(Transaction *src);
+Transaction *transaction_xfer_child_strong_get(Transaction *src);
 void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview);
-void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);
 void transaction_xfer_sync_child(Transaction *ope, Transaction *child);
 void transaction_xfer_remove_child(Transaction *src);
 Transaction *transaction_old_get_child_transfer(Transaction *src);
 
 guint transaction_tags_count(Transaction *ope);
+void transaction_tags_clone(Transaction *src_txn, Transaction *dst_txn);
 guint transaction_tags_parse(Transaction *ope, const gchar *tagstring);
 gchar *transaction_tags_tostring(Transaction *ope);
 gint transaction_auto_assign(GList *ope_list, guint32 key);

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -21,6 +21,9 @@
 
 #include "ui-dialogs.h"
 #include "list_operation.h"
+
+#include "hb-currency.h"
+#include "ui-currency.h"
 
 
 /* = = = = = = = = = = */
@@ -201,7 +204,7 @@ gint crow, row, count;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("Account"), 0, 0.5);
+	label = make_label_widget(_("Account"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
 	count = da_acc_length ();
@@ -210,7 +213,7 @@ gint crow, row, count;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Transaction"), 0, 0.5);
+	label = make_label_widget(_("Transaction"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
 	count = da_transaction_length();
@@ -219,7 +222,7 @@ gint crow, row, count;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Payee"), 0, 0.5);
+	label = make_label_widget(_("Payee"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
 	count = da_pay_length ();
@@ -228,7 +231,7 @@ gint crow, row, count;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Category"), 0, 0.5);
+	label = make_label_widget(_("Category"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
 	count = da_cat_length ();
@@ -237,7 +240,7 @@ gint crow, row, count;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Assignment"), 0, 0.5);
+	label = make_label_widget(_("Assignment"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_label(NULL, 1.0, 0.5);
 	count = da_asg_length ();
@@ -255,6 +258,148 @@ gint crow, row, count;
 
 	}
 
+	// cleanup and destroy
+	gtk_widget_destroy (dialog);
+
+}
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+static struct dialog_currency_data
+{
+	GtkWidget   *window;
+	GtkWidget   *LB_currency;
+	GtkWidget   *BT_change;
+	Currency4217 *curfmt;
+};
+
+static void ui_dialog_upgrade_choose_currency_change_action(GtkWidget *widget, gpointer user_data)
+{
+struct dialog_currency_data *data = user_data;
+Currency4217 *curfmt;
+
+	data->curfmt = NULL;
+
+	curfmt = ui_cur_select_dialog_new(GTK_WINDOW(data->window), CUR_SELECT_MODE_BASE);
+	if( curfmt != NULL )
+	{
+	gchar label[128];
+	gchar *name;
+		
+		DB( g_printf("- user selected: '%s' '%s'\n", curfmt->curr_iso_code, curfmt->name) );
+
+		data->curfmt = curfmt;
+
+		name = curfmt->name;
+
+		g_snprintf(label, 127, "%s - %s", curfmt->curr_iso_code, name);
+		gtk_label_set_text (GTK_LABEL(data->LB_currency), label);
+	}
+}
+
+
+static void ui_dialog_upgrade_choose_currency_fill(struct dialog_currency_data *data)
+{
+Currency *cur;
+gchar label[128];
+
+	data->curfmt = NULL;
+
+	cur = da_cur_get (GLOBALS->kcur);
+
+	g_snprintf(label, 127, "%s - %s", cur->iso_code, cur->name);
+	gtk_label_set_text (GTK_LABEL(data->LB_currency), label);
+}
+
+
+
+void ui_dialog_upgrade_choose_currency(void)
+{
+struct dialog_currency_data data;
+GtkWidget *dialog, *content_area, *content_grid, *group_grid;
+GtkWidget *label, *widget;
+gint crow, row;
+
+	dialog = gtk_dialog_new_with_buttons (_("Upgrade"),
+		GTK_WINDOW (GLOBALS->mainwindow),
+		0,
+		_("_Cancel"), GTK_RESPONSE_CANCEL,
+		_("_OK"), GTK_RESPONSE_ACCEPT,
+		NULL);
+
+	data.window = dialog;
+
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+
+	content_grid = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+	gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+	gtk_box_pack_start (GTK_BOX (content_area), content_grid, TRUE, TRUE, 0);
+
+	crow = 0;
+	// group :: file title
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+
+	row = 0;
+	label = make_label(_("Select a base currency"), 0, 0);
+	gimp_label_set_attributes(GTK_LABEL(label), 
+		PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, 
+		PANGO_ATTR_SCALE,  PANGO_SCALE_LARGE, 
+		-1);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
+
+	row++;
+	label = make_label(
+		_("Starting v5.1, HomeBank can manage several currencies\n" \
+		  "if the currency below is not correct, please change it:"), 0, 0);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
+
+	row++;
+	label = make_label_widget(_("Currency:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+	widget = make_label (NULL, 0, 0.5);
+	data.LB_currency = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+	widget = gtk_button_new_with_mnemonic (_("_Change"));
+	data.BT_change = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	g_signal_connect (G_OBJECT (data.BT_change), "clicked", G_CALLBACK (ui_dialog_upgrade_choose_currency_change_action), &data);
+
+
+	ui_dialog_upgrade_choose_currency_fill(&data);
+
+	gtk_widget_show_all(content_grid);
+
+	//wait for the user
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
+
+	if(result == GTK_RESPONSE_ACCEPT)
+	{
+
+		if( data.curfmt != NULL )
+		{
+			hbfile_replace_basecurrency(data.curfmt);
+		}
+	}
+
+	// in any case set every accounts to base currency
+	GList *list;
+	list = g_hash_table_get_values(GLOBALS->h_acc);
+	while (list != NULL)
+	{
+	Account *acc = list->data;
+
+		account_set_currency(acc, GLOBALS->kcur);
+		list = g_list_next(list);
+	}
+	g_list_free(list);
+	
 	// cleanup and destroy
 	gtk_widget_destroy (dialog);
 

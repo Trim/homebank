@@ -1,25 +1,46 @@
 
+2016-xx-xx  Maxime Doyen
+
+ Made 5.1 beta1 release.
+
+ * change: listview, switch from  alternate row color to line grid (new GTK+ option)
+ * change: preferences, reworked layout 
+ * change: preferences, add preview for chart color scheme
+ * change: register, refactored toolbar grouping single and multiple actions
+ * change: doc, added every payment into the lexicon
+ * wish  : #532564   add a clean feature to delete unused payee/categories, ...
+ * wish  : #552565  multiple currency accounting
+ * wish  : #1102981	add Comment bloc for accounts
+ * wish  : #1242312	split amount for template/scheduled transaction
+ * wish  : #1484449	warn when amount sign and category don't match
+ * wish  : #1501111	double-click on sheduled txn in main window to open template editor
+ * wish  : #1501125	export to CSV for all reports list view
+ * wish  : #1507252	search and replace, or ability to batch-edit selected transactions easily 
+ * bugfix: #1511325 no warning about old gtk3.x version when compiling from source
+ * bugfix: #1523216 Import window wrongly sized 
+
+
 2015-10-18  Maxime Doyen
 
  Made 5.0.6 release.
 
-* bugfix: #1504514 next Previous buttons not translated when importing ofx file
-* bugfix: #1504359 assignment with same name should not be possible
-* bugfix: #1503682 app crash opening a file from previous version
-* bugfix: #1502997 || input in split should not be possible
-* bugfix: #1502496 auto assignment don't set payee on split txn
-* bugfix: #1502444 auto assignment can mark untouched txn as changed
-* bugfix: #1502034 translate homebank.appdata.xml
-* bugfix: #1501968 splits without category are lost during QIF import
-* bugfix: #1501962 statistics report crashes HomeBank after adding a new tag
-* bugfix: #1501144 auto assignment changes split category when only payee is defined in assignment definition
-* bugfix: #1501138 wrong number of txns in pop-up after auto assignment
-* bugfix: #1501129 auto assignment dialog not active when no category defined
-* bugfix: #1501098 litre symbol is not translatable
-* bugfix: #1500043 remove period from short description
-* bugfix: #1498622 translation: add developer note to FI Fee
-* bugfix: #1497630 translation: typing errors
-* bugfix: #1497521 txn dialog +/- button reset amount to 0 
+ * bugfix: #1504514 next Previous buttons not translated when importing ofx file
+ * bugfix: #1504359 assignment with same name should not be possible
+ * bugfix: #1503682 app crash opening a file from previous version
+ * bugfix: #1502997 || input in split should not be possible
+ * bugfix: #1502496 auto assignment don't set payee on split txn
+ * bugfix: #1502444 auto assignment can mark untouched txn as changed
+ * bugfix: #1502034 translate homebank.appdata.xml
+ * bugfix: #1501968 splits without category are lost during QIF import
+ * bugfix: #1501962 statistics report crashes HomeBank after adding a new tag
+ * bugfix: #1501144 auto assignment changes split category when only payee is defined in assignment definition
+ * bugfix: #1501138 wrong number of txns in pop-up after auto assignment
+ * bugfix: #1501129 auto assignment dialog not active when no category defined
+ * bugfix: #1501098 litre symbol is not translatable
+ * bugfix: #1500043 remove period from short description
+ * bugfix: #1498622 translation: add developer note to FI Fee
+ * bugfix: #1497630 translation: typing errors
+ * bugfix: #1497521 txn dialog +/- button reset amount to 0 
 
 
 2015-09-19  Maxime Doyen

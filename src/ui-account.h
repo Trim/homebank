@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -88,7 +88,7 @@ struct ui_acc_manage_data
 	GtkWidget	*LV_acc;
 	GtkWidget	*BT_add, *BT_rem;
 
-	//GtkWidget	*CY_curr;
+	GtkWidget	*CY_curr;
 	GtkWidget	*CY_type;
 
 	GtkWidget   *notebook;
@@ -100,9 +100,12 @@ struct ui_acc_manage_data
 	GtkWidget	*CM_noreport;
 	GtkWidget	*CM_closed;
 	GtkWidget	*ST_initial;
-	GtkWidget	*ST_minimum;
+	GtkWidget	*ST_warning;
+	GtkWidget	*ST_overdraft;
 	GtkWidget	*ST_cheque1;
 	GtkWidget	*ST_cheque2;
+	GtkWidget	*TB_notes;
+	
 };
 
 

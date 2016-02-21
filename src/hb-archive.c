@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -19,6 +19,7 @@
 
 #include "homebank.h"
 #include "hb-archive.h"
+#include "hb-split.h"
 
 /****************************************************************************/
 /* Debug macros                                                             */
@@ -51,6 +52,9 @@ Archive *new_item = g_memdup(src_item, sizeof(Archive));
 	{
 		//duplicate the string
 		new_item->wording = g_strdup(src_item->wording);
+		
+		if( da_splits_clone(src_item->splits, new_item->splits) > 0)
+			new_item->flags |= OF_SPLIT; //Flag that Splits are active
 	}
 	return new_item;
 }
@@ -62,6 +66,9 @@ void da_archive_free(Archive *item)
 		if(item->wording != NULL)
 			g_free(item->wording);
 
+		da_splits_free(item->splits);
+		//item->flags &= ~(OF_SPLIT); //Flag that Splits are cleared		
+		
 		g_free(item);
 	}
 }
@@ -107,14 +114,18 @@ Payee *pay;
 	{
 		g_warning("arc consistency: fixed invalid cat %d", item->kcat);
 		item->kcat = 0;
+		GLOBALS->changes_count++;
 	}
-
+	
+	split_cat_consistency(item->splits);
+	
 	// check payee exists
 	pay = da_pay_get(item->kpay);
 	if(pay == NULL)
 	{
 		g_warning("arc consistency: fixed invalid pay %d", item->kpay);
 		item->kpay = 0;
+		GLOBALS->changes_count++;
 	}
 
 	// reset dst acc for non xfer transaction
@@ -151,6 +162,9 @@ Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn)
 	else
 		arc->wording 		= g_strdup(_("(new archive)"));
 
+	if( da_splits_clone(txn->splits, arc->splits) > 0)
+		arc->flags |= OF_SPLIT; //Flag that Splits are active
+	
 	return arc;
 }
 
@@ -202,7 +216,7 @@ gboolean scheduled_is_postable(Archive *arc)
 {
 gdouble value;
 
-	value = arrondi(arc->amount, 2);
+	value = hb_amount_round(arc->amount, 2);
 	if( (arc->flags & OF_AUTO) && (arc->kacc > 0) && (value != 0.0) )
 		return TRUE;
 

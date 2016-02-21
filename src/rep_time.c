@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -57,7 +57,7 @@ static void ui_reptime_action_detail(GtkAction *action, gpointer user_data);
 static void ui_reptime_action_refresh(GtkAction *action, gpointer user_data);
 static void ui_reptime_action_export(GtkAction *action, gpointer user_data);
 
-//static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur);
+static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur);
 
 
 static GtkActionEntry entries[] = {
@@ -421,54 +421,34 @@ guint32 selkey;
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), NULL); /* Detach model from view */
 
 		/* fill in the model */
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		Account *acc;
+		guint32 pos = 0;
+		gboolean include = FALSE;
 
 			//DB( g_print(" get %s\n", ope->ope_Word) );
 
-			acc = da_acc_get(ope->kacc);
-			if(acc == NULL) goto next1;
-			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
-
-			//filter here
-			if( !(ope->status == TXN_STATUS_REMIND) && ope->date >= from && ope->date <= to)
+			switch(tmpfor)
 			{
-			guint32 pos = 0;
-			gboolean include = FALSE;
-
-				switch(tmpfor)
+				case FOR_REPTIME_ACCOUNT:
+					if( selkey == ope->kacc )
+						include = TRUE;
+					break;
+				case FOR_REPTIME_CATEGORY:
 				{
-					case FOR_REPTIME_ACCOUNT:
-						if( selkey == ope->kacc )
-							include = TRUE;
-						break;
-					case FOR_REPTIME_CATEGORY:
+				Category *catentry;
+				
+					if( ope->flags & OF_SPLIT )
 					{
-					Category *catentry;
+					guint nbsplit = da_splits_count(ope->splits);
+					Split *split;
 					
-						if( ope->flags & OF_SPLIT )
+						for(i=0;i<nbsplit;i++)
 						{
-						guint nbsplit = da_transaction_splits_count(ope);
-						Split *split;
-						
-							for(i=0;i<nbsplit;i++)
-							{
-								split = ope->splits[i];
-								catentry = da_cat_get(split->kcat);
-								if(catentry != NULL)	//#1340142
-								{
-									if( selkey == catentry->parent || selkey == catentry->key )
-										include = TRUE;
-
-								}
-							}
-						}
-						else
-						{							
-							catentry = da_cat_get(ope->kcat);
+							split = ope->splits[i];
+							catentry = da_cat_get(split->kcat);
 							if(catentry != NULL)	//#1340142
 							{
 								if( selkey == catentry->parent || selkey == catentry->key )
@@ -477,55 +457,65 @@ guint32 selkey;
 							}
 						}
 					}
+					else
+					{							
+						catentry = da_cat_get(ope->kcat);
+						if(catentry != NULL)	//#1340142
+						{
+							if( selkey == catentry->parent || selkey == catentry->key )
+								include = TRUE;
+
+						}
+					}
+				}
+					break;
+				case FOR_REPTIME_PAYEE:
+					if( selkey == ope->kpay )
+						include = TRUE;
+					break;
+			}
+
+			if( include == TRUE || showall == TRUE )
+			{
+
+				switch(tmpslice)
+				{
+					case GROUPBY_REPTIME_DAY:
+						pos = ope->date - from;
 						break;
-					case FOR_REPTIME_PAYEE:
-						if( selkey == ope->kpay )
-							include = TRUE;
+
+					case GROUPBY_REPTIME_WEEK:
+						pos = (ope->date - from)/7;
+						break;
+
+					case GROUPBY_REPTIME_MONTH:
+						pos = DateInMonth(from, ope->date);
+						break;
+
+					case GROUPBY_REPTIME_QUARTER:
+						pos = DateInQuarter(from, ope->date);
+						break;
+
+					case GROUPBY_REPTIME_YEAR:
+						pos = DateInYear(from, ope->date);
 						break;
 				}
 
-				if( include == TRUE || showall == TRUE )
+				DB( g_print("** pos=%d\n", pos) );
+
+				//insert
+				if( pos == active )
 				{
 
-					switch(tmpslice)
-					{
-						case GROUPBY_REPTIME_DAY:
-							pos = ope->date - from;
-							break;
-
-						case GROUPBY_REPTIME_WEEK:
-							pos = (ope->date - from)/7;
-							break;
-
-						case GROUPBY_REPTIME_MONTH:
-							pos = DateInMonth(from, ope->date);
-							break;
-
-						case GROUPBY_REPTIME_QUARTER:
-							pos = DateInQuarter(from, ope->date);
-							break;
-
-						case GROUPBY_REPTIME_YEAR:
-							pos = DateInYear(from, ope->date);
-							break;
-					}
-
-					DB( g_print("** pos=%d\n", pos) );
-
-					//insert
-					if( pos == active )
-					{
-
-						gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-				 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-							LST_DSPOPE_DATAS, ope,
-							-1);
-					}
+					gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+			 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						LST_DSPOPE_DATAS, ope,
+						-1);
 				}
 
 
 			}
-next1:
+
 			list = g_list_next(list);
 		}
 
@@ -752,6 +742,10 @@ guint32 selkey;
 	to   = data->filter->maxdate;
 	if(to < from) return;
 
+	g_queue_free (data->txn_queue);
+	data->txn_queue = hbfile_transaction_get_partial(data->filter->mindate, data->filter->maxdate);
+
+
 	/* count number or results */
 	switch(tmpslice)
 	{
@@ -794,123 +788,48 @@ guint32 selkey;
 
 	if(tmp_amount)
 	{
-	Account *acc;	
+	guint32 kcur;
 		
 		/* set currency */
-		/*
+		kcur = GLOBALS->kcur;
 		if( (tmpfor == FOR_REPTIME_ACCOUNT) && (showall == FALSE) )
 		{
-			if(acc = da_acc_get(selkey))
+		Account *acc = da_acc_get(selkey);
+
+			if( acc != NULL )
 			{
-				//ui_reptime_list_set_cur(GTK_TREE_VIEW(data->LV_report), acc->kcur);
-				//gtk_chart_set_currency(GTK_CHART(data->RE_line), acc->kcur);
+				kcur = acc->kcur;
 			}
 		}
-		else
-		{
-			//ui_reptime_list_set_cur(GTK_TREE_VIEW(data->LV_report), GLOBALS->kcur);
-			//gtk_chart_set_currency(GTK_CHART(data->RE_line), GLOBALS->kcur);
-		}*/
-			
+		
+		ui_reptime_list_set_cur(GTK_TREE_VIEW(data->LV_report), kcur);
+		gtk_chart_set_currency(GTK_CHART(data->RE_line), kcur);
+		
 	/* compute the results */
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
+		gboolean include = FALSE;
 
 			//debug
 			DB( g_print("** testing '%s', cat=%d==> %d\n", ope->wording, ope->kcat, filter_test(data->filter, ope)) );
 
-			acc = da_acc_get(ope->kacc);
-			if(acc == NULL) goto next1;
-			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
-
-
 			// add usage of payee or category
-			if( !(ope->status == TXN_STATUS_REMIND) && ope->date >= from && ope->date <= to)
-			//if( (filter_test(data->filter, ope) == 1) )
+			switch(tmpfor)
 			{
-			gboolean include = FALSE;
-
-				switch(tmpfor)
+				case FOR_REPTIME_ACCOUNT:
+					if( selkey == ope->kacc )
+						include = TRUE;
+					break;
+				case FOR_REPTIME_CATEGORY:
 				{
-					case FOR_REPTIME_ACCOUNT:
-						if( selkey == ope->kacc )
-							include = TRUE;
-						break;
-					case FOR_REPTIME_CATEGORY:
-					{
-					Category *catentry;
-					
-						if( ope->flags & OF_SPLIT )
-						{
-						guint nbsplit = da_transaction_splits_count(ope);
-						Split *split;
-						
-							for(i=0;i<nbsplit;i++)
-							{
-								split = ope->splits[i];
-								catentry = da_cat_get(split->kcat);
-								if(catentry != NULL)	//#1340142
-								{
-									if( selkey == catentry->parent || selkey == catentry->key )
-										include = TRUE;
-								}
-							}
-						}
-						else
-						{							
-							catentry = da_cat_get(ope->kcat);
-							if(catentry != NULL)	//#1340142
-							{
-								if( selkey == catentry->parent || selkey == catentry->key )
-									include = TRUE;
-							}
-						}
-					}
-						break;
-					case FOR_REPTIME_PAYEE:
-						if( selkey == ope->kpay )
-							include = TRUE;
-						break;
-				}
-
-				if( include == TRUE || showall == TRUE)
-				{
-				guint32 pos = 0;
-				gdouble trn_amount;
+				Category *catentry;
 				
-					switch(tmpslice)
+					if( ope->flags & OF_SPLIT )
 					{
-						case GROUPBY_REPTIME_DAY:
-							pos = ope->date - from;
-							break;
-
-						case GROUPBY_REPTIME_WEEK:
-							pos = (ope->date - from)/7;
-							break;
-
-						case GROUPBY_REPTIME_MONTH:
-							pos = DateInMonth(from, ope->date);
-							break;
-
-						case GROUPBY_REPTIME_QUARTER:
-							pos = DateInQuarter(from, ope->date);
-							break;
-
-						case GROUPBY_REPTIME_YEAR:
-							pos = DateInYear(from, ope->date);
-							break;
-					}
-
-					acc = da_acc_get(ope->kacc);
-					trn_amount = 0.0;
-					
-					if( tmpfor == FOR_REPTIME_CATEGORY && ope->flags & OF_SPLIT )
-					{
-					guint nbsplit = da_transaction_splits_count(ope);
+					guint nbsplit = da_splits_count(ope->splits);
 					Split *split;
-					Category *catentry;
 					
 						for(i=0;i<nbsplit;i++)
 						{
@@ -919,23 +838,86 @@ guint32 selkey;
 							if(catentry != NULL)	//#1340142
 							{
 								if( selkey == catentry->parent || selkey == catentry->key )
-									trn_amount += split->amount;
+									include = TRUE;
 							}
 						}
 					}
 					else
-						trn_amount = ope->amount;
-
+					{							
+						catentry = da_cat_get(ope->kcat);
+						if(catentry != NULL)	//#1340142
+						{
+							if( selkey == catentry->parent || selkey == catentry->key )
+								include = TRUE;
+						}
+					}
 					
-					//trn_amount = to_base_amount(trn_amount, acc->kcur);
-
-					DB( g_print("** pos=%d will add %.2f to \n", pos, trn_amount) );
-
-					tmp_amount[pos] += trn_amount;
-
 				}
+					break;
+				case FOR_REPTIME_PAYEE:
+					if( selkey == ope->kpay )
+						include = TRUE;
+					break;
 			}
-next1:
+
+			if( include == TRUE || showall == TRUE)
+			{
+			guint32 pos = 0;
+			gdouble trn_amount;
+			
+				switch(tmpslice)
+				{
+					case GROUPBY_REPTIME_DAY:
+						pos = ope->date - from;
+						break;
+
+					case GROUPBY_REPTIME_WEEK:
+						pos = (ope->date - from)/7;
+						break;
+
+					case GROUPBY_REPTIME_MONTH:
+						pos = DateInMonth(from, ope->date);
+						break;
+
+					case GROUPBY_REPTIME_QUARTER:
+						pos = DateInQuarter(from, ope->date);
+						break;
+
+					case GROUPBY_REPTIME_YEAR:
+						pos = DateInYear(from, ope->date);
+						break;
+				}
+
+				trn_amount = 0.0;
+				
+				if( tmpfor == FOR_REPTIME_CATEGORY && ope->flags & OF_SPLIT )
+				{
+				guint nbsplit = da_splits_count(ope->splits);
+				Split *split;
+				Category *catentry;
+				
+					for(i=0;i<nbsplit;i++)
+					{
+						split = ope->splits[i];
+						catentry = da_cat_get(split->kcat);
+						if(catentry != NULL)	//#1340142
+						{
+							if( selkey == catentry->parent || selkey == catentry->key )
+								trn_amount += split->amount;
+						}
+					}
+				}
+				else
+					trn_amount = ope->amount;
+
+				trn_amount = hb_amount_base(trn_amount, ope->kcur);
+
+				DB( g_print("** pos=%d will add %.2f to \n", pos, trn_amount) );
+
+				tmp_amount[pos] += trn_amount;
+
+			}
+
 			list = g_list_next(list);
 		}
 
@@ -1041,7 +1023,7 @@ next1:
 
 			average = cumulation / n_result;
 
-			mystrfmon(buf, 127, average, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor)) );
+			hb_strfmon(buf, 127, average, kcur, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor)) );
 
 			////TRANSLATORS: count of transaction in balancedrawn / count of total transaction under abalancedrawn amount threshold
 			info = g_strdup_printf(_("Average: %s"), buf);
@@ -1203,6 +1185,7 @@ static void ui_reptime_setup(struct ui_reptime_data *data, guint32 accnum)
 {
 	DB( g_print("\n[reptime] setup\n") );
 
+	data->txn_queue = g_queue_new ();
 
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
@@ -1271,6 +1254,8 @@ struct ui_reptime_data *data = user_data;
 struct WinGeometry *wg;
 
 	DB( g_print("\n[reptime] dispose\n") );
+
+	g_queue_free (data->txn_queue);
 
 	da_filter_free(data->filter);
 
@@ -1345,19 +1330,18 @@ GError *error = NULL;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 
 	row = 0;
-	label = make_label(_("Display"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Display"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_For:"), 0, 0.5);
+	label = make_label_widget(_("_For:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_TIMESELECT);
 	data->CY_for = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Account:"), 0.0, 0.5);
+	label = make_label_widget(_("_Account:"));
 	data->LB_acc = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
@@ -1365,7 +1349,7 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Category:"), 0.0, 0.5);
+	label = make_label_widget(_("_Category:"));
 	data->LB_cat = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
@@ -1373,7 +1357,7 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Payee:"), 0.0, 0.5);
+	label = make_label_widget(_("_Payee:"));
 	data->LB_pay = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = ui_pay_comboboxentry_new(label);
@@ -1383,15 +1367,15 @@ GError *error = NULL;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Select _all"));
 	data->CM_all = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Cumulate"));
 	data->CM_cumul = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_View by:"), 0, 0.5);
+	label = make_label_widget(_("_View by:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_VIEWBY);
 	data->CY_view = widget;
@@ -1400,10 +1384,10 @@ GError *error = NULL;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Zoom X:"), 0, 0.5);
+	label = make_label_widget(_("_Zoom X:"));
 	data->LB_zoomx = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_scale(label);
@@ -1416,24 +1400,23 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("Date filter"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Date filter"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_Range:"), 0, 0.5);
+	label = make_label_widget(_("_Range:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->CY_range = make_daterange(label, FALSE);
 	gtk_grid_attach (GTK_GRID (table), data->CY_range, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_From:"), 0, 0.5);
+	label = make_label_widget(_("_From:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_mindate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_mindate, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_To:"), 0, 0.5);
+	label = make_label_widget(_("_To:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_maxdate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_maxdate, 2, row, 1, 1);
@@ -1641,14 +1624,13 @@ static void ui_reptime_amount_cell_data_function (GtkTreeViewColumn *col,
 gdouble  value;
 gchar *color;
 gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
-//guint32 kcur = (guint32)g_object_get_data(G_OBJECT(gtk_tree_view_column_get_tree_view(col)), "kcur_data");
+guint32 kcur = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(gtk_tree_view_column_get_tree_view(col)), "kcur_data"));
 
 	gtk_tree_model_get(model, iter, GPOINTER_TO_INT(user_data), &value, -1);
 
 	if( value )
 	{
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->minor);
-		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, kcur);
+		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, kcur, GLOBALS->minor);
 
 		color = get_normal_color_amount(value);
 
@@ -1679,11 +1661,11 @@ GtkCellRenderer    *renderer;
 	return column;
 }
 
-/*
+
 static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur)
 {
-	g_object_set_data(G_OBJECT(treeview), "kcur_data", (guint32)kcur);
-}*/
+	g_object_set_data(G_OBJECT(treeview), "kcur_data", GUINT_TO_POINTER(kcur));
+}
 
 
 
@@ -1710,7 +1692,7 @@ GtkTreeViewColumn  *column;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (view), PREFS->grid_lines);
 
 	/* column: Name */
 	column = gtk_tree_view_column_new();

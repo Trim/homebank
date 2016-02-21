@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -39,33 +39,30 @@ extern struct Preferences *PREFS;
 
 static const double fac[7] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
 
-double arrondi(const double x, unsigned int digits)
+double hb_amount_round(const double x, unsigned int digits)
 {
+	digits = MAX(digits, 6);
     return floor((x * fac[digits]) + 0.5) / fac[digits];
 }
 
 
 // used to convert from national to euro currency
-//round option is to 0.5 case so 1.32 is 1.3, but 1.35 is 1.4
-gdouble amount_to_euro(gdouble amount)
+// used in hb_account.c :: only when convert account to euro
+// round option is to 0.5 case so 1.32 is 1.3, but 1.35 is 1.4
+
+gdouble hb_amount_to_euro(gdouble amount)
 {
-	return arrondi((amount / PREFS->euro_value), 2);
+	return hb_amount_round((amount / PREFS->euro_value), 2);
+	//return hb_amount_round((amount * PREFS->euro_value), PREFS.minor_cur->frac_digits);
 }
 
 
-static gdouble _amount_to_minor(gdouble amount)
-{
-	return arrondi((amount * PREFS->euro_value), 2);
-	//return arrondi((amount * PREFS->euro_value), PREFS.minor_cur->frac_digits);
-}
-
-
-/* new currency fct
+/* new >5.1 currency fct
 *
  *	convert an amount in base currency
  *
  */
-/*gdouble to_base_amount(gdouble value, guint32 kcur)
+gdouble hb_amount_base(gdouble value, guint32 kcur)
 {
 gdouble newvalue;
 Currency *cur;
@@ -76,77 +73,9 @@ Currency *cur;
 	cur = da_cur_get(kcur);
 	if(cur == NULL)
 		return 0;
+
 	newvalue = value * cur->rate;
-	return newvalue;
-
-	return value;
-}
-
-
-static gint real_mystrfmoncurr(gchar *outstr, gint outlen, gchar *buf1, Currency *cur)
-{
-gint size = 0;
-gchar groupbuf[outlen];
-gchar **str_array;
-guint i, length;
-gchar *monstr;
-
-	str_array = g_strsplit(buf1, ".", 2);
-	monstr = NULL;
-
-	length = strlen(str_array[0]);
-
-	if( cur->grouping_char == NULL || !strlen(cur->grouping_char) )
-	{
-		monstr = g_strjoinv(cur->decimal_char, str_array);
-	}
-	else
-	{
-	gchar *s = str_array[0];
-	gchar *d = groupbuf;
-
-		i = 0;
-		// avoid the - for negative amount
-		if( *s == '-')
-		{
-			*d++ = *s++;
-			length--;
-		}
-
-		// do the grouping
-		do
-		{
-			if( i!=0 && (length % 3) == 0 )
-			{
-			gchar *gc = cur->grouping_char;
-
-				while( *gc )
-					*d++ = *gc++;
-			}
-
-			*d++ = *s;
-			length--;
-			i++;
-		}
-		while (length && *s++ != '\0');
-		*d = 0;
-
-		monstr = g_strjoin(cur->decimal_char, groupbuf, str_array[1], NULL);
-
-	}
-
-	//debug
-	//g_print("**\nmystrfmon %.2f\n 0=%s\n 1=%s\n [%d]\n", value, str_array[0], str_array[1], length );
-	//g_print(" => %s :: %s\n", monstr, groupbuf);
-
-	g_strfreev(str_array);
-
-	// insert our formated number with symbol
-	g_snprintf(outstr, outlen, cur->monfmt, monstr);
-
-	g_free(monstr);
-
-	return size;
+	return hb_amount_round(newvalue, cur->frac_digits);
 }
 
 
@@ -155,122 +84,32 @@ static Currency *hb_strfmon_check(gchar *outstr, guint32 kcur)
 Currency *cur = da_cur_get(kcur);
 
 	if(cur == NULL)
-		g_stpcpy(outstr, "error");
+		g_stpcpy(outstr, "nan");
 	return cur;
 }
 
 
-void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur)
+gchar *hb_str_rate(gchar *outstr, gint outlen, gdouble rate)
 {
-gchar formatd_buf[outlen];
-Currency *cur;
-gdouble monval;
-
-	cur = hb_strfmon_check(outstr, kcur);
-	if(cur != NULL)
-	{
-		monval = arrondi(value, cur->frac_digits);
-		g_ascii_formatd(formatd_buf, G_ASCII_DTOSTR_BUF_SIZE-1, cur->format, monval);
-		real_mystrfmoncurr(outstr, outlen, formatd_buf, cur);
-	}
-}
-
-
-void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur)
-{
-gchar formatd_buf[outlen];
-Currency *cur;
-gdouble monval;
-
-	cur = hb_strfmon_check(outstr, kcur);
-	if(cur != NULL)
-	{
-		monval = arrondi(value, cur->frac_digits);
-		g_ascii_formatd(formatd_buf, sizeof (formatd_buf), "%0.f", monval);
-		real_mystrfmoncurr(outstr, outlen, formatd_buf, cur);
-	}
-}
-
-//todo: delete this
-// test for currecny choose dialog
-void mystrfmoncurrcurr(gchar *outstr, gint outlen, gdouble value, Currency *cur)
-{
-gchar formatd_buf[outlen];
-gdouble monval;
-
-	monval = arrondi(value, cur->frac_digits);
-	g_ascii_formatd(formatd_buf, G_ASCII_DTOSTR_BUF_SIZE-1, cur->format, monval);
-	real_mystrfmoncurr(outstr, outlen, formatd_buf, cur);
-}
-*/
-
-/* obsolete previous 5.0
- * 
- * gint real_mystrfmon(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur)
-{
-gint size = 0;
-gchar groupbuf[outlen];
-gchar **str_array;
-guint i, length;
-gchar *monstr;
-
-	str_array = g_strsplit(buf1, ".", 2);
-	monstr = NULL;
-
-	length = strlen(str_array[0]);
+gint count, i;
+gchar *p;
 	
-	if( cur->grouping_char == NULL || !strlen(cur->grouping_char) )
+	count = g_snprintf(outstr, outlen, "%.6f", rate);
+	//remove trailing 0 and decimal point
+	p = &outstr[count-1];
+	for(i=count;i>0;i--)
 	{
-		monstr = g_strjoinv(cur->decimal_char, str_array);
+		if(*p == '0')
+			*p = '\0';
+		else
+			break;
+		p--;
 	}
-	else
-	{
-	gchar *s = str_array[0];
-	gchar *d = groupbuf;
+	if(*p == '.' || *p == ',')
+		*p = '\0';
 
-		i = 0;
-		// avoid the - for negative amount
-		if( *s == '-')
-		{
-			*d++ = *s++;
-			length--;
-		}
-		
-		// do the grouping
-		do
-		{
-			if( i!=0 && (length % 3) == 0 )
-			{
-				d = g_stpcpy(d, cur->grouping_char);
-			}
-		
-			*d++ = *s;
-			length--;
-			i++;	
-		}
-		while (length && *s++ != '\0');
-		*d = 0;
-
-		monstr = g_strjoin(cur->decimal_char, groupbuf, str_array[1], NULL);
-
-	}
-
-	//debug
-	//g_print("**\nmystrfmon %.2f\n 0=%s\n 1=%s\n [%d]\n", value, str_array[0], str_array[1], length );
-	//g_print(" => %s :: %s\n", monstr, groupbuf);
-
-	g_strfreev(str_array);
-
-	// insert our formated number with symbol
-	g_snprintf(outstr, outlen, cur->monfmt, monstr);
-
-	g_free(monstr);
-	
-	return size;
+	return outstr;
 }
-*/
-
-
 
 /* this function copy a number 99999.99 at s into d and count
  * number of digits for integer part and decimal part
@@ -311,14 +150,14 @@ gint len=0, nbint=0, nbdec=0;
 	return d;
 }
 
-
-gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, struct CurrencyFmt *cur, gboolean showsymbol)
+//todo: used only in ui_prefs.c
+gchar *hb_str_formatd(gchar *outstr, gint outlen, gchar *buf1, Currency *cur, gboolean showsymbol)
 {
 gint len, nbd, nbi;
 gchar *s, *d, *tmp;
 
 	d = tmp = outstr;
-	if(showsymbol && cur->is_prefix)
+	if(showsymbol && cur->sym_prefix)
 	{
 		d = g_stpcpy (d, cur->symbol);
 		*d++ = ' ';
@@ -355,7 +194,7 @@ gchar *s, *d, *tmp;
 		*d = 0;
 	}
 
-	if(showsymbol && !cur->is_prefix)
+	if(showsymbol && !cur->sym_prefix)
 	{
 		*d++ = ' ';
 		d = g_stpcpy (d, cur->symbol);
@@ -367,64 +206,86 @@ gchar *s, *d, *tmp;
 }
 
 
-static gchar * _strformatd(gchar *outstr, gint outlen, gdouble value, gboolean minor, gboolean symbol)
+void hb_strfmon(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor)
 {
-struct CurrencyFmt *cur;
 gchar formatd_buf[outlen];
+Currency *cur;
 gdouble monval;
 
-	cur = minor ? &PREFS->minor_cur : &PREFS->base_cur;
-
-	if(minor == TRUE)
-		monval = _amount_to_minor(value);
+	if(minor == FALSE)
+	{
+		cur = hb_strfmon_check(outstr, kcur);
+		if(cur != NULL)
+		{
+			monval = hb_amount_round(value, cur->frac_digits);
+			g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
+			hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+		}
+	}
 	else
-		monval = arrondi(value, cur->frac_digits);
-	
-	// cur->format hold '%.xf', so formatd_buf will hold 999999.99
-	g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
-	
-	hb_str_formatd(outstr, outlen, formatd_buf, cur, symbol);
+	{
+		cur = &PREFS->minor_cur;
+		monval = hb_amount_to_euro(value);
+		g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
+		hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+	}
 
-	return outstr;
 }
 
-
-gint mystrfnum(gchar *outstr, gint outlen, gdouble value, gboolean minor)
+void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor)
 {
-	_strformatd(outstr, outlen, value, minor, FALSE);
-	return 0;
-}
-
-
-gint mystrfmon(gchar *outstr, gint outlen, gdouble value, gboolean minor)
-{
-	_strformatd(outstr, outlen, value, minor, TRUE);
-	return 0;
-}
-
-
-gint mystrfmon_int(gchar *outstr, gint outlen, gdouble value, gboolean minor)
-{
-struct CurrencyFmt *cur;
 gchar formatd_buf[outlen];
-gdouble monval = value;
+Currency *cur;
+gdouble monval;
 
-	cur = minor ? &PREFS->minor_cur : &PREFS->base_cur;
+	if(minor == FALSE)
+	{
+		cur = hb_strfmon_check(outstr, kcur);
+		if(cur != NULL)
+		{
+			monval = hb_amount_round(value, cur->frac_digits);
+			g_ascii_formatd(formatd_buf, outlen, "%0.f", monval);
+			hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+		}
+	}
+	else
+	{
+		cur = &PREFS->minor_cur;
+		monval = hb_amount_to_euro(value);
+		g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
+		hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+	}
 
-	if(minor == TRUE)
-		monval = _amount_to_minor(value);
-
-	g_ascii_formatd(formatd_buf, outlen, "%0.f", monval);
-
-	hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
-
-	return 0;
 }
 
 
+void hb_strfnum(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor)
+{
+gchar formatd_buf[outlen];
+Currency *cur;
+gdouble monval;
 
+	if(minor == FALSE)
+	{
+		cur = hb_strfmon_check(outstr, kcur);
+		if(cur != NULL)
+		{
+			monval = hb_amount_round(value, cur->frac_digits);
+			g_ascii_formatd(formatd_buf, outlen, "%0.f", monval);
+			hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+		}
+	}
+	else
+	{
+		cur = &PREFS->minor_cur;
+		monval = hb_amount_to_euro(value);
+		g_ascii_formatd(formatd_buf, outlen, "%0.f", monval);
+		hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
+	}
 
-/* end obsolete call */
+	
+}
+
 
 
 gchar *get_normal_color_amount(gdouble value)
@@ -432,7 +293,7 @@ gchar *get_normal_color_amount(gdouble value)
 gchar *color = NULL;
 
 	//fix: 400483
-	value = arrondi(value, 2);
+	value = hb_amount_round(value, 2);
 
 	if(value != 0.0 && PREFS->custom_colors == TRUE)
 	{
@@ -447,7 +308,7 @@ gchar *get_minimum_color_amount(gdouble value, gdouble minvalue)
 gchar *color = NULL;
 
 	//fix: 400483
-	value = arrondi(value, 2);
+	value = hb_amount_round(value, 2);
 	if(value != 0.0 && PREFS->custom_colors == TRUE)
 	{
 		color = (value > 0.0) ? PREFS->color_inc : PREFS->color_exp;
@@ -457,11 +318,11 @@ gchar *color = NULL;
 	return color;
 }
 
-void hb_label_set_amount(GtkLabel *label, gdouble value, gboolean minor)
+void hb_label_set_amount(GtkLabel *label, gdouble value, guint32 kcur, gboolean minor)
 {
 gchar strbuffer[G_ASCII_DTOSTR_BUF_SIZE];
 
-	mystrfmon(strbuffer, G_ASCII_DTOSTR_BUF_SIZE-1, value, minor);
+	hb_strfmon(strbuffer, G_ASCII_DTOSTR_BUF_SIZE-1, value, kcur, minor);
 	gtk_label_set_text(GTK_LABEL(label), strbuffer);
 
 }
@@ -470,13 +331,13 @@ gchar strbuffer[G_ASCII_DTOSTR_BUF_SIZE];
 /*
 ** format/color and set a label text with a amount value
 */
-void hb_label_set_colvalue(GtkLabel *label, gdouble value, gboolean minor)
+void hb_label_set_colvalue(GtkLabel *label, gdouble value, guint32 kcur, gboolean minor)
 {
 gchar strbuffer[G_ASCII_DTOSTR_BUF_SIZE];
 gchar *markuptxt;
 gchar *color = NULL;
 
-	mystrfmon(strbuffer, G_ASCII_DTOSTR_BUF_SIZE-1, value, minor);
+	hb_strfmon(strbuffer, G_ASCII_DTOSTR_BUF_SIZE-1, value, kcur, minor);
 
 	if(value != 0.0 && PREFS->custom_colors == TRUE)
 	{
@@ -497,127 +358,31 @@ gchar *color = NULL;
 
 }
 
-/*
-void hb_label_set_colvaluecurr(GtkLabel *label, gdouble value, guint32 currkey)
-{
-gchar strbuffer[G_ASCII_DTOSTR_BUF_SIZE];
-gchar *markuptxt;
-gchar *color = NULL;
-
-	hb_strfmon(strbuffer, G_ASCII_DTOSTR_BUF_SIZE-1, value, currkey);
-
-	if(value != 0.0 && PREFS->custom_colors == TRUE)
-	{
-		color = get_normal_color_amount(value);
-
-		if(color)
-		{
-			markuptxt = g_strdup_printf("<span color='%s'>%s</span>", color, strbuffer);
-			gtk_label_set_markup(GTK_LABEL(label), markuptxt);
-			g_free(markuptxt);
-			return;
-		}
-	}
-
-	gtk_label_set_text(GTK_LABEL(label), strbuffer);
-
-}
-*/
 
 
-/*
-void get_range_minmax(guint32 refdate, gint range, guint32 *mindate, guint32 *maxdate)
-{
-GDate *date;
-guint month, year, qnum;
-
-	if(refdate > *maxdate)
-		refdate = *maxdate;
-
-	date  = g_date_new_julian(refdate);
-	month = g_date_get_month(date);
-	year  = g_date_get_year(date);
-	qnum  = ((month-1)/3)+1;
-
-	DB( g_print("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
-
-	switch( range )
-	{
-		case 0:		// this month
-			g_date_set_day(date, 1);
-			*mindate = g_date_get_julian(date);
-			g_date_add_days(date, g_date_get_days_in_month(month, year)-1);
-			*maxdate = g_date_get_julian(date);
-			break;
-	
-		case 1:		// last month
-			g_date_set_day(date, 1);
-			g_date_subtract_months(date, 1);
-			*mindate = g_date_get_julian(date);
-			month = g_date_get_month(date);
-			year = g_date_get_year(date);
-			g_date_add_days(date, g_date_get_days_in_month(month, year)-1);
-			*maxdate = g_date_get_julian(date);
-			break;
-
-		case 2:		// this quarter
-			g_date_set_day(date, 1);
-			g_date_set_month(date, (qnum-1)*3+1);
-			*mindate = g_date_get_julian(date);
-			g_date_add_months(date, 3);
-			g_date_subtract_days(date, 1);
-			*maxdate = g_date_get_julian(date);
-			break;
-			
-		case 3:		// last quarter
-			g_date_set_day(date, 1);
-			g_date_set_month(date, (qnum-1)*3+1);
-			g_date_subtract_months(date, 3);
-			*mindate = g_date_get_julian(date);
-			g_date_add_months(date, 3);
-			g_date_subtract_days(date, 1);
-			*maxdate = g_date_get_julian(date);
-			break;
-			
-		case 4:		// this year
-			g_date_set_dmy(date, 1, 1, year);
-			*mindate = g_date_get_julian(date);
-			g_date_set_dmy(date, 31, 12, year);
-			*maxdate = g_date_get_julian(date);
-			break;
-		
-		// separator
-	
-		case 6:		// last 30 days
-			*mindate = refdate - 30;
-			*maxdate = refdate;
-			break;
-
-		case 7:		// last 60 days
-			*mindate = refdate - 60;
-			*maxdate = refdate;
-			break;
-
-		case 8:		// last 90 days
-			*mindate = refdate - 90;
-			*maxdate = refdate;
-			break;
-	
-		case 9:		// last 12 months
-			g_date_subtract_months(date, 12);
-			*mindate = g_date_get_julian(date);
-			*maxdate = refdate;
-			break;
-
-
-	}
-	g_date_free(date);
-}
-*/
 
 /*
 ** String utility
 */
+
+gint hb_string_compare(gchar *s1, gchar *s2)
+{
+gint retval = 0;
+
+    if (s1 == NULL || s2 == NULL)
+    {
+		if (s1 == NULL && s2 == NULL)
+			goto end;
+
+		retval = (s1 == NULL) ? -1 : 1;
+    }
+    else
+    {
+        retval = strcasecmp(s1, s2);
+    }
+end:
+	return retval;
+}
 
 
 /*
@@ -969,6 +734,44 @@ csvend:
 }
 
 
+gchar *hb_sprint_date(gchar *outstr, guint32 julian)
+{
+GDate date;
+
+	g_date_clear(&date, 1);
+	g_date_set_julian (&date, julian);
+	switch(PREFS->dtex_datefmt)
+	{
+		case PRF_DATEFMT_MDY:
+		{
+			g_sprintf(outstr, "%02d/%02d/%04d",
+				g_date_get_month(&date),
+				g_date_get_day(&date),
+				g_date_get_year(&date)
+				);
+		}
+		break;
+		case PRF_DATEFMT_DMY:
+		{
+			g_sprintf(outstr, "%02d/%02d/%04d",
+				g_date_get_day(&date),
+				g_date_get_month(&date),
+				g_date_get_year(&date)
+				);
+		}	
+		default:
+			g_sprintf(outstr, "%04d/%02d/%02d",
+				g_date_get_year(&date),
+				g_date_get_month(&date),
+				g_date_get_day(&date)
+				);
+			break;
+	}
+	return outstr;
+}
+
+
+//used only in DB() macro !!
 void hb_print_date(guint32 jdate, gchar *label)
 {
 gchar buffer1[128];

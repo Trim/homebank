@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -41,6 +41,7 @@
 #include "hb-preferences.h"
 
 #include "hb-transaction.h"
+#include "hb-currency.h"
 #include "hb-account.h"
 #include "hb-archive.h"
 #include "hb-assign.h"
@@ -67,17 +68,17 @@
 /* = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-#define HB_UNSTABLE		FALSE
+#define HB_UNSTABLE		TRUE
 
 #define HB_VERSION_MAJOR	5
-#define HB_VERSION_MINOR	0
-#define HB_VERSION_MICRO	6
+#define HB_VERSION_MINOR	1
+#define HB_VERSION_MICRO	0
 
-#define HB_VERSION			"5.0.6"
+#define HB_VERSION			"5.1"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
-#define FILE_VERSION		1.1
-#define PREF_VERSION		500
+#define FILE_VERSION		1.2
+#define PREF_VERSION		510
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -121,14 +122,15 @@
 
 /* miscellaneous */
 #define PHI 1.61803399
-	/* official GTK_RESPONSE are negative */
+
+/* official GTK_RESPONSE are negative */
 #define GTK_RESPONSE_ADD		 1
 #define GTK_RESPONSE_ADDKEEP	 2
 
-#define HB_NUMBER_SAMPLE	20457.99
+#define HB_NUMBER_SAMPLE	1234567.89
 
 
-enum
+typedef enum
 {
 	FILETYPE_UNKNOW,
 	FILETYPE_HOMEBANK,
@@ -137,7 +139,8 @@ enum
 	FILETYPE_CSV_HB,
 //	FILETYPE_AMIGA_HB,
 	NUM_FILETYPE
-};
+} HbFileType;
+
 
 /* ---- icon size as defined into gtkiconfactory.c ---- */
 /* GTK_ICON_SIZE_MENU 16
@@ -168,16 +171,21 @@ enum
 #define ICONNAME_PREFERENCES		"preferences-system"	  //obsolete
 #define ICONNAME_REFRESH			"view-refresh"		
 
-#define ICONNAME_HB_TOGGLE_SIGN		"toggle-sign-symbolic"
+#define ICONNAME_FOLDER				"folder-symbolic"
 
-
+#define ICONNAME_LIST_ADD			"list-add-symbolic"
+#define ICONNAME_LIST_REMOVE		"list-remove-symbolic"
 
 //#define ICONNAME_HB_SCHED_SKIP		"media-skip-forward"
 //#define ICONNAME_HB_SCHED_POST		"media-playback-start"
 
-#define ICONNAME_HB_BUTTON_MENU		"open-menu-symbolic"	//gnome not found
+// custom or gnome not found
+#define ICONNAME_HB_BUTTON_MENU		"open-menu-symbolic"
+#define ICONNAME_HB_TOGGLE_SIGN		"toggle-sign-symbolic"
+
 
 /* -------- named icons (Custom to homebank) -------- */
+#define ICONNAME_HB_CURRENCY		"hb-currency"
 #define ICONNAME_HB_ACCOUNT         "hb-account"
 #define ICONNAME_HB_ARCHIVE         "hb-archive"
 #define ICONNAME_HB_ASSIGN          "hb-assign"
@@ -216,6 +224,7 @@ enum
 #define ICONNAME_HB_OPE_ADD         "hb-ope-add"	//? "edit-add"
 #define ICONNAME_HB_OPE_HERIT       "hb-ope-herit"  //? "edit-clone"
 #define ICONNAME_HB_OPE_EDIT        "hb-ope-edit"   //
+#define ICONNAME_HB_OPE_MULTIEDIT   "hb-ope-multiedit"   //
 #define ICONNAME_HB_OPE_DELETE      "hb-ope-delete" //? "edit-delete"
 #define ICONNAME_CONVERT			"hb-ope-convert"
 #define ICONNAME_HB_ASSIGN_RUN      "hb-assign-run"
@@ -233,7 +242,7 @@ enum
 struct HomeBank
 {
 	// hbfile storage
-	//GHashTable		*h_cur;			//currencies
+	GHashTable		*h_cur;			//currencies
 	GHashTable		*h_acc;			//accounts
 	GHashTable		*h_pay;			//payees
 	GHashTable		*h_cat;			//categories
@@ -243,7 +252,7 @@ struct HomeBank
 	GHashTable		*h_memo;		//memo/description
 
 	GList			*arc_list;		//archives
-	GList			*ope_list;		//transactions
+
 	//#1419304 we keep the deleted txn to a stack trash
 	GTrashStack		*txn_stk;
 
@@ -254,7 +263,7 @@ struct HomeBank
 	gshort			auto_nbdays;
 
 	guint32			vehicle_category;
-	//guint32		kcur;			// base currency
+	guint32			kcur;			// base currency
 
 	// hbfile (unsaved properties)
 	guint			changes_count;

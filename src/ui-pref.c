@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -23,6 +23,8 @@
 #include "ui-pref.h"
 #include "dsp_mainwindow.h"
 #include "gtk-chart-colors.h"
+
+#include "ui-currency.h"
 
 
 /****************************************************************************/
@@ -100,6 +102,15 @@ N_("Text beside icons"),
 NULL
 };
 
+static gchar *CYA_GRID_LINES[] = {
+N_("None"),
+N_("Horizontal"),
+N_("Vertical"),
+N_("Both"),
+NULL
+};
+
+
 gchar *CYA_TANGO_COLORS[] = {
 "----",
 N_("Tango light"),
@@ -140,7 +151,7 @@ typedef struct
 	//gchar		*prefix_symbol;		/* max symbol is 3 digits in unicode */
 	//gchar		*suffix_symbol;		/* but mostly is 1 digit */
 	gchar		*symbol;
-	gboolean	is_prefix;
+	gboolean	sym_prefix;
 	gchar		*decimal_char;
 	gchar		*grouping_char;
 	gshort		frac_digits;
@@ -192,7 +203,7 @@ static EuroParams euro_params[] =
 	{ "CZK", "Czech republic", 28.36	, "Kč"  , FALSE, ",", " ", 2  },	// non-fixé - 2015 earliest
 	{ "HRK", "Croatia"       , 1.0000   , "kn"  , FALSE, "" , ".", 0  },	// non-fixé - 2015 target for euro earliest
 	{ "PLN", "Poland"        , 0.25     , "zł"  , FALSE, ",", "" , 2  },	// non-fixé - No current target for euro
-	
+
 //	{ "   ", ""    , 1.00000	, ""   , ""  , FALSE, ",", "", 2  },
 	
 };
@@ -596,52 +607,6 @@ guint i;
 	return combobox;
 }
 
-/*
-static defpref_currency_display(GtkWidget *widget, gpointer user_data)
-{
-struct defpref_data *data;
-struct iso4217format *curfmt;
-
-	DB( g_print("\n[ui-pref] display default currency\n") );
-
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-
-	curfmt =  iso4217format_get(PREFS->curr_default);
-	if(curfmt != NULL)
-	{
-	gchar *name = g_strdup_printf("%s (%s)", curfmt->curr_iso_code, iso4217_get_name(curfmt->curr_iso_code));
-	
-		gtk_label_set_label (data->LB_default, name);
-		g_free(name);
-	}
-
-}
-
-
-static void defpref_currency_change(GtkWidget *widget, gpointer user_data)
-{
-struct defpref_data *data;
-struct iso4217format *curfmt;
-
-	DB( g_print("\n[ui-pref] chnage default currency\n") );
-
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-
-	curfmt = ui_cur_select_dialog_new(data->window);
-
-	DB( g_print("(cur) return  %s\n", curfmt) );
-
-	if( curfmt != NULL )
-	{
-		g_free(PREFS->curr_default);
-		PREFS->curr_default = g_strdup(curfmt->culture);
-		
-		defpref_currency_display(widget, NULL);
-	}
-
-}
-*/
-
 
 static void defpref_pathselect(GtkWidget *widget, gpointer user_data)
 {
@@ -720,93 +685,33 @@ GDate *date;
 }
 
 
-
-/*
-** update the number sample label
-*/
-static void defpref_numberbase_sample(GtkWidget *widget, gpointer user_data)
-{
-struct defpref_data *data;
-struct CurrencyFmt cur;
-gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
-gchar  buf[128], *ptr;
-
-	DB( g_print("\n[ui-pref] number sample\n") );
-
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-
-	cur.symbol = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_num_symbol));
-	cur.is_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_num_isprefix));
-	cur.decimal_char  = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_num_decimalchar));
-	cur.grouping_char = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_num_groupingchar));
-	cur.frac_digits   = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_num_fracdigits));
-	g_snprintf(cur.format, 8-1, "%%.%df", cur.frac_digits);
-
-	ptr = cur.monfmt;
-	if(cur.is_prefix)
-	{
-		ptr = g_stpcpy(ptr, cur.symbol);
-		ptr = g_stpcpy(ptr, " ");
-	}
-	ptr = g_stpcpy(ptr, "%s");
-	if(!cur.is_prefix)
-	{
-		ptr = g_stpcpy(ptr, " ");
-		ptr = g_stpcpy(ptr, cur.symbol);
-	}
-	
-	DB( g_print("fmt: %s\n", cur.format) );
-	DB( g_print("monfmt: %s\n", cur.monfmt) );
-
-	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), cur.format, 12345.67);
-	
-	//real_mystrfmon(buf, 127, formatd_buf, &cur);
-	hb_str_formatd(buf, 127, formatd_buf, &cur, TRUE);
-	gtk_label_set_text(GTK_LABEL(data->LB_numberbase), buf);
-
-}
-
 /*
 ** update the number sample label
 */
 static void defpref_numbereuro_sample(GtkWidget *widget, gpointer user_data)
 {
 struct defpref_data *data;
-struct CurrencyFmt cur;
+Currency cur;
 gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
-gchar  buf[128], *ptr;
+gchar buf[128];
 
 	DB( g_print("\n[ui-pref] number sample\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	cur.symbol = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_euro_symbol));
-	cur.is_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix));
+	cur.sym_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix));
 	cur.decimal_char  = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_euro_decimalchar));
 	cur.grouping_char = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_euro_groupingchar));
 	cur.frac_digits   = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_euro_fracdigits));
-	g_snprintf(cur.format, 8-1, "%%.%df", cur.frac_digits);
-	
-	ptr = cur.monfmt;
-	if(cur.is_prefix)
-	{
-		ptr = g_stpcpy(ptr, cur.symbol);
-		ptr = g_stpcpy(ptr, " ");
-	}
-	ptr = g_stpcpy(ptr, "%s");
-	if(!cur.is_prefix)
-	{
-		ptr = g_stpcpy(ptr, " ");
-		ptr = g_stpcpy(ptr, cur.symbol);
-	}
+
+	da_cur_initformat (&cur);
 	
 	DB( g_print("fmt: %s\n", cur.format) );
-	DB( g_print("monfmt: %s\n", cur.monfmt) );
-	
-	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), cur.format, 12345.67);
-	
-	//real_mystrfmon(buf, 127, formatd_buf, &cur);
+
+	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), cur.format, HB_NUMBER_SAMPLE);
 	hb_str_formatd(buf, 127, formatd_buf, &cur, TRUE);
+
 	gtk_label_set_text(GTK_LABEL(data->LB_numbereuro), buf);
 
 }
@@ -818,27 +723,39 @@ gchar  buf[128], *ptr;
 static void defpref_eurotoggle(GtkWidget *widget, gpointer user_data)
 {
 struct defpref_data *data;
-gboolean bool;
+gboolean sensitive;
 
 	DB( g_print("\n[ui-pref] euro toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_enable));
+	sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_enable));
+
+	gtk_widget_set_sensitive(data->GRP_currency	 , sensitive);
+	gtk_widget_set_sensitive(data->GRP_rate 	 , sensitive);
+	gtk_widget_set_sensitive(data->GRP_format	 , sensitive);
+}
 
 
+/*
+** set euro value widget from a country
+*/
+static void defpref_eurosetcurrency(GtkWidget *widget, gpointer user_data)
+{
+struct defpref_data *data;
+EuroParams *euro = user_data;
+gchar *buf;
 
-	gtk_widget_set_sensitive(data->CY_euro_preset	, bool);
-	gtk_widget_set_sensitive(data->ST_euro_country	, bool);
-	gtk_widget_set_sensitive(data->NB_euro_value	, bool);
+	
+	DB( g_print("\n[ui-pref] eurosetcurrency\n") );
 
-	gtk_widget_set_sensitive(data->ST_euro_symbol, bool);
-	gtk_widget_set_sensitive(data->CM_euro_isprefix, bool);
-	gtk_widget_set_sensitive(data->ST_euro_decimalchar, bool);
-	gtk_widget_set_sensitive(data->ST_euro_groupingchar, bool);	
-	gtk_widget_set_sensitive(data->NB_euro_fracdigits, bool);
-	gtk_widget_set_sensitive(data->LB_numbereuro, bool);
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	
+	buf = g_strdup_printf("%s - %s", euro->iso, euro->name);
 
+	gtk_label_set_markup(GTK_LABEL(data->ST_euro_country), buf);
+
+	g_free(buf);
 }
 
 
@@ -856,19 +773,37 @@ gint country;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	country = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_euro_preset));
+	data->country = country;
 
-	gtk_label_set_text(GTK_LABEL(data->ST_euro_country), euro_params[country].name);
+	defpref_eurosetcurrency(widget, &euro_params[country]);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_euro_value), euro_params[country].value);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_euro_fracdigits), euro_params[country].frac_digits);
 
 	gtk_entry_set_text(GTK_ENTRY(data->ST_euro_symbol)   , euro_params[country].symbol);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix), euro_params[country].is_prefix);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix), euro_params[country].sym_prefix);
 	gtk_entry_set_text(GTK_ENTRY(data->ST_euro_decimalchar) , euro_params[country].decimal_char);
 	gtk_entry_set_text(GTK_ENTRY(data->ST_euro_groupingchar), euro_params[country].grouping_char);
 
 }
+
+
+static void defpref_colortoggle(GtkWidget *widget, gpointer user_data)
+{
+struct defpref_data *data;
+gboolean sensitive;
+
+	DB( g_print("\n[ui-pref] color toggle\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	sensitive = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_custom_colors));
+
+	gtk_widget_set_sensitive(data->GR_colors	 , sensitive);
+
+}
+
 
 /*
 ** set preset colors for amount display
@@ -922,7 +857,17 @@ gchar *expcol, *inccol, *wrncol;
 }
 
 
+static void defpref_color_scheme_changed(GtkWidget *widget, gpointer user_data)
+{
+struct defpref_data *data;
 
+	DB( g_print("\n[ui-pref] color scheme chnaged\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	gtk_widget_queue_draw (data->DA_colors);
+	
+}
 
 
 
@@ -947,15 +892,6 @@ guint	tmp;
 /*
 ** set :: fill in widgets from PREFS structure
 */
-static void defpref_entry_set_text(GtkWidget *widget, gchar *text)
-{
-	DB( g_print(" set text to '%s'\n", text) );
-
-	if( text != NULL )
-	{
-		gtk_entry_set_text(GTK_ENTRY(widget), text);
-	}
-}
 
 static void defpref_set(struct defpref_data *data)
 {
@@ -982,7 +918,8 @@ GdkRGBA rgba;
 	gdk_rgba_parse(&rgba, PREFS->color_warn);
 	gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(data->CP_warn_color), &rgba);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_ruleshint), PREFS->rules_hint);
+	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_ruleshint), PREFS->rules_hint);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_gridlines), PREFS->grid_lines);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_fiscyearday), PREFS->fisc_year_day );
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_fiscyearmonth), PREFS->fisc_year_month - 1);
@@ -1002,15 +939,6 @@ GdkRGBA rgba;
 	/* display */
 	gtk_entry_set_text(GTK_ENTRY(data->ST_datefmt), PREFS->date_format);
 
-	defpref_entry_set_text(data->ST_num_symbol, PREFS->base_cur.symbol);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_num_isprefix), PREFS->base_cur.is_prefix);
-	defpref_entry_set_text(data->ST_num_decimalchar, PREFS->base_cur.decimal_char);
-	defpref_entry_set_text(data->ST_num_groupingchar, PREFS->base_cur.grouping_char);
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_num_fracdigits), PREFS->base_cur.frac_digits);
-
-	//gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_numnbdec), PREFS->num_nbdecimal);
-	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_numseparator), PREFS->num_separator);
-	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_imperial), PREFS->imperial_unit);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_unitismile), PREFS->vehicle_unit_ismile);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_unitisgal), PREFS->vehicle_unit_isgal);
 
@@ -1018,23 +946,20 @@ GdkRGBA rgba;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_daterange_txn), PREFS->date_range_txn);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_datefuture_nbdays), PREFS->date_future_nbdays);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_daterange_rep), PREFS->date_range_rep);
-	
+
 	/* euro */
-	//defpref_currency_display(data->LB_default, NULL);
-	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_euro_enable), PREFS->euro_active);
 	//gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_euro_preset), PREFS->euro_country);
-	gchar *buf;
-	buf = g_strdup_printf("%s", euro_params[PREFS->euro_country].name);
-	gtk_label_set_markup(GTK_LABEL(data->ST_euro_country), buf);
-	g_free(buf);
+
+	data->country = PREFS->euro_country;
+	defpref_eurosetcurrency(data->window, &euro_params[PREFS->euro_country]);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_euro_value), PREFS->euro_value);
 
-	defpref_entry_set_text(data->ST_euro_symbol, PREFS->minor_cur.symbol);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix), PREFS->minor_cur.is_prefix);
-	defpref_entry_set_text(data->ST_euro_decimalchar, PREFS->minor_cur.decimal_char);
-	defpref_entry_set_text(data->ST_euro_groupingchar, PREFS->minor_cur.grouping_char);
+	ui_gtk_entry_set_text(data->ST_euro_symbol, PREFS->minor_cur.symbol);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix), PREFS->minor_cur.sym_prefix);
+	ui_gtk_entry_set_text(data->ST_euro_decimalchar, PREFS->minor_cur.decimal_char);
+	ui_gtk_entry_set_text(data->ST_euro_groupingchar, PREFS->minor_cur.grouping_char);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_euro_fracdigits), PREFS->minor_cur.frac_digits);
 
 
@@ -1062,35 +987,6 @@ GdkRGBA rgba;
 /*
 ** get :: fill PREFS structure from widgets
 */
-
-
-static void defpref_entry_get_text(GtkWidget *widget, gchar **storage)
-{
-const gchar *text;
-
-
-	DB( g_print("defpref_entry_get_text\n") );
-
-	DB( g_print(" storage is '%p' at '%p'\n", *storage, storage) );
-
-	/* free any previous string */
-	if( *storage != NULL )
-	{
-		DB( g_print(" storage was not null, freeing\n") );
-
-		g_free(*storage);
-
-	}
-
-	*storage = NULL;
-
-	text = gtk_entry_get_text(GTK_ENTRY(widget));
-	*storage = g_strdup(text);
-	DB( g_print(" storing %s at %p\n", *storage, storage) );
-
-	DB( g_print(" get text to '%s' '%s'\n", text, *storage) );
-}
-
 
 #define RGBA_TO_INT(x) (int)(x*255)
 
@@ -1132,7 +1028,8 @@ const gchar *lang;
 	g_free(PREFS->color_warn);
 	PREFS->color_warn = gdk_rgba_to_hex(&rgba);
 
-	PREFS->rules_hint = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_ruleshint));
+	//PREFS->rules_hint = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_ruleshint));
+	PREFS->grid_lines = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_gridlines));
 
 	PREFS->fisc_year_day = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_fiscyearday));
 	PREFS->fisc_year_month = 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_fiscyearmonth));
@@ -1142,9 +1039,9 @@ const gchar *lang;
 	g_free(PREFS->path_hbfile);
 	PREFS->path_hbfile = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_path_hbfile)));
 
-	defpref_entry_get_text(data->ST_path_import, &PREFS->path_import);
+	ui_gtk_entry_replace_text(data->ST_path_import, &PREFS->path_import);
 
-	defpref_entry_get_text(data->ST_path_export, &PREFS->path_export);
+	ui_gtk_entry_replace_text(data->ST_path_export, &PREFS->path_export);
 
 	PREFS->loadlast  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_load_last));
 	PREFS->appendscheduled  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_append_scheduled));
@@ -1159,15 +1056,6 @@ const gchar *lang;
 	g_free(PREFS->date_format);
 	PREFS->date_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_datefmt)));
 
-	defpref_entry_get_text(data->ST_num_symbol, &PREFS->base_cur.symbol);
-	PREFS->base_cur.is_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_num_isprefix));
-	defpref_entry_get_text(data->ST_num_decimalchar, &PREFS->base_cur.decimal_char);
-	defpref_entry_get_text(data->ST_num_groupingchar, &PREFS->base_cur.grouping_char);
-	PREFS->base_cur.frac_digits = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_num_fracdigits));
-
-	//PREFS->num_nbdecimal = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_numnbdec));
-	//PREFS->num_separator = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_numseparator));
-	//PREFS->imperial_unit = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_imperial));
 	PREFS->vehicle_unit_ismile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_unitismile));
 	PREFS->vehicle_unit_isgal = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_unitisgal));
 
@@ -1177,14 +1065,15 @@ const gchar *lang;
 	PREFS->date_range_rep = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_daterange_rep));
 
 	PREFS->euro_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_enable));
-	PREFS->euro_country = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_euro_preset));
+
+	PREFS->euro_country = data->country;
 	PREFS->euro_value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_euro_value));
 	//strcpy(PREFS->euro_symbol, gtk_entry_get_text(GTK_ENTRY(data->ST_euro_symbol)));
 	//PREFS->euro_nbdec = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_euro_nbdec));
 	//PREFS->euro_thsep = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_thsep));
 
-	defpref_entry_get_text(data->ST_euro_symbol, &PREFS->minor_cur.symbol);
-	PREFS->minor_cur.is_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix));
+	ui_gtk_entry_replace_text(data->ST_euro_symbol, &PREFS->minor_cur.symbol);
+	PREFS->minor_cur.sym_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix));
 	
 	g_free(PREFS->minor_cur.decimal_char);
 	PREFS->minor_cur.decimal_char  = g_strdup( gtk_entry_get_text(GTK_ENTRY(data->ST_euro_decimalchar)) );
@@ -1231,7 +1120,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("Date order:"), 0, 0.5);
+	label = make_label_widget(_("Date order:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_IMPORT_DATEORDER);
@@ -1250,7 +1139,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("_Memo field:"), 0, 0.5);
+	label = make_label_widget(_("_Memo field:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_IMPORT_OFXMEMO);
@@ -1269,7 +1158,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("_Import:"), 0, 0.5);
+	label = make_label_widget(_("_Import:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
@@ -1279,14 +1168,16 @@ gint crow, row;
 
 	widget = make_string(label);
 	data->ST_path_import = widget;
+	gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(widget)), GTK_STYLE_CLASS_LINKED);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-	widget = gtk_button_new_with_label("...");
+	//widget = gtk_button_new_with_label("...");
+	widget = gtk_button_new_from_icon_name(ICONNAME_FOLDER, GTK_ICON_SIZE_BUTTON);
 	data->BT_path_import = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	row++;
-	label = make_label(_("_Export:"), 0, 0.5);
+	label = make_label_widget(_("_Export:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
@@ -1296,15 +1187,48 @@ gint crow, row;
 
 	widget = make_string(label);
 	data->ST_path_export = widget;
+	gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(widget)), GTK_STYLE_CLASS_LINKED);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-	widget = gtk_button_new_with_label("...");
+	//widget = gtk_button_new_with_label("...");
+	widget = gtk_button_new_from_icon_name(ICONNAME_FOLDER, GTK_ICON_SIZE_BUTTON);
 	data->BT_path_export = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	return content_grid;
 }
 
+#define cube_dim 16
+
+static gboolean
+draw_callback (GtkWidget *widget,
+               cairo_t   *cr,
+               gpointer   user_data)
+{
+struct defpref_data *data = user_data;
+gint index;
+GtkColorScheme scheme;
+gint w, h;
+gint i, x, y;
+
+	index = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_color_scheme));
+
+	colorscheme_init(&scheme, index);
+	
+	gtk_widget_get_size_request (widget, &w, &h);
+	x = y = 0;
+	for(i=0;i<scheme.nb_cols;i++)
+	{
+		cairo_user_set_rgbcol (cr, &scheme.colors[i]);
+		cairo_rectangle(cr, x, y, cube_dim, cube_dim);
+		cairo_fill(cr);
+		x += 1 + cube_dim;
+		if( i == 15 )
+		{ x = 0; y = 1 + cube_dim; }
+	}
+
+	return TRUE;
+}
 
 
 
@@ -1328,7 +1252,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("Date _range:"), 0, 0.5);
+	label = make_label_widget(_("Date _range:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_daterange(label, FALSE);
@@ -1346,13 +1270,21 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("Color Scheme:"), 0, 0.5);
+	label = make_label_widget(_("Color Scheme:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, chart_colors);
 	data->CY_color_scheme = widget;
 	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	widget = gtk_drawing_area_new ();
+	data->DA_colors = widget;
+	gtk_widget_set_size_request (widget, (1+cube_dim)*16, (1+cube_dim)*2);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	g_signal_connect (data->DA_colors, "draw", G_CALLBACK (draw_callback), data);
 
 	// group :: Statistics options
     group_grid = gtk_grid_new ();
@@ -1398,7 +1330,7 @@ gint crow, row;
 
 static GtkWidget *defpref_page_euro (struct defpref_data *data)
 {
-GtkWidget *content_grid, *group_grid, *label, *widget;
+GtkWidget *content_grid, *group_grid, *label, *widget, *expander;
 gint crow, row;
 
 	content_grid = gtk_grid_new();
@@ -1415,102 +1347,111 @@ gint crow, row;
 	label = make_label_group(_("General"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
-/*	label = make_label(_("Default currency"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 3, row, row+1);
-
-	row++;
-	label = make_label(_("Code:"), 0, 0.5);
-	//----------------------------------------- l, r, t, b
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, 2, row, row+1);
-	widget = make_label(NULL, 0.0, 0.0);
-	data->LB_default = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, 3, row, row+1);
-
-	row++;
-	widget = gtk_button_new_with_mnemonic (_("_Change"));
-	data->BT_default = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, 3, row, row+1);*/
-
-	row = 1;
+	row=1;
 	widget = gtk_check_button_new_with_mnemonic (_("_Enable"));
 	data->CM_euro_enable = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
 
-	row++;
-	label = make_label(_("Fill from:"), 0, 0.5);
-	//----------------------------------------- l, r, t, b
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_euro_presets(label);
-	data->CY_euro_preset = widget;
-	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+	// group :: Currency
+    group_grid = gtk_grid_new ();
+	data->GRP_currency = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+	
+	label = make_label_group(_("Currency"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 4, 1);
 
-	row++;
-	label = make_label(_("Country:"), 0, 0.5);
-	//----------------------------------------- l, r, t, b
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_label(NULL, 0.0, 0.0);
+	row=1;
+	widget = make_label(NULL, 0.0, 0.5);
 	data->ST_euro_country = widget;
 	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
-	row++;
-	label = make_label(_("Value:"), 0, 0.5);
+	//row++;
+	label = make_label_widget(_("_Preset:"));
 	//----------------------------------------- l, r, t, b
+	gtk_grid_attach (GTK_GRID (group_grid), label, 2, row, 1, 1);
+	widget = make_euro_presets(label);
+	data->CY_euro_preset = widget;
+	gtk_widget_set_margin_left (label, 2*SPACING_LARGE);
+	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
+
+	
+	// group :: Exchange rate
+    group_grid = gtk_grid_new ();
+	data->GRP_rate = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+
+	label = make_label_group(_("Exchange rate"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+
+	row=1;
+	label = make_label_widget("1 EUR _=");
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_euro(label);
+	widget = make_exchange_rate(label);
 	data->NB_euro_value = widget;
 	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	// group :: Numbers format
     group_grid = gtk_grid_new ();
+	data->GRP_format = group_grid;
 	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
 	
-	label = make_label_group(_("Numbers format"));
+	label = make_label_group(_("Format"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("Symbol:"), 0, 0.5);
+	widget = make_label(NULL, 0, 0.0);
+	data->LB_numbereuro = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+
+	row++;
+	expander = gtk_expander_new_with_mnemonic(_("_Customize"));
+	gtk_grid_attach (GTK_GRID (group_grid), expander, 1, row, 1, 1);
+
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_container_add (GTK_CONTAINER (expander), group_grid);
+	
+	row = 0;
+	label = make_label_widget(_("_Symbol:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string_maxlength(label, 3);
 	data->ST_euro_symbol = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Is prefix"));
+	widget = gtk_check_button_new_with_mnemonic (_("Is pre_fix"));
 	data->CM_euro_isprefix = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Decimal char:"), 0, 0.5);
+	label = make_label_widget(_("_Decimal char:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string_maxlength(label, 1);
 	data->ST_euro_decimalchar = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Grouping char:"), 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_string_maxlength(label, 1);
-	data->ST_euro_groupingchar = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	row++;
-	label = make_label(_("_Frac digits:"), 0, 0.5);
+	label = make_label_widget(_("_Frac digits:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_numeric(label, 0.0, 6.0);
 	data->NB_euro_fracdigits = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
+	
 	row++;
-	label = make_label(NULL, 0, 0.5);
+	label = make_label_widget(_("_Grouping char:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_label(NULL, 0, 0.5);
-	data->LB_numbereuro = widget;
+	widget = make_string_maxlength(label, 1);
+	data->ST_euro_groupingchar = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	return content_grid;
@@ -1519,7 +1460,7 @@ gint crow, row;
 
 static GtkWidget *defpref_page_display (struct defpref_data *data)
 {
-GtkWidget *content_grid, *group_grid, *label, *widget;
+GtkWidget *content_grid, *group_grid, *label, *widget, *expander;
 gint crow, row;
 
 	content_grid = gtk_grid_new();
@@ -1533,11 +1474,25 @@ gint crow, row;
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
 	
-	label = make_label_group(_("Date options"));
+	label = make_label_group(_("Date"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Date format:"), 0, 0.5);
+	widget = make_label(NULL, 0, 0.5);
+	data->LB_date = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+
+	row++;
+	expander = gtk_expander_new_with_mnemonic(_("_Customize"));
+	gtk_grid_attach (GTK_GRID (group_grid), expander, 1, row, 1, 1);
+
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_container_add (GTK_CONTAINER (expander), group_grid);
+
+	row = 1;
+	label = make_label_widget(_("_Format:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
@@ -1545,6 +1500,10 @@ gint crow, row;
 	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
+	widget = gtk_image_new_from_icon_name (ICONNAME_INFO, GTK_ICON_SIZE_BUTTON);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
+
+	
 	gtk_widget_set_tooltip_text(widget,
 	_("%a locale's abbreviated weekday name.\n"
 "%A locale's full weekday name. \n"
@@ -1562,65 +1521,9 @@ gint crow, row;
 "%Y year with century as a decimal number. \n")
 );
 
-
 	row++;
-	label = make_label(NULL, 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_label(NULL, 0, 0.5);
-	data->LB_date = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	// group :: Numbers options
-    group_grid = gtk_grid_new ();
-	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
-	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
-	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
-	
-	label = make_label_group(_("Numbers options"));
-	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
-
-	row = 1;
-	label = make_label(_("Symbol:"), 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_string_maxlength(label, 3);
-	data->ST_num_symbol = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Is prefix"));
-	data->CM_num_isprefix = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
-
-	row++;
-	label = make_label(_("Decimal char:"), 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_string_maxlength(label,1);
-	data->ST_num_decimalchar = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	row++;
-	label = make_label(_("Grouping char:"), 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_string_maxlength(label, 1);
-	data->ST_num_groupingchar = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	row++;
-	label = make_label(_("_Frac digits:"), 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	#if MYDEBUG
-		widget = make_numeric(label, 0.0, 15.0);
-	#else
-		widget = make_numeric(label, 0.0, 6.0);
-	#endif
-	data->NB_num_fracdigits = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-
-	row++;
-	label = make_label(NULL, 0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = make_label(NULL, 0, 0.5);
-	data->LB_numberbase = widget;
+	widget = make_label(NULL, 0.0, 0.5);
+	gtk_label_set_markup (GTK_LABEL(widget), "<small><a href=\"http://man7.org/linux/man-pages/man3/strftime.3.html\">online reference</a></small>");
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	// group :: Measurement units
@@ -1666,7 +1569,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("Date _range:"), 0, 0.5);
+	label = make_label_widget(_("Date _range:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_daterange(label, FALSE);
@@ -1674,7 +1577,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Show:"), 0, 0.5);
+	label = make_label_widget(_("_Show:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_numeric(NULL, 0, 366);
@@ -1689,12 +1592,12 @@ gint crow, row;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Hide reconciled transactions"));
 	data->CM_hide_reconciled = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("Always show remind transactions"));
 	data->CM_show_remind = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	// group :: Multiple add
     group_grid = gtk_grid_new ();
@@ -1756,14 +1659,14 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Language:"), 0, 0.5);
+	label = make_label_widget(_("_Language:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_language_combobox_new(label);
 	data->CY_language = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 	
 	row++;
-	label = make_label(_("_Toolbar:"), 0, 0.5);
+	label = make_label_widget(_("_Toolbar:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_TOOLBAR_STYLE);
 	data->CY_toolbar = widget;
@@ -1771,9 +1674,13 @@ gint crow, row;
 
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Enable rows in alternating colors"));
-	data->CM_ruleshint = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	//widget = gtk_check_button_new_with_mnemonic (_("Enable rows in alternating colors"));
+	//data->CM_ruleshint = widget;
+	label = make_label_widget(_("_Grid line:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_cycle(label, CYA_GRID_LINES);
+	data->CY_gridlines = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	// group :: Amount colors
     group_grid = gtk_grid_new ();
@@ -1787,10 +1694,16 @@ gint crow, row;
 	row = 1;
 	widget = gtk_check_button_new_with_mnemonic (_("Uses custom colors"));
 	data->CM_custom_colors = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+    group_grid = gtk_grid_new ();
+	data->GR_colors = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
 
 	row++;
-	label = make_label(_("_Preset:"), 0, 0.5);
+	label = make_label_widget(_("_Preset:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_TANGO_COLORS);
@@ -1799,7 +1712,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Expense:"), 0, 0.5);
+	label = make_label_widget(_("_Expense:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
@@ -1809,20 +1722,20 @@ gint crow, row;
 	data->CP_exp_color = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 	
-	label = make_label(_("_Income:"), 0, 0.5);
+	label = make_label_widget(_("_Income:"));
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	widget = gtk_color_button_new ();
 	data->CP_inc_color = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
-	label = make_label(_("_Warning:"), 0, 0.5);
+	label = make_label_widget(_("_Warning:"));
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	widget = gtk_color_button_new ();
 	data->CP_warn_color = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-	
+
 	return content_grid;
 }
 
@@ -1866,13 +1779,13 @@ gint crow, row;
 	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
-	
+
 	label = make_label_group(_("Fiscal year"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
 	//TRANSLATORS: (fiscal year) starts on
-	label = make_label(_("Starts _on:"), 0.0, 0.5);
+	label = make_label_widget(_("Starts _on:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
@@ -1894,7 +1807,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("Date _range:"), 0, 0.5);
+	label = make_label_widget(_("Date _range:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_daterange(label, FALSE);
 	data->CY_daterange_wal = widget;
@@ -1910,7 +1823,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Default:"), 0, 0.5);
+	label = make_label_widget(_("_Default:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -1919,12 +1832,14 @@ gint crow, row;
 
 	widget = make_string(label);
 	data->ST_path_hbfile = widget;
+	gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(widget)), GTK_STYLE_CLASS_LINKED);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-	widget = gtk_button_new_with_label("...");
+	//widget = gtk_button_new_with_label("...");
+	widget = gtk_button_new_from_icon_name(ICONNAME_FOLDER, GTK_ICON_SIZE_BUTTON);
 	data->BT_path_hbfile = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-
+	
 	return content_grid;
 }
 
@@ -2170,6 +2085,7 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	g_signal_connect (data.BT_path_import, "pressed", G_CALLBACK (defpref_pathselect), GINT_TO_POINTER(2));
 	g_signal_connect (data.BT_path_export, "pressed", G_CALLBACK (defpref_pathselect), GINT_TO_POINTER(3));
 
+	g_signal_connect (data.CM_custom_colors, "toggled", G_CALLBACK (defpref_colortoggle), NULL);
     g_signal_connect (data.CY_colors, "changed", G_CALLBACK (defpref_colorpreset), NULL);
 
 
@@ -2183,12 +2099,9 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	//date
     g_signal_connect (data.ST_datefmt, "changed", G_CALLBACK (defpref_date_sample), NULL);
 
-	//base number
-    g_signal_connect (data.ST_num_symbol   , "changed", G_CALLBACK (defpref_numberbase_sample), NULL);
-	g_signal_connect (data.CM_num_isprefix, "toggled", G_CALLBACK (defpref_numberbase_sample), NULL);
-    g_signal_connect (data.ST_num_decimalchar, "changed", G_CALLBACK (defpref_numberbase_sample), NULL);
-    g_signal_connect (data.ST_num_groupingchar, "changed", G_CALLBACK (defpref_numberbase_sample), NULL);
-    g_signal_connect (data.NB_num_fracdigits, "value-changed", G_CALLBACK (defpref_numberbase_sample), NULL);
+	//report
+	g_signal_connect (data.CY_color_scheme, "changed", G_CALLBACK (defpref_color_scheme_changed), NULL);
+
 
 	//euro number
     g_signal_connect (data.ST_euro_symbol   , "changed", G_CALLBACK (defpref_numbereuro_sample), NULL);
@@ -2204,9 +2117,10 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	//defhbfile_setup(&data);
 	//defhbfile_update(data.LV_arc, NULL);
 
-	defpref_eurotoggle(window, NULL);
-
 	defpref_set(&data);
+
+	defpref_colortoggle(window, NULL);
+	defpref_eurotoggle(window, NULL);
 
 	gtk_window_resize(GTK_WINDOW(window), 640, 256);
 
@@ -2284,7 +2198,6 @@ gint i;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW (view), FALSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_SINGLE);
 

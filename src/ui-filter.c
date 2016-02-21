@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -747,7 +747,7 @@ GtkWidget *container, *scrollwin, *hbox, *vbox, *label, *widget;
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
-	label = make_label(_("_Option:"), 1.0, 0.5);
+	label = make_label_widget(_("_Option:"));
 	gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 	data->CY_option[FILTER_CATEGORY] = make_nainex(label);
 	gtk_box_pack_start (GTK_BOX (hbox), data->CY_option[FILTER_CATEGORY], TRUE, TRUE, 0);
@@ -762,7 +762,7 @@ GtkWidget *container, *scrollwin, *hbox, *vbox, *label, *widget;
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	//gtk_container_set_border_width (GTK_CONTAINER(scrollwin), SPACING_SMALL);
 
-	data->LV_cat = (GtkWidget *)ui_cat_listview_new(TRUE);
+	data->LV_cat = (GtkWidget *)ui_cat_listview_new(TRUE, FALSE);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data->LV_cat);
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
@@ -796,7 +796,7 @@ GtkWidget *container, *scrollwin, *hbox, *vbox, *label, *widget;
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
-	label = make_label(_("_Option:"), 1.0, 0.5);
+	label = make_label_widget(_("_Option:"));
 	gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 	data->CY_option[FILTER_PAYEE] = make_nainex(label);
 	gtk_box_pack_start (GTK_BOX (hbox), data->CY_option[FILTER_PAYEE], TRUE, TRUE, 0);
@@ -811,7 +811,7 @@ GtkWidget *container, *scrollwin, *hbox, *vbox, *label, *widget;
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	//gtk_container_set_border_width (GTK_CONTAINER(scrollwin), SPACING_SMALL);
 
-	data->LV_pay = (GtkWidget *)ui_pay_listview_new(TRUE);
+	data->LV_pay = (GtkWidget *)ui_pay_listview_new(TRUE, FALSE);
 	gtk_container_add(GTK_CONTAINER(scrollwin), data->LV_pay);
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
@@ -845,7 +845,7 @@ GtkWidget *container, *scrollwin, *hbox, *vbox, *label, *widget;
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
-	label = make_label(_("_Option:"), 1.0, 0.5);
+	label = make_label_widget(_("_Option:"));
 	gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
 	data->CY_option[FILTER_ACCOUNT] = make_nainex(label);
 	gtk_box_pack_start (GTK_BOX (hbox), data->CY_option[FILTER_ACCOUNT], TRUE, TRUE, 0);
@@ -937,7 +937,6 @@ gint month, year;
 static GtkWidget *ui_flt_manage_part_date(struct ui_flt_manage_data *data)
 {
 GtkWidget *table, *label;
-GtkWidget *alignment;
 gint row;
 
 	// filter date
@@ -946,32 +945,19 @@ gint row;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_container_set_border_width(GTK_CONTAINER(table), SPACING_MEDIUM);
 
-	//gtk_box_pack_start (GTK_BOX (container), table, TRUE, TRUE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-
-
 	row = 0;
-	label = make_label(_("Filter Date"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Filter Date"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
-	//gtk_grid_attach (GTK_GRID (table), label, 0, 3, row, row+1);
 
 		row++;
-		label = make_label("", 0.0, 0.5);
-		gtk_misc_set_padding (GTK_MISC (label), SPACING_SMALL, 0);
-		gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-
-		label = make_label(_("_Option:"), 0, 0.5);
+		label = make_label_widget(_("_Option:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->CY_option[FILTER_DATE] = make_nainex(label);
-		//gtk_grid_attach (GTK_GRID (table), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 		gtk_grid_attach (GTK_GRID (table), data->CY_option[FILTER_DATE], 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_From:"), 0, 0.5);
+		label = make_label_widget(_("_From:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->PO_mindate = gtk_date_entry_new();
 		//data->PO_mindate = gtk_entry_new();
@@ -979,7 +965,7 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->PO_mindate, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_To:"), 0, 0.5);
+		label = make_label_widget(_("_To:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->PO_maxdate = gtk_date_entry_new();
 		//data->PO_maxdate = gtk_entry_new();
@@ -987,26 +973,25 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->PO_maxdate, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_Month:"), 0, 0.5);
+		label = make_label_widget(_("_Month:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->CY_month = make_cycle(label, CYA_SELECT);
 		gtk_grid_attach (GTK_GRID (table), data->CY_month, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_Year:"), 0, 0.5);
+		label = make_label_widget(_("_Year:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->NB_year = make_year(label);
 		gtk_grid_attach (GTK_GRID (table), data->NB_year, 2, row, 1, 1);
 
 
-	return alignment;
+	return table;
 }
 
 
 static GtkWidget *ui_flt_manage_part_text(struct ui_flt_manage_data *data)
 {
 GtkWidget *table, *label;
-GtkWidget *alignment;
 gint row;
 
 	table = gtk_grid_new ();
@@ -1014,23 +999,12 @@ gint row;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_container_set_border_width(GTK_CONTAINER(table), SPACING_MEDIUM);
 
-	//gtk_box_pack_start (GTK_BOX (container), table, TRUE, TRUE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-
-
 	row = 0;
-	label = make_label(_("Filter Text"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Filter Text"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 		row++;
-		label = make_label("", 0.0, 0.5);
-		gtk_misc_set_padding (GTK_MISC (label), SPACING_SMALL, 0);
-		gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-
-		label = make_label(_("_Option:"), 0, 0.5);
+		label = make_label_widget(_("_Option:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 
@@ -1043,14 +1017,14 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->CM_exact, 2, row, 1, 1);
 	
 		row++;
-		label = make_label(_("_Memo:"), 0, 0.5);
+		label = make_label_widget(_("_Memo:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->ST_wording = make_string(label);
 		gtk_widget_set_hexpand (data->ST_wording, TRUE);
 		gtk_grid_attach (GTK_GRID (table), data->ST_wording, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_Info:"), 0, 0.5);
+		label = make_label_widget(_("_Info:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->ST_info = make_string(label);
@@ -1058,7 +1032,7 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->ST_info, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_Tag:"), 0, 0.5);
+		label = make_label_widget(_("_Tag:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->ST_tag = make_string(label);
@@ -1066,13 +1040,12 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->ST_tag, 2, row, 1, 1);
 
 
-	return alignment;
+	return table;
 }
 
 static GtkWidget *ui_flt_manage_part_amount(struct ui_flt_manage_data *data)
 {
 GtkWidget *table, *label;
-GtkWidget *alignment;
 gint row;
 
 
@@ -1081,24 +1054,14 @@ gint row;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_container_set_border_width(GTK_CONTAINER(table), SPACING_MEDIUM);
 
-	//gtk_box_pack_start (GTK_BOX (container), table, TRUE, TRUE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-
 	// Amount section
 	row = 0;
 
-	label = make_label(_("Filter Amount"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Filter Amount"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 		row++;
-		label = make_label("", 0.0, 0.5);
-		gtk_misc_set_padding (GTK_MISC (label), SPACING_SMALL, 0);
-		gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-
-		label = make_label(_("_Option:"), 0, 0.5);
+		label = make_label_widget(_("_Option:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 
@@ -1107,28 +1070,27 @@ gint row;
 		gtk_grid_attach (GTK_GRID (table), data->CY_option[FILTER_AMOUNT], 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_From:"), 0, 0.5);
+		label = make_label_widget(_("_From:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->ST_minamount = make_amount(label);
 		gtk_grid_attach (GTK_GRID (table), data->ST_minamount, 2, row, 1, 1);
 
 		row++;
-		label = make_label(_("_To:"), 0, 0.5);
+		label = make_label_widget(_("_To:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->ST_maxamount = make_amount(label);
 		gtk_grid_attach (GTK_GRID (table), data->ST_maxamount, 2, row, 1, 1);
 
 
 
-	return alignment;
+	return table;
 }
 
 
 static GtkWidget *ui_flt_manage_part_status(struct ui_flt_manage_data *data)
 {
 GtkWidget *table, *label, *vbox, *widget;
-GtkWidget *alignment;
 gint row;
 
 
@@ -1140,23 +1102,12 @@ gint row;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_container_set_border_width(GTK_CONTAINER(table), SPACING_MEDIUM);
 
-	//gtk_box_pack_start (GTK_BOX (container), table, TRUE, TRUE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-
-
 	row = 0;
-	label = make_label(_("Filter Status"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group (_("Filter Status"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 		row++;
-		label = make_label("", 0.0, 0.5);
-		gtk_misc_set_padding (GTK_MISC (label), SPACING_SMALL, 0);
-		gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-
-		label = make_label(_("_Option:"), 0, 0.5);
+		label = make_label_widget(_("_Option:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 
@@ -1176,7 +1127,7 @@ gint row;
 		gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
 
 		row++;
-		label = make_label(_("Force:"), 0, 0.5);
+		label = make_label_widget(_("Force:"));
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 
 		vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
@@ -1194,14 +1145,13 @@ gint row;
 		data->CM_forceremind = widget;
 		gtk_box_pack_start (GTK_BOX (vbox), widget, TRUE, TRUE, 0);
 
-	return alignment;
+	return table;
 }
 
 
 static GtkWidget *ui_flt_manage_part_paymode(struct ui_flt_manage_data *data)
 {
 GtkWidget *table, *label, *table1, *image;
-GtkWidget *alignment;
 gint i, row;
 
 	// Filter Payment
@@ -1210,24 +1160,14 @@ gint i, row;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 	gtk_container_set_border_width(GTK_CONTAINER(table), SPACING_MEDIUM);
 
-	//gtk_box_pack_start (GTK_BOX (container), table, TRUE, TRUE, 0);
-	//			gtk_alignment_new(xalign, yalign, xscale, yscale)
-	alignment = gtk_alignment_new(0.5, 0, 1.0, 0.0);
-	gtk_container_add(GTK_CONTAINER(alignment), table);
-
 
 	row = 0;
-	label = make_label(_("Filter Payment"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Filter Payment"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 
 		row++;
-		label = make_label("", 0.0, 0.5);
-		gtk_misc_set_padding (GTK_MISC (label), SPACING_SMALL, 0);
-		gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-
-		label = make_label(_("_Option:"), 1.0, 0.5);
+		label = make_label_widget(_("_Option:"));
 		//----------------------------------------- l, r, t, b
 		gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 		data->CY_option[FILTER_PAYMODE] = make_nainex(label);
@@ -1257,7 +1197,7 @@ gint i, row;
 
 
 
-	return alignment;
+	return table;
 }
 
 

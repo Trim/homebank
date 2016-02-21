@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -52,6 +52,8 @@ static void repbudget_action_viewlist(GtkAction *action, gpointer user_data);
 static void repbudget_action_viewbar(GtkAction *action, gpointer user_data);
 static void repbudget_action_detail(GtkAction *action, gpointer user_data);
 static void repbudget_action_refresh(GtkAction *action, gpointer user_data);
+static void repbudget_action_export(GtkAction *action, gpointer user_data);
+
 static void repbudget_date_change(GtkWidget *widget, gpointer user_data);
 static void repbudget_range_change(GtkWidget *widget, gpointer user_data);
 static void repbudget_toggle_detail(GtkWidget *widget, gpointer user_data);
@@ -63,6 +65,7 @@ static void repbudget_toggle(GtkWidget *widget, gpointer user_data);
 static GtkWidget *create_list_budget(void);
 static void repbudget_update_detail(GtkWidget *widget, gpointer user_data);
 static void repbudget_update_daterange(GtkWidget *widget, gpointer user_data);
+static void repbudget_export_csv(GtkWidget *widget, gpointer user_data);
 
 gchar *CYA_BUDGSELECT[] = { N_("Category"), N_("Subcategory"), NULL };
 
@@ -77,6 +80,8 @@ static GtkActionEntry entries[] = {
   { "List"    , ICONNAME_HB_VIEW_LIST , N_("List")  , NULL,    N_("View results as list"), G_CALLBACK (repbudget_action_viewlist) },
   { "Stack"     , ICONNAME_HB_VIEW_STACK, N_("Stack")   , NULL,    N_("View results as stack bars"), G_CALLBACK (repbudget_action_viewbar) },
   { "Refresh" , ICONNAME_REFRESH, N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbudget_action_refresh) },
+
+  { "Export"  , ICONNAME_HB_FILE_EXPORT , N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (repbudget_action_export) },
 };
 static guint n_entries = G_N_ELEMENTS (entries);
 
@@ -101,6 +106,8 @@ static const gchar *ui_info =
 "    <toolitem action='Detail'/>"
 "      <separator/>"
 "    <toolitem action='Refresh'/>"
+"      <separator/>"
+"    <toolitem action='Export'/>"
 "  </toolbar>"
 "</ui>";
 
@@ -138,7 +145,12 @@ struct repbudget_data *data = user_data;
 	repbudget_compute(data->window, NULL);
 }
 
+static void repbudget_action_export(GtkAction *action, gpointer user_data)
+{
+struct repbudget_data *data = user_data;
 
+	repbudget_export_csv(data->window, NULL);
+}
 
 /* ======================== */
 
@@ -324,6 +336,75 @@ struct repbudget_data *data;
 	}
 }
 
+
+static void repbudget_export_csv(GtkWidget *widget, gpointer user_data)
+{
+struct repbudget_data *data;
+GtkTreeModel *model;
+GtkTreeIter	iter;
+gboolean valid;
+gchar *filename = NULL;
+GIOChannel *io;
+gchar *outstr, *name;
+gint tmpfor;
+
+	DB( g_print("\n[repbudget] export csv\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
+
+	name = g_strdup_printf("hb-budget_%s.csv", CYA_BUDGSELECT[tmpfor]);
+
+	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, name) == TRUE )
+	{
+		DB( g_print(" + filename is %s\n", filename) );
+
+		io = g_io_channel_new_file(filename, "w", NULL);
+		if(io != NULL)
+		{
+			// header
+			outstr = g_strdup_printf("%s;%s;%s;%s;\n", _("Category"), _("Spent"), _("Budget"), _("Result"));
+			g_io_channel_write_chars(io, outstr, -1, NULL, NULL);
+
+			model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_report));
+			valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
+			while (valid)
+			{
+			gchar *name, *status;
+			gdouble spent, budget, result;
+
+				gtk_tree_model_get (model, &iter,
+					//LST_REPDIST_KEY, i,
+					LST_BUDGET_NAME, &name,
+					LST_BUDGET_SPENT, &spent,
+					LST_BUDGET_BUDGET, &budget,
+					LST_BUDGET_RESULT, &result,
+				    LST_BUDGET_STATUS, &status,
+					-1);
+
+				outstr = g_strdup_printf("%s;%.2f;%.2f;%.2f;%s\n", name, spent, budget, result, status);
+				g_io_channel_write_chars(io, outstr, -1, NULL, NULL);
+
+				DB( g_print("%s", outstr) );
+
+				g_free(outstr);
+
+				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
+			}
+
+			g_io_channel_unref (io);
+		}
+
+		g_free( filename );
+	}
+
+	g_free(name);
+
+
+}
+
+
 static void repbudget_detail(GtkWidget *widget, gpointer user_data)
 {
 struct repbudget_data *data;
@@ -348,85 +429,81 @@ GtkTreeIter  iter;
 		tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_for));
 
 		/* fill in the model */
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Account *acc;
 		Transaction *ope = list->data;
+		guint pos = 0;
+		gboolean insert = FALSE;
 
 			//DB( g_print(" get %s\n", ope->ope_Word) );
 
 			acc = da_acc_get(ope->kacc);
 			if(acc != NULL)
 			{
-				if((acc->flags & AF_CLOSED)) goto next1;
 				if((acc->flags & AF_NOBUDGET)) goto next1;
 			}
 
 			//filter here
-			if( !(ope->status == TXN_STATUS_REMIND) && (ope->date >= data->filter->mindate) && (ope->date <= data->filter->maxdate))
+			if( ope->flags & OF_SPLIT )
 			{
-			guint pos = 0;
-			gboolean insert = FALSE;
-
-				if( ope->flags & OF_SPLIT )
+			guint nbsplit = da_splits_count(ope->splits);
+			Split *split;
+			guint i;
+			
+				for(i=0;i<nbsplit;i++)
 				{
-				guint nbsplit = da_transaction_splits_count(ope);
-				Split *split;
-				guint i;
-				
-					for(i=0;i<nbsplit;i++)
-					{
-						split = ope->splits[i];
-						switch(tmpfor)
-						{
-							case BUDG_CATEGORY:
-								{
-								Category *catentry = da_cat_get(split->kcat);
-									if(catentry)
-										pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-								}
-								break;
-							case BUDG_SUBCATEGORY:
-								pos = split->kcat;
-								break;
-						}
-						
-						if( pos == active )
-						{	insert = TRUE; break; }
-					}
-				}
-				else
-				{
+					split = ope->splits[i];
 					switch(tmpfor)
 					{
 						case BUDG_CATEGORY:
 							{
-							Category *catentry = da_cat_get(ope->kcat);
+							Category *catentry = da_cat_get(split->kcat);
 								if(catentry)
 									pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
 							}
 							break;
 						case BUDG_SUBCATEGORY:
-							pos = ope->kcat;
+							pos = split->kcat;
 							break;
 					}
 					
 					if( pos == active )
-						insert = TRUE;
+					{	insert = TRUE; break; }
 				}
-
-				//insert
-				if( insert == TRUE )
-				{
-
-			    	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		     		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						LST_DSPOPE_DATAS, ope,
-						-1);
-				}
-
 			}
+			else
+			{
+				switch(tmpfor)
+				{
+					case BUDG_CATEGORY:
+						{
+						Category *catentry = da_cat_get(ope->kcat);
+							if(catentry)
+								pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+						}
+						break;
+					case BUDG_SUBCATEGORY:
+						pos = ope->kcat;
+						break;
+				}
+				
+				if( pos == active )
+					insert = TRUE;
+			}
+
+			//insert
+			if( insert == TRUE )
+			{
+
+		    	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	     		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+					LST_DSPOPE_DATAS, ope,
+					-1);
+			}
+
+			
 next1:
 			list = g_list_next(list);
 		}
@@ -434,6 +511,8 @@ next1:
 		/* Re-attach model to view */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), model);
 		g_object_unref(model);
+
+		gtk_tree_view_columns_autosize( GTK_TREE_VIEW(data->LV_detail) );
 
 	}
 
@@ -466,11 +545,11 @@ gchar *title;
 	maxdate = data->filter->maxdate;
 	if(maxdate < mindate) return;
 
+	g_queue_free (data->txn_queue);
+	data->txn_queue = hbfile_transaction_get_partial(data->filter->mindate, data->filter->maxdate);
+
+
 	DB( g_print(" for=%d, kind=%d\n", tmpfor, tmpkind) );
-
-
-	/* do nothing if no transaction */
-	if(g_list_length(GLOBALS->ope_list) == 0) return;
 
 	nbmonth = countmonth(mindate, maxdate);
 	DB( g_print(" date: min=%d max=%d nbmonth=%d\n", mindate, maxdate, nbmonth) );
@@ -561,94 +640,74 @@ gchar *title;
 		DB( g_print("+ compute spent from transactions\n") );
 
 
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		Account *acc;
+		gint pos = 0;
+		gdouble trn_amount;
 
 			//DB( g_print("%d, get ope: %s :: acc=%d, cat=%d, mnt=%.2f\n", i, ope->wording, ope->account, ope->category, ope->amount) );
 
-			acc = da_acc_get(ope->kacc);
-
-			if(acc == NULL) goto next1;
-			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
-			if((acc->flags & AF_NOBUDGET)) goto next1;
-
-			if( !(ope->status == TXN_STATUS_REMIND) && ope->date >= mindate && ope->date <= maxdate)
+			if( ope->flags & OF_SPLIT )
 			{
-			gint pos = 0;
-			gdouble trn_amount;
-
-				if( ope->flags & OF_SPLIT )
+			guint nbsplit = da_splits_count(ope->splits);
+			Split *split;
+			
+				for(i=0;i<nbsplit;i++)
 				{
-				guint nbsplit = da_transaction_splits_count(ope);
-				Split *split;
-				
-					for(i=0;i<nbsplit;i++)
-					{
-						split = ope->splits[i];
-						switch(tmpfor)
-						{
-							case BUDG_CATEGORY:
-								{
-								Category *catentry = da_cat_get(split->kcat);
-									if(catentry)
-										pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-								}
-								break;
-							case BUDG_SUBCATEGORY:
-								pos = split->kcat;
-								break;
-						}
-					
-						//trn_amount = to_base_amount(split->amount, acc->kcur);
-						trn_amount = split->amount;
-
-
-						DB( g_print(" -> affecting split %.2f to cat pos %d\n", trn_amount, pos) );
-
-						tmp_spent[pos] += trn_amount;
-					
-					}
-				}
-				else
-				{
+					split = ope->splits[i];
 					switch(tmpfor)
 					{
 						case BUDG_CATEGORY:
 							{
-							Category *catentry = da_cat_get(ope->kcat);
+							Category *catentry = da_cat_get(split->kcat);
 								if(catentry)
 									pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
 							}
 							break;
 						case BUDG_SUBCATEGORY:
-							pos = ope->kcat;
+							pos = split->kcat;
 							break;
 					}
 
-					//trn_amount = to_base_amount(ope->amount, acc->kcur);
-					trn_amount = ope->amount;
+					//trn_amount = split->amount;
+					trn_amount = hb_amount_base(split->amount, ope->kcur);
 
-					DB( g_print(" -> affecting %.2f to cat pos %d\n", trn_amount, pos) );
+					DB( g_print(" -> affecting split %.2f to cat pos %d\n", trn_amount, pos) );
 
 					tmp_spent[pos] += trn_amount;
-
+				
 				}
-				
-				
 			}
-			
+			else
+			{
+				switch(tmpfor)
+				{
+					case BUDG_CATEGORY:
+						{
+						Category *catentry = da_cat_get(ope->kcat);
+							if(catentry)
+								pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+						}
+						break;
+					case BUDG_SUBCATEGORY:
+						pos = ope->kcat;
+						break;
+				}
 
-next1:
+				//trn_amount = ope->amount;
+				trn_amount = hb_amount_base(ope->amount, ope->kcur);
+
+				DB( g_print(" -> affecting %.2f to cat pos %d\n", trn_amount, pos) );
+
+				tmp_spent[pos] += trn_amount;
+
+			}
+
 			list = g_list_next(list);
 			i++;
 		}
-
-
-
-
 
 		DB( g_print("clear and detach model\n") );
 
@@ -775,7 +834,7 @@ next1:
 		/* update stack chart */
 		title = g_strdup_printf(_("Budget for %s"), _(CYA_BUDGSELECT[tmpfor]) );
 
-		//gtk_chart_set_currency(GTK_CHARTSTACK(data->RE_stack), GLOBALS->kcur);
+		ui_chart_stack_set_currency(GTK_CHARTSTACK(data->RE_stack), GLOBALS->kcur);
 
 		/* set chart color scheme */
 		ui_chart_stack_set_color_scheme(GTK_CHARTSTACK(data->RE_stack), PREFS->report_color_scheme);
@@ -803,14 +862,9 @@ struct repbudget_data *data;
 
 	GLOBALS->minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
 
-	/*
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[0]), data->total_spent, GLOBALS->kcur);
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[1]), data->total_budget, GLOBALS->kcur);
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[2]), budget_compute_result(data->total_budget, data->total_spent), GLOBALS->kcur);
-	*/
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[0]), data->total_spent, GLOBALS->minor);
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[1]), data->total_budget, GLOBALS->minor);
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[2]), budget_compute_result(data->total_budget, data->total_spent), GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[0]), data->total_spent, GLOBALS->kcur, GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[1]), data->total_budget, GLOBALS->kcur, GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[2]), budget_compute_result(data->total_budget, data->total_spent), GLOBALS->kcur, GLOBALS->minor);
 	
 
 }
@@ -864,12 +918,13 @@ static void repbudget_setup(struct repbudget_data *data)
 {
 	DB( g_print("\n[repbudget] setup\n") );
 
-	data->detail = PREFS->budg_showdetail;
-	data->legend = 1;
-
+	data->txn_queue = g_queue_new ();
 
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
+
+	data->detail = PREFS->budg_showdetail;
+	data->legend = 1;
 
 	/* 3.4 : make int transfer out of stats */
 	data->filter->option[FILTER_PAYMODE] = 1;
@@ -917,6 +972,8 @@ struct repbudget_data *data = user_data;
 struct WinGeometry *wg;
 
 	DB( g_print("\n[repbudget] start dispose\n") );
+
+	g_queue_free (data->txn_queue);
 
 	da_filter_free(data->filter);
 	
@@ -993,12 +1050,11 @@ GError *error = NULL;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 
 	row = 0;
-	label = make_label(_("Display"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Display"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_For:"), 0, 0.5);
+	label = make_label_widget(_("_For:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_BUDGSELECT);
 	data->CY_for = widget;
@@ -1006,7 +1062,7 @@ GError *error = NULL;
 
 
 	row++;
-	label = make_label(_("_Kind:"), 0, 0.5);
+	label = make_label_widget(_("_Kind:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_KIND);
 	data->CY_kind = widget;
@@ -1015,31 +1071,30 @@ GError *error = NULL;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	widget = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_grid_attach (GTK_GRID (table), widget, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("Date filter"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Date filter"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_Range:"), 0, 0.5);
+	label = make_label_widget(_("_Range:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->CY_range = make_daterange(label, FALSE);
 	gtk_grid_attach (GTK_GRID (table), data->CY_range, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_From:"), 0, 0.5);
+	label = make_label_widget(_("_From:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_mindate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_mindate, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_To:"), 0, 0.5);
+	label = make_label_widget(_("_To:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_maxdate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_maxdate, 2, row, 1, 1);
@@ -1160,7 +1215,6 @@ GError *error = NULL;
 	//widget = gtk_chart_new(CHART_TYPE_COL);
 	widget = ui_chart_stack_new();
 	data->RE_stack = widget;
-	ui_chart_stack_set_minor_prefs(GTK_CHARTSTACK(widget), PREFS->euro_value, PREFS->minor_cur.symbol);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);
 
 	//todo:should move this
@@ -1306,8 +1360,7 @@ gint column_id = GPOINTER_TO_INT(user_data);
 
 	if( value )
 	{
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->minor);
-		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->kcur);
+		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->kcur, GLOBALS->minor);
 
 		if( column_id == LST_BUDGET_RESULT)
 			color = get_minimum_color_amount (value, 0.0);
@@ -1400,7 +1453,7 @@ GtkTreeViewColumn  *column;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (view), PREFS->grid_lines);
 
 	/* column: Name */
 	column = gtk_tree_view_column_new();

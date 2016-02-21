@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -19,7 +19,6 @@
 
 #include <math.h>
 #include <string.h>
-
 #include <gtk/gtk.h>
 
 #include "homebank.h"
@@ -305,21 +304,7 @@ GtkChart *chart = GTK_CHART (object);
 */
 static gchar *chart_print_int(GtkChart *chart, gint value)
 {
-
-	//mystrfmon(chart->buffer, CHART_BUFFER_LENGTH-1, (gdouble)value, chart->minor);
-	mystrfmon_int(chart->buffer1, CHART_BUFFER_LENGTH-1, (gdouble)value, chart->minor);
-
-	/*
-	if(chart->minor)
-	{
-		value *= chart->minor_rate;
-		strfmon(chart->buffer, CHART_BUFFER_LENGTH-1, "%!.0n ", (gdouble)value);
-		strcat(chart->buffer, chart->minor_symbol);
-	}
-	else
-		strfmon(chart->buffer, CHART_BUFFER_LENGTH-1, "%.0n", (gdouble)value);
-	*/
-
+	hb_strfmon_int(chart->buffer1, CHART_BUFFER_LENGTH-1, (gdouble)value, chart->kcur, chart->minor);
 	return chart->buffer1;
 }
 
@@ -328,20 +313,7 @@ static gchar *chart_print_int(GtkChart *chart, gint value)
 */
 static gchar *chart_print_double(GtkChart *chart, gchar *buffer, gdouble value)
 {
-
-	mystrfmon(buffer, CHART_BUFFER_LENGTH-1, value, chart->minor);
-
-	/*
-	if(chart->minor)
-	{
-		value *= chart->minor_rate;
-		strfmon(chart->buffer, CHART_BUFFER_LENGTH-1, "%!n ", (gdouble)value);
-		strcat(chart->buffer, chart->minor_symbol);
-	}
-	else
-		strfmon(chart->buffer, CHART_BUFFER_LENGTH-1, "%n", (gdouble)value);
-	*/
-
+	hb_strfmon(buffer, CHART_BUFFER_LENGTH-1, value, chart->kcur, chart->minor);
 	return buffer;
 }
 
@@ -474,12 +446,12 @@ gint color;
 		}
 
 		/* populate our legend list */
-		color = i % chart->nb_cols;
+		color = i % chart->color_scheme.nb_cols;
 		//color = id % chart->nb_cols;
 
 		//DB( g_print ("Row %d: (%s, %2.f) color %d\n", id, title, value, color) );
 
-		pixbuf = create_color_pixbuf (&chart->colors[color]);
+		pixbuf = create_color_pixbuf (&chart->color_scheme.colors[color]);
 
         gtk_list_store_append (GTK_LIST_STORE(chart->legend), &l_iter);
         gtk_list_store_set (GTK_LIST_STORE(chart->legend), &l_iter,
@@ -1059,11 +1031,11 @@ gint i, first;
 		//if(!chart->datas1[i]) goto nextbar;
 
 		if(!chart->show_mono)
-			color = i % chart->nb_cols;
+			color = i % chart->color_scheme.nb_cols;
 		else
-			color = chart->cs_green;
+			color = chart->color_scheme.cs_green;
 
-		cairo_user_set_rgbcol_over(cr, &chart->colors[color], i == chart->active);
+		cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[color], i == chart->active);
 		
 		if(item->serie1)
 		{
@@ -1075,8 +1047,8 @@ gint i, first;
 				y2 += 1;
 				if(chart->show_mono)
 				{
-					color = chart->cs_red;
-					cairo_user_set_rgbcol_over(cr, &chart->colors[color], i == chart->active);
+					color = chart->color_scheme.cs_red;
+					cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[color], i == chart->active);
 				}
 			}
 			//DB( g_print(" + i=%d :: y2=%f h=%f (%f / %f) * %f\n", i, y2, h, chart->datas1[i], chart->range, chart->graph_height ) );
@@ -1206,7 +1178,7 @@ static void linechart_draw_plot(cairo_t *cr, double x, double y, double r, GtkCh
 	cairo_stroke_preserve(cr);
 
 	//cairo_set_source_rgb(cr, COLTOCAIRO(0), COLTOCAIRO(119), COLTOCAIRO(204));
-	cairo_user_set_rgbcol(cr, &chart->colors[chart->cs_blue]);
+	cairo_user_set_rgbcol(cr, &chart->color_scheme.colors[chart->color_scheme.cs_blue]);
 	cairo_fill(cr);
 }
 
@@ -1284,14 +1256,14 @@ gint first, i;
 		x += chart->blkw;
 	}
 
-	cairo_user_set_rgbcol(cr, &chart->colors[chart->cs_blue]);
+	cairo_user_set_rgbcol(cr, &chart->color_scheme.colors[chart->color_scheme.cs_blue]);
 	cairo_stroke_preserve(cr);
 
 	cairo_line_to(cr, lastx, y);
 	cairo_line_to(cr, firstx, y);
 	cairo_close_path(cr);
 
-	cairo_user_set_rgbacol(cr, &chart->colors[chart->cs_blue], AREA_ALPHA);
+	cairo_user_set_rgbacol(cr, &chart->color_scheme.colors[chart->color_scheme.cs_blue], AREA_ALPHA);
 	cairo_fill(cr);
 
 	x = chart->graph_x;
@@ -1453,8 +1425,8 @@ cairo_t *cr;
 
 			//g_print("color : %f %f %f\n", COLTOCAIRO(colors[i].r), COLTOCAIRO(colors[i].g), COLTOCAIRO(colors[i].b));
 
-			color = i % chart->nb_cols;
-			cairo_user_set_rgbcol_over(cr, &chart->colors[color], i == chart->active);
+			color = i % chart->color_scheme.nb_cols;
+			cairo_user_set_rgbcol_over(cr, &chart->color_scheme.colors[color], i == chart->active);
 			cairo_fill(cr);
 		}
 
@@ -2018,65 +1990,9 @@ void gtk_chart_set_type(GtkChart * chart, gint type)
 
 /* = = = = = = = = = = parameters = = = = = = = = = = */
 
-void gtk_chart_set_color_scheme(GtkChart * chart, gint colorscheme)
+void gtk_chart_set_color_scheme(GtkChart * chart, gint index)
 {
-	chart->cs_blue = 0;
-
-	switch(colorscheme)
-	{
-		default:
-		case CHART_COLMAP_HOMEBANK:
-			chart->colors = homebank_colors;
-			chart->nb_cols = homebank_nbcolors;
-			chart->cs_green = 4;
-			chart->cs_red = 6;
-			chart->cs_yellow = 2;
-			break;
-		case CHART_COLMAP_MSMONEY:
-			chart->colors = money_colors;
-			chart->nb_cols = money_nbcolors;
-			chart->cs_blue = 17;
-			chart->cs_green = 19;
-			chart->cs_red = 18;
-			chart->cs_yellow = 16;
-			break;
-		case CHART_COLMAP_QUICKEN:
-			chart->colors = quicken_colors;
-			chart->nb_cols = quicken_nbcolors;
-			chart->cs_blue = 3;
-			chart->cs_green = 2;
-			chart->cs_red = 0;
-			chart->cs_yellow = 1;
-			break;
-		case CHART_COLMAP_ANALYTICS:
-			chart->colors = analytics_colors;
-			chart->nb_cols = analytics_nbcolors;
-			chart->cs_green = 1;
-			chart->cs_red = 2;
-			chart->cs_yellow = 3;
-			break;
-		case CHART_COLMAP_OFFICE2010:
-			chart->colors = office2010_colors;
-			chart->nb_cols = office2010_nbcolors;
-			chart->cs_green = 2;
-			chart->cs_red = 1;
-			chart->cs_yellow = 5;
-			break;
-		case CHART_COLMAP_OFFICE2013:
-			chart->colors = office2013_colors;
-			chart->nb_cols = office2013_nbcolors;
-			chart->cs_green = 5;
-			chart->cs_red = 1;
-			chart->cs_yellow = 3;
-			break;
-		case CHART_COLMAP_SAP:
-			chart->colors = sap_colors;
-			chart->nb_cols = sap_nbcolors;
-			chart->cs_green = 14;
-			chart->cs_red = 15;
-			chart->cs_yellow = 12;
-			break;
-	}
+	colorscheme_init(&chart->color_scheme, index);
 }
 
 
@@ -2100,14 +2016,14 @@ void gtk_chart_set_absolute(GtkChart * chart, gboolean abs)
 	chart->abs = abs;
 }
 
-/*
+
 void gtk_chart_set_currency(GtkChart * chart, guint32 kcur)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
 
 	chart->kcur = kcur;
 }
-*/
+
 
 /*
 ** set the overdrawn minimum
@@ -2228,6 +2144,7 @@ void gtk_chart_show_minor(GtkChart * chart, gboolean minor)
 		gtk_chart_queue_redraw(chart);
 
 	gtk_tree_view_columns_autosize (GTK_TREE_VIEW(chart->treeview));
+	gtk_widget_queue_draw (chart->treeview);
 }
 
 
@@ -2299,9 +2216,7 @@ gdouble amount;
 		LST_LEGEND_AMOUNT, &amount,
 		-1);
 
-	//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, kcur);
-	//todo: manage GLOBALS->minor eq
-	mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, chart->minor);
+	hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, chart->kcur, chart->minor);
 
 	g_object_set(renderer, 
 		"text", buf,

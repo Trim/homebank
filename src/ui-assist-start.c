@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2015 Maxime DOYEN
+ *	Copyright (C) 1995-2016 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -21,6 +21,7 @@
 
 #include "ui-assist-start.h"
 #include "dsp_mainwindow.h"
+#include "ui-currency.h"
 
 
 #define MYDEBUG 0
@@ -54,6 +55,10 @@ gdouble value;
 		GLOBALS->changes_count++;
 	}
 
+	if( data->curfmt != NULL )
+	{
+		hbfile_replace_basecurrency(data->curfmt);
+	}
 
 	/* load preset categories */
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_load)))
@@ -75,6 +80,8 @@ gdouble value;
 		item->name = g_strdup(txt);
 	}
 
+	item->kcur = GLOBALS->kcur;
+	
 	item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
 
 	item->number = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_number)));
@@ -101,7 +108,7 @@ on_assistant_close_cancel (GtkWidget *widget, gpointer user_data)
 struct assist_start_data *data = user_data;
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	gtk_widget_destroy (data->assistant);
+	gtk_widget_destroy (data->window);
 
 	g_free(data->pathfilename);
 
@@ -183,30 +190,91 @@ on_entry_changed (GtkWidget *widget, gpointer data)
     gtk_assistant_set_page_complete (assistant, current_page, FALSE);
 }
 
-static void
-ui_start_assistant_create_page1 (GtkWidget *assistant, struct assist_start_data *data)
+
+static void ui_start_assistant_property_change_action(GtkWidget *widget, gpointer user_data)
 {
-  GtkWidget *box, *label, *entry;
+struct assist_start_data *data;
+Currency4217 *curfmt;
+	
+	DB( g_print("\n[ui-start] property_change_action\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	data->curfmt = NULL;
+
+	curfmt = ui_cur_select_dialog_new(GTK_WINDOW(data->window), CUR_SELECT_MODE_BASE);
+	if( curfmt != NULL )
+	{
+	gchar label[128];
+	gchar *name;
+		
+		DB( g_printf("- user selected: '%s' '%s'\n", curfmt->curr_iso_code, curfmt->name) );
+
+		data->curfmt = curfmt;
+
+		name = curfmt->name;
+
+		g_snprintf(label, 127, "%s - %s", curfmt->curr_iso_code, name);
+		gtk_label_set_text (GTK_LABEL(data->LB_currency), label);
+	}
+}
 
 
-  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
-  gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
+static void
+ui_start_assistant_property_fill (GtkWidget *assistant, struct assist_start_data *data)
+{
+Currency *cur;
+gchar label[128];
+
+	gtk_entry_set_text(GTK_ENTRY(data->ST_owner), g_get_real_name ());
+
+	cur = da_cur_get (GLOBALS->kcur);
+
+	g_snprintf(label, 127, "%s - %s", cur->iso_code, cur->name);
+	gtk_label_set_text (GTK_LABEL(data->LB_currency), label);
+	
+}
 
 
-  label = gtk_label_new (_("Owner:"));
-  gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
+static void
+ui_start_assistant_property_create (GtkWidget *assistant, struct assist_start_data *data)
+{
+GtkWidget *table, *label, *widget;
+gint row;
+	
+	table = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
+	//gtk_container_set_border_width (GTK_CONTAINER (table), SPACING_MEDIUM);
+	gtk_widget_set_valign (table, GTK_ALIGN_CENTER);
 
-  entry = gtk_entry_new ();
-	data->ST_owner = entry;
-  gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 0);
-  g_signal_connect (G_OBJECT (entry), "changed",
-		    G_CALLBACK (on_entry_changed), assistant);
+	row = 0;
+	label = make_label_widget(_("_Owner:"));
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
+	widget = make_string(label);
+	data->ST_owner = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 2, 1);
 
-  gtk_widget_show_all (box);
-  gtk_assistant_append_page (GTK_ASSISTANT (assistant), box);
+	row++;
+	label = make_label_widget(_("Currency:"));
+	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
+	widget = make_label (NULL, 0, 0.5);
+	data->LB_currency = widget;
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
+	widget = gtk_button_new_with_mnemonic (_("_Change"));
+	data->BT_change = widget;
+	gtk_grid_attach (GTK_GRID (table), widget, 3, row, 1, 1);
 
-  gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("File properties"));
-  gtk_assistant_set_page_type (GTK_ASSISTANT (assistant), box, GTK_ASSISTANT_PAGE_INTRO);
+	g_signal_connect (G_OBJECT (data->ST_owner), "changed", G_CALLBACK (on_entry_changed), assistant);
+	g_signal_connect (G_OBJECT (data->BT_change), "clicked", G_CALLBACK (ui_start_assistant_property_change_action), data);
+
+	
+	gtk_widget_show_all (table);
+	gtk_assistant_append_page (GTK_ASSISTANT (assistant), table);
+
+	gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), table, _("File properties"));
+	gtk_assistant_set_page_type (GTK_ASSISTANT (assistant), table, GTK_ASSISTANT_PAGE_INTRO);
 
 }
 
@@ -216,8 +284,8 @@ ui_start_assistant_create_page2 (GtkWidget *assistant, struct assist_start_data 
 GtkWidget *box, *hbox, *label, *table, *widget;
 gint row;
 
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
-  gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
+	box = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER (box), SPACING_MEDIUM);
 
 	table = gtk_grid_new ();
 	//gtk_container_set_border_width (GTK_CONTAINER (table), SP_BORDER);
@@ -227,19 +295,18 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
 	row = 0;
-	label = make_label(_("System detection"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("System detection"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("Languages:"), 0.0, 0.5);
+	label = make_label_widget(_("Languages:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_label(NULL, 0.0, 0.5);
 	data->TX_lang = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Preset file:"), 0.0, 0.5);
+	label = make_label_widget(_("Preset file:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, SPACING_SMALL);
 	gtk_grid_attach (GTK_GRID (table), hbox, 2, row, 1, 1);
@@ -262,14 +329,14 @@ gint row;
 	data->CM_load = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 3, 1);
 
-  gtk_widget_show_all (box);
+	gtk_widget_show_all (box);
 
 	gtk_widget_hide(data->ok_image);
 	gtk_widget_hide(data->ko_image);
 
-  gtk_assistant_append_page (GTK_ASSISTANT (assistant), box);
-  gtk_assistant_set_page_complete (GTK_ASSISTANT (assistant), box, TRUE);
-  gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("Preset categories"));
+	gtk_assistant_append_page (GTK_ASSISTANT (assistant), box);
+	gtk_assistant_set_page_complete (GTK_ASSISTANT (assistant), box, TRUE);
+	gtk_assistant_set_page_title (GTK_ASSISTANT (assistant), box, _("Preset categories"));
 
 }
 
@@ -290,15 +357,15 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
 	row = 0;
-	label = make_label(_("Informations"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Informations"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_Name:"), 0.0, 0.5);
+	label = make_label_widget(_("_Name:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data->ST_name = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	g_signal_connect (G_OBJECT (widget), "changed",
@@ -306,36 +373,37 @@ gint row;
 
 
 	row++;
-	label = make_label(_("_Type:"), 0.0, 0.5);
+	label = make_label_widget(_("_Type:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_ACC_TYPE);
 	data->CY_type = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("N_umber:"), 0.0, 0.5);
+	label = make_label_widget(_("N_umber:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data->ST_number = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 //other
 
 	//row = 0;
 	row++;
-	label = make_label(_("Balances"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Balances"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Initial:"));
+	label = make_label_widget(_("_Initial:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_initial = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("_Overdrawn at:"));
+	label = make_label_widget(_("_Overdrawn at:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data->ST_minimum = widget;
@@ -379,7 +447,7 @@ GtkWidget *assistant, *page;
 	if(!data) return NULL;
 
 	assistant = gtk_assistant_new ();
-	data->assistant = assistant;
+	data->window = assistant;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(assistant), "inst_data", (gpointer)data);
@@ -390,12 +458,13 @@ GtkWidget *assistant, *page;
 	gtk_window_set_modal(GTK_WINDOW (assistant), TRUE);
 	gtk_window_set_transient_for(GTK_WINDOW(assistant), GTK_WINDOW(GLOBALS->mainwindow));
 
-	ui_start_assistant_create_page1 (assistant, data);
+	ui_start_assistant_property_create (assistant, data);
 	ui_start_assistant_create_page2 (assistant, data);
 	ui_start_assistant_create_page3 (assistant, data);
 	ui_start_assistant_create_page4 (assistant, data);
 
-	gtk_entry_set_text(GTK_ENTRY(data->ST_owner), g_get_real_name ());
+	ui_start_assistant_property_fill(assistant, data);
+	
 	page = gtk_assistant_get_nth_page(GTK_ASSISTANT (assistant), 0);
 	gtk_assistant_set_page_complete (GTK_ASSISTANT (assistant), page, TRUE);
 

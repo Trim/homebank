@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -130,68 +130,63 @@ gint i;
 
 static void filter_set_date_bounds(Filter *flt, guint32 kacc)
 {
-GList *list;
-gboolean accounts[da_acc_get_max_key ()+1];
-guint i;
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
 
 	DB( g_print("(filter) set date bounds %p\n", flt) );
-
-	//todo: get date of current account only when account 
-	//todo: don't consider closed account !!
-	//beware: g_list_last get into every node !!
 
 	flt->mindate = 0;
 	flt->maxdate = 0;
 
-	//if(g_list_length(GLOBALS->ope_list) > 0)
-	//{
-		// open/closed acccount vector
-		for(i=1;i<=da_acc_get_max_key ();i++)
-		{
-		Account * acc = da_acc_get(i);
-			if(acc)
-			{
-				accounts[i] = acc->flags & AF_CLOSED ? FALSE: TRUE;
-				//in case we focus on an account, consider the account as disabled
-				if(kacc != 0 && i != kacc)
-					accounts[i] = FALSE;
-
-				DB( g_print("acc '%s' %d\n", acc->name, accounts[i]) );
-			}
-		}
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
+	{
+	Account *acc = lnk_acc->data;
 	
-		//parse all: in waiting other storage, as g_list_last will do anyway
-		// find first no account closed account
-		list = g_list_first(GLOBALS->ope_list);
-
-		while (list != NULL)
+		if( !(acc->flags & AF_CLOSED) )
 		{
-		Transaction *item = list->data;
+		Transaction *txn;
+		
+			DB( g_print(" - do '%s'\n", acc->name) );
 
-			if(accounts[item->kacc] == TRUE)
-			{
-				if( flt->mindate == 0 )
-					flt->mindate = item->date;
-				else
-					flt->mindate = MIN(flt->mindate, item->date);
-
-				if( flt->maxdate == 0 )
-					flt->maxdate = item->date;
-				else
-					flt->maxdate = MAX(flt->maxdate, item->date);
-
+			lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+			if(lnk_txn) {
+				txn = lnk_txn->data;
+				if( (kacc == 0) || (txn->kacc == kacc) )
+				{
+					if( flt->mindate == 0 )
+						flt->mindate = txn->date;
+					else
+						flt->mindate = MIN(flt->mindate, txn->date);
+				}
 			}
-			list = g_list_next(list);
-		}
-	//}
 
+			lnk_txn = g_queue_peek_tail_link(acc->txn_queue);
+			if(lnk_txn) {
+				txn = lnk_txn->data;
+				if( (kacc == 0) || (txn->kacc == kacc) )
+				{
+					if( flt->maxdate == 0 )
+						flt->maxdate = txn->date;
+					else
+						flt->maxdate = MAX(flt->maxdate, txn->date);
+				}
+			}
+
+		}
+		lnk_acc = g_list_next(lnk_acc);
+	}
+	
 	if( flt->mindate == 0 )
 		flt->mindate = HB_MINDATE;
 	
 	if( flt->maxdate == 0 )
 		flt->maxdate = HB_MAXDATE;	
 	
+	g_list_free(lst_acc);
 }
+
 
 void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 {
@@ -586,7 +581,7 @@ gint insert;
 		Split *split;
 
 			insert = 0;	 //fix: 1151259
-			count = da_transaction_splits_count(txn);
+			count = da_splits_count(txn->splits);
 			for(i=0;i<count;i++)
 			{
 			gint tmpinsert = 0;
@@ -666,7 +661,7 @@ gint insert;
 			guint count, i;
 			Split *split;
 
-				count = da_transaction_splits_count(txn);
+				count = da_splits_count(txn->splits);
 				for(i=0;i<count;i++)
 				{
 				gint tmpinsert = 0;

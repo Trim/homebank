@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,6 +20,7 @@
 #include "homebank.h"
 #include "hb-account.h"
 #include "ui-account.h"
+#include "ui-currency.h"
 
 #define MYDEBUG 0
 
@@ -168,7 +169,10 @@ Account *acc = value;
 	if( (ctx->insert_type == ACC_LST_INSERT_REPORT) && (acc->flags & AF_NOREPORT) ) return;
 	if( (acc->key == ctx->except_key) ) return;
 	if( (acc->imported == TRUE) ) return;
-	
+
+	//todo check this
+	if( (ctx->kcur > 0 ) && (acc->kcur != ctx->kcur) ) return;
+
     DB( g_print (" -> append %s\n", acc->name) );
 	
 	
@@ -217,9 +221,9 @@ struct accPopContext ctx;
 	ctx.except_key = except_key;
 	ctx.kcur = 0;
 	ctx.insert_type = insert_type;
-/*	Account *acc = da_acc_get(except_key);
+	Account *acc = da_acc_get(except_key);
 	if(acc != NULL)
-		ctx.kcur = acc->kcur;*/
+		ctx.kcur = acc->kcur;
 	
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 	g_hash_table_foreach(hash, (GHFunc)ui_acc_comboboxentry_populate_ghfunc, &ctx);
@@ -503,8 +507,6 @@ GtkTreeViewColumn	*column;
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), TRUE);
-
 	// column 1: toggle
 	if( withtoggle == TRUE )
 	{
@@ -620,7 +622,7 @@ gint field = GPOINTER_TO_INT(user_data);
 				break;
 
 			case FIELD_MINIMUM:
-				value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_minimum));
+				value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_overdraft));
 				item->minimum = value;
 				break;
 
@@ -714,7 +716,7 @@ Account *item;
 
 		item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
 
-		//account_set_currency(item, ui_cur_combobox_get_key(GTK_COMBO_BOX(data->CY_curr)) );
+		account_set_currency(item, ui_cur_combobox_get_key(GTK_COMBO_BOX(data->CY_curr)) );
 
 		g_free(item->bankname);
 		item->bankname = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_bank)));
@@ -722,6 +724,16 @@ Account *item;
 		g_free(item->number);
 		item->number = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_number)));
 
+		GtkTextBuffer *buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (data->TB_notes));
+		GtkTextIter siter, eiter;
+		gchar *notes;
+		
+		gtk_text_buffer_get_iter_at_offset (buffer, &siter, 0);
+		gtk_text_buffer_get_end_iter(buffer, &eiter);
+		notes = gtk_text_buffer_get_text(buffer, &siter, &eiter, FALSE);
+		if(notes != NULL)
+			item->notes = g_strdup(notes);
+		
 		item->flags &= ~(AF_CLOSED);
 		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_closed));
 		if(bool) item->flags |= AF_CLOSED;
@@ -742,8 +754,8 @@ Account *item;
 		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_initial));
 		item->initial = value;
 
-		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_minimum));
-		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_minimum));
+		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_overdraft));
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_overdraft));
 		item->minimum = value;
 
 		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque1));
@@ -784,7 +796,7 @@ Account *item;
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_type), item->type );
 
-		//ui_cur_combobox_set_active(GTK_COMBO_BOX(data->CY_curr), item->kcur);
+		ui_cur_combobox_set_active(GTK_COMBO_BOX(data->CY_curr), item->kcur);
 		
 		if(item->bankname != NULL)
 			gtk_entry_set_text(GTK_ENTRY(data->ST_bank), item->bankname);
@@ -796,6 +808,13 @@ Account *item;
 		else
 			gtk_entry_set_text(GTK_ENTRY(data->ST_number), "");
 
+		GtkTextBuffer *buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (data->TB_notes));
+		GtkTextIter iter;
+
+		gtk_text_buffer_set_text (buffer, "", 0);
+		gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
+		if(item->notes != NULL)
+			gtk_text_buffer_insert (buffer, &iter, item->notes, -1);	
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nobudget), item->flags & AF_NOBUDGET);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_nosummary), item->flags & AF_NOSUMMARY);
@@ -803,7 +822,7 @@ Account *item;
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_closed), item->flags & AF_CLOSED);
 
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_initial), item->initial);
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_minimum), item->minimum);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_overdraft), item->minimum);
 
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque1), item->cheque1);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque2), item->cheque2);
@@ -933,7 +952,7 @@ Account *item;
 		{
 			item = da_acc_malloc();
 			item->name = name; //g_strdup_printf( _("(account %d)"), da_acc_length()+1);
-			//item->kcur = GLOBALS->kcur;
+			item->kcur = GLOBALS->kcur;
 
 			da_acc_append(item);
 			ui_acc_listview_add(GTK_TREE_VIEW(data->LV_acc), item);
@@ -1141,7 +1160,7 @@ static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 	data->lastkey = 0;
 
 	ui_acc_listview_populate(data->LV_acc, ACC_LST_INSERT_NORMAL);
-	//ui_cur_combobox_populate(data->CY_curr, GLOBALS->h_cur);
+	ui_cur_combobox_populate(GTK_COMBO_BOX(data->CY_curr), GLOBALS->h_cur);
 	//populate_view_acc(data->LV_acc, GLOBALS->acc_list, TRUE);
 }
 
@@ -1247,34 +1266,43 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Type:"), 0.0, 0.5);
+	label = make_label_widget(_("_Type:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_ACC_TYPE);
 	data.CY_type = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	/*
 	row++;
-	label = make_label(_("_Currency:"), 0.0, 0.5);
-	gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
+	label = make_label_widget(_("_Currency:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_cur_combobox_new(label);
 	data.CY_curr = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
-	*/
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label (_("Start _balance:"), 0.0, 0.5);
+	label = make_label_widget(_("Start _balance:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_amount(label);
 	data.ST_initial = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	//TODO: notes
-
+	row++;
+	label = make_label_widget(_("Notes:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = gtk_text_view_new ();
+	scrollwin = gtk_scrolled_window_new (NULL, NULL);
+	gtk_widget_set_size_request (scrollwin, -1, 48);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
+	gtk_container_add (GTK_CONTAINER (scrollwin), widget);
+	data.TB_notes = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), scrollwin, 2, row, 1, 1);
+	
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("this account was _closed"));
 	data.CM_closed = widget;
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	
 	// group :: Current check number
@@ -1287,14 +1315,14 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("Checkbook _1:"), 0.0, 0.5);
+	label = make_label_widget(_("Checkbook _1:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_long (label);
 	data.ST_cheque1 = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Checkbook _2:"), 0.0, 0.5);
+	label = make_label_widget(_("Checkbook _2:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_long (label);
 	data.ST_cheque2 = widget;
@@ -1319,7 +1347,7 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
-	label = make_label(_("_Name:"), 0.0, 0.5);
+	label = make_label_widget(_("_Name:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data.ST_bank = widget;
@@ -1327,7 +1355,7 @@ gint w, h, row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
-	label = make_label(_("N_umber:"), 0.0, 0.5);
+	label = make_label_widget(_("N_umber:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data.ST_number = widget;
@@ -1340,17 +1368,16 @@ gint w, h, row;
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
 
-	label = make_label(_("Limits"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Balance Limits"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	//TODO: warning/absolute minimum balance
 
 	row = 1;
-	label = make_label(_("_Min. balance:"), 0.0, 0.5);
+	label = make_label_widget(_("_Overdraft at:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_amount(label);
-	data.ST_minimum = widget;
+	data.ST_overdraft = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	// group :: Report exclusion

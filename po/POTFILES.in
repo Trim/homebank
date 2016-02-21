@@ -30,6 +30,7 @@ src/ui-assist-start.c
 src/ui-assist-import.c
 src/ui-budget.c
 src/ui-category.c
+src/ui-currency.c
 src/ui-dialogs.c
 src/ui-filter.c
 src/ui-hbfile.c

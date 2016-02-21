@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -42,7 +42,9 @@ struct ui_split_dialog_data
 	GtkWidget	*LB_remain;
 	GtkWidget	*LB_txnamount;
 
-	Transaction *ope;
+	//Transaction *ope;
+	Split		**splits;
+	
 	gdouble		amount;
 	gdouble		sumsplit;
 	gdouble		remsplit;
@@ -59,6 +61,8 @@ void ui_split_dialog_line_sensitive(guint line, gboolean sensitive, gpointer use
 void ui_split_dialog_compute(GtkWidget *widget, gpointer user_data);
 void ui_split_dialog_inactiveline(GtkWidget *widget, gpointer user_data);
 void ui_split_dialog_activeline(GtkWidget *widget, gpointer user_data);
-GtkWidget *ui_split_dialog (GtkWidget *parent, Transaction *ope, gdouble amount);
+void ui_split_dialog_get(struct ui_split_dialog_data *data);
+void ui_split_dialog_set(struct ui_split_dialog_data *data);
+GtkWidget *ui_split_dialog (GtkWidget *parent, Split *ope_splits[], gdouble amount, void (update_callbackFunction(GtkWidget*, gdouble)));
 
 #endif

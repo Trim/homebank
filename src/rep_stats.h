@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -55,7 +55,7 @@ enum
 
 struct ui_repdist_data
 {
-
+	GQueue		*txn_queue;
 	Filter		*filter;
 
 	gboolean	detail;

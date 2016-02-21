@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -28,6 +28,9 @@ enum
 	NUM_LST_DEFCAT
 };
 
+#define LST_DEFCAT_SORT_NAME 1
+#define LST_DEFCAT_SORT_USED 2
+
 
 enum
 {
@@ -51,6 +54,8 @@ enum
 gchar *ui_cat_comboboxentry_get_name(GtkComboBox *entry_box);
 guint32 ui_cat_comboboxentry_get_key(GtkComboBox *entry_box);
 guint32 ui_cat_comboboxentry_get_key_add_new(GtkComboBox *entry_box);
+Category *ui_cat_comboboxentry_get(GtkComboBox *entry_box);
+
 gboolean ui_cat_comboboxentry_set_active(GtkComboBox *entry_box, guint32 key);
 void ui_cat_comboboxentry_add(GtkComboBox *entry_box, Category *pay);
 void ui_cat_comboboxentry_populate(GtkComboBox *entry_box, GHashTable *hash);
@@ -65,7 +70,7 @@ Category *ui_cat_listview_get_selected_parent(GtkTreeView *treeview, GtkTreeIter
 gboolean ui_cat_listview_remove (GtkTreeModel *liststore, guint32 key);
 void ui_cat_listview_remove_selected(GtkTreeView *treeview);
 void ui_cat_listview_populate(GtkWidget *view, gint type);
-GtkWidget *ui_cat_listview_new(gboolean withtoggle);
+GtkWidget *ui_cat_listview_new(gboolean withtoggle, gboolean withcount);
 
 /* = = = = = = = = = = */
 

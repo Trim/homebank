@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -26,6 +26,9 @@ enum
 	LST_DEFPAY_DATAS,
 	NUM_LST_DEFPAY
 };
+
+#define LST_DEFPAY_SORT_NAME 1
+#define LST_DEFPAY_SORT_USED 2
 
 struct ui_pay_manage_dialog_data
 {
@@ -63,7 +66,7 @@ void ui_pay_listview_add(GtkTreeView *treeview, Payee *item);
 guint32 ui_pay_listview_get_selected_key(GtkTreeView *treeview);
 void ui_pay_listview_remove_selected(GtkTreeView *treeview);
 void ui_pay_listview_populate(GtkWidget *view);
-GtkWidget *ui_pay_listview_new(gboolean withtoggle);
+GtkWidget *ui_pay_listview_new(gboolean withtoggle, gboolean withcount);
 GtkWidget *ui_pay_manage_dialog (void);
 
 #endif

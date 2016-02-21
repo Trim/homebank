@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -31,6 +31,7 @@ struct _payee
 
 	/* unsaved datas */
 	gboolean	filter;
+	guint		usage_count;
 	gboolean	imported;
 };
 
@@ -49,6 +50,7 @@ guint32		da_pay_get_max_key(void);
 Payee		*da_pay_get_by_name(gchar *name);
 Payee		*da_pay_get(guint32 key);
 void da_pay_consistency(Payee *item);
+void payee_fill_usage(void);
 
 GList *payee_glist_sorted(gint column);
 

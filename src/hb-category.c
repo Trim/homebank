@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -256,7 +256,7 @@ da_cat_get_fullname(Category *cat)
 {
 Category *parent;
 
-	if( cat->parent == 0)
+	if( cat->parent == 0 )
 		return g_strdup(cat->name);
 	else
 	{
@@ -617,31 +617,123 @@ guint32 retval = 0;
 }
 
 
+static void category_fill_usage_count(guint32 kcat)
+{
+Category *cat = da_cat_get (kcat);
+Category *parent;
+
+	if(cat)
+	{
+		cat->usage_count++;
+		if( cat->parent > 0 )
+		{
+			parent = da_cat_get(cat->parent);
+			if( parent )
+			{
+				parent->usage_count++;
+			}
+		}
+	}
+}
+
+
+void
+category_fill_usage(void)
+{
+GList *lcat;
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
+GList *lrul, *list;
+
+	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
+	while (list != NULL)
+	{
+	Category *entry = list->data;
+		entry->usage_count = 0;
+		list = g_list_next(list);
+	}
+	g_list_free(lcat);
+
+
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
+	{
+	Account *acc = lnk_acc->data;
+
+		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+		while (lnk_txn != NULL)
+		{
+		Transaction *txn = lnk_txn->data;
+
+			category_fill_usage_count(txn->kcat);		
+			lnk_txn = g_list_next(lnk_txn);
+		}
+		lnk_acc = g_list_next(lnk_acc);
+	}
+	g_list_free(lst_acc);
+
+
+	list = g_list_first(GLOBALS->arc_list);
+	while (list != NULL)
+	{
+	Archive *entry = list->data;
+
+		category_fill_usage_count(entry->kcat);
+		list = g_list_next(list);
+	}
+
+	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
+	while (list != NULL)
+	{
+	Assign *entry = list->data;
+
+		category_fill_usage_count(entry->kcat);
+		list = g_list_next(list);
+	}
+	g_list_free(lrul);
+
+}
+
+
 gboolean
 category_is_used(guint32 key)
 {
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
 GList *lrul, *list;
 guint i, nbsplit;
 
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-	Transaction *entry = list->data;
-		if( key == entry->kcat )
-			return TRUE;
+	Account *acc = lnk_acc->data;
 
-		// check split category #1340142
-		nbsplit = da_transaction_splits_count(entry);
-		for(i=0;i<nbsplit;i++)
+		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+		while (lnk_txn != NULL)
 		{
-		Split *split = entry->splits[i];
-
-			if( key == split->kcat )
+		Transaction *txn = lnk_txn->data;
+			if( key == txn->kcat )
 				return TRUE;
-		}
 
-		list = g_list_next(list);
+			// check split category #1340142
+			nbsplit = da_splits_count(txn->splits);
+			for(i=0;i<nbsplit;i++)
+			{
+			Split *split = txn->splits[i];
+
+				if( key == split->kcat )
+					return TRUE;
+			}
+
+			lnk_txn = g_list_next(lnk_txn);
+		}
+		
+		lnk_acc = g_list_next(lnk_acc);
 	}
+	g_list_free(lst_acc);
+
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -671,34 +763,48 @@ guint i, nbsplit;
 void
 category_move(guint32 key1, guint32 key2)
 {
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
 GList *lrul, *list;
 guint i, nbsplit;
 
-	list = g_list_first(GLOBALS->ope_list);
-	while (list != NULL)
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
 	{
-	Transaction *entry = list->data;
-		if(entry->kcat == key1)
-		{
-			entry->kcat = key2;
-			entry->flags |= OF_CHANGED;
-		}
+	Account *acc = lnk_acc->data;
 
-		// move split category #1340142
-		nbsplit = da_transaction_splits_count(entry);
-		for(i=0;i<nbsplit;i++)
+		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+		while (lnk_txn != NULL)
 		{
-		Split *split = entry->splits[i];
-
-			if( split->kcat == key1 )
+		Transaction *txn = lnk_txn->data;
+		
+			if(txn->kcat == key1)
 			{
-				split->kcat = key2;
-				entry->flags |= OF_CHANGED;
+				txn->kcat = key2;
+				txn->flags |= OF_CHANGED;
 			}
-		}
 
-		list = g_list_next(list);
+			// move split category #1340142
+			nbsplit = da_splits_count(txn->splits);
+			for(i=0;i<nbsplit;i++)
+			{
+			Split *split = txn->splits[i];
+
+				if( split->kcat == key1 )
+				{
+					split->kcat = key2;
+					txn->flags |= OF_CHANGED;
+				}
+			}
+
+			lnk_txn = g_list_next(lnk_txn);
+		}
+		
+		lnk_acc = g_list_next(lnk_acc);
 	}
+	g_list_free(lst_acc);
+
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -1018,6 +1124,14 @@ GList *lcat, *list;
 
 	return retval;
 }
+
+gint category_type_get(Category *item)
+{
+	if( (item->flags & (GF_INCOME)) )
+		return 1;
+	return -1;
+}
+
 
 
 static gint category_change_type_eval(Category *item, gboolean isIncome)

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -20,11 +20,7 @@
 #ifndef __GTK_CHART_H__
 #define __GTK_CHART_H__
 
-#include <glib.h>
-#include <gdk/gdk.h>
-#include <gtk/gtk.h>
-#include <cairo.h>
-#include <math.h>
+#include "gtk-chart-colors.h"
 
 G_BEGIN_DECLS
 #define GTK_TYPE_CHART            (gtk_chart_get_type ())
@@ -146,16 +142,14 @@ struct _GtkChart
 	gboolean	show_xval;
 	gboolean	show_mono;
 	gint		every_xval;
-	//guint32		kcur;
+	guint32		kcur;
 	gboolean	minor;
 	gdouble		minor_rate;
 	gchar		*minor_symbol;
 
 	/* color datas */
-	struct rgbcol		*colors;
-	gint	nb_cols;
-	gint	cs_red, cs_green, cs_blue, cs_yellow;
-
+	GtkColorScheme color_scheme;
+	
 	/* cairo default value */
 	PangoFontDescription *pfd;
 	gint				pfd_size;
@@ -224,7 +218,7 @@ void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gch
 void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title, gchar *subtitle);
 
 void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol);
-//void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
+void gtk_chart_set_currency(GtkChart * chart, guint32 kcur);
 
 void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum);
 void gtk_chart_set_every_xval(GtkChart * chart, gint decay);

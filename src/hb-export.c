@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,7 +50,7 @@ gint count, i;
 
 	date = g_date_new ();
 	
-	list = g_list_first(GLOBALS->ope_list);
+	list = g_queue_peek_head_link(acc->txn_queue);
 	while (list != NULL)
 	{
 	Transaction *txn = list->data;
@@ -58,103 +58,101 @@ gint count, i;
 	Category *cat;
 	gchar *txt;
 
-		if( txn->kacc == acc->key )
+		g_date_set_julian (date, txn->date);
+		//#1270876
+		switch(PREFS->dtex_datefmt)
 		{
-			g_date_set_julian (date, txn->date);
-			//#1270876
-			switch(PREFS->dtex_datefmt)
-			{
-				case 0: //"m-d-y"  
-					g_string_append_printf (elt, "D%02d/%02d/%04d\n", 
-						g_date_get_month(date),
-						g_date_get_day(date),
-						g_date_get_year(date)
-						);
-					break;
-				case 1: //"d-m-y"
-					g_string_append_printf (elt, "D%02d/%02d/%04d\n", 
-						g_date_get_day(date),
-						g_date_get_month(date),
-						g_date_get_year(date)
-						);
-					break;
-				case 2: //"y-m-d"
-					g_string_append_printf (elt, "D%04d/%02d/%02d\n", 
-						g_date_get_year(date),
-						g_date_get_month(date),
-						g_date_get_day(date)
-						);
-					break;
-			}			
+			case 0: //"m-d-y"  
+				g_string_append_printf (elt, "D%02d/%02d/%04d\n", 
+					g_date_get_month(date),
+					g_date_get_day(date),
+					g_date_get_year(date)
+					);
+				break;
+			case 1: //"d-m-y"
+				g_string_append_printf (elt, "D%02d/%02d/%04d\n", 
+					g_date_get_day(date),
+					g_date_get_month(date),
+					g_date_get_year(date)
+					);
+				break;
+			case 2: //"y-m-d"
+				g_string_append_printf (elt, "D%04d/%02d/%02d\n", 
+					g_date_get_year(date),
+					g_date_get_month(date),
+					g_date_get_day(date)
+					);
+				break;
+		}			
 
-			//g_ascii_dtostr (amountbuf, sizeof (amountbuf), txn->amount);
-			g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", txn->amount);
-			g_string_append_printf (elt, "T%s\n", amountbuf);
+		//g_ascii_dtostr (amountbuf, sizeof (amountbuf), txn->amount);
+		g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", txn->amount);
+		g_string_append_printf (elt, "T%s\n", amountbuf);
 
-			sbuf = "";
-			if(txn->status == TXN_STATUS_CLEARED)
-				sbuf = "c";
-			else
-			if(txn->status == TXN_STATUS_RECONCILED)
-				sbuf = "R";
+		sbuf = "";
+		if(txn->status == TXN_STATUS_CLEARED)
+			sbuf = "c";
+		else
+		if(txn->status == TXN_STATUS_RECONCILED)
+			sbuf = "R";
 
-			g_string_append_printf (elt, "C%s\n", sbuf);
+		g_string_append_printf (elt, "C%s\n", sbuf);
 
-			if( txn->paymode == PAYMODE_CHECK)
-				g_string_append_printf (elt, "N%s\n", txn->info);
+		if( txn->paymode == PAYMODE_CHECK)
+			g_string_append_printf (elt, "N%s\n", txn->info);
 
-			//Ppayee
-			payee = da_pay_get(txn->kpay);
-			if(payee)
-				g_string_append_printf (elt, "P%s\n", payee->name);
+		//Ppayee
+		payee = da_pay_get(txn->kpay);
+		if(payee)
+			g_string_append_printf (elt, "P%s\n", payee->name);
 
-			// Mmemo
-			g_string_append_printf (elt, "M%s\n", txn->wording);
+		// Mmemo
+		g_string_append_printf (elt, "M%s\n", txn->wording);
 
-			// LCategory of transaction
-			// L[Transfer account name]
-			// LCategory of transaction/Class of transaction
-			// L[Transfer account]/Class of transaction
-			if( txn->paymode == PAYMODE_INTXFER && txn->kacc == acc->key)
-			{
-			//#579260
-				Account *dstacc = da_acc_get(txn->kxferacc);
-				if(dstacc)
-					g_string_append_printf (elt, "L[%s]\n", dstacc->name);
-			}
-			else
-			{
-				cat = da_cat_get(txn->kcat);
-				if(cat)
-				{
-					txt = da_cat_get_fullname(cat);
-					g_string_append_printf (elt, "L%s\n", txt);
-					g_free(txt);
-				}
-			}
-
-			// splits
-			count = da_transaction_splits_count(txn);
-			for(i=0;i<count;i++)
-			{
-			Split *s = txn->splits[i];
-					
-				cat = da_cat_get(s->kcat);
-				if(cat)
-				{
-					txt = da_cat_get_fullname(cat);
-					g_string_append_printf (elt, "S%s\n", txt);
-					g_free(txt);
-				}	
-					
-				g_string_append_printf (elt, "E%s\n", s->memo);
-				
-				g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", s->amount);
-				g_string_append_printf (elt, "$%s\n", amountbuf);
-			}
-			
-			g_string_append (elt, "^\n");
+		// LCategory of transaction
+		// L[Transfer account name]
+		// LCategory of transaction/Class of transaction
+		// L[Transfer account]/Class of transaction
+		if( txn->paymode == PAYMODE_INTXFER && txn->kacc == acc->key)
+		{
+		//#579260
+			Account *dstacc = da_acc_get(txn->kxferacc);
+			if(dstacc)
+				g_string_append_printf (elt, "L[%s]\n", dstacc->name);
 		}
+		else
+		{
+			cat = da_cat_get(txn->kcat);
+			if(cat)
+			{
+				txt = da_cat_get_fullname(cat);
+				g_string_append_printf (elt, "L%s\n", txt);
+				g_free(txt);
+			}
+		}
+
+		// splits
+		count = da_splits_count(txn->splits);
+		for(i=0;i<count;i++)
+		{
+		Split *s = txn->splits[i];
+				
+			cat = da_cat_get(s->kcat);
+			if(cat)
+			{
+				txt = da_cat_get_fullname(cat);
+				g_string_append_printf (elt, "S%s\n", txt);
+				g_free(txt);
+			}	
+				
+			g_string_append_printf (elt, "E%s\n", s->memo);
+			
+			g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", s->amount);
+			g_string_append_printf (elt, "$%s\n", amountbuf);
+		}
+		
+		g_string_append (elt, "^\n");
+
 
 		list = g_list_next(list);
 	}

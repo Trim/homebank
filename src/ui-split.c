@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -201,7 +201,7 @@ gboolean valid[TXN_MAX_SPLIT];
 	
 	if(data->splittype == TXN_SPLIT_AMOUNT)
 	{
-		sensitive = arrondi(data->remsplit, 2) != 0.0 ? FALSE : sensitive;
+		sensitive = hb_amount_round(data->remsplit, 2) != 0.0 ? FALSE : sensitive;
 		gtk_dialog_set_response_sensitive(GTK_DIALOG(data->dialog), GTK_RESPONSE_ACCEPT, sensitive);
 
 		if(!data->remsplit)
@@ -274,7 +274,7 @@ gint line;
 }
 
 
-static void ui_split_dialog_get(struct ui_split_dialog_data *data)
+void ui_split_dialog_get(struct ui_split_dialog_data *data)
 {
 guint i;
 Split *split;
@@ -284,7 +284,7 @@ gdouble amount;
 
 	DB( g_print("(ui_split_dialog_get)\n") );
 
-	da_transaction_splits_free(data->ope);
+	da_splits_free(data->splits);
 
 	for(i=0;i<TXN_MAX_SPLIT;i++)
 	{
@@ -298,13 +298,13 @@ gdouble amount;
 			
 			DB( g_print("- get split %d : %d, %.2f, %s\n", i, split->kcat, split->amount, split->memo) );
 
-			da_transaction_splits_append (data->ope, split);
+			da_splits_append (data->splits, split);
 		}
 	}
 }
 
 
-static void ui_split_dialog_set(struct ui_split_dialog_data *data)
+void ui_split_dialog_set(struct ui_split_dialog_data *data)
 {
 guint count, i;
 Split *split;
@@ -327,7 +327,7 @@ gchar *txt;
 	}
 
 	
-	count = da_transaction_splits_count(data->ope);
+	count = da_splits_count(data->splits);
 	data->nbsplit = count > 1 ? count-1 : 0;
 	
 	DB( g_print("- count = %d\n", count) );
@@ -335,7 +335,7 @@ gchar *txt;
 	
 	for(i=0;i<count;i++)
 	{
-		split = data->ope->splits[i];
+		split = data->splits[i];
 
 		DB( g_print("- set split %d : %d, %.2f, %s\n", i, split->kcat, split->amount, split->memo) );
 
@@ -351,7 +351,7 @@ gchar *txt;
 
 
 
-GtkWidget *ui_split_dialog (GtkWidget *parent, Transaction *ope, gdouble amount)
+GtkWidget *ui_split_dialog (GtkWidget *parent, Split *ope_splits[], gdouble amount, void (update_callbackFunction(GtkWidget*, gdouble)))
 {
 struct ui_split_dialog_data data;
 GtkWidget *dialog, *content, *mainvbox, *label;
@@ -367,7 +367,7 @@ gint row, i;
 					    NULL);
 
 	data.dialog = dialog;
-	data.ope = ope;
+	data.splits = ope_splits;
 	data.amount = amount;
 	data.splittype = amount ? TXN_SPLIT_AMOUNT : TXN_SPLIT_NEW;
 
@@ -521,14 +521,15 @@ gint row, i;
 	case GTK_RESPONSE_ACCEPT:
 	   //do_application_specific_something ();
 	   	ui_split_dialog_get(&data);
+		update_callbackFunction(parent,data.sumsplit);
 	   break;
 	case GTK_RESPONSE_SPLIT_REM:
-		da_transaction_splits_free(ope);
+		da_splits_free(ope_splits);
+		update_callbackFunction(parent,data.sumsplit);
 		break;
 	case GTK_RESPONSE_SPLIT_SUM:	// sum split and alter txn amount   
-	   ui_split_dialog_get(&data);
-		deftransaction_set_amount_from_split(parent, data.sumsplit);
-
+		ui_split_dialog_get(&data);
+		update_callbackFunction(parent,data.sumsplit);
 	   break;
 	default:
 	   //do_nothing_since_dialog_was_cancelled ();
@@ -536,19 +537,19 @@ gint row, i;
     }
 
 	// debug
-	#if MYDEBUG == 1
+	/*#if MYDEBUG == 1
 	{
 	guint i;
 
 		for(i=0;i<TXN_MAX_SPLIT;i++)
 		{
-		Split *split = data.ope->splits[i];
-			if(data.ope->splits[i] == NULL)
+		Split *split = data.ope_splits[i];
+			if(data.ope_splits[i] == NULL)
 				break;
 			g_print(" split %d : %d, %.2f, %s\n", i, split->kcat, split->amount, split->memo);
 		}
 	}
-	#endif
+	#endif*/
 
 	// cleanup and destroy
 	//GLOBALS->changes_count += data.change;

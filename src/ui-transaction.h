@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -47,6 +47,8 @@ struct deftransaction_data
 	GtkWidget	*ST_tags;
 	GtkWidget   *CY_status;
 
+	GtkWidget   *IB_warnsign;
+	
 	gint		action;
 	gint		accnum;
 	gint		type;

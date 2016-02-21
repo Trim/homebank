@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -1040,6 +1040,9 @@ gboolean openlast;
 				if( homebank_lastopenedfiles_load() == TRUE )
 					ui_mainwindow_open_internal(mainwin, NULL);
 			}
+
+			/* -- hack to generate a big file -- */
+
 
 			/* update the mainwin display */
 			ui_mainwindow_update(mainwin, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_BALANCE+UF_VISUAL));

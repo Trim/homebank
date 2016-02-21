@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -447,21 +447,15 @@ gchar *color;
 	}
 
 	//if(amount != 0)
-	{
-		//mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
-
-		//todo: optimize this
-		//store to a data set to the listview
-		//acc = da_acc_get(ope->kacc);
-		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, acc->kcur);
-		mystrfnum(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, GLOBALS->minor);
+	//{
+		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, ope->kcur, GLOBALS->minor);
 		color = get_normal_color_amount(amount);
 
 		g_object_set(renderer,
 			"foreground",  color,
 			"text", buf,
 			NULL);
-	}
+	//}
 
 	
 }
@@ -501,6 +495,27 @@ gchar *fullname;
 
 
 /* = = = = = = = = = = = = = = = = */
+gboolean list_txn_column_id_isvisible(GtkTreeView *treeview, gint sort_id)
+{
+GtkTreeViewColumn *column;
+gint n, id;
+
+	for(n=0; n < NUM_LST_DSPOPE-1 ; n++ )   // -1 cause account not to be processed
+	{
+		column = gtk_tree_view_get_column (treeview, n);
+		if(column == NULL)
+			continue;
+
+		if( gtk_tree_view_column_get_visible(column) )
+		{
+			id = gtk_tree_view_column_get_sort_column_id (column);
+			if( sort_id == id )
+				return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 
 static GtkTreeViewColumn *list_txn_get_column(GList *list, gint search_id)
@@ -877,7 +892,7 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	// connect our dispose function
 	g_signal_connect (treeview, "destroy", G_CALLBACK (list_txn_destroy), (gpointer)data);
 	
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), PREFS->rules_hint);
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
 	//gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview),
 	//			       COLUMN_DESCRIPTION);
 
@@ -1048,19 +1063,20 @@ Account *acc, *dacc;
 static void ope_importamount_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 Transaction *ope;
-gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
+gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
 gchar *color;
 
 	gtk_tree_model_get(model, iter, LST_DSPOPE_DATAS, &ope, -1);
 
-	mystrfnum(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
+	//mystrfnum(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
 	//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, GLOBALS->minor);
+	g_ascii_formatd(formatd_buf, G_ASCII_DTOSTR_BUF_SIZE-1, "%2.f", ope->amount);
 
 	color = get_normal_color_amount(ope->amount);
 
 	g_object_set(renderer,
 			"foreground",  color,
-			"text", buf,
+			"text", formatd_buf,
 			NULL);
 
 }

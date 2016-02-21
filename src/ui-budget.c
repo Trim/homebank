@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -1020,7 +1020,6 @@ gint crow, row;
  	treeview = (GtkWidget *)ui_bud_listview_new();
  	data.LV_cat = treeview;
 	gtk_widget_set_size_request(treeview, HB_MINWIDTH_LIST, -1);
-	//gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (treeview), PREFS->rules_hint);
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);
 	gtk_box_pack_start (GTK_BOX(vbox), scrollwin, TRUE, TRUE, 0);
 
@@ -1113,8 +1112,6 @@ gint crow, row;
  	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 4, 1);
 
 	row++;
-    //label = make_label(_("Each"), 1.0, 0.5);
-	//gtk_grid_attach (GTK_GRID (group_grid), label, 1, 2, row, row+1);
 	widget = make_amount(label);
 	data.spinner[0] = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
@@ -1148,7 +1145,7 @@ gint crow, row;
 		l = ((i<6) ? 1 : 3);
 		t = row + ((i<6) ? i : i-6);
 
-		label = make_label(months[i], 0, 0.5);
+		label = make_label_widget(months[i]);
 		data.label[i+1] = label;
 		gtk_grid_attach (GTK_GRID (group_grid), label, l, t, 1, 1);
 

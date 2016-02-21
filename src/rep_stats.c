@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -445,65 +445,39 @@ GtkTreeIter  iter;
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_detail), NULL); /* Detach model from view */
 
 		/* fill in the model */
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		Account *acc;
 
-			//DB( g_print(" get %s\n", ope->ope_Word) );
-
-			acc = da_acc_get(ope->kacc);
-			if(acc == NULL) goto next1;
-			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
-
-			//filter here
-			if( !(ope->status == TXN_STATUS_REMIND) )
+			if(filter_test(data->filter, ope) == 1)
 			{
-				if(filter_test(data->filter, ope) == 1)
+			guint i, pos = 0;
+
+				if( tmpfor != BY_REPDIST_TAG )
 				{
-				guint i, pos = 0;
-
-					if( tmpfor != BY_REPDIST_TAG )
+					if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 					{
-						if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
+					guint nbsplit = da_splits_count(ope->splits);
+					Split *split;
+					
+						for(i=0;i<nbsplit;i++)
 						{
-						guint nbsplit = da_transaction_splits_count(ope);
-						Split *split;
-						
-							for(i=0;i<nbsplit;i++)
+							split = ope->splits[i];
+							switch(tmpfor)
 							{
-								split = ope->splits[i];
-								switch(tmpfor)
-								{
-									case BY_REPDIST_CATEGORY:
-										{
-										Category *catentry = da_cat_get(split->kcat);
-											if(catentry)
-												pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-										}
-										break;
-									case BY_REPDIST_SUBCATEGORY:
-										pos = split->kcat;
-										break;
-								}
-
-								if( pos == active )
-								{
-
-									gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-							 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-										LST_DSPOPE_DATAS, ope,
-										-1);
-										
+								case BY_REPDIST_CATEGORY:
+									{
+									Category *catentry = da_cat_get(split->kcat);
+										if(catentry)
+											pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+									}
 									break;
-								}
-
+								case BY_REPDIST_SUBCATEGORY:
+									pos = split->kcat;
+									break;
 							}
-						}
-						else
-						{
-							pos = ui_repdist_result_get_pos(tmpfor, data->filter->mindate, ope);
+
 							if( pos == active )
 							{
 
@@ -511,44 +485,59 @@ GtkTreeIter  iter;
 						 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 									LST_DSPOPE_DATAS, ope,
 									-1);
-
+									
+								break;
 							}
-						}
 
+						}
 					}
 					else
-					/* the TAG process is particular */
 					{
-						if(ope->tags != NULL)
+						pos = ui_repdist_result_get_pos(tmpfor, data->filter->mindate, ope);
+						if( pos == active )
 						{
-						guint32 *tptr = ope->tags;
 
-							while(*tptr)
-							{
-								pos = *tptr - 1;
-
-								DB( g_print(" -> storing tag %d %.2f\n", pos, ope->amount) );
-
-								if( pos == active )
-								{
-									gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-							 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-										LST_DSPOPE_DATAS, ope,
-										-1);
-
-								}
-
-								tptr++;
-							}
+							gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+					 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+								LST_DSPOPE_DATAS, ope,
+								-1);
 
 						}
 					}
 
-
-
 				}
+				else
+				/* the TAG process is particular */
+				{
+					if(ope->tags != NULL)
+					{
+					guint32 *tptr = ope->tags;
+
+						while(*tptr)
+						{
+							pos = *tptr - 1;
+
+							DB( g_print(" -> storing tag %d %.2f\n", pos, ope->amount) );
+
+							if( pos == active )
+							{
+								gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+						 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+									LST_DSPOPE_DATAS, ope,
+									-1);
+
+							}
+
+							tptr++;
+						}
+
+					}
+				}
+
+
+
 			}
-next1:
+
 			list = g_list_next(list);
 		}
 
@@ -678,15 +667,9 @@ struct ui_repdist_data *data;
 
 	//minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
 
-	/*
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[0]), data->total_expense, GLOBALS->kcur);
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[1]), data->total_income, GLOBALS->kcur);
-	hb_label_set_colvaluecurr(GTK_LABEL(data->TX_total[2]), data->total_expense + data->total_income, GLOBALS->kcur);
-	*/
-
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[0]), data->total_expense, GLOBALS->minor);
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[1]), data->total_income, GLOBALS->minor);
-	hb_label_set_colvalue(GTK_LABEL(data->TX_total[2]), data->total_expense + data->total_income, GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[0]), data->total_expense, GLOBALS->kcur, GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[1]), data->total_income, GLOBALS->kcur, GLOBALS->minor);
+	hb_label_set_colvalue(GTK_LABEL(data->TX_total[2]), data->total_expense + data->total_income, GLOBALS->kcur, GLOBALS->minor);
 
 
 }
@@ -787,6 +770,12 @@ gdouble exprate, incrate, balrate;
 	to   = data->filter->maxdate;
 	if(to < from) return;
 
+
+	g_queue_free (data->txn_queue);
+	data->txn_queue = hbfile_transaction_get_partial(data->filter->mindate, data->filter->maxdate);
+	
+	DB( g_print(" nb-txn=%d\n", g_queue_get_length (data->txn_queue) ) );
+
 	/* count number or results */
 	switch(tmpfor)
 	{
@@ -832,140 +821,138 @@ gdouble exprate, incrate, balrate;
 
 	if(tmp_expense && tmp_income)
 	{
+
+		DB( g_print(" - ok memory\n") );
+
 		/* compute the results */
-		list = g_list_first(GLOBALS->ope_list);
+		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		Account *acc;
-			//debug
-			//DB( g_print("** testing '%s', cat=%d==> %d\n", ope->wording, ope->category, filter_test(data->filter, ope)) );
-			acc = da_acc_get(ope->kacc);
-			if(acc == NULL) goto next1;
-			if((acc->flags & (AF_CLOSED|AF_NOREPORT))) goto next1;
+			
+			DB( g_print("** testing '%s', cat=%d==> %d\n", ope->wording, ope->kcat, filter_test(data->filter, ope)) );
 
-			if( !(ope->status == TXN_STATUS_REMIND) )
+			if( (filter_test(data->filter, ope) == 1) )
 			{
-				if( (filter_test(data->filter, ope) == 1) )
+			guint32 pos = 0;
+			gdouble trn_amount;
+
+				DB( g_print(" - should insert\n") );
+
+				//trn_amount = ope->amount;
+				trn_amount = hb_amount_base(ope->amount, ope->kcur);
+
+				if( tmpfor != BY_REPDIST_TAG )
 				{
-				guint32 pos = 0;
-				gdouble trn_amount;
-
-					//trn_amount = to_base_amount(ope->amount, acc->kcur);
-					trn_amount = ope->amount;
-
-					if( tmpfor != BY_REPDIST_TAG )
+					if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 					{
-						if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
+					guint nbsplit = da_splits_count(ope->splits);
+					Split *split;
+					Category *catentry;
+					gint sinsert;
+
+						for(i=0;i<nbsplit;i++)
 						{
-						guint nbsplit = da_transaction_splits_count(ope);
-						Split *split;
-						Category *catentry;
-						gint sinsert;
+							split = ope->splits[i];
+							catentry = da_cat_get(split->kcat);
+							if(catentry == NULL) continue;
+							sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
+							if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
 
-							for(i=0;i<nbsplit;i++)
+							DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );
+							
+							if( (data->filter->option[FILTER_CATEGORY] == 0) || sinsert)
 							{
-								split = ope->splits[i];
-								catentry = da_cat_get(split->kcat);
-								if(catentry == NULL) continue;
-								sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
-								if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
-
-								DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );
-								
-								if( (data->filter->option[FILTER_CATEGORY] == 0) || sinsert)
+								switch(tmpfor)
 								{
-									switch(tmpfor)
-									{
-										case BY_REPDIST_CATEGORY:
-											{
-												pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-											}
-											break;
-										case BY_REPDIST_SUBCATEGORY:
-											pos = split->kcat;
-											break;
-									}
-
-									//trn_amount = to_base_amount(split->amount, acc->kcur);
-									trn_amount = split->amount;
-
-									if(trn_amount > 0.0)
-									{
-										tmp_income[pos] += trn_amount;
-										data->total_income  += trn_amount;
-									}
-									else
-									{
-										tmp_expense[pos] += trn_amount;
-										data->total_expense += trn_amount;
-									}
-
+									case BY_REPDIST_CATEGORY:
+										{
+											pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
+										}
+										break;
+									case BY_REPDIST_SUBCATEGORY:
+										pos = split->kcat;
+										break;
 								}
-								// end insert
 
-							}
-						}
-						else
-						{
-							pos = ui_repdist_result_get_pos(tmpfor, from, ope);
-							if(trn_amount > 0.0)
-							{
-								tmp_income[pos] += trn_amount;
-								data->total_income  += trn_amount;
-							}
-							else
-							{
-								tmp_expense[pos] += trn_amount;
-								data->total_expense += trn_amount;
-							}
-						}
-					}
-					else
-					/* the TAG process is particular */
-					{
-						if(ope->tags != NULL)
-						{
-						guint32 *tptr = ope->tags;
-
-							while(*tptr)
-							{
-								pos = *tptr - 1;
-
-								DB( g_print(" -> storing tag %d %s %.2f\n", pos, da_tag_get(*tptr)->name, trn_amount) );
+								trn_amount = hb_amount_base(split->amount, ope->kcur);
+								//trn_amount = split->amount;
 
 								if(trn_amount > 0.0)
 								{
 									tmp_income[pos] += trn_amount;
+									data->total_income  += trn_amount;
 								}
 								else
 								{
 									tmp_expense[pos] += trn_amount;
+									data->total_expense += trn_amount;
 								}
-								tptr++;
-							}
 
-							//#1195859
-							if(trn_amount > 0.0)
-							{
-								data->total_income  += trn_amount;
 							}
-							else
-							{
-								data->total_expense += trn_amount;
-							}
+							// end insert
 
 						}
 					}
-
-					// fix total according to selection
-					//if(tmpkind==0 && !tmp_expense[pos]) { data->total_income  -= ope->amount; }
-					//if(tmpkind==1 && !tmp_income[pos] ) { data->total_expense -= ope->amount; }
-
-
+					else
+					{
+						pos = ui_repdist_result_get_pos(tmpfor, from, ope);
+						if(trn_amount > 0.0)
+						{
+							tmp_income[pos] += trn_amount;
+							data->total_income  += trn_amount;
+						}
+						else
+						{
+							tmp_expense[pos] += trn_amount;
+							data->total_expense += trn_amount;
+						}
+					}
 				}
+				else
+				/* the TAG process is particular */
+				{
+					if(ope->tags != NULL)
+					{
+					guint32 *tptr = ope->tags;
+
+						while(*tptr)
+						{
+							pos = *tptr - 1;
+
+							DB( g_print(" -> storing tag %d %s %.2f\n", pos, da_tag_get(*tptr)->name, trn_amount) );
+
+							if(trn_amount > 0.0)
+							{
+								tmp_income[pos] += trn_amount;
+							}
+							else
+							{
+								tmp_expense[pos] += trn_amount;
+							}
+							tptr++;
+						}
+
+						//#1195859
+						if(trn_amount > 0.0)
+						{
+							data->total_income  += trn_amount;
+						}
+						else
+						{
+							data->total_expense += trn_amount;
+						}
+
+					}
+				}
+
+				// fix total according to selection
+				//if(tmpkind==0 && !tmp_expense[pos]) { data->total_income  -= ope->amount; }
+				//if(tmpkind==1 && !tmp_income[pos] ) { data->total_expense -= ope->amount; }
+
+
 			}
-next1:
+
 			list = g_list_next(list);
 		}
 
@@ -985,7 +972,7 @@ next1:
 			name = NULL;
 			fullcatname = NULL;
 
-			DB( g_print("try to insert item %d\n", i) );
+			DB( g_print("try to insert item %d - %.2f %.2f\n", i, tmp_expense[i], tmp_income[i]) );
 
 
 			/* filter empty results */
@@ -1309,6 +1296,8 @@ static void ui_repdist_setup(struct ui_repdist_data *data)
 {
 	DB( g_print("\n[repdist] setup\n") );
 
+	data->txn_queue = g_queue_new ();
+
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
 
@@ -1371,6 +1360,8 @@ struct ui_repdist_data *data = user_data;
 struct WinGeometry *wg;
 
 	DB( g_print("\n[repdist] dispose\n") );
+
+	g_queue_free (data->txn_queue);
 
 	da_filter_free(data->filter);
 
@@ -1445,19 +1436,18 @@ GError *error = NULL;
 	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
 
 	row = 0;
-	label = make_label(_("Display"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Display"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_View:"), 0, 0.5);
+	label = make_label_widget(_("_View:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_KIND2);
 	data->CY_view = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_By:"), 0, 0.5);
+	label = make_label_widget(_("_By:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_STATSELECT);
 	data->CY_by = widget;
@@ -1466,16 +1456,16 @@ GError *error = NULL;
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("By _amount"));
 	data->CM_byamount = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
 	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
 	data->CM_minor = widget;
-	gtk_grid_attach (GTK_GRID (table), widget, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	
 	row++;
-	label = make_label(_("_Zoom X:"), 0, 0.5);
+	label = make_label_widget(_("_Zoom X:"));
 	data->LB_zoomx = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = make_scale(label);
@@ -1494,24 +1484,23 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("Date filter"), 0.0, 0.5);
-	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
+	label = make_label_group(_("Date filter"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label(_("_Range:"), 0, 0.5);
+	label = make_label_widget(_("_Range:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->CY_range = make_daterange(label, TRUE);
 	gtk_grid_attach (GTK_GRID (table), data->CY_range, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_From:"), 0, 0.5);
+	label = make_label_widget(_("_From:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_mindate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_mindate, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_To:"), 0, 0.5);
+	label = make_label_widget(_("_To:"));
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	data->PO_maxdate = gtk_date_entry_new();
 	gtk_grid_attach (GTK_GRID (table), data->PO_maxdate, 2, row, 1, 1);
@@ -1641,7 +1630,7 @@ GError *error = NULL;
 	widget = gtk_chart_new(CHART_TYPE_COL);
 	data->RE_chart = widget;
 	gtk_chart_set_minor_prefs(GTK_CHART(widget), PREFS->euro_value, PREFS->minor_cur.symbol);
-	//gtk_chart_set_currency(GTK_CHART(widget), GLOBALS->kcur);
+	gtk_chart_set_currency(GTK_CHART(widget), GLOBALS->kcur);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), widget, NULL);
 
 	//todo: setup should move this
@@ -1764,8 +1753,7 @@ gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 
 	if( value )
 	{
-		mystrfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->minor);
-		//hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->kcur);
+		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, value, GLOBALS->kcur, GLOBALS->minor);
 
 		color = get_normal_color_amount(value);
 
@@ -1845,7 +1833,7 @@ GtkTreeViewColumn  *column;
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), PREFS->rules_hint);
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (view), PREFS->grid_lines);
 
 	/* column: Name */
 	column = gtk_tree_view_column_new();

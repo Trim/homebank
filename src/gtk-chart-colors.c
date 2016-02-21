@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -314,5 +314,77 @@ void cairo_user_set_rgbcol_over(cairo_t *cr, struct rgbcol *col, gboolean over)
 		cairo_set_source_rgb(cr, COLTOCAIROOVER(col->r), COLTOCAIROOVER(col->g), COLTOCAIROOVER(col->b));
 	else
 		cairo_set_source_rgb(cr, COLTOCAIRO(col->r), COLTOCAIRO(col->g), COLTOCAIRO(col->b));
+}
+
+
+void colorscheme_init(GtkColorScheme *scheme, gint index)
+{
+
+	scheme->cs_blue = 0;
+
+	switch(index)
+	{
+		default:
+		case CHART_COLMAP_HOMEBANK:
+			scheme->colors = homebank_colors;
+			scheme->nb_cols = homebank_nbcolors;
+			scheme->cs_green = 4;
+			scheme->cs_red = 6;
+			scheme->cs_yellow = 2;
+			scheme->cs_orange = 2;
+			break;
+		case CHART_COLMAP_MSMONEY:
+			scheme->colors = money_colors;
+			scheme->nb_cols = money_nbcolors;
+			scheme->cs_blue = 17;
+			scheme->cs_green = 19;
+			scheme->cs_red = 18;
+			scheme->cs_yellow = 16;
+			scheme->cs_orange = 8;
+			break;
+		case CHART_COLMAP_QUICKEN:
+			scheme->colors = quicken_colors;
+			scheme->nb_cols = quicken_nbcolors;
+			scheme->cs_blue = 3;
+			scheme->cs_green = 2;
+			scheme->cs_red = 0;
+			scheme->cs_yellow = 1;
+			scheme->cs_orange = 9;
+			break;
+		case CHART_COLMAP_ANALYTICS:
+			scheme->colors = analytics_colors;
+			scheme->nb_cols = analytics_nbcolors;
+			scheme->cs_green = 1;
+			scheme->cs_red = 2;
+			scheme->cs_yellow = 3;
+			scheme->cs_orange = 6;
+			break;
+		case CHART_COLMAP_OFFICE2010:
+			scheme->colors = office2010_colors;
+			scheme->nb_cols = office2010_nbcolors;
+			scheme->cs_green = 2;
+			scheme->cs_red = 1;
+			scheme->cs_yellow = 5;
+			scheme->cs_orange = 5;
+			break;
+		case CHART_COLMAP_OFFICE2013:
+			scheme->colors = office2013_colors;
+			scheme->nb_cols = office2013_nbcolors;
+			scheme->cs_green = 5;
+			scheme->cs_red = 1;
+			scheme->cs_yellow = 3;
+			scheme->cs_orange = 1;
+			break;
+		case CHART_COLMAP_SAP:
+			scheme->colors = sap_colors;
+			scheme->nb_cols = sap_nbcolors;
+			scheme->cs_green = 14;
+			scheme->cs_red = 15;
+			scheme->cs_yellow = 12;
+			scheme->cs_orange = 20;
+			break;
+	}
+
+
 }
 

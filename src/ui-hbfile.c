@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -223,7 +223,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Owner:"), 0, 0.5);
+	label = make_label_widget(_("_Owner:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	data.ST_owner = widget;
@@ -248,7 +248,7 @@ gint crow, row;
 	data.NU_weekday = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	label = make_label(_("of each month (excluded)"), 0, 0.5);
+	label = make_label(_("of each month (excluded)"), 0.0, 0.5);
 	data.LB_weekday = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 3, row, 1, 1);
 	
@@ -262,7 +262,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	//TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
-	label = make_label(_("days in advance the current date"), 0, 0.5);
+	label = make_label(_("days in advance the current date"), 0.0, 0.5);
 	data.LB_nbdays = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 3, row, 1, 1);
 
@@ -276,7 +276,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Category:"), 0, 0.5);
+	label = make_label_widget(_("_Category:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
 	data.PO_grp = widget;

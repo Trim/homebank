@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2015 Maxime DOYEN
+ *  Copyright (C) 1995-2016 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -24,6 +24,7 @@
 #include "ui-account.h"
 #include "ui-category.h"
 #include "ui-payee.h"
+#include "ui-split.h"
 
 #include "gtk-dateentry.h"
 
@@ -52,6 +53,33 @@ extern gchar *CYA_TXN_STATUS[];
 static GtkWidget *ui_arc_listview_new(void);
 
 
+
+static void ui_arc_listview_select_by_pointer(GtkTreeView *treeview, gpointer user_data)
+{
+GtkTreeModel *model;
+GtkTreeIter	iter;
+GtkTreeSelection *selection;
+gboolean valid;
+Archive *arc = user_data;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
+	while (valid)
+	{
+	Archive *tmp_arc;
+
+		gtk_tree_model_get (model, &iter, LST_DEFARC_DATAS, &tmp_arc, -1);
+		if( arc == tmp_arc )
+		{
+			gtk_tree_selection_select_iter (selection, &iter);
+			break;
+		}
+	
+		valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
+	}
+}
 
 
 /*
@@ -400,7 +428,8 @@ Archive *item;
 		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 		item->amount = value;
 
-		item->flags = 0;
+		//item->flags = 0;
+		item->flags &= (OF_SPLIT);	//(split is set in hb_archive)
 
 		active = item->amount > 0 ? TRUE : FALSE;
 		//active = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_amount));
@@ -576,7 +605,37 @@ gboolean selected, sensitive;
 		
 }
 
+static void ui_arc_manage_update_post_split(GtkWidget *widget, gdouble amount)
+{
+	struct ui_arc_manage_data *data;
+	gboolean sensitive = TRUE;
 
+	DB( g_print("(ui_arc_manage) update _post_split\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print("- amount=%.2f\n", amount) );
+
+	data->lastarcitem->amount = amount;
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount);
+	
+	data->lastarcitem->flags &= ~(OF_SPLIT); //First set flag that Splits are cleared
+	
+	if (da_splits_count(data->lastarcitem->splits) > 0)
+	{
+	/* disable category if split is set */
+		data->lastarcitem->flags |= OF_SPLIT; //Then set flag that Splits are active
+		sensitive = FALSE;
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
+	}
+	gtk_widget_set_sensitive(data->ST_amount, sensitive);
+
+	//# 1416624 empty category when split
+	if( (data->lastarcitem->flags & (OF_SPLIT)) )
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
+	gtk_widget_set_sensitive(data->PO_grp, sensitive);
+
+}
 /*
 ** update the widgets status and contents from action/selection value
 */
@@ -586,6 +645,7 @@ struct ui_arc_manage_data *data;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 gboolean selected, sensitive;
+gboolean split_sensitive = TRUE;
 Archive *arcitem;
 
 
@@ -619,6 +679,17 @@ Archive *arcitem;
 			ui_arc_manage_getlast(data);
 		}
 		data->lastarcitem = arcitem;
+
+		if (da_splits_count(data->lastarcitem->splits) > 0)
+		{
+
+			data->lastarcitem->flags |= OF_SPLIT; //Then set flag that Splits are active
+			split_sensitive = FALSE;
+			ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), 0);
+		}
+	
+		gtk_widget_set_sensitive(data->ST_amount, split_sensitive);
+		gtk_widget_set_sensitive(data->PO_grp, split_sensitive);
 
 		DB( g_print(" - call set\n") );
 		ui_arc_manage_set(widget, NULL);
@@ -662,13 +733,30 @@ gdouble value;
 		value *= -1;
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value);
 
-	/*
-	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
-	type = gtk_widget_get_sensitive(data->CY_amount);
 
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value * type);
-	*/
+		/*
+		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+		type = gtk_widget_get_sensitive(data->CY_amount);
+
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), value * type);
+		*/
 	}
+
+}
+
+
+static void defarchive_button_split_cb(GtkWidget *widget, gpointer user_data)
+{
+struct ui_arc_manage_data *data;
+gdouble amount;
+
+	DB( g_print("(ui_transaction) doing split\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+
+	ui_split_dialog(data->window, data->lastarcitem->splits, amount, &ui_arc_manage_update_post_split);
 
 }
 
@@ -758,7 +846,7 @@ gint i;
 
 static GtkWidget *ui_arc_manage_create_left_txn(struct ui_arc_manage_data *data)
 {
-GtkWidget *group_grid, *hbox, *label, *widget;
+GtkWidget *group_grid, *hbox, *label, *widget, *image;
 gint row;
 	
 	// group :: Transaction detail
@@ -771,7 +859,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Amount:"), 0.0, 0.5);
+	label = make_label_widget(_("_Amount:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
@@ -783,10 +871,18 @@ gint row;
 	gtk_entry_set_icon_tooltip_text(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY, _("Toggle amount sign"));
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_SPLIT, GTK_ICON_SIZE_MENU);
+	widget = gtk_button_new();
+	g_object_set (widget, "image", image, NULL);
+	data->BT_split = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+	gtk_widget_set_tooltip_text(widget, _("Transaction splits"));
+
+
 	gtk_grid_attach (GTK_GRID (group_grid), hbox, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("Pay_ment:"), 0.0, 0.5);
+	label = make_label_widget(_("Pay_ment:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_paymode(label);
 	gtk_widget_set_hexpand (widget, TRUE);
@@ -801,7 +897,7 @@ gint row;
 	/* info should be here some day */
 
 	row++;
-	label = make_label(_("A_ccount:"), 0.0, 0.5);
+	label = make_label_widget(_("A_ccount:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
 	gtk_widget_set_hexpand (widget, TRUE);
@@ -809,7 +905,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_To account:"), 0.0, 0.5);
+	label = make_label_widget(_("_To account:"));
 	data->LB_accto = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
@@ -837,7 +933,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
 	row = 1;
-	label = make_label(_("_Payee:"), 0.0, 0.5);
+	label = make_label_widget(_("_Payee:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_pay_comboboxentry_new(label);
 	gtk_widget_set_hexpand (widget, TRUE);
@@ -845,7 +941,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Category:"), 0.0, 0.5);
+	label = make_label_widget(_("_Category:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = ui_cat_comboboxentry_new(label);
 	gtk_widget_set_hexpand (widget, TRUE);
@@ -853,7 +949,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label(_("_Memo:"), 0.0, 0.5);
+	label = make_label_widget(_("_Memo:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_string(label);
 	gtk_widget_set_hexpand (widget, TRUE);
@@ -863,7 +959,7 @@ gint row;
 	/* tags should be here some day */
 
 	row++;
-	label = make_label(_("_Status:"), 0.0, 0.5);
+	label = make_label_widget(_("_Status:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_cycle(label, CYA_TXN_STATUS);
 	data->CY_status = widget;
@@ -902,7 +998,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
 	row++;
-	label = gtk_label_new_with_mnemonic (_("Ever_y:"));
+	label = make_label_widget(_("Ever_y:"));
 	data->LB_every = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
@@ -918,7 +1014,7 @@ gint row;
     gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
 	row++;
-	label = make_label(_("Week end:"), 0.0, 0.5);
+	label = make_label_widget(_("Week end:"));
 	data->LB_weekend = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 
@@ -946,7 +1042,7 @@ gint row;
 }
 
 
-GtkWidget *ui_arc_manage_dialog (void)
+GtkWidget *ui_arc_manage_dialog (Archive *ext_arc)
 {
 struct ui_arc_manage_data data;
 GtkWidget *dialog, *content_area;
@@ -1055,11 +1151,16 @@ gint w, h;
 	g_signal_connect (data.CM_auto, "toggled", G_CALLBACK (ui_arc_manage_scheduled), NULL);
 	g_signal_connect (data.CM_limit, "toggled", G_CALLBACK (ui_arc_manage_scheduled), NULL);
 
+	g_signal_connect (G_OBJECT (data.BT_split), "clicked", G_CALLBACK (defarchive_button_split_cb), NULL);
+	
 	//setup, init and show dialog
 	ui_arc_manage_setup(&data);
 	ui_arc_manage_update(data.LV_arc, NULL);
 
 	gtk_widget_show_all (dialog);
+
+	if(ext_arc != NULL)
+		ui_arc_listview_select_by_pointer(data.LV_arc, ext_arc);
 
 	//wait for the user
 	gint result = gtk_dialog_run (GTK_DIALOG (dialog));

@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2015 Maxime DOYEN
+ *	Copyright (C) 1995-2016 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -248,6 +248,58 @@ GtkTreeViewColumn	*column;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+//old stuf for transition waiting import rewrite
+static void da_obsolete_transaction_destroy(GList *list)
+{
+GList *tmplist = g_list_first(list);
+
+	while (tmplist != NULL)
+	{
+	Transaction *item = tmplist->data;
+		da_transaction_free(item);
+		tmplist = g_list_next(tmplist);
+	}
+	g_list_free(list);
+}
+
+static GQueue *da_obsolete_transaction_get_partial(guint32 minjulian)
+{
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
+GQueue *txn_queue;
+
+	txn_queue = g_queue_new ();
+
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
+	{
+	Account *acc = lnk_acc->data;
+
+		lnk_txn = g_queue_peek_tail_link(acc->txn_queue);
+		while (lnk_txn != NULL)
+		{
+		Transaction *txn = lnk_txn->data;
+
+			if( txn->date < minjulian ) //no need to go below mindate
+				break;
+
+			g_queue_push_head (txn_queue, txn);
+			
+			lnk_txn = g_list_previous(lnk_txn);
+		}
+	
+	next_acc:
+		lnk_acc = g_list_next(lnk_acc);
+	}
+	g_list_free(lst_acc);
+
+	return txn_queue;
+}
+
+
+
+
 /* count account to be imported */
 static void _import_context_count(struct import_data *data)
 {
@@ -287,7 +339,7 @@ static void _import_context_clear(ImportContext *ictx)
 	DB( g_print("\n[import] context clear\n") );
 
 	if(ictx->trans_list)
-		da_transaction_destroy(ictx->trans_list);
+		da_obsolete_transaction_destroy(ictx->trans_list);
 	ictx->trans_list  = NULL;
 	ictx->next_acc_key = da_acc_length();
 	ictx->datefmt  = PREFS->dtex_datefmt;
@@ -488,7 +540,11 @@ guint maxgap;
 			implist = g_list_next(implist);
 		}
 		
-		tmplist = g_list_first(GLOBALS->ope_list);
+		
+		GQueue *txn_queue = da_obsolete_transaction_get_partial(mindate);
+
+		//tmplist = g_list_first(GLOBALS->ope_list);
+		tmplist = g_queue_peek_head_link(txn_queue);
 		while (tmplist != NULL)
 		{
 		Transaction *ope = tmplist->data;
@@ -516,6 +572,9 @@ guint maxgap;
 
 			tmplist = g_list_next(tmplist);
 		}
+		
+		g_queue_free (txn_queue);
+		
 	}
 
 	DB( g_print(" nb_duplicate = %d\n", ictx->nb_duplicate) );
@@ -2079,9 +2138,7 @@ GtkWidget *ui_import_assistant_new (gint filetype)
 {
 struct import_data *data;
 GtkWidget *assistant;
-GdkScreen *screen;
-gint width, height;
-gint pos;
+gint w, h, pos;
 
 	data = g_malloc0(sizeof(struct import_data));
 	if(!data) return NULL;
@@ -2099,27 +2156,9 @@ gint pos;
 	gtk_window_set_modal(GTK_WINDOW (assistant), TRUE);
 	gtk_window_set_transient_for(GTK_WINDOW(assistant), GTK_WINDOW(GLOBALS->mainwindow));
 
-#if FORCE_SIZE == 1
-	screen = gtk_window_get_screen(GTK_WINDOW (assistant));
-	// fix #379372 : manage multiple monitor case
-	if( gdk_screen_get_n_monitors(screen) > 1 )
-	{
-	GdkRectangle rect;
-
-		gdk_screen_get_monitor_geometry(screen, 1, &rect);
-		width = rect.width;
-		height = rect.height;
-	}
-	else
-	{
-		width  = gdk_screen_get_width(screen);
-		height = gdk_screen_get_height(screen);
-	}
-
-	//gtk_window_resize(GTK_WINDOW(assistant), (height - 128) * PHI, height - 128);
-	gtk_window_resize(GTK_WINDOW(assistant), width/PHI, height/PHI);
-	gtk_window_set_position (GTK_WINDOW (assistant), GTK_WIN_POS_CENTER);
-#endif
+	//set a nice dialog size
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(assistant), w*0.8, h*0.8);
 
 
 	pos = 0;
