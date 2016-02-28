@@ -79,7 +79,7 @@ Assign *entry1, *entry2;
     gtk_tree_model_get(model, a, LST_DEFASG_DATAS, &entry1, -1);
     gtk_tree_model_get(model, b, LST_DEFASG_DATAS, &entry2, -1);
 
-    return hb_string_utf8_compare(entry1->name, entry2->name);
+    return hb_string_utf8_compare(entry1->text, entry2->text);
 }
 
 static void
@@ -96,10 +96,10 @@ gchar *string;
 #endif
 
 	gtk_tree_model_get(model, iter, LST_DEFASG_DATAS, &entry, -1);
-	if(entry->name == NULL)
+	if(entry->text == NULL)
 		name = _("(none)");		// can never occurs also
 	else
-		name = entry->name;
+		name = entry->text;
 
 	#if MYDEBUG
 		string = g_strdup_printf ("[%d] %s", entry->key, name );
@@ -126,7 +126,7 @@ gchar *string;
 void
 ui_asg_listview_add(GtkTreeView *treeview, Assign *item)
 {
-	if( item->name != NULL )
+	if( item->text != NULL )
 	{
 	GtkTreeModel *model;
 	GtkTreeIter	iter;
@@ -284,8 +284,8 @@ Assign *existitem;
 	existitem = da_asg_get_by_name(newname);
 	if( existitem == NULL )
 	{
-		g_free(item->name);
-		item->name = g_strdup(newname);
+		g_free(item->text);
+		item->text = g_strdup(newname);
 		return TRUE;
 	}
 
@@ -310,7 +310,7 @@ gint active;
 
 		item->field = radio_get_active(GTK_CONTAINER(data->CY_field));
 		
-		/*txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
+		/*txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
 		if (txt && *txt)
 		{
 			bool = assign_rename(item, txt);
@@ -320,23 +320,33 @@ gint active;
 			}
 			else
 			{
-				gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->name);
+				gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->text);
 			}
 		}*/
 
 		item->flags = 0;
-		
-		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
+
+		active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
 		if(active == 1) item->flags |= ASGF_EXACT;
 
-		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_pay));
-		if(active == 1) item->flags |= ASGF_DOPAY;
+		active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_re));
+		if(active == 1) item->flags |= ASGF_REGEX;
 
-		active   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cat));
+		active = radio_get_active (GTK_CONTAINER(data->RA_pay));
+		if(active == 1) item->flags |= ASGF_DOPAY;
+		else if(active == 2) item->flags |= ASGF_OVWPAY;
+		
+		active = radio_get_active (GTK_CONTAINER(data->RA_cat));
 		if(active == 1) item->flags |= ASGF_DOCAT;
+		else if(active == 2) item->flags |= ASGF_OVWCAT;
+		
+		active = radio_get_active (GTK_CONTAINER(data->RA_mod));
+		if(active == 1) item->flags |= ASGF_DOMOD;
+		else if(active == 2) item->flags |= ASGF_OVWMOD;
 
 		item->kcat    = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_cat));
 		item->kpay    = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_pay));
+		item->paymode = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mod));
 
 	}
 
@@ -354,6 +364,7 @@ GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 Assign *item;
+gint active;
 
 	DB( g_print("\n(ui_asg_manage_set)\n") );
 
@@ -369,16 +380,28 @@ Assign *item;
 
 		radio_set_active(GTK_CONTAINER(data->CY_field), item->field);
 		
-		gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->name);
+		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->text);
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), (item->flags & ASGF_EXACT) ? 1 : 0);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_re), (item->flags & ASGF_REGEX) ? 1 : 0);
 
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_cat), (item->flags & ASGF_DOCAT) ? 1 : 0);
-		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), item->kcat);
-
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_pay), (item->flags & ASGF_DOPAY) ? 1 : 0);
+		active = 0;
+		if(item->flags & ASGF_DOPAY) active = 1;
+		else if(item->flags & ASGF_OVWPAY) active = 2;
+		radio_set_active(GTK_CONTAINER(data->RA_pay), active);
 		ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_pay), item->kpay);
 
+		active = 0;
+		if(item->flags & ASGF_DOCAT) active = 1;
+		else if(item->flags & ASGF_OVWCAT) active = 2;
+		radio_set_active(GTK_CONTAINER(data->RA_cat), active);
+		ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), item->kcat);
+
+		active = 0;
+		if(item->flags & ASGF_DOMOD) active = 1;
+		else if(item->flags & ASGF_OVWMOD) active = 2;
+		radio_set_active(GTK_CONTAINER(data->RA_mod), active);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(data->NU_mod), item->paymode);
 
 	}
 
@@ -395,20 +418,23 @@ static gboolean ui_asg_manage_focus_out(GtkWidget *widget, GdkEventFocus *event,
 static void ui_asg_manage_update_assignments(GtkWidget *widget, gpointer user_data)
 {
 struct ui_asg_manage_data *data;
-gboolean active;
+gboolean sensitive;
 
 	DB( g_print("\n(ui_asg_manage_update_assignments)\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_pay));
-	gtk_widget_set_sensitive(data->PO_pay, active);
+	sensitive = (radio_get_active (GTK_CONTAINER(data->RA_pay)) > 0) ? TRUE : FALSE;
+	gtk_widget_set_sensitive(data->LB_pay, sensitive);
+	gtk_widget_set_sensitive(data->PO_pay, sensitive);
 	
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cat));
-	gtk_widget_set_sensitive(data->PO_cat, active);
+	sensitive = (radio_get_active (GTK_CONTAINER(data->RA_cat)) > 0) ? TRUE : FALSE;
+	gtk_widget_set_sensitive(data->LB_cat, sensitive);
+	gtk_widget_set_sensitive(data->PO_cat, sensitive);
 	
-	//active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_mod));
-	//gtk_widget_set_sensitive(data->NU_mod, active);
+	sensitive = (radio_get_active (GTK_CONTAINER(data->RA_mod)) > 0) ? TRUE : FALSE;
+	gtk_widget_set_sensitive(data->LB_mod, sensitive);
+	gtk_widget_set_sensitive(data->NU_mod, sensitive);
 
 }
 
@@ -439,7 +465,9 @@ guint32 key;
 
 	sensitive = (selected == TRUE) ? TRUE : FALSE;
 	gtk_widget_set_sensitive(data->GR_condition, sensitive);
-	gtk_widget_set_sensitive(data->GR_assignment, sensitive);
+	gtk_widget_set_sensitive(data->GR_pay, sensitive);
+	gtk_widget_set_sensitive(data->GR_cat, sensitive);
+	gtk_widget_set_sensitive(data->GR_mod, sensitive);
 
 	//sensitive = (data->action == 0) ? TRUE : FALSE;
 	//gtk_widget_set_sensitive(data->LV_rul, sensitive);
@@ -478,7 +506,7 @@ Assign *item;
 	DB( g_print("\n(ui_asg_manage_add) (data=%x)\n", (guint)data) );
 
 	item = da_asg_malloc();
-	item->name = g_strdup_printf( _("(assignment %d)"), da_asg_length()+1);
+	item->text = g_strdup_printf( _("(assignment %d)"), da_asg_length()+1);
 
 	da_asg_append(item);
 	ui_asg_listview_add(GTK_TREE_VIEW(data->LV_rul), item);
@@ -506,7 +534,7 @@ gint result;
 	gchar *secondtext;
 
 		title = g_strdup_printf (
-			_("Are you sure you want to permanently delete '%s'?"), item->name);
+			_("Are you sure you want to permanently delete '%s'?"), item->text);
 
 		secondtext = _("If you delete an assignment, it will be permanently lost.");
 		
@@ -548,14 +576,14 @@ gchar *txt;
 	{
 	Assign *item = da_asg_get(key);
 
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
 		if( txt == NULL || *txt == '\0' )
 		{
 			error = TRUE;
 			goto end;
 		}
 
-		if( strcmp(txt, item->name) )
+		if( strcmp(txt, item->text) )
 		{
 			if( assign_rename(item, txt) == TRUE )
 			{
@@ -569,10 +597,10 @@ gchar *txt;
 	}
 
 end:
-	gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
+	gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_name)), GTK_STYLE_CLASS_ERROR);
 
 	if( error == TRUE )
-		gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
+		gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_name)), GTK_STYLE_CLASS_ERROR);
 }
 
 
@@ -616,7 +644,7 @@ gboolean doupdate = FALSE;
 				LST_DEFASG_DATAS, &item,
 				-1);
 
-			DB( g_print(" -> check rul %d, pos is %d, %s\n", i, item->pos, item->name) );
+			DB( g_print(" -> check rul %d, pos is %d, %s\n", i, item->pos, item->text) );
 
 			if(item->pos != i)
 				data->change++;
@@ -653,6 +681,15 @@ static void ui_asg_manage_setup(struct ui_asg_manage_data *data)
 	ui_cat_comboboxentry_populate(GTK_COMBO_BOX(data->PO_cat), GLOBALS->h_cat);
 }
 
+static gchar *CYA_ASG_ACTION[] = {
+	N_("Disabled"), 
+	N_("If empty"), 
+	N_("Overwrite"), 
+	NULL
+};
+
+
+
 /*
 **
 */
@@ -664,7 +701,7 @@ GtkWidget *content_grid, *group_grid;
 GtkWidget *table, *label, *entry1;
 GtkWidget *scrollwin;
 GtkWidget *widget, *hpaned;
-gint w, h, row;
+gint w, h, crow, row;
 
 	window = gtk_dialog_new_with_buttons (_("Manage Assignments"),
 				GTK_WINDOW(GLOBALS->mainwindow),
@@ -735,75 +772,131 @@ gint w, h, row;
 	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
 	// group :: Condition
+	crow = 0;
     group_grid = gtk_grid_new ();
 	data.GR_condition = group_grid; 
 	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
-	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow, 1, 1);
 	
 	row = 0;
 	label = make_label_group(_("Condition"));
-	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
 	
 	row++;
-	label = make_label_widget(_("_Field:"));
+	label = make_label_widget(_("Search _in:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = make_radio(CYA_ASG_FIELD, FALSE, GTK_ORIENTATION_HORIZONTAL);
 	data.CY_field = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
 	row++;
-	label = make_label_widget(_("Con_tains:"));
+	//label = make_label_widget(_("Con_tains:"));
+	label = make_label_widget(_("Fi_nd:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	entry1 = make_string(label);
-	data.ST_text = entry1;
+	data.ST_name = entry1;
 	gtk_widget_set_hexpand(entry1, TRUE);
 	gtk_grid_attach (GTK_GRID (group_grid), entry1, 2, row, 2, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("Case _sensitive"));
+	widget = gtk_check_button_new_with_mnemonic (_("Match _case"));
 	data.CM_exact = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
 
-	// group :: Assignments
+	row++;
+	widget = gtk_check_button_new_with_mnemonic (_("Use _regular expressions"));
+	data.CM_re = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
+
+	// Assignments
+
+	// group :: Assign payee
+	crow++;
     group_grid = gtk_grid_new ();
-	data.GR_assignment = group_grid;
+	data.GR_pay = group_grid;
 	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
-	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
-	
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow, 1, 1);
+
 	row = 0;
-	label = make_label_group(_("Assignments"));
-	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 4, 1);
+	label = make_label_group(_("Assign payee"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
 
 	row++;
-	label = make_label (_("_Category:"), 1.0, 0.5);
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = gtk_check_button_new();
-	data.CM_cat = widget;
-	gtk_widget_set_halign (widget, GTK_ALIGN_CENTER);
+	widget = make_radio(CYA_ASG_ACTION, FALSE, GTK_ORIENTATION_HORIZONTAL);
+	data.RA_pay = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-	widget = ui_cat_comboboxentry_new(label);
-	data.PO_cat = widget;
-	gtk_widget_set_hexpand(widget, TRUE);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
 
-	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
-	
 	row++;
-	label = make_label (_("_Payee:"), 1.0, 0.5);
+	label = make_label_widget (_("_Payee:"));
+	data.LB_pay = label;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-	widget = gtk_check_button_new();
-	data.CM_pay = widget;
-	gtk_widget_set_halign (widget, GTK_ALIGN_CENTER);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
 	widget = ui_pay_comboboxentry_new(label);
 	data.PO_pay = widget;
 	gtk_widget_set_hexpand(widget, TRUE);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
 
+	//gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Payee"));
+
+	crow++;
+    group_grid = gtk_grid_new ();
+	data.GR_cat = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow, 1, 1);
+
+	row = 0;
+	label = make_label_group(_("Assign category"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
+
+	row++;
+	widget = make_radio(CYA_ASG_ACTION, FALSE, GTK_ORIENTATION_HORIZONTAL);
+	data.RA_cat = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label_widget (_("_Category:"));
+	data.LB_cat = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+
+	widget = ui_cat_comboboxentry_new(label);
+	data.PO_cat = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	//gtk_widget_set_tooltip_text(widget, _("Autocompletion and direct seizure\nis available for Category"));
+
+	crow++;
+    group_grid = gtk_grid_new ();
+	data.GR_mod = group_grid;
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow, 1, 1);
+
+	row = 0;
+	label = make_label_group(_("Assign payment"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 3, 1);
+
+	row++;
+	widget = make_radio(CYA_ASG_ACTION, FALSE, GTK_ORIENTATION_HORIZONTAL);
+	data.RA_mod = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
+	label = make_label_widget (_("Pay_ment:"));
+	data.LB_mod = label;
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+
+	widget = make_paymode_nointxfer (label);
+	data.NU_mod = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	//ugly hack
+	//gtk_widget_set_tooltip_text(widget, _("Internal transfer unsupported\nin auto assignments"));
 
 
 	//connect all our signals
@@ -811,10 +904,19 @@ gint w, h, row;
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_rul)), "changed", G_CALLBACK (ui_asg_manage_selection), NULL);
 
-	g_signal_connect (G_OBJECT (data.ST_text), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
+	g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
 
-	g_signal_connect (G_OBJECT (data.CM_cat), "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
-	g_signal_connect (G_OBJECT (data.CM_pay), "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
+	widget = radio_get_nth_widget(GTK_CONTAINER(data.RA_pay), 0);
+	if(widget)
+		g_signal_connect (widget, "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
+
+	widget = radio_get_nth_widget(GTK_CONTAINER(data.RA_cat), 0);
+	if(widget)
+		g_signal_connect (widget, "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
+
+	widget = radio_get_nth_widget(GTK_CONTAINER(data.RA_mod), 0);
+	if(widget)
+		g_signal_connect (widget, "toggled", G_CALLBACK (ui_asg_manage_update_assignments), NULL);
 
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_asg_manage_add), NULL);
 	g_signal_connect (G_OBJECT (data.BT_rem), "clicked", G_CALLBACK (ui_asg_manage_delete), NULL);

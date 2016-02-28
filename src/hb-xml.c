@@ -439,10 +439,10 @@ gint i;
 		     if(!strcmp (attribute_names[i], "key"     )) { entry->key   = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "flags"   )) { entry->flags = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "field"   )) { entry->field = atoi(attribute_values[i]); }
-		else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->name = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "name"    )) { if(strcmp(attribute_values[i],"(null)") && attribute_values[i] != NULL) entry->text = g_strdup(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "payee"   )) { entry->kpay = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "category")) { entry->kcat = atoi(attribute_values[i]); }
-		//else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
 		// prior v08
 		else if(!strcmp (attribute_names[i], "exact" )) { exact = atoi(attribute_values[i]); }
 	}
@@ -1347,10 +1347,10 @@ GError *error = NULL;
 		hb_xml_append_int(node, "key"     , item->key);
 		hb_xml_append_int(node, "flags"   , item->flags);
 		hb_xml_append_int(node, "field"   , item->field);
-		hb_xml_append_txt(node, "name"    , item->name);	
+		hb_xml_append_txt(node, "name"    , item->text);	
 		hb_xml_append_int(node, "payee"   , item->kpay);
 		hb_xml_append_int(node, "category", item->kcat);
-		//hb_xml_append_int(node, "paymode" , item->paymode);
+		hb_xml_append_int(node, "paymode" , item->paymode);
 
 		g_string_append(node, "/>\n");
 		

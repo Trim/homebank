@@ -942,6 +942,22 @@ gboolean match = FALSE;
 	return match;
 }
 
+static gboolean misc_regex_match(gchar *text, gchar *searchtext, gboolean exact)
+{
+gboolean match = FALSE;
+
+	if(text == NULL)
+		return FALSE;
+	
+	DB( g_print("match RE %s in %s\n", searchtext, text) );
+	if( searchtext != NULL )
+	{
+		match = g_regex_match_simple(searchtext, text, ((exact == TRUE)?0:G_REGEX_CASELESS) | G_REGEX_OPTIMIZE, G_REGEX_MATCH_NOTEMPTY );
+		if (match == TRUE) { DB( g_print(" found pattern '%s'\n", searchtext) ); }
+	}
+	return match;
+}
+
 
 static Assign *transaction_auto_assign_eval_txn(GList *l_rul, Transaction *txn)
 {
@@ -963,8 +979,17 @@ GList *list;
 			if(pay)
 				text = pay->name;
 		}
-		if( misc_text_match(text, rul->name, rul->flags & ASGF_EXACT))
-			rule = rul;
+		
+		if( !(rul->flags & ASGF_REGEX) )
+		{
+			if( misc_text_match(text, rul->text, rul->flags & ASGF_EXACT) )
+				rule = rul;
+		}
+		else
+		{
+			if( misc_regex_match(text, rul->text, rul->flags & ASGF_EXACT) )
+				rule = rul;
+		}
 
 		list = g_list_next(list);
 	}
@@ -987,8 +1012,16 @@ GList *list;
 
 		if( rul->field == 0 )   //memo
 		{
-			if( misc_text_match(text, rul->name, rul->flags & ASGF_EXACT))
-				rule = rul;
+			if( !(rul->flags & ASGF_REGEX) )
+			{
+				if( misc_text_match(text, rul->text, rul->flags & ASGF_EXACT) )
+					rule = rul;
+			}
+			else
+			{
+				if( misc_regex_match(text, rul->text, rul->flags & ASGF_EXACT) )
+					rule = rul;
+			}
 		}
 		list = g_list_next(list);
 	}
@@ -1037,6 +1070,17 @@ gint changes = 0;
 						ope->kcat = rul->kcat;
 					}
 				}
+
+				if( (ope->paymode == 0 || (rul->flags & ASGF_OVWMOD)) && (rul->flags & ASGF_DOMOD) )
+				{
+					//ugly hack - don't allow modify intxfer
+					if(ope->paymode != PAYMODE_INTXFER && rul->paymode != PAYMODE_INTXFER) 
+					{
+						if(ope->paymode != rul->paymode) { changed = TRUE; }
+						ope->paymode = rul->paymode;
+					}
+				}
+
 			}
 
 			if( ope->flags & OF_SPLIT )

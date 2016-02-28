@@ -861,34 +861,65 @@ gchar *get_paymode_icon_name(gint index)
 /*
 ** Make a paymode combobox widget
 */
-GtkWidget *make_paymode(GtkWidget *label)
+
+static void
+paymode_set_sensitive (GtkCellLayout   *cell_layout,
+	       GtkCellRenderer *cell,
+	       GtkTreeModel    *tree_model,
+	       GtkTreeIter     *iter,
+	       gpointer         data)
 {
-GtkListStore  *store;
-GtkTreeIter    iter;
+  GtkTreePath *path;
+  gint *indices;
+  gboolean sensitive;
+
+  path = gtk_tree_model_get_path (tree_model, iter);
+  indices = gtk_tree_path_get_indices (path);
+  sensitive = (indices[0] == PAYMODE_INTXFER) ? FALSE : TRUE;  
+  gtk_tree_path_free (path);
+  
+
+  g_object_set (cell, "sensitive", sensitive, NULL);
+}
+
+
+
+static GtkWidget *make_paymode_internal(GtkWidget *label, gboolean intxfer)
+{
+GtkListStore *store;
+GtkTreeIter iter;
 GtkWidget *combobox;
-GtkCellRenderer    *renderer;
+GtkCellRenderer *renderer, *r1, *r2;
 guint i;
 
-	//store
 	store = gtk_list_store_new (
 		NUM_LST_PAYMODE,
 		G_TYPE_STRING,
 		G_TYPE_STRING
 		);
 
-	//combobox
 	combobox = gtk_combo_box_new_with_model(GTK_TREE_MODEL(store));
 
-	//column 1
-	renderer = gtk_cell_renderer_pixbuf_new();
+	renderer = r1 = gtk_cell_renderer_pixbuf_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, FALSE);
 	gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT(combobox), renderer, "icon-name", LST_PAYMODE_ICONNAME);
 
-	renderer = gtk_cell_renderer_text_new();
+	renderer = r2 = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox), renderer, FALSE);
 	gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT(combobox), renderer, "text", LST_PAYMODE_LABEL);
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+
+	if( intxfer == FALSE )
+	{
+		gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (combobox),
+						r1,
+						paymode_set_sensitive,
+						NULL, NULL);
+		gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (combobox),
+						r2,
+						paymode_set_sensitive,
+						NULL, NULL);
+	}
 
 	//populate our combobox model
 	for(i=0;i<NUM_PAYMODE_MAX;i++)
@@ -907,6 +938,20 @@ guint i;
 
 	return combobox;
 }
+
+
+
+
+GtkWidget *make_paymode(GtkWidget *label)
+{
+	return make_paymode_internal(label, TRUE);
+}
+
+GtkWidget *make_paymode_nointxfer(GtkWidget *label)
+{
+	return make_paymode_internal(label, FALSE);
+}
+
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 

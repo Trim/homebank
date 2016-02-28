@@ -871,7 +871,7 @@ gint crow;
 
 		data->showtemplate = TRUE;
 
-		crow = 1;
+		crow++;
 		expander = gtk_expander_new (_("Fill in with a template"));
 		gtk_expander_set_expanded (GTK_EXPANDER(expander), TRUE);
 		gtk_grid_attach (GTK_GRID (content_grid), expander, 0, crow, 2, 1);
@@ -890,7 +890,7 @@ gint crow;
 		gtk_widget_show_all(expander);
 	}
 
-	crow = 2;
+	crow++;
 	bar = gtk_info_bar_new ();
 	data->IB_warnsign = bar;
 	gtk_info_bar_set_message_type (GTK_INFO_BAR (bar), GTK_MESSAGE_WARNING);

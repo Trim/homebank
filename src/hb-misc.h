@@ -50,6 +50,8 @@ void hb_string_strip_crlf(gchar *str);
 void hb_string_replace_char(gchar c, gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
+gchar *hb_sprint_date(gchar *outstr, guint32 julian);
+
 gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);
 
 guint32 hb_date_get_julian(gchar *string, gint datefmt);

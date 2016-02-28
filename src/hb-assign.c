@@ -40,9 +40,9 @@ da_asg_free(Assign *item)
 	DB( g_print("da_asg_free\n") );
 	if(item != NULL)
 	{
-		DB( g_print(" => %d, %s\n", item->key, item->name) );
+		DB( g_print(" => %d, %s\n", item->key, item->text) );
 
-		g_free(item->name);
+		g_free(item->text);
 		g_free(item);
 	}
 }
@@ -80,9 +80,9 @@ static void da_asg_max_key_ghfunc(gpointer key, Assign *item, guint32 *max_key)
 
 static gboolean da_asg_name_grfunc(gpointer key, Assign *item, gchar *name)
 {
-	if( name && item->name )
+	if( name && item->text )
 	{
-		if(!strcasecmp(name, item->name))
+		if(!strcasecmp(name, item->text))
 			return TRUE;
 	}
 	return FALSE;
@@ -154,12 +154,12 @@ guint32 *new_key;
 
 	DB( g_print("da_asg_append\n") );
 
-	DB( g_print(" -> try append: %s\n", item->name) );
+	DB( g_print(" -> try append: %s\n", item->text) );
 
-	if( item->name != NULL )
+	if( item->text != NULL )
 	{
 		/* ensure no duplicate */
-		existitem = da_asg_get_by_name( item->name );
+		existitem = da_asg_get_by_name( item->text );
 		if( existitem == NULL )
 		{
 			new_key = g_new0(guint32, 1);
@@ -173,7 +173,7 @@ guint32 *new_key;
 		}
 	}
 
-	DB( g_print(" -> %s already exist: %d\n", item->name, item->key) );
+	DB( g_print(" -> %s already exist: %d\n", item->text, item->key) );
 
 	return FALSE;
 }
@@ -263,7 +263,7 @@ da_asg_debug_list_ghfunc(gpointer key, gpointer value, gpointer user_data)
 guint32 *id = key;
 Assign *item = value;
 
-	DB( g_print(" %d :: %s\n", *id, item->name) );
+	DB( g_print(" %d :: %s\n", *id, item->text) );
 
 }
 

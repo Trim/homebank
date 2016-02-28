@@ -1296,6 +1296,8 @@ gint w, h, row;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_container_add (GTK_CONTAINER (scrollwin), widget);
+	gtk_widget_set_hexpand (scrollwin, TRUE);
+	gtk_widget_set_vexpand (scrollwin, TRUE);
 	data.TB_notes = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), scrollwin, 2, row, 1, 1);
 	

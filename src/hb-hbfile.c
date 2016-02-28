@@ -347,8 +347,8 @@ guint cnt, i;
 
 		if(item->key != 0)
 		{
-			g_free(item->name);
-			item->name = g_strdup_printf("assign %d", item->key);
+			g_free(item->text);
+			item->text = g_strdup_printf("assign %d", item->key);
 			GLOBALS->changes_count++;
 		}
 		list = g_list_next(list);

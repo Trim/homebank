@@ -69,6 +69,7 @@ GtkWidget *make_popcategory(GtkWidget *label);
 
 gchar *get_paymode_icon_name(gint index);
 GtkWidget *make_paymode(GtkWidget *label);
+GtkWidget *make_paymode_nointxfer(GtkWidget *label);
 GtkWidget *make_nainex(GtkWidget *label);
 
 #endif
