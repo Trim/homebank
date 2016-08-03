@@ -1077,6 +1077,8 @@ gint account, count;
 				ope->date = GLOBALS->today;
 		}
 
+		// normally we can't be in addkeep without initialized ope with add
+
 		deftransaction_set_transaction(window, ope);
 
 		result = gtk_dialog_run (GTK_DIALOG (window));
@@ -1436,7 +1438,7 @@ struct hbfile_data *data = user_data;
 	if( (arc != NULL) )
 	{
 		ui_mainwindow_scheduled_do_post(arc, TRUE, data);
-		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_REFRESHALL));
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE|UF_REFRESHALL));
 	}
 }
 
@@ -1456,8 +1458,8 @@ struct hbfile_data *data = user_data;
 			da_transaction_init_from_template(txn, arc);
 			txn->date = scheduled_get_postdate(arc, arc->nextdate);
 			transaction_add(txn, NULL, 0);
+
 			GLOBALS->changes_count++;
-		
 			scheduled_date_advance(arc);
 
 			da_transaction_free (txn);
@@ -1467,7 +1469,7 @@ struct hbfile_data *data = user_data;
 			ui_mainwindow_scheduled_do_post(arc, FALSE, data);
 		}
 
-		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_REFRESHALL));
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE|UF_REFRESHALL));
 	}
 }
 
@@ -1479,9 +1481,11 @@ struct hbfile_data *data = user_data;
 	Archive *arc = ui_mainwindow_scheduled_get_selected_item(GTK_TREE_VIEW(data->LV_upc));
 	if( (arc != NULL) && (arc->flags & OF_AUTO) )
 	{
+		GLOBALS->changes_count++;
 		scheduled_date_advance(arc);
 
 		ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
 	}
 }
 
@@ -2148,7 +2152,7 @@ gint flags;
 
 		gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (data->LV_upc), PREFS->grid_lines);
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_upc));
-		
+
 		DB( g_print(" - show toolbar=%d\n", PREFS->wal_toolbar) );
 		if(PREFS->wal_toolbar)
 			gtk_widget_show(GTK_WIDGET(data->toolbar));
@@ -2541,8 +2545,8 @@ GError *error = NULL;
 	action = gtk_action_group_get_action(action_group, "Open");
 	g_object_set(action, "short_label", _("Open"), NULL);
 
-	action = gtk_action_group_get_action(action_group, "Save");
-	g_object_set(action, "is_important", TRUE, NULL);
+	//action = gtk_action_group_get_action(action_group, "Save");
+	//g_object_set(action, "is_important", TRUE, NULL);
 
 	action = gtk_action_group_get_action(action_group, "Account");
 	g_object_set(action, "short_label", _("Account"), NULL);
@@ -2849,18 +2853,6 @@ GtkAction *action;
 	data->window = window;
 	GLOBALS->mainwindow = window;
 
-	//setup, init and show window
-	wg = &PREFS->wal_wg;
-	if(wg->s == 0)
-	{
-		gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
-		gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
-	}
-	else
-		gtk_window_maximize(GTK_WINDOW(window));
-
-	gtk_widget_show (window);
-
 	mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add (GTK_CONTAINER (window), mainvbox);
 
@@ -2906,6 +2898,16 @@ GtkWidget *bar, *label;
 		gtk_paned_set_position(GTK_PANED(data->hpaned), PREFS->wal_hpaned);
 	if(PREFS->wal_vpaned > 0)
 		gtk_paned_set_position(GTK_PANED(data->vpaned), PREFS->wal_vpaned);
+
+	//setup, init and show window
+	wg = &PREFS->wal_wg;
+	if(wg->s == 0)
+	{
+		gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
+		gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
+	}
+	else
+		gtk_window_maximize(GTK_WINDOW(window));
 
 	gtk_widget_show_all (window);
 	

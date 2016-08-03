@@ -33,6 +33,7 @@ struct _assign
 	guint32		kpay;
 	guint32		kcat;
 	gushort		paymode;
+	gushort		pad1;
 };
 
 

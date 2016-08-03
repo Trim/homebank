@@ -475,11 +475,13 @@ GtkCellRenderer    *renderer;
 
     completion = gtk_entry_completion_new ();
     gtk_entry_completion_set_model (completion, GTK_TREE_MODEL(store));
-	g_object_set(completion, "text-column", LST_CMBCAT_FULLNAME, NULL);
+	//g_object_set(completion, "text-column", LST_CMBCAT_FULLNAME, NULL);
 	gtk_entry_completion_set_match_func(completion, ui_cat_comboboxentry_completion_func, NULL, NULL);
-	gtk_entry_completion_set_minimum_key_length(completion, 2);
+	//gtk_entry_completion_set_minimum_key_length(completion, 2);
 
-	renderer = gtk_cell_renderer_text_new ();
+	gtk_entry_completion_set_text_column(completion, 1);
+
+	/*renderer = gtk_cell_renderer_text_new ();
 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
 	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (completion), renderer, "text", LST_CMBCAT_FULLNAME, NULL);
 
@@ -487,6 +489,7 @@ GtkCellRenderer    *renderer;
 					    renderer,
 					    ui_cat_comboboxentry_test,
 					    NULL, NULL);
+	*/
 
 	// dothe same for combobox
 
@@ -568,7 +571,6 @@ gint retval = 0;
 		default:
 			g_return_val_if_reached(0);
 	}
-
     return retval;
 }
 
@@ -1020,22 +1022,31 @@ GtkTreeViewColumn	*column;
 	}
 
 	// column 2: name
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);
+
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Name"));
-	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_cat_listview_text_cell_data_function, GINT_TO_POINTER(LST_DEFCAT_NAME), NULL);
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_column_set_sort_column_id (column, LST_DEFCAT_SORT_NAME);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
 	if( withcount == TRUE )
 	{
 		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Used"));
+		gtk_tree_view_column_set_title(column, _("Usage"));
 		renderer = gtk_cell_renderer_text_new ();
-		//g_object_set(renderer, "xalign", 1.0, NULL);
+		g_object_set(renderer, "xalign", 0.5, NULL);
 		gtk_tree_view_column_pack_start(column, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(column, renderer, ui_cat_listview_count_cell_data_function, GINT_TO_POINTER(LST_DEFCAT_DATAS), NULL);
+		gtk_tree_view_column_set_alignment (column, 0.5);
 		gtk_tree_view_column_set_sort_column_id (column, LST_DEFCAT_SORT_USED);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 	}
@@ -1049,7 +1060,7 @@ GtkTreeViewColumn	*column;
 	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_SORT_NAME, ui_cat_listview_compare_func, GINT_TO_POINTER(LST_DEFCAT_SORT_NAME), NULL);
 	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFCAT_SORT_USED, ui_cat_listview_compare_func, GINT_TO_POINTER(LST_DEFCAT_SORT_USED), NULL);
 	
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFCAT_DATAS, GTK_SORT_ASCENDING);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFCAT_SORT_NAME, GTK_SORT_ASCENDING);
 
 	return treeview;
 }
@@ -1095,6 +1106,36 @@ gchar *result = g_new0 (gchar, length+1);
   g_free (result);
 }
 
+
+static void
+ui_cat_manage_dialog_delete_unused( GtkWidget *widget, gpointer user_data)
+{
+struct ui_cat_manage_dialog_data *data = user_data;
+gboolean result;
+
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print("(ui_cat_manage_dialog) delete unused - data %p\n", data) );
+
+	result = ui_dialog_msg_confirm_alert(
+			GTK_WINDOW(data->window),
+			_("Delete unused categories"),
+			_("Are you sure you want to permanently\ndelete unused categories?"),
+			_("_Delete")
+		);
+
+	if( result == GTK_RESPONSE_OK )
+	{
+	GtkTreeModel *model;	
+		
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_cat));
+		gtk_tree_store_clear (GTK_TREE_STORE(model));
+
+		category_delete_unused();
+	
+		ui_cat_manage_populate_listview (data);
+	}
+}
 
 
 
@@ -1518,7 +1559,7 @@ gint result;
 		title = g_strdup_printf (
 			_("Are you sure you want to permanently delete '%s'?"), item->name);
 
-		if( category_is_used(item->key) == TRUE )
+		if( item->usage_count > 0 )
 		{
 			secondtext = _("This category is used.\n"
 			    "Any transaction using that category will be set to (no category)");
@@ -1825,7 +1866,14 @@ gint w, h, row;
 	menuitem = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_cat_manage_dialog_save_csv), &data);
+
+	menuitem = gtk_separator_menu_item_new();
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 	
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Delete unused"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_cat_manage_dialog_delete_unused), &data);
+
 	gtk_widget_show_all (menu);
 	
 	widget = gtk_menu_button_new();

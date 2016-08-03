@@ -39,6 +39,182 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
+static gchar *hb_csv_strndup (gchar *str, gsize n)
+{
+gchar *new_str;
+gchar *twoquote;
+
+	if (str)
+	{
+		new_str = g_new (gchar, n + 1);
+		if(*str=='\"')
+		{
+			str++; n--;
+		}
+		if(str[n-1]=='\"')
+			n--;
+		
+		strncpy (new_str, str, n);
+		new_str[n] = '\0';
+		
+		// replace ""
+		twoquote = strstr(new_str, "\"\"");
+		if(twoquote)
+			strcpy (twoquote, twoquote+1);
+		
+		//todo: replace &amp; &lt; &gt; &apos; &quot; ??
+		
+	}
+	else
+		new_str = NULL;
+
+	return new_str;
+}
+
+
+static gchar *hb_csv_find_delimiter(gchar *string)
+{
+ gchar *s = string;
+gboolean enclosed = FALSE;
+
+	while( *s != '\0' )
+	{
+		if( *s == ';' && enclosed == FALSE )
+			break;
+
+		if( *s == '\"' )
+		{
+			enclosed = !enclosed;
+		}
+	
+		s++;
+	}
+	
+	return s;
+}
+
+
+gboolean hb_csv_row_valid(gchar **str_array, guint nbcolumns, gint *csvtype)
+{
+gboolean valid = TRUE;
+guint i;
+extern int errno;
+
+#if MYDEBUG == 1
+gchar *type[5] = { "string", "date", "int", "double" };
+gint lasttype;
+#endif
+
+	DB( g_print("\n** hb_string_csv_valid: init %d\n", valid) );
+
+	DB( g_print(" -> length %d, nbcolumns %d\n", g_strv_length( str_array ), nbcolumns) );
+
+	if( g_strv_length( str_array ) != nbcolumns )
+	{
+		valid = FALSE;
+		goto csvend;
+	}
+
+	for(i=0;i<nbcolumns;i++)
+	{
+#if MYDEBUG == 1
+		lasttype = csvtype[i];
+#endif
+
+		if(valid == FALSE)
+		{
+			DB( g_print(" -> fail on column %d, type: %s\n", i, type[lasttype]) );
+			break;
+		}
+
+		DB( g_print(" -> control column %d, type: %d, valid: %d '%s'\n", i, lasttype, valid, str_array[i]) );
+
+		switch( csvtype[i] )
+		{
+			case CSV_DATE:
+				valid = hb_string_isdate(str_array[i]);
+				break;
+			case CSV_STRING:
+				valid = hb_string_isprint(str_array[i]);
+				break;
+			case CSV_INT:
+				valid = hb_string_isdigit(str_array[i]);
+				break;
+			case CSV_DOUBLE	:
+				g_ascii_strtod(str_array[i], NULL);
+				//todo : see this errno
+				if( errno )
+				{
+					DB( g_print("errno: %d\n", errno) );
+					valid = FALSE;
+				}
+				break;
+		}
+	}
+
+csvend:
+
+	DB( g_print(" --> return %d\n", valid) );
+
+	return valid;
+}
+
+
+gchar **hb_csv_row_get(gchar *string, gchar *delimiter, gint max_tokens)
+{
+GSList *string_list = NULL, *slist;
+gchar **str_array, *s;
+guint n = 0;
+gchar *remainder;
+
+	g_return_val_if_fail (string != NULL, NULL);
+	g_return_val_if_fail (delimiter != NULL, NULL);
+	g_return_val_if_fail (delimiter[0] != '\0', NULL);
+
+	if (max_tokens < 1)
+		max_tokens = G_MAXINT;
+
+	remainder = string;
+	s = hb_csv_find_delimiter (remainder);
+	if (s)
+	{
+	gsize delimiter_len = strlen (delimiter);
+
+		while (--max_tokens && s && *s != '\0')
+		{
+		gsize len;
+
+			len = s - remainder;
+			string_list = g_slist_prepend (string_list, hb_csv_strndup (remainder, len));
+			DB( g_print("   stored=[%s]\n", (gchar *)string_list->data) );
+
+			n++;
+			remainder = s + delimiter_len;
+			s = hb_csv_find_delimiter (remainder);
+		}
+	}
+	if (*string)
+	{
+	gsize len;
+	
+		len = s - remainder;
+		n++;
+		string_list = g_slist_prepend (string_list, hb_csv_strndup (remainder, len));
+		DB( g_print("   stored=[%s]\n", (gchar *)string_list->data) );
+	}
+
+	str_array = g_new (gchar*, n + 1);
+
+	str_array[n--] = NULL;
+	for (slist = string_list; slist; slist = slist->next)
+		str_array[n--] = slist->data;
+
+	g_slist_free (string_list);
+
+	return str_array;
+}
+
+
 GList *homebank_csv_import(gchar *filename, ImportContext *ictx)
 {
 GIOChannel *io;
@@ -59,8 +235,9 @@ static gint csvtype[7] = {
 	if(io != NULL)
 	{
 	gchar *tmpstr;
+	gsize length;
 	gint io_stat;
-	gboolean valid;
+	gboolean isvalid;
 	gint count = 0;
 	gint error = 0;
 	Account *tmp_acc;
@@ -81,7 +258,7 @@ static gint csvtype[7] = {
 
 		for(;;)
 		{
-			io_stat = g_io_channel_read_line(io, &tmpstr, NULL, NULL, &err);
+			io_stat = g_io_channel_read_line(io, &tmpstr, &length, NULL, &err);
 			if( io_stat == G_IO_STATUS_EOF)
 				break;
 			if( io_stat == G_IO_STATUS_ERROR )
@@ -95,31 +272,35 @@ static gint csvtype[7] = {
 				{
 				gchar **str_array;
 
+					count++;
+
 					hb_string_strip_crlf(tmpstr);
+					DB( g_print("\n (row-%04d) ->|%s|<-\n", count, tmpstr) );
 
-					/* control validity here */
-					valid = hb_string_csv_valid(tmpstr, 8, csvtype);
+					// 0:date; 1:paymode; 2:info; 3:payee, 4:wording; 5:amount; 6:category; 7:tags
+					str_array = hb_csv_row_get(tmpstr, ";", 8);
+					isvalid = hb_csv_row_valid(str_array, 8, csvtype);
 
-					 //DB( g_print("valid %d, '%s'\n", valid, tmpstr) );
+					 DB( g_print(" valid %d, '%s'\n", isvalid, tmpstr) );
 
-					if( !valid )
+					if( !isvalid )
 					{
+						g_warning ("csv parse: line %d, invalid column count or data", count);
 						error++;
+						//todo log line in error to report user
 					}
 					else
 					{
 					Transaction *newope = da_transaction_malloc();
 
-						count++;
-
-						str_array = g_strsplit (tmpstr, ";", 8);
-						// 0:date; 1:paymode; 2:info; 3:payee, 4:wording; 5:amount; 6:category; 7:tags
-
-						DB( g_print(" ->%s\n", tmpstr ) );
+						//DB( g_print(" ->%s\n", tmpstr ) );
 
 						newope->date		 = hb_date_get_julian(str_array[0], ictx->datefmt);
 						if( newope->date == 0 )
+						{
+							g_warning ("csv parse: line %d, parse date failed", count);
 							ictx->cnt_err_date++;
+						}
 						
 						newope->paymode		 = atoi(str_array[1]);
 						newope->info		 = g_strdup(str_array[2]);
@@ -195,4 +376,5 @@ static gint csvtype[7] = {
 
 	return list;
 }
+
 

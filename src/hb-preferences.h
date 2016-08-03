@@ -65,7 +65,7 @@ struct Preferences
 	//interface
 	gchar		*language;
 	gshort		toolbar_style;
-	gboolean	rules_hint;
+	//gboolean	rules_hint;
 	gshort		grid_lines;
 	gboolean	custom_colors;
 	gchar		*color_exp;
@@ -116,7 +116,7 @@ struct Preferences
 	//chart options
 	//gboolean	chart_legend;
 
-	/* windows size an position */
+	/* windows/dialogs size an position */
 	struct WinGeometry	wal_wg;
 	struct WinGeometry	acc_wg;
 	struct WinGeometry	sta_wg;
@@ -124,6 +124,8 @@ struct Preferences
 	struct WinGeometry	ove_wg;
 	struct WinGeometry	bud_wg;
 	struct WinGeometry	cst_wg;
+
+	struct WinGeometry	txn_wg;
 
 	gboolean	wal_toolbar;
 	gboolean	wal_spending;

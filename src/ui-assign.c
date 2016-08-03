@@ -259,13 +259,21 @@ GtkTreeViewColumn	*column;
 
 	// column 2: name
 	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+		"ellipsize-set", TRUE,
+		NULL);
+
 	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Text"));
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_asg_listview_name_cell_data_function, GINT_TO_POINTER(LST_DEFASG_DATAS), NULL);
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
 	// treeviewattribute
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
+	//gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
 	gtk_tree_view_set_reorderable (GTK_TREE_VIEW(treeview), TRUE);
 
 	gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(store), ui_asg_listview_compare_func, NULL, NULL);
@@ -310,7 +318,7 @@ gint active;
 
 		item->field = radio_get_active(GTK_CONTAINER(data->CY_field));
 		
-		/*txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
+		/*txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
 		if (txt && *txt)
 		{
 			bool = assign_rename(item, txt);
@@ -320,7 +328,7 @@ gint active;
 			}
 			else
 			{
-				gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->text);
+				gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->text);
 			}
 		}*/
 
@@ -380,7 +388,7 @@ gint active;
 
 		radio_set_active(GTK_CONTAINER(data->CY_field), item->field);
 		
-		gtk_entry_set_text(GTK_ENTRY(data->ST_name), item->text);
+		gtk_entry_set_text(GTK_ENTRY(data->ST_text), item->text);
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), (item->flags & ASGF_EXACT) ? 1 : 0);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_re), (item->flags & ASGF_REGEX) ? 1 : 0);
@@ -576,7 +584,7 @@ gchar *txt;
 	{
 	Assign *item = da_asg_get(key);
 
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_name));
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_text));
 		if( txt == NULL || *txt == '\0' )
 		{
 			error = TRUE;
@@ -597,10 +605,10 @@ gchar *txt;
 	}
 
 end:
-	gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_name)), GTK_STYLE_CLASS_ERROR);
+	gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
 
 	if( error == TRUE )
-		gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_name)), GTK_STYLE_CLASS_ERROR);
+		gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET(data->ST_text)), GTK_STYLE_CLASS_ERROR);
 }
 
 
@@ -751,16 +759,16 @@ gint w, h, crow, row;
 	gtk_container_add(GTK_CONTAINER(scrollwin), data.LV_rul);
 	gtk_widget_set_vexpand (scrollwin, TRUE);
 	gtk_widget_set_hexpand (scrollwin, TRUE);
-	gtk_grid_attach (GTK_GRID(table), scrollwin, 0, 0, 2, 1);
+	gtk_grid_attach (GTK_GRID(table), scrollwin, 0, row, 2, 1);
 
 	row++;
 	widget = gtk_button_new_with_mnemonic(_("_Add"));
 	data.BT_add = widget;
-	gtk_grid_attach (GTK_GRID(table), widget, 0, 1, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 0, row, 1, 1);
 
 	widget = gtk_button_new_with_mnemonic(_("_Delete"));
 	data.BT_rem = widget;
-	gtk_grid_attach (GTK_GRID(table), widget, 1, 1, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 1, row, 1, 1);
 
 	
 	/* right area */
@@ -795,7 +803,7 @@ gint w, h, crow, row;
 	label = make_label_widget(_("Fi_nd:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	entry1 = make_string(label);
-	data.ST_name = entry1;
+	data.ST_text = entry1;
 	gtk_widget_set_hexpand(entry1, TRUE);
 	gtk_grid_attach (GTK_GRID (group_grid), entry1, 2, row, 2, 1);
 
@@ -904,7 +912,7 @@ gint w, h, crow, row;
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_rul)), "changed", G_CALLBACK (ui_asg_manage_selection), NULL);
 
-	g_signal_connect (G_OBJECT (data.ST_name), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
+	g_signal_connect (G_OBJECT (data.ST_text), "changed", G_CALLBACK (ui_asg_manage_rename), NULL);
 
 	widget = radio_get_nth_widget(GTK_CONTAINER(data.RA_pay), 0);
 	if(widget)

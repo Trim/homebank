@@ -52,9 +52,12 @@ gchar* hb_strdup_nobrackets (const gchar *str);
 
 gchar *hb_sprint_date(gchar *outstr, guint32 julian);
 
-gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype);
-
 guint32 hb_date_get_julian(gchar *string, gint datefmt);
+
+gboolean hb_string_isdate(gchar *str);
+gboolean hb_string_isdigit(gchar *str);
+gboolean hb_string_isprint(gchar *str);
+
 
 void hb_print_date(guint32 jdate, gchar *label);
 

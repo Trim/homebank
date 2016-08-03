@@ -32,11 +32,13 @@ gboolean ui_file_chooser_csv(GtkWindow *parent, GtkFileChooserAction action, gch
 gboolean ui_file_chooser_xhb(GtkFileChooserAction action, gchar **storage_ptr);
 gboolean ui_file_chooser_folder(GtkWindow *parent, gchar *title, gchar **storage_ptr);
 
+void ui_dialog_upgrade_choose_currency(void);
+
 gboolean ui_dialog_msg_savechanges(GtkWidget *widget, gpointer user_data);
 
 void ui_dialog_file_statistics(void);
 
-Transaction *ui_dialog_transaction_xfer_select_child(GtkWidget *treeview, GList *matchlist);
+Transaction *ui_dialog_transaction_xfer_select_child(GtkWindow *parentwindow, Transaction *stxn, GList *matchlist);
 
 #endif
 

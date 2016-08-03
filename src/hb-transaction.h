@@ -106,7 +106,7 @@ void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 acc
 void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 
 Transaction *transaction_xfer_child_strong_get(Transaction *src);
-void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview);
+void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);
 void transaction_xfer_sync_child(Transaction *ope, Transaction *child);
 void transaction_xfer_remove_child(Transaction *src);

@@ -22,7 +22,7 @@
 
 
 
-struct ui_massupdate_dialog_data
+struct ui_multipleedit_dialog_data
 {
 	GtkWidget	*window;
 

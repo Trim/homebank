@@ -617,7 +617,27 @@ guint32 retval = 0;
 }
 
 
-static void category_fill_usage_count(guint32 kcat)
+void 
+category_delete_unused(void)
+{
+GList *lcat, *list;
+	
+	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
+	while (list != NULL)
+	{
+	Category *entry = list->data;
+
+		if(entry->usage_count <= 0 && entry->key > 0)
+			da_cat_remove (entry->key);
+
+		list = g_list_next(list);
+	}
+	g_list_free(lcat);
+}
+
+
+static void 
+category_fill_usage_count(guint32 kcat)
 {
 Category *cat = da_cat_get (kcat);
 Category *parent;
@@ -643,7 +663,7 @@ category_fill_usage(void)
 GList *lcat;
 GList *lst_acc, *lnk_acc;
 GList *lnk_txn;
-GList *lrul, *list;
+GList *lpay, *lrul, *list;
 
 	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
@@ -673,6 +693,16 @@ GList *lrul, *list;
 	}
 	g_list_free(lst_acc);
 
+	lpay = list = g_hash_table_get_values(GLOBALS->h_pay);
+	while (list != NULL)
+	{
+	Payee *entry = list->data;
+
+		category_fill_usage_count(entry->kcat);
+		list = g_list_next(list);
+	}
+	g_list_free(lpay);
+
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
@@ -682,6 +712,7 @@ GList *lrul, *list;
 		category_fill_usage_count(entry->kcat);
 		list = g_list_next(list);
 	}
+
 
 	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
 	while (list != NULL)
@@ -695,70 +726,6 @@ GList *lrul, *list;
 
 }
 
-
-gboolean
-category_is_used(guint32 key)
-{
-GList *lst_acc, *lnk_acc;
-GList *lnk_txn;
-GList *lrul, *list;
-guint i, nbsplit;
-
-	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
-	lnk_acc = g_list_first(lst_acc);
-	while (lnk_acc != NULL)
-	{
-	Account *acc = lnk_acc->data;
-
-		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
-		while (lnk_txn != NULL)
-		{
-		Transaction *txn = lnk_txn->data;
-			if( key == txn->kcat )
-				return TRUE;
-
-			// check split category #1340142
-			nbsplit = da_splits_count(txn->splits);
-			for(i=0;i<nbsplit;i++)
-			{
-			Split *split = txn->splits[i];
-
-				if( key == split->kcat )
-					return TRUE;
-			}
-
-			lnk_txn = g_list_next(lnk_txn);
-		}
-		
-		lnk_acc = g_list_next(lnk_acc);
-	}
-	g_list_free(lst_acc);
-
-
-	list = g_list_first(GLOBALS->arc_list);
-	while (list != NULL)
-	{
-	Archive *entry = list->data;
-		if( key == entry->kcat )
-			return TRUE;
-		list = g_list_next(list);
-	}
-
-	//todo: add budget use here
-	
-	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
-	while (list != NULL)
-	{
-	Assign *entry = list->data;
-
-		if( key == entry->kcat)
-			return TRUE;
-		list = g_list_next(list);
-	}
-	g_list_free(lrul);
-
-	return FALSE;
-}
 
 void
 category_move(guint32 key1, guint32 key2)

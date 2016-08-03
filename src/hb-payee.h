@@ -26,7 +26,9 @@ typedef struct _payee		Payee;
 struct _payee
 {
 	guint32   	key;
-	//gushort 	flags;
+	gushort		paymode;
+	gushort 	_pad1;
+	guint32		kcat;
 	gchar   	*name;
 
 	/* unsaved datas */
@@ -50,11 +52,12 @@ guint32		da_pay_get_max_key(void);
 Payee		*da_pay_get_by_name(gchar *name);
 Payee		*da_pay_get(guint32 key);
 void da_pay_consistency(Payee *item);
+
+void payee_delete_unused(void);
 void payee_fill_usage(void);
 
 GList *payee_glist_sorted(gint column);
 
-gboolean payee_is_used(guint32 key);
 void payee_move(guint32 key1, guint32 key2);
 gboolean payee_rename(Payee *item, const gchar *newname);
 Payee *payee_append_if_new(gchar *name);

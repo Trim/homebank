@@ -157,25 +157,26 @@ static gint csvtype[7] = {
 					/* is it csv homebank ? */
 					else
 					{
-					gboolean hbcsv;
+					gchar **str_array;
+					gboolean isvalid = FALSE;
 
-						hbcsv = hb_string_csv_valid(tmpstr, 8, csvtype);
+						hb_string_strip_crlf(tmpstr);
+						str_array = hb_csv_row_get(tmpstr, ";", 8);
+						isvalid = hb_csv_row_valid(str_array, 8, csvtype);
 
-						DB( g_print(" hbcsv %d\n", hbcsv) );
+						DB( g_print(" hbcsv %d\n", isvalid) );
 
-						if( hbcsv == TRUE  )
+						if( isvalid == TRUE  )
 						{
 							DB( g_print(" type is CSV homebank\n") );
 							retval = FILETYPE_CSV_HB;
 						}
 
-
+						g_strfreev (str_array);
 					}
-
 					g_free(tmpstr);
 				}
 			}
-
 		}
 		g_io_channel_unref (io);
 	}
@@ -457,7 +458,7 @@ homebank_theme_changed (GtkSettings *settings, GParamSpec  *pspec, gpointer     
 
             if(provider != NULL)
             {
-                DB( g_print(" assign provider %p to sreen %p\n", provider, screen) );
+                DB( g_print(" assign provider %p to screen %p\n", provider, screen) );
 
                 gtk_style_context_add_provider_for_screen (screen,
                                        GTK_STYLE_PROVIDER (provider),

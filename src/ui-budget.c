@@ -233,11 +233,20 @@ GtkTreeViewColumn  *column;
 	g_object_unref(store);
 
 	/* column 1 */
-	column = gtk_tree_view_column_new();
 	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);	
+
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Category"));
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_bud_listview_cell_data_function_text, GINT_TO_POINTER(1), NULL);
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DEFACC_NAME);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
 	/* icon column */
@@ -252,7 +261,7 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(treeview), ui_bud_listview_search_equal_func, NULL, NULL);
 
 	
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
+	//gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), FALSE);
 	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(treeview), TRUE);
 
 	return(treeview);
@@ -971,7 +980,7 @@ GtkWidget *ui_bud_manage_dialog (void)
 {
 struct ui_bud_manage_data data;
 GtkWidget *dialog, *content_area;
-GtkWidget *content_grid, *group_grid, *scrollwin, *label;
+GtkWidget *content_grid, *group_grid, *table, *scrollwin, *label;
 GtkWidget *treeview, *hpaned, *bbox, *vbox, *hbox;
 GtkWidget *menu, *menuitem, *widget, *image, *tbar;
 GtkToolItem *toolitem;
@@ -1004,9 +1013,55 @@ gint crow, row;
 	//window contents
 	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));	 	// return a vbox
 
+  //our table
+	table = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_MEDIUM);
+	gtk_grid_set_column_spacing (GTK_GRID (table), SPACING_MEDIUM);
+	g_object_set(table, "margin", SPACING_MEDIUM, NULL);
+	gtk_box_pack_start (GTK_BOX (content_area), table, TRUE, TRUE, 0);
+
+	crow = 0;
+	bbox = make_radio(CYA_CAT_TYPE, TRUE, GTK_ORIENTATION_HORIZONTAL);
+	data.RA_type = bbox;
+	gtk_widget_set_halign (bbox, GTK_ALIGN_CENTER);
+	gtk_grid_attach (GTK_GRID (table), bbox, 0, crow, 1, 1);
+
+	widget = radio_get_nth_widget(GTK_CONTAINER(bbox), 1);
+	if(widget)
+		g_signal_connect (widget, "toggled", G_CALLBACK (ui_bud_manage_type_changed_cb), &data);
+
+	menu = gtk_menu_new ();
+	gtk_widget_set_halign (menu, GTK_ALIGN_END);
+
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Import CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_bud_manage_load_csv), &data);
+
+	menuitem = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_bud_manage_save_csv), &data);
+	
+	gtk_widget_show_all (menu);
+	
+	widget = gtk_menu_button_new();
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_MENU, GTK_ICON_SIZE_MENU);
+
+	//gchar *thename;
+	//gtk_image_get_icon_name(image, &thename, NULL);
+	//g_print("the name is %s\n", thename);
+
+	g_object_set (widget, "image", image, "popup", GTK_MENU(menu),  NULL);
+
+	gtk_widget_set_hexpand (widget, FALSE);
+	gtk_widget_set_halign (widget, GTK_ALIGN_END);
+	gtk_grid_attach (GTK_GRID (table), widget, 0, crow++, 1, 1);
+
+
+
+	crow++;
 	hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-	gtk_container_set_border_width (GTK_CONTAINER(hpaned), SPACING_MEDIUM);
-	gtk_container_add(GTK_CONTAINER(content_area), hpaned);
+	//gtk_container_set_border_width (GTK_CONTAINER(hpaned), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (table), hpaned, 0, crow++, 1, 1);
 
 	/* left area */
 	//list
@@ -1059,40 +1114,6 @@ gint crow, row;
 	gtk_paned_pack2 (GTK_PANED(hpaned), content_grid, FALSE, FALSE);
 
 	crow = 0;
-	bbox = make_radio(CYA_CAT_TYPE, TRUE, GTK_ORIENTATION_HORIZONTAL);
-	data.RA_type = bbox;
-	gtk_widget_set_halign (bbox, GTK_ALIGN_CENTER);
-	gtk_grid_attach (GTK_GRID (content_grid), bbox, 0, crow, 3, 1);
-
-	widget = radio_get_nth_widget(GTK_CONTAINER(bbox), 1);
-	if(widget)
-		g_signal_connect (widget, "toggled", G_CALLBACK (ui_bud_manage_type_changed_cb), &data);
-
-	menu = gtk_menu_new ();
-	gtk_widget_set_halign (menu, GTK_ALIGN_END);
-
-	menuitem = gtk_menu_item_new_with_mnemonic (_("_Import CSV"));
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_bud_manage_load_csv), &data);
-
-	menuitem = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
-	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_bud_manage_save_csv), &data);
-	
-	gtk_widget_show_all (menu);
-	
-	widget = gtk_menu_button_new();
-	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_MENU, GTK_ICON_SIZE_MENU);
-
-	//gchar *thename;
-	//gtk_image_get_icon_name(image, &thename, NULL);
-	//g_print("the name is %s\n", thename);
-
-	g_object_set (widget, "image", image, "popup", GTK_MENU(menu),  NULL);
-
-	gtk_widget_set_hexpand (widget, FALSE);
-	gtk_widget_set_halign (widget, GTK_ALIGN_END);
-	gtk_grid_attach (GTK_GRID (content_grid), widget, 0, crow++, 1, 1);
 
 	
 	// group :: General

@@ -740,6 +740,82 @@ gboolean showBalance;
 }
 
 
+static void
+list_txn_column_popup_menuitem_on_activate (GtkCheckMenuItem *checkmenuitem,
+               gpointer          user_data)
+{
+GtkTreeViewColumn *column = user_data;
+
+	DB( g_print("toggled\n") );
+
+	gtk_tree_view_column_set_visible(column, gtk_check_menu_item_get_active(checkmenuitem) );
+}
+
+
+static gboolean list_txn_column_popup_callback ( GtkWidget *button,
+                        GdkEventButton *ev,
+                        gpointer user_data )
+{
+struct list_txn_data *data = user_data;
+GtkWidget *menu, *menuitem;
+GtkTreeViewColumn *column;
+gint i, col_id;
+
+ 
+	if( ev->button == 3 )
+	{
+		DB( g_print("should popup\n") );
+	
+		menu = gtk_menu_new ();
+		
+		//note: deactive this disable any menuitem action
+		g_signal_connect (menu, "selection-done", G_CALLBACK (gtk_widget_destroy), NULL);
+
+		for(i=0 ; i < NUM_LST_DSPOPE-1 ; i++ )   // -1 'caus: account and blank column
+		{
+			column = gtk_tree_view_get_column(GTK_TREE_VIEW(data->treeview), i);
+			if( column != NULL )
+			{
+				col_id = gtk_tree_view_column_get_sort_column_id (column);
+
+				if( (col_id == -1) 
+					|| (col_id == LST_DSPOPE_STATUS) 
+					|| (col_id == LST_DSPOPE_ACCOUNT) 
+					|| (col_id == LST_DSPOPE_DATE)
+					|| (col_id == LST_DSPOPE_BALANCE)
+				)
+					continue;
+				//if( (data->tvc_is_visible == FALSE) && (col_id == LST_DSPOPE_BALANCE) )
+				//	continue;
+				
+				if( (data->list_type == LIST_TXN_TYPE_DETAIL) && 
+					(   (col_id == LST_DSPOPE_AMOUNT) 
+					|| (col_id == LST_DSPOPE_EXPENSE) 
+					|| (col_id == LST_DSPOPE_INCOME)
+					) 
+				)
+					continue;
+
+				menuitem = gtk_check_menu_item_new_with_label ( gtk_tree_view_column_get_title (column) );
+				gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), gtk_tree_view_column_get_visible (column) );
+				gtk_widget_show (menuitem);
+				
+				g_signal_connect (menuitem, "activate",
+								G_CALLBACK (list_txn_column_popup_menuitem_on_activate), column);
+			}
+		
+		}
+	
+		gtk_menu_attach_to_widget (GTK_MENU (menu), button, NULL);
+		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
+				      ev->button, ev->time);
+	}
+
+    return FALSE;
+}
+
+
 
 static GtkTreeViewColumn *
 list_txn_column_amount_create(gint list_type, gchar *title, gint sortcolumnid, GtkTreeCellDataFunc func)
@@ -847,6 +923,33 @@ struct list_txn_data *data;
 	g_free(data);
 }
 
+
+Transaction *list_txn_get_active_transaction(GtkTreeView *treeview)
+{
+GtkTreeModel *model;
+GList *list;
+Transaction *ope;
+
+	ope = NULL;
+
+	model = gtk_tree_view_get_model(treeview);
+	list = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(treeview), &model);
+
+	if(list != NULL)
+	{
+	GtkTreeIter iter;
+
+		gtk_tree_model_get_iter(model, &iter, list->data);
+		gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
+	}
+
+	g_list_foreach(list, (GFunc)gtk_tree_path_free, NULL);
+	g_list_free(list);
+
+	return ope;
+}
+
+
 /*
 ** create our transaction list
 ** Status, Date, Info, Payee, Wording, (Amount), Expense, Income, Category
@@ -857,7 +960,7 @@ struct list_txn_data *data;
 GtkListStore *store;
 GtkWidget *treeview;
 GtkCellRenderer    *renderer;
-GtkTreeViewColumn  *column, *col_acc = NULL;
+GtkTreeViewColumn  *column, *col_acc = NULL, *col_status = NULL;
 
 
 	data = g_malloc0(sizeof(struct list_txn_data));
@@ -902,6 +1005,7 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	/* column 1: Changes */
 	column = gtk_tree_view_column_new();
 	//gtk_tree_view_column_set_title(column, _("Status"));
+	col_status = column;
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
@@ -928,6 +1032,11 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 		column = list_txn_column_text_create(list_type, _("Account"), LST_DSPOPE_ACCOUNT, list_txn_account_cell_data_function, NULL);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 		col_acc = column;
+		// add column popup
+		g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+			"button-press-event",
+			G_CALLBACK ( list_txn_column_popup_callback ),
+			data );
 	}
 
 	/* column 2: Date */
@@ -940,16 +1049,36 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 
 	column = list_txn_column_info_create(list_type);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 	
 	column = list_txn_column_text_create(list_type, _("Payee"), LST_DSPOPE_PAYEE, list_txn_payee_cell_data_function, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	column = list_txn_column_text_create(list_type, _("Memo"), LST_DSPOPE_WORDING, list_txn_wording_cell_data_function, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	/* column status CLR */
 	column = gtk_tree_view_column_new();
@@ -964,22 +1093,52 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 	//gtk_tree_view_column_set_sort_indicator (column, FALSE);
 	//gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 	
 	
 	column = list_txn_column_amount_create(list_type, _("Amount"), LST_DSPOPE_AMOUNT, list_txn_amount_cell_data_function);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	column = list_txn_column_amount_create(list_type, _("Expense"), LST_DSPOPE_EXPENSE, list_txn_amount_cell_data_function);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	column = list_txn_column_amount_create(list_type, _("Income"), LST_DSPOPE_INCOME, list_txn_amount_cell_data_function);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	column = list_txn_column_text_create(list_type, _("Category"), LST_DSPOPE_CATEGORY, list_txn_category_cell_data_function, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	column = list_txn_column_text_create(list_type, _("Tags"), LST_DSPOPE_TAGS, list_txn_tags_cell_data_function, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	// add column popup
+    g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+		"button-press-event",
+		G_CALLBACK ( list_txn_column_popup_callback ),
+		data );
 
 	if(list_type == LIST_TXN_TYPE_BOOK)
 	{
@@ -987,6 +1146,11 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
 		data->tvc_balance = column;
 		gtk_tree_view_column_set_clickable(column, FALSE);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+		// add column popup
+		g_signal_connect ( G_OBJECT (gtk_tree_view_column_get_button (column)), 
+			"button-press-event",
+			G_CALLBACK ( list_txn_column_popup_callback ),
+			data );
 	}
 	
   /* column 9: empty */
@@ -1009,10 +1173,10 @@ GtkTreeViewColumn  *column, *col_acc = NULL;
   /* apply user preference for columns */
 	list_txn_set_columns(GTK_TREE_VIEW(treeview), pref_columns);
 
-  /* force accoutn column for detail treeview */
+  /* force account column for detail treeview */
 	if(list_type == LIST_TXN_TYPE_DETAIL)
 	{
-		gtk_tree_view_move_column_after(GTK_TREE_VIEW(treeview), col_acc, NULL);
+		gtk_tree_view_move_column_after(GTK_TREE_VIEW(treeview), col_acc, col_status);
 	}
 
   /* set initial sort order */

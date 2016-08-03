@@ -175,7 +175,9 @@ static guint32 _sched_date_get_next_post(Archive *arc, guint32 nextdate)
 {
 GDate *tmpdate;
 guint32 nextpostdate = nextdate;
-	
+
+	DB( g_print("\n[scheduled] _sched_date_get_next_post\n") );
+
 	tmpdate = g_date_new_julian(nextpostdate);
 	switch(arc->unit)
 	{
@@ -197,17 +199,6 @@ guint32 nextpostdate = nextdate;
 	nextpostdate = g_date_get_julian(tmpdate);
 	g_date_free(tmpdate);
 	
-	/* check limit, update and maybe break */
-	if(arc->flags & OF_LIMIT)
-	{
-		arc->limit--;
-		if(arc->limit <= 0)
-		{
-			arc->flags ^= (OF_LIMIT | OF_AUTO);	// invert flags
-			nextpostdate = 0;
-		}
-	}
-
 	return nextpostdate;
 }
 
@@ -230,6 +221,9 @@ GDate *tmpdate;
 GDateWeekday wday;
 guint32 finalpostdate;
 gint shift;
+
+	DB( g_print("\n[scheduled] scheduled_get_postdate\n") );
+
 
 	finalpostdate = postdate;
 	
@@ -268,24 +262,58 @@ gint shift;
 }
 
 
-
-
-
 guint32 scheduled_get_latepost_count(Archive *arc, guint32 jrefdate)
 {
-guint32 nbpost = 0;
-guint32 curdate = arc->nextdate;
-	
-	while(curdate <= jrefdate)
+guint32 curdate = jrefdate - arc->nextdate;
+guint32 nblate = 0;
+
+	/*
+	switch(arc->unit)
 	{
-		curdate = _sched_date_get_next_post(arc, curdate);
-		nbpost++;
-		// break at 11 max (to display +10)
-		if(nbpost >= 11)
+		case AUTO_UNIT_DAY:
+			nbpost = (curdate / arc->every);
+			g_print("debug d: %d => %f\n", curdate, nbpost);
+			break;
+
+		case AUTO_UNIT_WEEK:
+			nbpost = (curdate / ( 7 * arc->every));
+			g_print("debug w: %d => %f\n", curdate, nbpost);
+			break;
+
+		case AUTO_UNIT_MONTH:
+			//approximate is sufficient
+			nbpost = (curdate / (( 365.2425 / 12) * arc->every));
+			g_print("debug m: %d => %f\n", curdate, nbpost);
+			break;
+
+		case AUTO_UNIT_YEAR:
+			//approximate is sufficient
+			nbpost = (curdate / ( 365.2425 * arc->every));
+			g_print("debug y: %d => %f\n", curdate, nbpost);
 			break;
 	}
 
-	return nbpost;
+	nblate = floor(nbpost);
+
+	if(arc->flags & OF_LIMIT)
+		nblate = MIN(nblate, arc->limit);
+	
+	nblate = MIN(nblate, 11);
+	*/
+	
+
+	// pre 5.1 way
+	curdate = arc->nextdate;
+	while(curdate <= jrefdate)
+	{
+		curdate = _sched_date_get_next_post(arc, curdate);
+		nblate++;
+		// break if over limit or at 11 max (to display +10)
+		if(nblate >= arc->limit || nblate >= 11)
+			break;
+	}
+
+	return nblate;
 }
 
 
@@ -293,6 +321,19 @@ guint32 curdate = arc->nextdate;
 guint32 scheduled_date_advance(Archive *arc)
 {
 	arc->nextdate = _sched_date_get_next_post(arc, arc->nextdate);
+	
+	//#1556289
+	/* check limit, update and maybe break */
+	if(arc->flags & OF_LIMIT)
+	{
+		arc->limit--;
+		if(arc->limit <= 0)
+		{
+			arc->flags ^= (OF_LIMIT | OF_AUTO);	// invert flags
+			arc->nextdate = 0;
+		}
+	}
+	
 	return arc->nextdate;
 }
 

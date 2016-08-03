@@ -27,8 +27,9 @@ enum
 	NUM_LST_DEFPAY
 };
 
-#define LST_DEFPAY_SORT_NAME 1
-#define LST_DEFPAY_SORT_USED 2
+#define LST_DEFPAY_SORT_NAME	 1
+#define LST_DEFPAY_SORT_USED	 2
+#define LST_DEFPAY_SORT_DEFCAT   3
 
 struct ui_pay_manage_dialog_data
 {
@@ -50,10 +51,12 @@ struct payPopContext
 	guint	except_key;
 };
 
+/* = = = = = = = = = = */
 
 gchar *ui_pay_comboboxentry_get_name(GtkComboBox *entry_box);
 guint32 ui_pay_comboboxentry_get_key(GtkComboBox *entry_box);
 guint32 ui_pay_comboboxentry_get_key_add_new(GtkComboBox *entry_box);
+Payee *ui_pay_comboboxentry_get(GtkComboBox *entry_box);
 gboolean ui_pay_comboboxentry_set_active(GtkComboBox *entry_box, guint32 key);
 void ui_pay_comboboxentry_add(GtkComboBox *entry_box, Payee *pay);
 void ui_pay_comboboxentry_populate(GtkComboBox *entry_box, GHashTable *hash);

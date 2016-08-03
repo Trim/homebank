@@ -67,20 +67,65 @@ static void register_panel_export_csv(GtkWidget *widget, gpointer user_data);
 static void register_panel_make_archive(GtkWidget *widget, gpointer user_data);
 
 static void status_selected_foreach_func (GtkTreeModel	*model, GtkTreePath	 *path, GtkTreeIter	 *iter, gpointer userdata);
-Transaction *get_active_transaction(GtkTreeView *treeview);
+
+static void ui_multipleedit_dialog_prefill( GtkWidget *widget, Transaction *ope, gint column_id );
+static void register_panel_edit_multiple(GtkWidget *widget, Transaction *txn, gint column_id, gpointer user_data);
+
 static void register_panel_selection(GtkTreeSelection *treeselection, gpointer user_data);
 static void register_panel_onRowActivated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer userdata);
 
 
 
-
-static void ui_massupdate_dialog_update( GtkWidget *widget, gpointer user_data )
+static void ui_multipleedit_dialog_prefill( GtkWidget *widget, Transaction *ope, gint column_id )
 {
-struct ui_massupdate_dialog_data *data;
+struct ui_multipleedit_dialog_data *data;
+gchar *tagstr;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print ("\n[ui-massupdate] update\n") );
+	DB( g_print ("\n[ui-multipleedit] prefill\n") );
+
+	if(ope != NULL)
+	//if(col_id >= LST_DSPOPE_DATE && col_id != LST_DSPOPE_BALANCE)
+	{
+		switch( column_id )
+		{
+			case LST_DSPOPE_INFO:
+				gtk_combo_box_set_active(GTK_COMBO_BOX(data->NU_mode), ope->paymode);
+				gtk_entry_set_text(GTK_ENTRY(data->ST_info), (ope->info != NULL) ? ope->info : "");
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_mode), TRUE);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_info), TRUE);
+				break;
+			case LST_DSPOPE_PAYEE:
+				ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_pay), ope->kpay);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_pay), TRUE);
+				break;
+			case LST_DSPOPE_WORDING:
+				gtk_entry_set_text(GTK_ENTRY(data->ST_memo), (ope->wording != NULL) ? ope->wording : "");
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_memo), TRUE);
+				break;
+			case LST_DSPOPE_CATEGORY:
+				ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), ope->kcat);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_cat), TRUE);
+				break;
+			case LST_DSPOPE_TAGS:
+				tagstr = transaction_tags_tostring(ope);
+				gtk_entry_set_text(GTK_ENTRY(data->ST_tags), (tagstr != NULL) ? tagstr : "");
+				g_free(tagstr);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_tags), TRUE);
+				break;
+		}
+	}
+}
+
+
+static void ui_multipleedit_dialog_update( GtkWidget *widget, gpointer user_data )
+{
+struct ui_multipleedit_dialog_data *data;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print ("\n[ui-multipleedit] update\n") );
 
 	if(data->NU_mode && data->ST_info)
 	{
@@ -102,15 +147,15 @@ struct ui_massupdate_dialog_data *data;
 }
 
 
-static void ui_massupdate_dialog_init( GtkWidget *widget, gpointer user_data )
+static void ui_multipleedit_dialog_init( GtkWidget *widget, gpointer user_data )
 {
-struct ui_massupdate_dialog_data *data;
+struct ui_multipleedit_dialog_data *data;
 GtkTreeModel *model;
 GList *selection, *list;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print ("\n[ui-massupdate] init\n") );
+	DB( g_print ("\n[ui-multipleedit] init\n") );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->treeview));
 	selection = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->treeview)), &model);
@@ -138,15 +183,15 @@ GList *selection, *list;
 }
 
 
-static void ui_massupdate_dialog_apply( GtkWidget *widget, gpointer user_data )
+static void ui_multipleedit_dialog_apply( GtkWidget *widget, gpointer user_data )
 {
-struct ui_massupdate_dialog_data *data;
+struct ui_multipleedit_dialog_data *data;
 GtkTreeModel *model;
 GList *selection, *list;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print ("\n[ui-massupdate] apply\n") );
+	DB( g_print ("\n[ui-multipleedit] apply\n") );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->treeview));
 	selection = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->treeview)), &model);
@@ -263,29 +308,29 @@ GList *selection, *list;
 }
 
 
-static gboolean ui_massupdate_dialog_destroy( GtkWidget *widget, gpointer user_data )
+static gboolean ui_multipleedit_dialog_destroy( GtkWidget *widget, gpointer user_data )
 {
-struct ui_massupdate_dialog_data *data;
+struct ui_multipleedit_dialog_data *data;
 
 	data = g_object_get_data(G_OBJECT(widget), "inst_data");
 
-	DB( g_print ("\n[ui-massupdate] destroy event occurred\n") );
+	DB( g_print ("\n[ui-multipleedit] destroy event occurred\n") );
 
 	g_free(data);
 	return FALSE;
 }
 
 
-static GtkWidget *ui_massupdate_dialog_new(GtkWindow *parent, GtkTreeView *treeview)
+static GtkWidget *ui_multipleedit_dialog_new(GtkWindow *parent, GtkTreeView *treeview)
 {
-struct ui_massupdate_dialog_data *data;
+struct ui_multipleedit_dialog_data *data;
 GtkWidget *dialog, *content_area;
 GtkWidget *group_grid, *label, *widget, *toggle;
 gint row;
 
-	DB( g_print ("\n[ui-massupdate] new\n") );
+	DB( g_print ("\n[ui-multipleedit] new\n") );
 
-	data = g_malloc0(sizeof(struct ui_massupdate_dialog_data));
+	data = g_malloc0(sizeof(struct ui_multipleedit_dialog_data));
 
 	dialog = gtk_dialog_new_with_buttons (NULL,
 						GTK_WINDOW (parent),
@@ -297,7 +342,7 @@ gint row;
 						NULL);
 
 	//g_signal_connect (dialog, "delete_event", G_CALLBACK (register_panel_dispose), (gpointer)data);
-	g_signal_connect (dialog, "destroy", G_CALLBACK (ui_massupdate_dialog_destroy), (gpointer)data);
+	g_signal_connect (dialog, "destroy", G_CALLBACK (ui_multipleedit_dialog_destroy), (gpointer)data);
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)data);
@@ -306,10 +351,10 @@ gint row;
 	data->window = dialog;
 	data->treeview = treeview;
 
-	ui_massupdate_dialog_init(dialog, NULL);
+	ui_multipleedit_dialog_init(dialog, NULL);
 
 
-	gtk_window_set_title (GTK_WINDOW (data->window), _("Mass update transactions"));
+	gtk_window_set_title (GTK_WINDOW (data->window), _("Multiple edit transactions"));
 
 	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 
@@ -330,12 +375,12 @@ gint row;
 		toggle = gtk_check_button_new();
 		data->CM_mode = toggle;
 		gtk_grid_attach (GTK_GRID (group_grid), toggle, 1, row, 1, 1);
-		widget = make_paymode(label);
+		widget = make_paymode_nointxfer (label);
 		data->NU_mode = widget;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_mode , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_mode , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 
 		row++;
 		label = make_label_widget(_("_Info:"));
@@ -348,7 +393,7 @@ gint row;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_info , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_info , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 	
 	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_PAYEE) == TRUE )
@@ -364,7 +409,7 @@ gint row;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_pay  , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_pay  , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 	
 	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_CATEGORY) == TRUE )
@@ -380,7 +425,7 @@ gint row;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_cat  , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_cat  , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 
 	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_TAGS) == TRUE )
@@ -396,7 +441,7 @@ gint row;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_tags , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_tags , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 
 	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_WORDING) == TRUE )
@@ -412,11 +457,11 @@ gint row;
 		gtk_widget_set_hexpand (widget, TRUE);
 		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (data->CM_memo , "toggled", G_CALLBACK (ui_massupdate_dialog_update), NULL);
+		g_signal_connect (data->CM_memo , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 
 
-	ui_massupdate_dialog_update(dialog, NULL);
+	ui_multipleedit_dialog_update(dialog, NULL);
 
 	ui_pay_comboboxentry_populate(GTK_COMBO_BOX(data->PO_pay), GLOBALS->h_pay);
 	ui_cat_comboboxentry_populate(GTK_COMBO_BOX(data->PO_cat), GLOBALS->h_cat);
@@ -476,19 +521,8 @@ struct register_panel_data *data = user_data;
 static void register_panel_action_multiedit(GtkAction *action, gpointer user_data)
 {
 struct register_panel_data *data = user_data;
-GtkWidget *dialog;
 
-	dialog = ui_massupdate_dialog_new(data->window, GTK_TREE_VIEW(data->LV_ope));
-
-	//wait for the user
-	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
-
-	if( result == GTK_RESPONSE_ACCEPT )
-	{
-		ui_massupdate_dialog_apply (dialog, NULL);
-	}
-
-	gtk_widget_destroy (dialog);
+	register_panel_edit_multiple(data->window, NULL, 0, user_data);
 }
 
 static void register_panel_action_reconcile(GtkAction *action, gpointer user_data)
@@ -535,6 +569,104 @@ static void register_panel_action_exportcsv(GtkAction *action, gpointer user_dat
 struct register_panel_data *data = user_data;
 
 	register_panel_export_csv(data->window, NULL);
+}
+
+
+static void register_panel_action_check_internal_xfer(GtkAction *action, gpointer user_data)
+{
+struct register_panel_data *data = user_data;
+GtkTreeModel *model;
+GtkTreeIter iter;
+GList *badxferlist;
+gboolean valid;
+gint count;
+
+	DB( g_print("check intenal xfer\n\n") );
+
+	badxferlist = NULL;
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
+	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
+	while (valid)
+	{
+	Transaction *txn;
+
+		gtk_tree_model_get (model, &iter,
+			LST_DSPOPE_DATAS, &txn,
+			-1);
+
+		if( txn->paymode == PAYMODE_INTXFER )
+		{
+			if( transaction_xfer_child_strong_get(txn) == NULL )
+			{
+				DB( g_print(" - invalid xfer: '%s'\n", txn->wording) );
+				
+				//test unrecoverable (kxferacc = 0)
+				if( txn->kxferacc <= 0 )
+				{
+					DB( g_print(" - unrecoverable, revert to normal xfer\n") );
+					txn->flags |= OF_CHANGED;
+					txn->paymode = PAYMODE_XFER;
+					txn->kxfer = 0;
+					txn->kxferacc = 0;
+				}
+				else
+				{
+					badxferlist = g_list_append(badxferlist, txn);
+				}
+			}
+		}
+		
+		valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
+	}
+
+	count = g_list_length (badxferlist);
+	DB( g_print(" - found %d invalid int xfer\n", count) );
+
+	if(count <= 0)
+	{
+		ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_INFO,
+		_("Check internal transfert result"),
+		_("No inconsistency found !")
+		);
+	}
+	else
+	{
+	gboolean do_fix;
+	
+		do_fix = ui_dialog_msg_question(
+			GTK_WINDOW(data->window),
+			_("Check internal transfert result"),
+			_("Inconsistency were found: %d\n"
+			  "do you want to review and fix ?"),
+			count
+			);
+
+		if(do_fix == GTK_RESPONSE_YES)
+		{	
+		GList *tmplist = g_list_first(badxferlist);
+
+
+			while (tmplist != NULL)
+			{
+			Transaction *stxn = tmplist->data;
+
+			// (open dialog to select date tolerance in days)
+		// ( with info message)
+		// ( with check/fix button and progress bar)
+
+			//adapt this window
+				//-display the src txn
+				//-enable to display 1 of xxx if more than 1
+
+				transaction_xfer_search_or_add_child(GTK_WINDOW(data->window), stxn, TRUE);
+
+				tmplist = g_list_next(tmplist);
+			}	
+		}
+	}
+
+	g_list_free (badxferlist);
+
 }
 
 
@@ -722,6 +854,38 @@ GIOChannel *io;
 
 }
 
+
+
+
+
+static void register_panel_edit_multiple(GtkWidget *widget, Transaction *txn, gint column_id, gpointer user_data)
+{
+struct register_panel_data *data;
+GtkWidget *dialog;
+
+	DB( g_print("\n[account] edit multiple\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print(" - txn:%p, column: %d\n", txn, column_id) );
+
+	dialog = ui_multipleedit_dialog_new(GTK_WINDOW(data->window), GTK_TREE_VIEW(data->LV_ope));
+
+	if(txn != NULL && column_id != 0)
+	{
+		ui_multipleedit_dialog_prefill(dialog, txn, column_id);
+	}
+
+	//wait for the user
+	gint result = gtk_dialog_run (GTK_DIALOG (dialog));
+
+	if( result == GTK_RESPONSE_ACCEPT )
+	{
+		ui_multipleedit_dialog_apply (dialog, NULL);
+	}
+
+	gtk_widget_destroy (dialog);
+}
 
 
 /*
@@ -1179,32 +1343,6 @@ Transaction *txn;
 }
 
 
-Transaction *get_active_transaction(GtkTreeView *treeview)
-{
-GtkTreeModel *model;
-GList *list;
-Transaction *ope;
-
-	ope = NULL;
-
-	model = gtk_tree_view_get_model(treeview);
-	list = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(treeview), &model);
-
-	if(list != NULL)
-	{
-	GtkTreeIter iter;
-
-		gtk_tree_model_get_iter(model, &iter, list->data);
-		gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
-	}
-
-	g_list_foreach(list, (GFunc)gtk_tree_path_free, NULL);
-	g_list_free(list);
-
-	return ope;
-}
-
-
 static void delete_active_transaction(GtkTreeView *treeview)
 {
 GtkTreeModel *model;
@@ -1266,7 +1404,7 @@ gboolean result;
 			else
 			{
 				DB( g_print("(transaction) inherit multiple\n") );
-				src_txn = da_transaction_clone(get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
+				src_txn = da_transaction_clone(list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_ope)));
 				//#1432204
 				src_txn->status = TXN_STATUS_NONE;
 				type = TRANSACTION_EDIT_INHERIT;
@@ -1315,108 +1453,43 @@ gboolean result;
 
 		case ACTION_ACCOUNT_EDIT:
 			{
-		Transaction *old_txn;
-		GtkWidget *dialog;
+		Transaction *active_txn;
 
-			old_txn = get_active_transaction(GTK_TREE_VIEW(data->LV_ope));
-			if(old_txn)
+			active_txn = list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_ope));
+					
+			if(active_txn)
 			{
-				dialog = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_MODIFY, FALSE);
+			Transaction *old_txn, *new_txn;
 
-				data->cur_ope = da_transaction_clone (old_txn); // to keep old datas, just in case
-				deftransaction_set_transaction(dialog, data->cur_ope);
+				old_txn = da_transaction_clone (active_txn);
+				new_txn = active_txn;
 				
-				result = gtk_dialog_run (GTK_DIALOG (dialog));
+				result = deftransaction_external_edit(GTK_WINDOW(data->window), old_txn, new_txn);
+
 				if(result == GTK_RESPONSE_ACCEPT)
 				{
-					deftransaction_get(dialog, NULL);
+					//#1270687: sort if date changed
+					if(old_txn->date != new_txn->date)
+						data->do_sort = TRUE;
 
-					account_balances_sub(old_txn);
-					account_balances_add(data->cur_ope);
-
-					// different accoutn : delete from the display
-					if( data->cur_ope->kacc != data->accnum )
+					// different account : delete from the display
+					if( new_txn->kacc != data->accnum )
 					{
 						delete_active_transaction(GTK_TREE_VIEW(data->LV_ope));
 					}
 
-					if( data->cur_ope->paymode == PAYMODE_INTXFER )
-					{
-						//nota: if kxfer is 0, the user may have just changed the paymode to xfer
-						DB( g_print(" - kxfer = %d\n", data->cur_ope->kxfer) );
-
-						if(data->cur_ope->kxfer > 0)	//1) search a strong linked child
-						{
-						Transaction *ltxn;
-
-							DB( g_print(" - old_txn: kacc=%d kxferacc=%d\n", old_txn->kacc, old_txn->kxferacc) );
-							
-							ltxn = transaction_xfer_child_strong_get(old_txn);
-							if(ltxn != NULL) //should never be the case
-							{
-								DB( g_print(" - strong link found, do sync\n") );
-								transaction_xfer_sync_child(data->cur_ope, ltxn);
-							}
-							else
-							{
-								DB( g_print(" - no, somethin' went wrong here...\n") );
-							}
-						}
-						else
-						{
-							//2) any standard transaction that match ?
-							transaction_xfer_search_or_add_child(data->cur_ope, data->LV_ope);
-						}
-					}
-
-					//#1250061 : manage ability to break an internal xfer
-					if(old_txn->paymode == PAYMODE_INTXFER && data->cur_ope->paymode != PAYMODE_INTXFER)
-					{
-					GtkWidget *p_dialog;
-						
-						DB( g_print(" - should break internal xfer\n") );
-
-						p_dialog = gtk_message_dialog_new
-						(
-							GTK_WINDOW(data->window),
-							GTK_DIALOG_MODAL,
-							GTK_MESSAGE_WARNING,
-							GTK_BUTTONS_YES_NO,
-							_("Do you want to break the internal transfer ?\n\n"
-							  "Proceeding will delete the target transaction.")
-						);
-
-						result = gtk_dialog_run( GTK_DIALOG( p_dialog ) );
-						gtk_widget_destroy( p_dialog );
-
-						if(result == GTK_RESPONSE_YES)
-						{
-							transaction_xfer_remove_child(data->cur_ope);
-						}
-						else	//force paymode to internal xfer
-						{
-							data->cur_ope->paymode = PAYMODE_INTXFER;
-						}
-					}
 					
-					//#1270687: sort if date changed
-					if(old_txn->date != data->cur_ope->date)
-						data->do_sort = TRUE;
-					
-					da_transaction_copy(data->cur_ope, old_txn);
+					//da_transaction_copy(new_txn, old_txn);
 
 					register_panel_update(widget, GINT_TO_POINTER(UF_BALANCE));
 
 					data->acc->flags |= AF_CHANGED;
 					GLOBALS->changes_count++;
-
 				}
 
-				da_transaction_free (data->cur_ope);
 
+				da_transaction_free (old_txn);
 			
-				deftransaction_dispose(dialog, NULL);
-				gtk_widget_destroy (dialog);
 			}
 
 		}
@@ -1731,9 +1804,7 @@ gint count = 0;
 
 		// no selection: disable reconcile, delete
 		sensitive = (count > 0 ) ? TRUE : FALSE;
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/None"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/Cleared"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu/Reconciled"), sensitive);
+		gtk_widget_set_sensitive (gtk_ui_manager_get_widget(data->ui, "/MenuBar/TxnMenu/TxnStatusMenu"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Delete"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/MenuBar/TxnMenu/Template"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/TxnBar/Delete"), sensitive);
@@ -1830,7 +1901,6 @@ gint count = 0;
 		hb_strfmon(buf1, 64-1, opeinc, data->acc->kcur, GLOBALS->minor);
 		hb_strfmon(buf2, 64-1, -opeexp, data->acc->kcur, GLOBALS->minor);
 		hb_strfmon(buf3, 64-1, opeinc + opeexp, data->acc->kcur, GLOBALS->minor);
-	
 	}
 
 	gchar *msg;
@@ -1858,10 +1928,7 @@ struct register_panel_data *data;
 GtkTreeModel *model;
 GtkTreeIter iter;
 gint col_id, count;
-GList *selection, *list;
 Transaction *ope;
-gchar *tagstr;
-gboolean refreshbalance;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
 
@@ -1884,11 +1951,12 @@ gboolean refreshbalance;
 	}
 	else
 	{
-		register_panel_action_multiedit(NULL, data);
+		if(col_id >= LST_DSPOPE_DATE && col_id != LST_DSPOPE_BALANCE)
+		{
+			register_panel_edit_multiple (data->window, ope, col_id, data);
+		}
 	}
 }
-
-
 
 
 /*
@@ -2086,99 +2154,92 @@ quick_search_icon_press_cb (GtkEntry       *entry,
 static GtkActionEntry entries[] = {
 
 	/* name, icon-name, label */
-	{ "AccountMenu"	   , NULL, N_("_Account"), NULL, NULL, NULL },
-	{ "TxnMenu"        , NULL, N_("Transacti_on"), NULL, NULL, NULL },
-	{ "TxnStatusMenu"  , NULL, N_("_Status"), NULL, NULL, NULL },
-	{ "ActionsMenu"	   , NULL, N_("_Actions"), NULL, NULL, NULL },
-	{ "ToolsMenu"	   , NULL, N_("_Tools"), NULL, NULL, NULL },
+	{ "AccountMenu"	 , NULL, N_("_Account"), NULL, NULL, NULL },
+	{ "TxnMenu"      , NULL, N_("Transacti_on"), NULL, NULL, NULL },
+	{ "TxnStatusMenu", NULL, N_("_Status"), NULL, NULL, NULL },
+	{ "ToolsMenu"	 , NULL, N_("_Tools"), NULL, NULL, NULL },
 
-	{ "Close"			, ICONNAME_CLOSE	        , N_("_Close")				, "<control>W", N_("Close the current account"),		G_CALLBACK (register_panel_action_close) },
+	{ "Close" 	    , ICONNAME_CLOSE	        , N_("_Close")				, "<control>W", N_("Close the current account"),		G_CALLBACK (register_panel_action_close) },
 
 	/* name, icon-name, label, accelerator, tooltip */
-	{ "Filter"			, ICONNAME_HB_FILTER        , N_("_Filter..."), NULL,		N_("Open the list filter"), G_CALLBACK (register_panel_action_editfilter) },
-	{ "ConvToEuro"		, NULL                      , N_("Convert to euro..."), NULL,		N_("Convert this account to euro"), G_CALLBACK (register_panel_action_converttoeuro) },
+	{ "Filter"		, ICONNAME_HB_FILTER        , N_("_Filter..."), NULL,			N_("Open the list filter"), G_CALLBACK (register_panel_action_editfilter) },
+	{ "ConvToEuro"	, NULL                      , N_("Convert to euro..."), NULL,	N_("Convert this account to euro"), G_CALLBACK (register_panel_action_converttoeuro) },
 
-	{ "Add"				, ICONNAME_HB_OPE_ADD	    , N_("_Add..."), NULL,		N_("Add a new transaction"), G_CALLBACK (register_panel_action_add) },
-	{ "Inherit"			, ICONNAME_HB_OPE_HERIT	    , N_("_Inherit..."), NULL, N_("Inherit from the active transaction"), G_CALLBACK (register_panel_action_inherit) },
-	{ "Edit"			, ICONNAME_HB_OPE_EDIT	    , N_("_Edit..."), NULL, N_("Edit the active transaction"),	G_CALLBACK (register_panel_action_edit) },
-	{ "MultiEdit"		, ICONNAME_HB_OPE_MULTIEDIT , N_("_Multiple Edit..."), NULL, N_("Edit multiple transaction"),	G_CALLBACK (register_panel_action_multiedit) },
+	{ "Add"			, ICONNAME_HB_OPE_ADD	    , N_("_Add..."), NULL,		N_("Add a new transaction"), G_CALLBACK (register_panel_action_add) },
+	{ "Inherit"		, ICONNAME_HB_OPE_HERIT	    , N_("_Inherit..."), NULL, N_("Inherit from the active transaction"), G_CALLBACK (register_panel_action_inherit) },
+	{ "Edit"		, ICONNAME_HB_OPE_EDIT	    , N_("_Edit..."), NULL, N_("Edit the active transaction"),	G_CALLBACK (register_panel_action_edit) },
 
-	{ "None"	    	, NULL                      , N_("_None"), "<control>N",		N_("Toggle none for selected transaction(s)"), G_CALLBACK (register_panel_action_none) },
-	{ "Cleared"	    	, ICONNAME_HB_OPE_CLEARED   , N_("_Cleared"), "<control>C",		N_("Toggle cleared for selected transaction(s)"), G_CALLBACK (register_panel_action_clear) },
-	{ "Reconciled"		, ICONNAME_HB_OPE_RECONCILED, N_("_Reconciled"), "<control>R",		N_("Toggle reconciled for selected transaction(s)"), G_CALLBACK (register_panel_action_reconcile) },
-	{ "Delete"			, ICONNAME_HB_OPE_DELETE    , N_("_Delete..."), NULL,		N_("Delete selected transaction(s)"), G_CALLBACK (register_panel_action_remove) },
-	{ "Template"    	, ICONNAME_CONVERT          , N_("Create template..."), NULL,		N_("Create template"), G_CALLBACK (register_panel_action_createtemplate) },
+	{ "None"	    , NULL                      , N_("_None"), "<control>N",		N_("Toggle none for selected transaction(s)"), G_CALLBACK (register_panel_action_none) },
+	{ "Cleared"	    , ICONNAME_HB_OPE_CLEARED   , N_("_Cleared"), "<control>C",		N_("Toggle cleared for selected transaction(s)"), G_CALLBACK (register_panel_action_clear) },
+	{ "Reconciled"	, ICONNAME_HB_OPE_RECONCILED, N_("_Reconciled"), "<control>R",		N_("Toggle reconciled for selected transaction(s)"), G_CALLBACK (register_panel_action_reconcile) },
 
-	{ "Assign"			, ICONNAME_HB_ASSIGN_RUN    , N_("Auto. Assignments"), NULL,		N_("Run auto assignments"), G_CALLBACK (register_panel_action_assign) },
-	{ "ExportQIF"		, ICONNAME_HB_FILE_EXPORT   , N_("Export QIF..."), NULL,		N_("Export as QIF"), G_CALLBACK (register_panel_action_exportqif) },
-	{ "ExportCSV"		, ICONNAME_HB_FILE_EXPORT   , N_("Export CSV..."), NULL,		N_("Export as CSV"), G_CALLBACK (register_panel_action_exportcsv) },
+	{ "MultiEdit"	, ICONNAME_HB_OPE_MULTIEDIT , N_("_Multiple Edit..."), NULL, N_("Edit multiple transaction"),	G_CALLBACK (register_panel_action_multiedit) },
+	{ "Template"    , ICONNAME_CONVERT          , N_("Create template..."), NULL,		N_("Create template"), G_CALLBACK (register_panel_action_createtemplate) },
+	{ "Delete"		, ICONNAME_HB_OPE_DELETE    , N_("_Delete..."), NULL,		N_("Delete selected transaction(s)"), G_CALLBACK (register_panel_action_remove) },
+
+	{ "Assign"		, ICONNAME_HB_ASSIGN_RUN    , N_("Auto. Assignments"), NULL,	N_("Run auto assignments"), G_CALLBACK (register_panel_action_assign) },
+	{ "ExportQIF"	, NULL						, N_("Export QIF..."), NULL,		N_("Export as QIF"), G_CALLBACK (register_panel_action_exportqif) },
+	{ "ExportCSV"	, NULL				   		, N_("Export CSV..."), NULL,		N_("Export as CSV"), G_CALLBACK (register_panel_action_exportcsv) },
+
+	{ "ChkIntXfer"  , NULL                      , N_("Check internal xfer..."), NULL,	NULL, G_CALLBACK (register_panel_action_check_internal_xfer) },
 
 };
 static guint n_entries = G_N_ELEMENTS (entries);
 
 static const gchar *ui_info =
 "<ui>"
-"	<menubar name='MenuBar'>"
+"<menubar name='MenuBar'>"
 
-"		<menu action='AccountMenu'>"
-"			<menuitem action='Close'/>"
-"		</menu>"
-
-"		<menu action='TxnMenu'>"
-"			<menuitem action='Add'/>"
-"			<menuitem action='Inherit'/>"
-"			<menuitem action='Edit'/>"
-"				<separator/>"
-"		   <menu action='TxnStatusMenu'>"
-"				<menuitem action='None'/>"
-"				<menuitem action='Cleared'/>"
-"				<menuitem action='Reconciled'/>"
-"		   </menu>"
-
-"				<separator/>"
-"			<menuitem action='MultiEdit'/>"
-"			<menuitem action='Template'/>"
-"			<menuitem action='Delete'/>"
-"		</menu>"
-
-"		<menu action='ActionsMenu'>"
-"			<menuitem action='Assign'/>"
-"				<separator/>"
-"			<menuitem action='ExportQIF'/>"
-"			<menuitem action='ExportCSV'/>"
-"		</menu>"
-
-"		<menu action='ToolsMenu'>"
-"			<menuitem action='Filter'/>"
-"				<separator/>"
-"			<menuitem action='ConvToEuro'/>"
-"		</menu>"
-"	</menubar>"
-
-"	<toolbar name='TxnBar'>"
-"		<toolitem action='Add'/>"
-"		<toolitem action='Inherit'/>"
-"		<toolitem action='Edit'/>"
+"	<menu action='AccountMenu'>"
+"		<menuitem action='ExportQIF'/>"
+"		<menuitem action='ExportCSV'/>"
 "			<separator/>"
-"		<toolitem action='Cleared'/>"
-"		<toolitem action='Reconciled'/>"
+"		<menuitem action='Close'/>"
+"	</menu>"
+
+"	<menu action='TxnMenu'>"
+"		<menuitem action='Add'/>"
+"		<menuitem action='Inherit'/>"
+"		<menuitem action='Edit'/>"
 "			<separator/>"
-"		<toolitem action='MultiEdit'/>"
-"		<toolitem action='Template'/>"
-"		<toolitem action='Delete'/>"
-"	</toolbar>"
-"	<toolbar name='ToolBar'>"
-"		<toolitem action='Filter'/>"
-"		<toolitem action='Assign'/>"
+"	   <menu action='TxnStatusMenu'>"
+"			<menuitem action='None'/>"
+"			<menuitem action='Cleared'/>"
+"			<menuitem action='Reconciled'/>"
+"	   </menu>"
+"		<menuitem action='MultiEdit'/>"
+"		<menuitem action='Template'/>"
+"		<menuitem action='Delete'/>"
+"	</menu>"
+
+"	<menu action='ToolsMenu'>"
+"		<menuitem action='Filter'/>"
+"		<menuitem action='Assign'/>"
 "			<separator/>"
-"		<toolitem action='ExportQIF'/>"
-"		<toolitem action='ExportCSV'/>"
-"	</toolbar>"
+"		<menuitem action='ChkIntXfer'/>"
+
+"	    	<separator/>"
+"		<menuitem action='ConvToEuro'/>"
+"	</menu>"
+"</menubar>"
+
+"<toolbar name='TxnBar'>"
+"	<toolitem action='Add'/>"
+"	<toolitem action='Inherit'/>"
+"	<toolitem action='Edit'/>"
+"		<separator/>"
+"	<toolitem action='Cleared'/>"
+"	<toolitem action='Reconciled'/>"
+"		<separator/>"
+"	<toolitem action='MultiEdit'/>"
+"	<toolitem action='Template'/>"
+"	<toolitem action='Delete'/>"
+"</toolbar>"
+"<toolbar name='ToolBar'>"
+"	<toolitem action='Filter'/>"
+"	<toolitem action='Assign'/>"
+"</toolbar>"
 "</ui>";
-
-
-
-
 
 
 GtkWidget *register_panel_window_new(guint32 accnum, Account *acc)
@@ -2333,10 +2394,8 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID(table), widget, 9, 0, 1, 1);
 
 	//quick search
-	widget = gtk_entry_new ();
+	widget = make_search (NULL);
 	data->ST_search = widget;
-	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget), GTK_ENTRY_ICON_PRIMARY, ICONNAME_FIND);
-	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget), GTK_ENTRY_ICON_SECONDARY, ICONNAME_CLEAR);
 	gtk_widget_set_size_request(widget, HB_MINWIDTH_SEARCH, -1);
 	gtk_grid_attach (GTK_GRID(table), widget, 12, 0, 1, 1);
 
@@ -2423,7 +2482,6 @@ GError *error = NULL;
 	//gtk_style_context_add_class (gtk_widget_get_style_context (widget), GTK_STYLE_CLASS_INLINE_TOOLBAR);
 	gtk_widget_set_hexpand (widget, TRUE);
 	gtk_grid_attach (GTK_GRID(table), widget, 2, 0, 1, 1);
-	
 
     #ifdef G_OS_WIN32
     if(PREFS->toolbar_style == 0)

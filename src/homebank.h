@@ -74,7 +74,7 @@
 #define HB_VERSION_MINOR	1
 #define HB_VERSION_MICRO	0
 
-#define HB_VERSION			"5.1"
+#define HB_VERSION			"5.1-rc"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
 #define FILE_VERSION		1.2
@@ -87,6 +87,7 @@
 	#define	PROGNAME		"HomeBank " HB_VERSION " (unstable)"
 	#define HB_DATA_PATH	"homebank_unstable"
 #endif
+
 
 #ifdef G_OS_WIN32
 	#define GETTEXT_PACKAGE "homebank"
@@ -116,9 +117,11 @@
 
 /* widget minimum width */
 #define HB_MINWIDTH_LIST	161
+#define HB_MINHEIGHT_LIST	260
+
 #define HB_MINWIDTH_SEARCH	240
 #define HB_MINWIDTH_COLUMN  48
-#define HB_MINHEIGHT_LIST	260
+
 
 /* miscellaneous */
 #define PHI 1.61803399

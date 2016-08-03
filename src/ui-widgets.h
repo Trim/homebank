@@ -25,6 +25,7 @@ GtkWidget *make_label(gchar *str, gfloat xalign, gfloat yalign);
 GtkWidget *make_label_group(gchar *str);
 GtkWidget *make_label_widget(gchar *str);
 GtkWidget *make_text(gfloat xalign);
+GtkWidget *make_search(GtkWidget *label);
 GtkWidget *make_string(GtkWidget *label);
 GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text);
 

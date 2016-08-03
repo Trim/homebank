@@ -2148,8 +2148,6 @@ void gtk_chart_show_minor(GtkChart * chart, gboolean minor)
 }
 
 
-
-
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 /* legend list */

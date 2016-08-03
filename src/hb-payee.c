@@ -304,7 +304,25 @@ da_pay_debug_list(void)
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-void
+void 
+payee_delete_unused(void)
+{
+GList *lpay, *list;
+	
+	lpay = list = g_hash_table_get_values(GLOBALS->h_pay);
+	while (list != NULL)
+	{
+	Payee *entry = list->data;
+
+		if(entry->usage_count <= 0 && entry->key > 0)
+			da_pay_remove (entry->key);
+		list = g_list_next(list);
+	}
+	g_list_free(lpay);
+}
+
+
+void 
 payee_fill_usage(void)
 {
 GList *lpay;
@@ -371,59 +389,6 @@ GList *lrul, *list;
 
 }
 
-
-
-
-gboolean
-payee_is_used(guint32 key)
-{
-GList *lst_acc, *lnk_acc;
-GList *lnk_txn;
-GList *lrul, *list;
-
-	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
-	lnk_acc = g_list_first(lst_acc);
-	while (lnk_acc != NULL)
-	{
-	Account *acc = lnk_acc->data;
-
-		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
-		while (lnk_txn != NULL)
-		{
-		Transaction *txn = lnk_txn->data;
-			if( key == txn->kpay )
-				return TRUE;
-			lnk_txn = g_list_next(lnk_txn);
-		}
-
-		lnk_acc = g_list_next(lnk_acc);
-	}
-	g_list_free(lst_acc);
-
-
-	list = g_list_first(GLOBALS->arc_list);
-	while (list != NULL)
-	{
-	Archive *entry = list->data;
-		if( key == entry->kpay )
-			return TRUE;
-		list = g_list_next(list);
-	}
-
-	lrul = list = g_hash_table_get_values(GLOBALS->h_rul);
-	while (list != NULL)
-	{
-	Assign *entry = list->data;
-
-		if( key == entry->kpay)
-			return TRUE;
-		list = g_list_next(list);
-	}
-	g_list_free(lrul);
-
-
-	return FALSE;
-}
 
 void
 payee_move(guint32 key1, guint32 key2)

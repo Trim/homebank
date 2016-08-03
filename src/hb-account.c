@@ -43,6 +43,7 @@ da_acc_free(Account *item)
 	{
 		DB( g_print(" => %d, %s\n", item->key, item->name) );
 
+		g_free(item->imp_name);
 		g_free(item->name);
 		g_free(item->number);
 		g_free(item->bankname);
@@ -341,10 +342,17 @@ Account *acc;
 GList *list;
 GList *lst_acc, *lnk_acc;
 GList *lnk_txn;
+gboolean retval;
+
+	retval = FALSE;
+	lst_acc = NULL;
 
 	acc = da_acc_get(key);
 	if( g_queue_get_length(acc->txn_queue) > 0 )
-		return TRUE;
+	{
+		retval = TRUE;
+		goto end;
+	}
 
 	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
 	lnk_acc = g_list_first(lst_acc);
@@ -360,25 +368,35 @@ GList *lnk_txn;
 			Transaction *entry = lnk_txn->data;
 			
 				if( key == entry->kxferacc)
-					return TRUE;
+				{
+					retval = TRUE;
+					goto end;
+				}
 
 				lnk_txn = g_list_next(lnk_txn);
 			}
 		}
 		lnk_acc = g_list_next(lnk_acc);
 	}
-	g_list_free(lst_acc);
 
 	list = g_list_first(GLOBALS->arc_list);
 	while (list != NULL)
 	{
 	Archive *entry = list->data;
+
 		if( key == entry->kacc || key == entry->kxferacc)
-			return TRUE;
+		{
+			retval = TRUE;
+			goto end;
+		}
+
 		list = g_list_next(list);
 	}
 
-	return FALSE;
+end:
+	g_list_free(lst_acc);
+
+	return retval;
 }
 
 
@@ -425,18 +443,31 @@ gchar *stripname = account_get_stripname(newname);
 }
 
 
-/* when we change the currency of an account, we must ensure
- * xfer transaction account will be set to same currency
+/* 
+ * change the account currency
+ * change every txn to currency
+ * ensure dst xfer transaction account will be set to same currency
  */
 void account_set_currency(Account *acc, guint32 kcur)
 {
 GList *list;
-Account *srcacc, *dstacc;
+Account *dstacc;
+gboolean *xfer_list;
+guint32 maxkey, i;
+
+	DB( g_print("\n[account] set currency\n") );
 
 	if(acc->kcur == kcur)
+	{
+		DB( g_print(" - already ok, return\n") );
 		return;
+	}
 
-	acc->kcur = kcur;
+	DB( g_print(" - set for '%s'\n", acc->name)  );
+		
+	maxkey = da_acc_get_max_key () + 1;
+	xfer_list = g_malloc0(sizeof(gboolean) * maxkey );
+	DB( g_print(" - alloc for %d account\n", da_acc_length() ) );
 
 	list = g_queue_peek_head_link(acc->txn_queue);
 	while (list != NULL)
@@ -444,23 +475,28 @@ Account *srcacc, *dstacc;
 	Transaction *txn = list->data;
 
 		txn->kcur = kcur;
-
-		if(txn->paymode == PAYMODE_INTXFER)
+		if( (txn->paymode == PAYMODE_INTXFER) && (txn->kxferacc > 0) && (txn->kxfer > 0) )
 		{
-			if(txn->kacc == acc->key)
-			{
-				dstacc = da_acc_get (txn->kxferacc);
-				dstacc->kcur = kcur;
-			}
-			if(txn->kxferacc == acc->key)
-			{
-				srcacc = da_acc_get (txn->kacc);
-				srcacc->kcur = kcur;
-			}
+			xfer_list[txn->kxferacc] = TRUE;
 		}
-		
 		list = g_list_next(list);
 	}
+
+	acc->kcur = kcur;
+	DB( g_print(" - '%s'\n", acc->name) );
+	
+	for(i=1;i<maxkey;i++)
+	{
+		DB( g_print(" - %d '%d'\n", i, xfer_list[i]) );
+		if( xfer_list[i] == TRUE )
+		{
+			dstacc = da_acc_get(i);
+			account_set_currency(dstacc, kcur);
+		}
+	}
+
+	g_free(xfer_list);
+
 }
 
 

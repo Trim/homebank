@@ -31,6 +31,8 @@
 #include "ui-payee.h"
 #include "ui-category.h"
 #include "ui-filter.h"
+#include "ui-transaction.h"
+
 
 /****************************************************************************/
 /* Debug macros                                                             */
@@ -376,7 +378,7 @@ struct ui_reptime_data *data;
 guint active = GPOINTER_TO_INT(user_data);
 guint tmpfor, tmpslice;
 gboolean showall;
-guint32 from, to;
+guint32 from;
 guint i;
 GList *list;
 GtkTreeModel *model;
@@ -409,7 +411,7 @@ guint32 selkey;
 
 	//get our min max date
 	from = data->filter->mindate;
-	to   = data->filter->maxdate;
+	//to   = data->filter->maxdate;
 
 	/* clear and detach our model */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
@@ -1071,6 +1073,39 @@ gint page;
 
 }
 
+
+static void ui_reptime_detail_onRowActivated (GtkTreeView        *treeview,
+                       GtkTreePath        *path,
+                       GtkTreeViewColumn  *col,
+                       gpointer            userdata)
+{
+struct ui_reptime_data *data;
+Transaction *active_txn;
+gboolean result;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print ("\n[reptime] A detail row has been double-clicked!\n") );
+
+	active_txn = list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_detail));
+	if(active_txn)
+	{
+	Transaction *old_txn, *new_txn;
+
+		old_txn = da_transaction_clone (active_txn);
+		new_txn = active_txn;
+		result = deftransaction_external_edit(GTK_WINDOW(data->window), old_txn, new_txn);
+
+		if(result == GTK_RESPONSE_ACCEPT)
+		{
+			ui_reptime_compute(data->window, NULL);
+		}
+
+		da_transaction_free (old_txn);
+	}
+}
+
+
 static void ui_reptime_update_detail(GtkWidget *widget, gpointer user_data)
 {
 struct ui_reptime_data *data;
@@ -1213,7 +1248,7 @@ static void ui_reptime_setup(struct ui_reptime_data *data, guint32 accnum)
 	ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_acc), accnum);
 
 	ui_pay_comboboxentry_populate(GTK_COMBO_BOX(data->PO_pay), GLOBALS->h_pay);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(data->PO_pay), 0);
+	ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_pay), 0);
 
 	ui_cat_comboboxentry_populate(GTK_COMBO_BOX(data->PO_cat), GLOBALS->h_cat);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->PO_cat), 0);
@@ -1569,6 +1604,7 @@ GError *error = NULL;
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (ui_reptime_selection), NULL);
 
+	g_signal_connect (GTK_TREE_VIEW(data->LV_detail), "row-activated", G_CALLBACK (ui_reptime_detail_onRowActivated), NULL);
 
 
 	/* toolbar */

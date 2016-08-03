@@ -81,8 +81,8 @@ struct ui_cur_select_dialog_data
 {
 	GtkWidget	*window;
 
-	GtkTreeModelFilter *modelfilter;
-	GtkTreeModelSort *sortmodel;
+	GtkTreeModel *modelfilter;
+	GtkTreeModel *sortmodel;
 	GtkTreeModel *model;
 	GtkWidget	*ST_search;
 	GtkWidget	*LV_cur;

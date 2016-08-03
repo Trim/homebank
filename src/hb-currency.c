@@ -423,7 +423,7 @@ static GMarkupParser hb_xchange_parser = {
 };
 
 
-static gboolean currency_online_parse(gchar *buffer, GError **error)
+static gboolean currency_online_parse(const gchar *buffer, GError **error)
 {
 GMarkupParseContext *context;
 ParseExchangeContext ctx;

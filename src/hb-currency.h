@@ -36,6 +36,7 @@ struct _currency
 	gchar		*decimal_char;
 	gchar		*grouping_char;
 	gshort		frac_digits;
+	gshort		_pad1;
 	gdouble		rate;
 	guint32		mdate;
 
@@ -60,7 +61,7 @@ struct _iso4217
 typedef struct _ParseExchangeContext ParseExchangeContext;
 struct _ParseExchangeContext
 {
-	gchar   *elt_name;
+	const gchar   *elt_name;
 	gchar   iso[8];
 	gdouble rate;
 

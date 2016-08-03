@@ -265,6 +265,25 @@ GtkWidget *entry;
 }
 
 
+GtkWidget *make_search(GtkWidget *label)
+{
+GtkWidget *entry;
+
+	entry = gtk_entry_new ();
+	gtk_entry_set_placeholder_text(GTK_ENTRY(entry), _("Search...") );
+	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, ICONNAME_FIND);
+	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry), GTK_ENTRY_ICON_SECONDARY, ICONNAME_CLEAR);
+
+	gtk_entry_set_icon_sensitive (GTK_ENTRY(entry), GTK_ENTRY_ICON_SECONDARY, FALSE);
+
+	if(label)
+		gtk_label_set_mnemonic_widget (GTK_LABEL(label), entry);
+
+	return entry;
+}
+
+
+
 /*
 **
 */
@@ -614,6 +633,7 @@ guint i;
 	return combobox;
 }
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 /*
 **
@@ -705,65 +725,6 @@ GtkWidget *radio;
 	}
 	g_list_free(lchild);
 }
-
-
-/*
-**
-*/
-guint make_poparchive_populate(GtkComboBox *combobox, GList *srclist)
-{
-GtkTreeModel *model;
-GtkTreeIter  iter;
-GList *list;
-gint i;
-
-	//insert all glist item into treeview
-	model  = gtk_combo_box_get_model(combobox);
-	gtk_list_store_clear(GTK_LIST_STORE(model));
-
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, "----", -1);
-
-	i=0;
-	list = g_list_first(srclist);
-	while (list != NULL)
-	{
-	Archive *entry = list->data;
-
-		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, entry->wording, -1);
-
-		//DB( g_print(" populate_treeview: %d %08x\n", i, list->data) );
-
-		i++; list = g_list_next(list);
-	}
-
-	return i;
-}
-
-
-GtkWidget *make_poparchive(GtkWidget *label)
-{
-GtkListStore *store;
-GtkWidget *combobox;
-GtkCellRenderer    *renderer;
-
-	//store
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	combobox = gtk_combo_box_new_with_model (GTK_TREE_MODEL(store));
-	g_object_unref(store);
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combobox), renderer, TRUE);
-	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combobox), renderer, "text", 0, NULL);
-
-	if(label)
-		gtk_label_set_mnemonic_widget (GTK_LABEL(label), combobox);
-
-	return combobox;
-}
-
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
-
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */

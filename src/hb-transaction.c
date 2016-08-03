@@ -408,72 +408,26 @@ gint nbsplit;
 	//if( item->flags & OF_VALID )
 	//	item->flags &= ~(OF_REMIND);
 
-
-	// check child xfer #1464961
-	//remove for 5.0.5: this cause some trouble to some people
-	//so let's keep the data insane...
-	/*if( item->paymode == PAYMODE_INTXFER )
-	{
-	Transaction *child;
-	GList *matchlist;
-	gint count;
-	
-		child = transaction_xfer_child_strong_get (item);
-		if(child == NULL)
-		{
-			matchlist = transaction_xfer_child_might_list_get(item);
-			count = g_list_length (matchlist);
-			if( count == 0 )
-			{
-				transaction_xfer_create_child(item, NULL);
-				g_warning("txn consistency: fixed invalid child xfer");
-			}
-			else
-			{
-				item->paymode = PAYMODE_XFER;
-				item->kxfer = 0;
-				item->kxferacc = 0;
-			}
-			GLOBALS->changes_count++;
-			g_list_free(matchlist);
-		}
-	}*/
-
 }
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 /* new transfer functions */
 
-//todo: add strong control and extend to payee, maybe memo ?
-/*static gboolean transaction_is_duplicate(Transaction *stxn, Transaction *dtxn, gint daygap)
-{
-gboolean retval = FALSE;
-
-	if(stxn == dtxn)
-		return FALSE;
-
-	if( (dtxn->amount == stxn->amount) && (dtxn->kacc == stxn->kacc) &&
-		(dtxn->date <= (stxn->date + daygap)) && (dtxn->date >= (stxn->date - daygap)) 
-		// add pos control here too ?
-	  )
-	{
-		retval = TRUE;
-	}
-	return retval;
-}*/
-
-static void transaction_xfer_create_child(Transaction *ope, GtkWidget *treeview)
+static void transaction_xfer_create_child(Transaction *ope)
 {
 Transaction *child;
 Account *acc;
 gchar swap;
 
 	DB( g_print("\n[transaction] transaction_xfer_create_child\n") );
-	
+
 	if( ope->kxferacc > 0 )
 	{
 		child = da_transaction_clone(ope);
+
+		ope->flags |= OF_CHANGED;
+		child->flags |= OF_ADDED;
 
 		child->amount = -child->amount;
 		child->flags ^= (OF_INCOME);	// invert flag
@@ -509,8 +463,6 @@ gchar swap;
 
 			account_balances_add (child);
 
-			if(treeview != NULL)
-				transaction_add_treeview(child, treeview, ope->kacc);
 		}
 	}
 
@@ -525,14 +477,27 @@ gboolean retval = FALSE;
 	if(stxn == dtxn)
 		return FALSE;
 
+	/*g_print("test\n");
+
+	g_print(" %d %d %d %f %d\n", 
+		stxn->kcur, stxn->date, stxn->kacc, ABS(stxn->amount), stxn->kxfer );
+
+
+	g_print(" %d %d %d %f %d\n", 
+		dtxn->kcur, dtxn->date, dtxn->kacc, ABS(dtxn->amount), dtxn->kxfer );
+	*/
+
 	if( stxn->kcur == dtxn->kcur &&
 	    stxn->date == dtxn->date &&
-	    stxn->kxferacc == dtxn->kacc &&
+	    //v5.1 make no sense: stxn->kxferacc == dtxn->kacc &&
+	    stxn->kacc != dtxn->kacc &&
 	    ABS(stxn->amount) == ABS(dtxn->amount) &&
 	    dtxn->kxfer == 0)
 	{
 		retval = TRUE;
 	}
+
+	//g_print(" return %d\n", retval);
 	return retval;
 }
 
@@ -578,7 +543,7 @@ GList *list, *matchlist = NULL;
 }
 
 
-void transaction_xfer_search_or_add_child(Transaction *ope, GtkWidget *treeview)
+void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual)
 {
 GList *matchlist;
 gint count;
@@ -590,63 +555,49 @@ gint count;
 
 	DB( g_print(" - found result is %d, switching\n", count) );
 
-	switch(count)
+	if(count <= 1 && manual == FALSE)
 	{
-		case 0:		//we should create the child
-			transaction_xfer_create_child(ope, treeview);
-			break;
+		//we should create the child
+		transaction_xfer_create_child(ope);
+	}
+	else
+	{
+	Transaction *child;
 
-		//todo: maybe with just 1 match the user must choose ?
-		//#942346: bad idea so to no let the user confirm, so let him confirm
-		/*
-		case 1:		//transform the transaction to a child transfer
-		{
-			GList *list = g_list_first(matchlist);
-			transaction_xfer_change_to_child(ope, list->data);
-			break;
-		}
-		*/
-
-		default:	//the user must choose himself
-		{
-		Transaction *child;
-
-			child = ui_dialog_transaction_xfer_select_child(treeview, matchlist);
-			if(child == NULL)
-				transaction_xfer_create_child(ope, treeview);
-			else
-				transaction_xfer_change_to_child(ope, child);
-			break;
-		}
+		child = ui_dialog_transaction_xfer_select_child(parentwindow, ope, matchlist);
+		if(child == NULL)
+			transaction_xfer_create_child(ope);
+		else
+			transaction_xfer_change_to_child(ope, child);
 	}
 
 	g_list_free(matchlist);
-
 }
 
 
 Transaction *transaction_xfer_child_strong_get(Transaction *src)
 {
-Account *acc;
+Account *dstacc;
 GList *list;
 
 	DB( g_print("\n[transaction] transaction_xfer_child_strong_get\n") );
 
-	acc = da_acc_get(src->kxferacc);
-	if( !acc )
+	dstacc = da_acc_get(src->kxferacc);
+	if( !dstacc || src->kxfer <= 0 )
 		return NULL;
 
 	DB( g_print(" - search: %d %s %f %d=>%d - %d\n", src->date, src->wording, src->amount, src->kacc, src->kxferacc, src->kxfer) );
 
-	list = g_queue_peek_tail_link(acc->txn_queue);
+	list = g_queue_peek_tail_link(dstacc->txn_queue);
 	while (list != NULL)
 	{
 	Transaction *item = list->data;
 
 		//#1252230
-		//if( item->paymode == PAYMODE_INTXFER && item->kacc == src->kxferacc && item->kxfer == src->kxfer )
+		//if( item->paymode == PAYMODE_INTXFER 
+		//	&& item->kacc == src->kxferacc
+		//	&& item->kxfer == src->kxfer )
 		if( item->paymode == PAYMODE_INTXFER 
-		 && item->date == src->date //added in 5.1
 		 && item->kxfer == src->kxfer 
 		 && item != src )
 		{
@@ -655,6 +606,7 @@ GList *list;
 		}
 		list = g_list_previous(list);
 	}
+	
 	DB( g_print(" - not found...\n") );
 	return NULL;
 }
@@ -670,6 +622,9 @@ Account *dstacc;
 
 	if(ope->kcur != child->kcur)
 		return;
+
+	ope->flags |= OF_CHANGED;
+	child->flags |= OF_CHANGED;
 
 	child->paymode = PAYMODE_INTXFER;
 
@@ -866,7 +821,7 @@ Account *acc;
 
 		if(newope->paymode == PAYMODE_INTXFER)
 		{
-			transaction_xfer_search_or_add_child(newope, treeview);
+			transaction_xfer_search_or_add_child(NULL, newope, FALSE);
 		}
 	}
 }

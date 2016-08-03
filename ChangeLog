@@ -1,23 +1,70 @@
 
-2016-xx-xx  Maxime Doyen
 
- Made 5.1 beta1 release.
+2016-08-xx  Maxime Doyen
 
- * change: listview, switch from  alternate row color to line grid (new GTK+ option)
- * change: preferences, reworked layout 
- * change: preferences, add preview for chart color scheme
+ Made 5.1 rc release.
+
+ * change: xhb data file format (v1.2)
+ * change: win32: upgraded to gtk+ 3.20.x
+ * change: internal storage of txn into accounts
+ * change: ??transaction dialog, changed the layout
+ * change: ??template/scheduled dialog, changed the layout
  * change: register, refactored toolbar grouping single and multiple actions
- * change: doc, added every payment into the lexicon
- * wish  : #532564   add a clean feature to delete unused payee/categories, ...
- * wish  : #552565  multiple currency accounting
- * wish  : #1102981	add Comment bloc for accounts
- * wish  : #1242312	split amount for template/scheduled transaction
+ * change: listview, removed deprecated rule hint (alternate row color)
+ * change: listview, added line grid (new GTK+ option)
+ * change: preferences, reworked layout 
+ * wish  : #1608025 revert prefill with shift/ctrl clicked txn when multiple edit
+ * wish  : #1500235 automatic assignments based on regular expressions
+ * wish  : #1500220 allow auto assignments to overwrite payee
  * wish  : #1484449	warn when amount sign and category don't match
- * wish  : #1501111	double-click on sheduled txn in main window to open template editor
- * wish  : #1501125	export to CSV for all reports list view
- * wish  : #1507252	search and replace, or ability to batch-edit selected transactions easily 
+ * wish  : #1448613 display full category name in autocompletion
+ * wish  : #1242312	split amount for template/scheduled transaction
+ * wish  : #1102981	add comment bloc for accounts
+ * wish  : #1094528 auto-assign Payment
+ * wish  : #844576 	payee default category and payment type
+ * wish  : #552565  multiple currency accounting
+
+
+2016-07-22  Maxime Doyen
+
+ Made 5.0.9 release.
+
+ * new   : txn dialog width is now saved
+ * wish  : #1507253 template at top into txn dialog
+ * wish  : #1429411 reconcile etc. could be a linked set of toggle buttons
+ * wish  : #532564  clean feature to delete unused payees/categories 
+ * bugfix: #1602835 filter by status in the ledger
+ * bugfix: #1594152 zillion questions importing from QIF file
+ * bugfix: #1583406 changes in settings -> format-> numbers options is never saved
+ * bugfix: #1562372 statistics filtered on category with split display wrong results
+ * bugfix: #1535483 importing cvs file silently skips a line!
+
+
+2016-05-21  Maxime Doyen
+
+ Made 5.0.8 release.
+
+ * bugfix: #1584342 operation disappearing and corrupted account file 
+
+
+2016-05-06  Maxime Doyen
+
+ Made 5.0.7 release.
+
+ * new   : preferences, add preview for chart color scheme
+ * new   : doc, added every payment into the lexicon
+ * wish  : #1509485 quicksearch split transactions memo/category
+ * wish  : #1507252 ability to batch-edit selected transactions easily
+ * wish  : #1501125 export to CSV for all reports list view
+ * wish  : #1501111 double-click on sheduled txn in main window to open template editor
+ * wish  : #1292377 enable edit transactions from report detail list
+ * wish  : #880846  hide/show txn list column on right click
+ * bugfix: #1577555 scheduled transaction edit doesn't enable file save
+ * bugfix: #1556289 scheduled transactions disappear with no reason
+ * bugfix: #1553862 budget report categories displayed when selecting subcategories
+ * bugfix: #1523216 import window wrongly sized
  * bugfix: #1511325 no warning about old gtk3.x version when compiling from source
- * bugfix: #1523216 Import window wrongly sized 
+ * bugfix: #1464961 inconsistency in my file internal xfer
 
 
 2015-10-18  Maxime Doyen

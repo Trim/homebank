@@ -27,7 +27,7 @@
 #include "gtk-dateentry.h"
 
 #include "dsp_mainwindow.h"
-
+#include "ui-transaction.h"
 
 
 /****************************************************************************/
@@ -297,6 +297,39 @@ struct repbudget_data *data;
 	repbudget_update_detail(widget, user_data);
 
 }
+
+
+static void repbudget_detail_onRowActivated (GtkTreeView        *treeview,
+                       GtkTreePath        *path,
+                       GtkTreeViewColumn  *col,
+                       gpointer            userdata)
+{
+struct repbudget_data *data;
+Transaction *active_txn;
+gboolean result;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print ("\n[repbudget] A detail row has been double-clicked!\n") );
+
+	active_txn = list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_detail));
+	if(active_txn)
+	{
+	Transaction *old_txn, *new_txn;
+
+		old_txn = da_transaction_clone (active_txn);
+		new_txn = active_txn;
+		result = deftransaction_external_edit(GTK_WINDOW(data->window), old_txn, new_txn);
+
+		if(result == GTK_RESPONSE_ACCEPT)
+		{
+			repbudget_compute(data->window, NULL);
+		}
+
+		da_transaction_free (old_txn);
+	}
+}
+
 
 static void repbudget_update_detail(GtkWidget *widget, gpointer user_data)
 {
@@ -569,6 +602,8 @@ gchar *title;
 		data->total_budget = 0.0;
 
 		/* compute budget for each category */
+		DB( g_print("\n+ compute budget\n") );
+
 		//fixed #328034: here <=n_result
 		for(i=1; i<=n_result; i++)
 		{
@@ -580,12 +615,13 @@ gchar *title;
 			if( entry == NULL)
 				continue;
 
-			DB( g_print("+ category %d:'%s' hasbudget=%d custom=%d\n", entry->key, entry->name, (entry->flags & GF_BUDGET), (entry->flags & GF_CUSTOM)) );
+			DB( g_print(" category %d:'%s' issub=%d hasbudget=%d custom=%d\n", 
+				entry->key, entry->name, (entry->flags & GF_SUB), (entry->flags & GF_BUDGET), (entry->flags & GF_CUSTOM)) );
 
 			//debug
 			#if MYDEBUG == 1
 			gint k;
-			g_print(" budget vector\n");
+			g_print("    budget vector: ");
 			for(k=0;k<13;k++)
 				g_print( " %d:[%.2f]", k, entry->budget[k]);
 			g_print("\n");
@@ -609,7 +645,7 @@ gchar *title;
 			// same value each month ?
 			if(!(entry->flags & GF_CUSTOM))
 			{
-				DB( g_print(" -> monthly %.2f\n", entry->budget[0]) );
+				DB( g_print("    - monthly %.2f\n", entry->budget[0]) );
 				tmp_budget[pos] += entry->budget[0]*nbmonth;
 			}
 			//otherwise	sum each month from mindate month
@@ -618,9 +654,9 @@ gchar *title;
 			gint month = getmonth(mindate);
 			gint j;
 
-				DB( g_print(" -> custom each month for %d months\n", nbmonth) );
+				DB( g_print("    - custom each month for %d months\n", nbmonth) );
 				for(j=0;j<nbmonth;j++) {
-					DB( g_print(" -> j=%d month=%d budg=%.2f\n", j, month, entry->budget[month]) );
+					DB( g_print("      j=%d month=%d budg=%.2f\n", j, month, entry->budget[month]) );
 					tmp_budget[pos] += entry->budget[month];
 					month++;
 					if(month > 12) {
@@ -631,13 +667,13 @@ gchar *title;
 
 			//debug
 			#if MYDEBUG == 1
-			g_print(" final budget: %d:'%s' : budg[%d]=%.2f\n", entry->key, entry->name, pos, tmp_budget[pos] );
+			g_print("    final budget: %d:'%s' : budg[%d]=%.2f\n", entry->key, entry->name, pos, tmp_budget[pos] );
 			#endif
 		}
 
 
 		// compute spent for each transaction */
-		DB( g_print("+ compute spent from transactions\n") );
+		DB( g_print("\n+ compute spent from transactions\n") );
 
 
 		list = g_queue_peek_head_link(data->txn_queue);
@@ -709,13 +745,15 @@ gchar *title;
 			i++;
 		}
 
-		DB( g_print("clear and detach model\n") );
+		DB( g_print("\nclear and detach model\n") );
 
 		/* clear and detach our model */
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_report));
 		gtk_list_store_clear (GTK_LIST_STORE(model));
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_report), NULL); /* Detach model from view */
+
+		DB( g_print("\n+ insert into treeview\n") );
 
 		/* insert into the treeview */
 		for(i=1, id=0; i<=n_result; i++)
@@ -741,7 +779,9 @@ gchar *title;
 
 			if(name == NULL) name  = "(None)";
 
-			if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY) )
+			//#1553862
+			//if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY) )
+			if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY && (entry->flags & GF_SUB)) )
 			{
 			guint pos;
 
@@ -760,7 +800,7 @@ gchar *title;
 						break;
 				}
 
-				// display expense or income (filter on amount and not category hupothetical flag
+				// display expense or income (filter on amount and not category hypothetical flag
 				//if( tmpkind !=  (entry->flags & GF_INCOME)) continue;
 				if( tmpkind == 1 && tmp_budget[pos] > 0)
 					continue;
@@ -768,7 +808,7 @@ gchar *title;
 				if( tmpkind == 2 && tmp_budget[pos] < 0)
 					continue;
 
-				DB( g_print(" eval insert '%s' : bud=%.2f spen=%.2f\n", name, tmp_budget[pos], tmp_spent[pos]) );
+				DB( g_print(" eval %d '%s' : spen=%.2f bud=%.2f \n", i, name, tmp_spent[pos], tmp_budget[pos] ) );
 
 				if((entry->flags & (GF_BUDGET|GF_FORCED)) || tmp_budget[pos] /*|| tmp_spent[pos]*/)
 				{
@@ -796,7 +836,7 @@ gchar *title;
 					}
 
 
-					DB( g_print(" inserting %i, %s, %.2f %.2f %.2f\n", i, name, tmp_spent[pos], tmp_budget[pos], result) );
+					DB( g_print(" => insert %.2f %.2f %.2f %s\n", tmp_spent[pos], tmp_budget[pos], result, status ) );
 
 					gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 			 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -1240,6 +1280,9 @@ GError *error = NULL;
     data->handler_id[HID_REPBUDGET_MAXDATE] = g_signal_connect (data->PO_maxdate, "changed", G_CALLBACK (repbudget_date_change), (gpointer)data);
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (repbudget_selection), NULL);
+
+	g_signal_connect (GTK_TREE_VIEW(data->LV_detail), "row-activated", G_CALLBACK (repbudget_detail_onRowActivated), NULL);
+
 
 	//setup, init and show window
 	repbudget_setup(data);

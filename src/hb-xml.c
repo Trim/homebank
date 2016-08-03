@@ -473,6 +473,8 @@ gint i;
 			 if(!strcmp (attribute_names[i], "key"  )) { entry->key = atoi(attribute_values[i]); }
 		//else if(!strcmp (attribute_names[i], "flags")) { entry->flags = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "name" )) { entry->name = g_strdup(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "category")) { entry->kcat = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "paymode" )) { entry->paymode = atoi(attribute_values[i]); }
 	}
 
 	//all attribute loaded: append
@@ -1199,9 +1201,11 @@ GError *error = NULL;
 static gint homebank_save_xml_pay(GIOChannel *io)
 {
 GList *lpay, *list;
-gchar *tmpstr;
+GString *node;
 gint retval = XML_OK;
 GError *error = NULL;
+
+	node = g_string_sized_new(255);
 
 	lpay = list = payee_glist_sorted(0);
 	while (list != NULL)
@@ -1210,24 +1214,29 @@ GError *error = NULL;
 
 		if(item->key != 0)
 		{
-			tmpstr = g_markup_printf_escaped("<pay key=\"%d\" name=\"%s\"/>\n",
-				item->key,
-				item->name
-			);
+			g_string_assign(node, "<pay ");
+
+			hb_xml_append_int(node, "key", item->key);
+			hb_xml_append_txt(node, "name", item->name);
+			hb_xml_append_int(node, "category", item->kcat);
+			hb_xml_append_int(node, "paymode" , item->paymode);
+
+			g_string_append(node, "/>\n");
 
 			error = NULL;
-			g_io_channel_write_chars(io, tmpstr, -1, NULL, &error);
-			g_free(tmpstr);
-			
+			g_io_channel_write_chars(io, node->str, -1, NULL, &error);
+
 			if(error)
 			{
 				retval = XML_IO_ERROR;
 				g_error_free(error);
 			}
+
 		}
 		list = g_list_next(list);
 	}
 	g_list_free(lpay);
+	g_string_free(node, TRUE);
 	return retval;
 }
 

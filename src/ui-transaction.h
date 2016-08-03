@@ -32,9 +32,16 @@ struct deftransaction_data
 {
 	GtkWidget	*window;
 
+	/* popover */
+	GtkWidget   *MB_template;
+	GtkTreeModel *model;
+	GtkTreeModelFilter *modelfilter;
+	GtkWidget   *LV_arc;
+	GtkWidget   *CM_showsched;
+	GtkWidget   *ST_search;
+
 	GtkWidget	*PO_date;
 	GtkWidget	*PO_pay;
-	GtkWidget	*PO_arc;
 	GtkWidget	*ST_word;
 	GtkWidget	*ST_amount, *BT_split;
 	GtkWidget	*CM_cheque;
@@ -45,7 +52,7 @@ struct deftransaction_data
 	GtkWidget	*PO_acc;
 	GtkWidget	*LB_accto, *PO_accto;
 	GtkWidget	*ST_tags;
-	GtkWidget   *CY_status;
+	GtkWidget   *RA_status;
 
 	GtkWidget   *IB_warnsign;
 	
@@ -58,9 +65,17 @@ struct deftransaction_data
 
 };
 
+enum
+{
+	LST_DSPTPL_DATAS,
+	LST_DSPTPL_NAME,
+	NUM_LST_DSPTPL
+};
+
 
 GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode);
 void deftransaction_set_amount(GtkWidget *widget, gdouble amount);
+gint deftransaction_external_edit(GtkWindow *parent, Transaction *old_txn, Transaction *new_txn);
 void deftransaction_set_transaction(GtkWidget *widget, Transaction *ope);
 void deftransaction_get			(GtkWidget *widget, gpointer user_data);
 void deftransaction_add			(GtkWidget *widget, gpointer user_data);

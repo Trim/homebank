@@ -327,7 +327,6 @@ gint i;
 	PREFS->color_exp  = g_strdup(DEFAULT_EXP_COLOR);
 	PREFS->color_inc  = g_strdup(DEFAULT_INC_COLOR);
 	PREFS->color_warn = g_strdup(DEFAULT_WARN_COLOR);
-	PREFS->rules_hint = FALSE;
 	PREFS->grid_lines = GTK_TREE_VIEW_GRID_LINES_NONE;
 
 	/* fiscal year */
@@ -342,6 +341,8 @@ gint i;
 	homebank_pref_init_wingeometry(&PREFS->ove_wg, 0, 0, 800, 494);
 	homebank_pref_init_wingeometry(&PREFS->bud_wg, 0, 0, 800, 494);
 	homebank_pref_init_wingeometry(&PREFS->cst_wg, 0, 0, 800, 494);
+
+	homebank_pref_init_wingeometry(&PREFS->txn_wg, 0, 0, -1, -1);
 
 	homebank_pref_init_monetary();
 
@@ -641,8 +642,16 @@ GError *error = NULL;
 					homebank_pref_get_string(keyfile, group, "ColorInc" , &PREFS->color_inc);
 					homebank_pref_get_string(keyfile, group, "ColorWarn", &PREFS->color_warn);
 
-					homebank_pref_get_boolean(keyfile, group, "RulesHint", &PREFS->rules_hint);
-					homebank_pref_get_short(keyfile, group, "GridLines", &PREFS->grid_lines);
+					if( version <= 500 )
+					{
+					gboolean rules_hint;
+						homebank_pref_get_boolean(keyfile, group, "RulesHint", &rules_hint);
+						if( rules_hint == TRUE )
+							PREFS->grid_lines = GTK_TREE_VIEW_GRID_LINES_HORIZONTAL;
+
+					}
+					else
+						homebank_pref_get_short(keyfile, group, "GridLines", &PREFS->grid_lines);
 				}
 
 				DB( g_print(" - color exp: %s\n", PREFS->color_exp) );
@@ -771,10 +780,14 @@ GError *error = NULL;
 				homebank_pref_get_wingeometry(keyfile, group, "Ove", &PREFS->ove_wg);
 				homebank_pref_get_wingeometry(keyfile, group, "Bud", &PREFS->bud_wg);
 				homebank_pref_get_wingeometry(keyfile, group, "Car", &PREFS->cst_wg);
+
+				homebank_pref_get_wingeometry(keyfile, group, "Txn", &PREFS->txn_wg);
+
 				if(version <= 7)	//set maximize to 0
 				{
 					PREFS->wal_wg.s = 0;
 					PREFS->acc_wg.s = 0;
+					PREFS->txn_wg.s = 0;
 					PREFS->sta_wg.s = 0;
 					PREFS->tme_wg.s = 0;
 					PREFS->ove_wg.s = 0;
@@ -973,9 +986,7 @@ gsize length;
 		g_key_file_set_string (keyfile, group, "ColorInc" , PREFS->color_inc);
 		g_key_file_set_string (keyfile, group, "ColorWarn", PREFS->color_warn);
 
-		g_key_file_set_boolean (keyfile, group, "RulesHint", PREFS->rules_hint);
 		g_key_file_set_integer (keyfile, group, "GridLines", PREFS->grid_lines);
-
 
 		homebank_pref_set_string  (keyfile, group, "WalletPath"   , PREFS->path_hbfile);
 		homebank_pref_set_string  (keyfile, group, "ImportPath"   , PREFS->path_import);
@@ -1009,6 +1020,8 @@ gsize length;
 		g_key_file_set_integer_list(keyfile, group, "Ove", (gint *)&PREFS->ove_wg, 5);
 		g_key_file_set_integer_list(keyfile, group, "Bud", (gint *)&PREFS->bud_wg, 5);
 		g_key_file_set_integer_list(keyfile, group, "Car", (gint *)&PREFS->cst_wg, 5);
+
+		g_key_file_set_integer_list(keyfile, group, "Txn", (gint *)&PREFS->txn_wg, 5);
 
 		g_key_file_set_integer (keyfile, group, "WalVPaned" , PREFS->wal_vpaned);
 		g_key_file_set_integer (keyfile, group, "WalHPaned" , PREFS->wal_hpaned);

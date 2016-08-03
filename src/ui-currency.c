@@ -983,40 +983,15 @@ Currency4217 *curfmt = NULL;
 
 
 static void
-ui_cur_select_icon_press_cb (GtkEntry       *entry,
-               gint            position,
-               GdkEventButton *event,
-               gpointer        data)
-{
-  if (position == GTK_ENTRY_ICON_SECONDARY)
-    gtk_entry_set_text (entry, "");
-}
-
-
-
-static void
-ui_cur_select_text_changed_cb (GtkEntry   *entry,
-                 GParamSpec *pspec,
-                 gpointer user_data)
+ui_cur_select_search_changed_cb (GtkWidget *widget, gpointer user_data)
 {
 struct ui_cur_select_dialog_data *data = user_data;
 
-	gboolean has_text;
-
-  has_text = gtk_entry_get_text_length (entry) > 0;
-  gtk_entry_set_icon_sensitive (entry,
-                                GTK_ENTRY_ICON_SECONDARY,
-                                has_text);
-
-	DB( g_print(" text changed\n") );
-	
-	//if(data->timer_tag == 0 )
-	//	data->timer_tag = g_timeout_add( DEFAULT_DELAY, quick_search_text_changed_timeout, (gpointer)user_data);
+	DB( g_print(" search changed\n") );
 
 	gtk_tree_model_filter_refilter(GTK_TREE_MODEL_FILTER(data->modelfilter));
 	
 }
-
 
 
 static gboolean
@@ -1057,7 +1032,7 @@ Currency4217 * ui_cur_select_dialog_new(GtkWindow *parent, gint select_mode)
 {
 struct ui_cur_select_dialog_data data;
 GtkWidget *dialog, *content_area, *content_grid, *group_grid;
-GtkWidget *scrollwin, *treeview, *label, *widget;
+GtkWidget *scrollwin, *treeview, *widget;
 gint crow, row;
 Currency4217 *curfmt = NULL;
 
@@ -1094,21 +1069,15 @@ Currency4217 *curfmt = NULL;
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
 
 	row = 1;
-	label = make_label_widget(_("Search:"));
-	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
-
-	widget = gtk_entry_new ();
+	widget = gtk_search_entry_new();
 	data.ST_search = widget;
 	gtk_widget_set_hexpand (widget, TRUE);
-	//gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget), GTK_ENTRY_ICON_PRIMARY, ICONNAME_FIND);
-	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (widget), GTK_ENTRY_ICON_SECONDARY, ICONNAME_CLEAR);
-	//gtk_grid_attach (GTK_GRID(table), widget, 12, 0, 1, 1);
-	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 
 	row++;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
-	gtk_grid_attach (GTK_GRID (group_grid), scrollwin, 1, row, 2, 1);
+	gtk_grid_attach (GTK_GRID (group_grid), scrollwin, 1, row, 1, 1);
 
 	gtk_widget_set_vexpand (scrollwin, TRUE);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
@@ -1149,10 +1118,9 @@ Currency4217 *curfmt = NULL;
 
 	gtk_widget_show_all(content_area);
 
-	//signals
-	g_signal_connect (data.ST_search, "notify::text", G_CALLBACK (ui_cur_select_text_changed_cb), &data);
-	//g_signal_connect (widget, "activate", G_CALLBACK (quick_search_activate_cb), data);
-	g_signal_connect (data.ST_search, "icon-press", G_CALLBACK (ui_cur_select_icon_press_cb), &data);	
+	// signals
+	g_signal_connect (data.ST_search, "search-changed", G_CALLBACK (ui_cur_select_search_changed_cb), &data);
+
 	
 	// wait for the user
 	gint result = gtk_dialog_run (GTK_DIALOG (dialog));

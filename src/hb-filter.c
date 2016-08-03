@@ -375,8 +375,9 @@ GList *lcat, *list;
 	flt->option[FILTER_STATUS] = 0;
 	flt->reconciled = TRUE;
 	flt->cleared  = TRUE;
-	flt->forceadd = TRUE;
-	flt->forcechg = TRUE;
+	//#1602835 fautly set
+	//flt->forceadd = TRUE;
+	//flt->forcechg = TRUE;
 
 	flt->option[FILTER_CATEGORY] = 0;
 	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
@@ -464,9 +465,30 @@ gchar *tags;
 
 	if(flags & FLT_QSEARCH_MEMO)
 	{
-		if(txn->wording)
+		//#1509485
+		if(txn->flags & OF_SPLIT)
 		{
-			retval |= filter_text_compare(txn->wording, needle, FALSE);
+		guint count, i;
+		Split *split;
+
+			count = da_splits_count(txn->splits);
+			for(i=0;i<count;i++)
+			{
+			gint tmpinsert = 0;
+		
+				split = txn->splits[i];
+				tmpinsert = filter_text_compare(split->memo, needle, FALSE);
+				retval |= tmpinsert;
+				if( tmpinsert )
+					break;
+			}
+		}
+		else
+		{
+			if(txn->wording)
+			{
+				retval |= filter_text_compare(txn->wording, needle, FALSE);
+			}
 		}
 		if(retval) goto end;
 	}
@@ -492,13 +514,42 @@ gchar *tags;
 
 	if(flags & FLT_QSEARCH_CATEGORY)
 	{
-		catitem = da_cat_get(txn->kcat);
-		if(catitem)
+		//#1509485
+		if(txn->flags & OF_SPLIT)
 		{
-		gchar *fullname = da_cat_get_fullname (catitem);
+		guint count, i;
+		Split *split;
 
-			retval |= filter_text_compare(fullname, needle, FALSE);
-			g_free(fullname);
+			count = da_splits_count(txn->splits);
+			for(i=0;i<count;i++)
+			{
+			gint tmpinsert = 0;
+				
+				split = txn->splits[i];
+				catitem = da_cat_get(split->kcat);
+				if(catitem)
+				{
+				gchar *fullname = da_cat_get_fullname (catitem);
+
+					tmpinsert = filter_text_compare(fullname, needle, FALSE);
+					retval |= tmpinsert;
+					g_free(fullname);
+				}
+
+				if( tmpinsert )
+					break;
+			}
+		}
+		else
+		{
+			catitem = da_cat_get(txn->kcat);
+			if(catitem)
+			{
+			gchar *fullname = da_cat_get_fullname (catitem);
+
+				retval |= filter_text_compare(fullname, needle, FALSE);
+				g_free(fullname);
+			}
 		}
 		if(retval) goto end;
 	}

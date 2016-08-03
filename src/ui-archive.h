@@ -20,6 +20,15 @@
 #ifndef __HB_ARCHIVE_GTK_H__
 #define __HB_ARCHIVE_GTK_H__
 
+
+enum
+{
+	ARC_TYPE_ALL = 0,
+	ARC_TYPE_SCHEDULED,
+	ARC_TYPE_TEMPLATE
+};
+
+
 enum {
 	HID_ARC_MEMO,
 	HID_ARC_VALID,
@@ -38,6 +47,7 @@ struct ui_arc_manage_data
 	Archive		*lastarcitem;
 
 
+	GtkWidget	*RA_type;
 	GtkWidget	*LV_arc;
 
 	GtkWidget   *GR_txnleft;
@@ -46,9 +56,7 @@ struct ui_arc_manage_data
 	GtkWidget	*ST_amount, *BT_split;
 	GtkWidget	*GR_cheque;
 	GtkWidget	*CM_cheque;
-	GtkWidget   *CY_status;
-
-	GtkWidget   *GR_txnright;
+	GtkWidget   *RA_status;
 	GtkWidget	*NU_mode;
 	GtkWidget	*PO_grp;
 	GtkWidget	*PO_acc;

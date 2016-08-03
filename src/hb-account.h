@@ -72,14 +72,14 @@ enum
 {
 	ACC_TYPE_NONE       = 0,
 	ACC_TYPE_BANK       = 1,	//Banque
-	ACC_TYPE_CASH       = 2,	//Espèce
+	ACC_TYPE_CASH       = 2,	//EspÃ¨ce
 	ACC_TYPE_ASSET      = 3,	//Actif (avoir)
-	ACC_TYPE_CREDITCARD = 4,	//Carte crédit
+	ACC_TYPE_CREDITCARD = 4,	//Carte crÃ©dit
 	ACC_TYPE_LIABILITY  = 5,	//Passif (dettes)
 //	ACC_TYPE_STOCK      = 6,	//Actions
 //	ACC_TYPE_MUTUALFUND = 7,	//Fond de placement
 //	ACC_TYPE_INCOME     = 8,	//Revenus
-//	ACC_TYPE_EXPENSE    = 9,	//Dépenses
+//	ACC_TYPE_EXPENSE    = 9,	//DÃ©penses
 //	ACC_TYPE_EQUITY     = 10,	//Capitaux propres
 //	ACC_TYPE_,
 	ACC_TYPE_MAXVALUE

@@ -193,7 +193,7 @@ static EuroParams euro_params[] =
 	{ "EEK", "Estonia"       , 15.6466  , "kr"  , FALSE, ",", " ", 2  },	//
 /* 2014 */
 	{ "LVL", "Latvia"        , 0.702804 , "lat.", FALSE, ",", "" , 2  },	// jan. 2014
-/* 2015 */
+/* 2016 */
 	{ "LTL", "Lithuania"     , 3.45280	, "Lt." , TRUE , ",", "" , 2  },	// jan. 2015
 
 /* future */
@@ -977,7 +977,9 @@ GdkRGBA rgba;
 
 	/* import */
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_dtex_datefmt), PREFS->dtex_datefmt);
+
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_dtex_ofxmemo), PREFS->dtex_ofxmemo);
+
 
 
 
@@ -1074,12 +1076,8 @@ const gchar *lang;
 
 	ui_gtk_entry_replace_text(data->ST_euro_symbol, &PREFS->minor_cur.symbol);
 	PREFS->minor_cur.sym_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_euro_isprefix));
-	
-	g_free(PREFS->minor_cur.decimal_char);
-	PREFS->minor_cur.decimal_char  = g_strdup( gtk_entry_get_text(GTK_ENTRY(data->ST_euro_decimalchar)) );
-	
-	g_free(PREFS->minor_cur.grouping_char);
-	PREFS->minor_cur.grouping_char = g_strdup( gtk_entry_get_text(GTK_ENTRY(data->ST_euro_groupingchar)) );
+	ui_gtk_entry_replace_text(data->ST_euro_decimalchar, &PREFS->minor_cur.decimal_char);
+	ui_gtk_entry_replace_text(data->ST_euro_groupingchar, &PREFS->minor_cur.grouping_char);
 	PREFS->minor_cur.frac_digits = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->NB_euro_fracdigits));
 
 	PREFS->stat_byamount   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_stat_byamount));
@@ -1092,7 +1090,9 @@ const gchar *lang;
 
 	/* import */
 	PREFS->dtex_datefmt = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dtex_datefmt));
+
 	PREFS->dtex_ofxmemo = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dtex_ofxmemo));
+
 
 
 	//PREFS->chart_legend = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_chartlegend));
@@ -1446,7 +1446,7 @@ gint crow, row;
 	widget = make_numeric(label, 0.0, 6.0);
 	data->NB_euro_fracdigits = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
-	
+
 	row++;
 	label = make_label_widget(_("_Grouping char:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
@@ -1839,7 +1839,7 @@ gint crow, row;
 	widget = gtk_button_new_from_icon_name(ICONNAME_FOLDER, GTK_ICON_SIZE_BUTTON);
 	data->BT_path_hbfile = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
-	
+
 	return content_grid;
 }
 
@@ -1946,7 +1946,6 @@ GtkWidget *defpref_dialog_new (void)
 {
 struct defpref_data data;
 GtkWidget *window, *content, *mainvbox;
-
 GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 
       window = gtk_dialog_new_with_buttons (_("Preferences"),
@@ -1998,8 +1997,22 @@ GtkWidget *hbox, *vbox, *sw, *widget, *notebook, *page, *ebox, *image, *label;
 	gtk_widget_show (vbox);
 
 	ebox = gtk_event_box_new();
-	gtk_style_context_add_class (gtk_widget_get_style_context (ebox), GTK_STYLE_CLASS_LIST_ROW);
-	gtk_widget_set_state_flags(ebox, GTK_STATE_FLAG_SELECTED, TRUE);
+	gtk_widget_set_name(ebox, "hbebox");
+	GtkStyleContext *context = gtk_widget_get_style_context (ebox);
+	#if GTK_MINOR_VERSION <= 18
+		gtk_style_context_add_class (context, GTK_STYLE_CLASS_LIST_ROW);
+		gtk_widget_set_state_flags(ebox, GTK_STATE_FLAG_SELECTED, TRUE);
+	#else
+	GtkCssProvider *provider;
+		provider = gtk_css_provider_new ();
+		gtk_css_provider_load_from_data (provider, 
+		"#hbebox { color: @theme_selected_fg_color; background-color: @theme_selected_bg_color; }"
+		, -1, NULL);
+		gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER(provider), G_MAXUINT);
+	
+	//	gtk_style_context_set_state(context, GTK_STATE_FLAG_SELECTED);
+	#endif
+
 	gtk_box_pack_start (GTK_BOX (vbox), ebox, FALSE, TRUE, 0);
 	gtk_widget_show (ebox);
 

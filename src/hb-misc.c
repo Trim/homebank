@@ -71,10 +71,10 @@ Currency *cur;
 		return value;
 
 	cur = da_cur_get(kcur);
-	if(cur == NULL)
+	if(cur == NULL || cur->rate == 0.0)
 		return 0;
 
-	newvalue = value * cur->rate;
+	newvalue = value / cur->rate;
 	return hb_amount_round(newvalue, cur->frac_digits);
 }
 
@@ -563,13 +563,12 @@ guint32 julian = 0;
 
 		if(d <= 31 && m <= 12)
 		{
-			date = g_date_new();
-			g_date_set_dmy(date, d, m, y);
-			if( g_date_valid (date) )
+			if( g_date_valid_dmy(d, m, y) )
 			{
+				date = g_date_new_dmy(d, m, y);
 				julian = g_date_get_julian (date);
+				g_date_free(date);
 			}
-			g_date_free(date);
 		}
 
 		DB( g_print(" > %d %d %d julian=%d\n", d, m, y, julian) );
@@ -615,7 +614,7 @@ gchar *newfilename;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
-static gboolean hb_string_isdate(gchar *str)
+gboolean hb_string_isdate(gchar *str)
 {
 gint d, m, y;
 
@@ -623,7 +622,7 @@ gint d, m, y;
 }
 
 
-static gboolean hb_string_isdigit(gchar *str)
+gboolean hb_string_isdigit(gchar *str)
 {
 gboolean valid = TRUE;
 	while(*str && valid)
@@ -632,7 +631,7 @@ gboolean valid = TRUE;
 }
 
 /*
-static gboolean hb_string_isprint(gchar *str)
+gboolean hb_string_isprint(gchar *str)
 {
 gboolean valid = TRUE;
 	while(*str && valid)
@@ -643,7 +642,7 @@ gboolean valid = TRUE;
 
 
 
-static gboolean hb_string_isprint(gchar *str)
+gboolean hb_string_isprint(gchar *str)
 {
 gboolean valid = TRUE;
 gchar *p;
@@ -659,77 +658,6 @@ gunichar c;
 			p = g_utf8_next_char(p);
 		}
 	}
-	return valid;
-}
-
-
-gboolean hb_string_csv_valid(gchar *str, guint nbcolumns, gint *csvtype)
-{
-gchar **str_array;
-gboolean valid = TRUE;
-guint i;
-extern int errno;
-
-#if MYDEBUG == 1
-gchar *type[5] = { "string", "date", "int", "double" };
-gint lasttype;
-#endif
-
-	DB( g_print("\n** hb_string_csv_valid: init %d\n", valid) );
-
-	hb_string_strip_crlf(str);
-	str_array = g_strsplit (str, ";", 0);
-
-	DB( g_print(" -> length %d, nbcolumns %d\n", g_strv_length( str_array ), nbcolumns) );
-
-	if( g_strv_length( str_array ) != nbcolumns )
-	{
-		valid = FALSE;
-		goto csvend;
-	}
-
-	for(i=0;i<nbcolumns;i++)
-	{
-#if MYDEBUG == 1
-		lasttype = csvtype[i];
-#endif
-
-		if(valid == FALSE)
-		{
-			DB( g_print(" -> fail on column %d, type: %s\n", i, type[lasttype]) );
-			break;
-		}
-
-		DB( g_print(" -> control column %d, type: %d, valid: %d '%s'\n", i, lasttype, valid, str_array[i]) );
-
-		switch( csvtype[i] )
-		{
-			case CSV_DATE:
-				valid = hb_string_isdate(str_array[i]);
-				break;
-			case CSV_STRING:
-				valid = hb_string_isprint(str_array[i]);
-				break;
-			case CSV_INT:
-				valid = hb_string_isdigit(str_array[i]);
-				break;
-			case CSV_DOUBLE	:
-				g_ascii_strtod(str_array[i], NULL);
-				//todo : see this errno
-				if( errno )
-				{
-					DB( g_print("errno: %d\n", errno) );
-					valid = FALSE;
-				}
-				break;
-		}
-	}
-
-csvend:
-	g_strfreev (str_array);
-
-	DB( g_print(" --> return %d\n", valid) );
-
 	return valid;
 }
 

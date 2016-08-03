@@ -29,6 +29,7 @@ struct _category
 	guint32		key;
 	guint32		parent;
 	gushort		flags;
+	gushort		_pad1;
 	gchar		*name;
 	gdouble		budget[13];	//0:is same value, 1 ..12 are months
 
@@ -69,7 +70,7 @@ void da_cat_consistency(Category *item);
 
 GList *category_glist_sorted(gint column);
 
-gboolean category_is_used(guint32 key);
+void category_delete_unused(void);
 void category_fill_usage(void);
 void category_move(guint32 key1, guint32 key2);
 gboolean category_rename(Category *item, const gchar *newname);

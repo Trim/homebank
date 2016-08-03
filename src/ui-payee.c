@@ -21,6 +21,7 @@
 #include "homebank.h"
 
 #include "ui-payee.h"
+#include "ui-category.h"
 
 #define MYDEBUG 0
 
@@ -119,6 +120,22 @@ Payee *item;
 
 	return 0;
 }
+
+
+Payee
+*ui_pay_comboboxentry_get(GtkComboBox *entry_box)
+{
+gchar *name;
+Payee *item = NULL;
+
+	DB( g_print ("ui_pay_comboboxentry_get()\n") );
+
+	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
+	item = da_pay_get_by_name(name);
+
+	return item;
+}
+
 
 gboolean
 ui_pay_comboboxentry_set_active(GtkComboBox *entry_box, guint32 key)
@@ -331,6 +348,7 @@ GtkCellRenderer    *renderer;
 	return comboboxentry;
 }
 
+
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 static void
@@ -376,11 +394,74 @@ gint retval = 0;
 		case LST_DEFPAY_SORT_USED:
 			retval = entry1->usage_count - entry2->usage_count;
 			break;
+		case LST_DEFPAY_SORT_DEFCAT:
+			{
+			Category *c1, *c2;
+			gchar *name1, *name2;
+
+				c1 = da_cat_get(entry1->kcat);
+				c2 = da_cat_get(entry2->kcat);
+				if( c1 != NULL && c2 != NULL )
+				{
+					name1 = da_cat_get_fullname(c1);
+					name2 = da_cat_get_fullname(c2);
+					retval = hb_string_utf8_compare(name1, name2);
+					g_free(name2);
+					g_free(name1);
+				}
+			}
+			break;
 		default:
 			g_return_val_if_reached(0);
 	}
 		
     return retval;
+}
+
+
+static void
+ui_pay_listview_count_cell_data_function (GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer user_data)
+{
+Payee *entry;
+gchar buffer[256];
+
+	gtk_tree_model_get(model, iter, LST_DEFPAY_DATAS, &entry, -1);
+	if(entry->usage_count > 0)
+	{
+		g_snprintf(buffer, 256-1, "%d", entry->usage_count);
+		g_object_set(renderer, "text", buffer, NULL);
+	}
+	else
+		g_object_set(renderer, "text", "", NULL);
+}
+
+
+static void
+ui_pay_listview_defcat_cell_data_function (GtkTreeViewColumn *col,
+				GtkCellRenderer *renderer,
+				GtkTreeModel *model,
+				GtkTreeIter *iter,
+				gpointer user_data)
+{
+Payee *entry;
+Category *cat;
+gchar *fullname;
+
+	gtk_tree_model_get(model, iter, LST_DEFPAY_DATAS, &entry, -1);
+
+	cat = da_cat_get(entry->kcat);
+	if( cat != NULL )
+	{
+		fullname = da_cat_get_fullname(cat);
+		g_object_set(renderer, "text", fullname, NULL);
+		g_free(fullname);
+	}
+	else
+		g_object_set(renderer, "text", "", NULL);
 }
 
 
@@ -412,27 +493,6 @@ gchar *string;
 		g_object_set(renderer, "text", name, NULL);
 	#endif
 
-}
-
-
-static void
-ui_pay_listview_count_cell_data_function (GtkTreeViewColumn *col,
-				GtkCellRenderer *renderer,
-				GtkTreeModel *model,
-				GtkTreeIter *iter,
-				gpointer user_data)
-{
-Payee *entry;
-gchar buffer[256];
-
-	gtk_tree_model_get(model, iter, LST_DEFPAY_DATAS, &entry, -1);
-	if(entry->usage_count > 0)
-	{
-		g_snprintf(buffer, 256-1, "%d", entry->usage_count);
-		g_object_set(renderer, "text", buffer, NULL);
-	}
-	else
-		g_object_set(renderer, "text", "", NULL);
 }
 
 
@@ -587,7 +647,7 @@ GtkTreeViewColumn	*column;
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	// column 1: toggle
+	// column: toggle
 	if( withtoggle == TRUE )
 	{
 		renderer = gtk_cell_renderer_toggle_new ();
@@ -600,24 +660,54 @@ GtkTreeViewColumn	*column;
 
 	}
 
-	// column 2: name
+	// column: name
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);
+
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Name"));
-	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_name_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_column_set_sort_column_id (column, LST_DEFPAY_SORT_NAME);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 
+	// column: usage
 	if( withcount == TRUE )
 	{
-		column = gtk_tree_view_column_new();
-		gtk_tree_view_column_set_title(column, _("Used"));
 		renderer = gtk_cell_renderer_text_new ();
-		//g_object_set(renderer, "xalign", 1.0, NULL);
+		g_object_set(renderer, "xalign", 0.5, NULL);
+
+		column = gtk_tree_view_column_new();
+		gtk_tree_view_column_set_title(column, _("Usage"));
 		gtk_tree_view_column_pack_start(column, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_count_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
+		gtk_tree_view_column_set_alignment (column, 0.5);
 		gtk_tree_view_column_set_sort_column_id (column, LST_DEFPAY_SORT_USED);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
+	}
+
+	// column: category
+	if( withtoggle == FALSE )
+	{
+		renderer = gtk_cell_renderer_text_new ();
+		g_object_set(renderer, 
+			"ellipsize", PANGO_ELLIPSIZE_END,
+			"ellipsize-set", TRUE,
+			NULL);
+
+		column = gtk_tree_view_column_new();
+		gtk_tree_view_column_set_title(column, _("Default category"));
+		gtk_tree_view_column_pack_start(column, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(column, renderer, ui_pay_listview_defcat_cell_data_function, GINT_TO_POINTER(LST_DEFPAY_DATAS), NULL);
+		gtk_tree_view_column_set_alignment (column, 0.5);
+		gtk_tree_view_column_set_sort_column_id (column, LST_DEFPAY_SORT_DEFCAT);
+		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), column);
 	}
 
@@ -628,14 +718,46 @@ GtkTreeViewColumn	*column;
 
 	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_NAME, ui_pay_listview_compare_func, GINT_TO_POINTER(LST_DEFPAY_SORT_NAME), NULL);
 	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_USED, ui_pay_listview_compare_func, GINT_TO_POINTER(LST_DEFPAY_SORT_USED), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_DEFCAT, ui_pay_listview_compare_func, GINT_TO_POINTER(LST_DEFPAY_SORT_DEFCAT), NULL);
 
-	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFPAY_DATAS, GTK_SORT_ASCENDING);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFPAY_SORT_NAME, GTK_SORT_ASCENDING);
 
 	return treeview;
 }
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+static void
+ui_pay_manage_dialog_delete_unused( GtkWidget *widget, gpointer user_data)
+{
+struct ui_pay_manage_dialog_data *data = user_data;
+gboolean result;
+
+	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print("(ui_pay_manage_dialog) delete unused - data %p\n", data) );
+
+	result = ui_dialog_msg_confirm_alert(
+			GTK_WINDOW(data->window),
+			_("Delete unused payee"),
+			_("Are you sure you want to\npermanently delete unused payee?"),
+			_("_Delete")
+		);
+
+	if( result == GTK_RESPONSE_OK )
+	{
+	GtkTreeModel *model;	
+		
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_pay));
+		gtk_list_store_clear (GTK_LIST_STORE(model));
+		
+		payee_delete_unused();
+	
+		ui_pay_listview_populate (data->LV_pay);
+	}
+}
+
 
 /**
  * ui_pay_manage_dialog_load_csv:
@@ -724,13 +846,16 @@ const gchar *buffer;
 }
 
 
-static void ui_pay_manage_dialog_edit(GtkWidget *widget, gpointer user_data)
+static void ui_pay_manage_dialog_edit(GtkWidget *dowidget, gpointer user_data)
 {
 struct ui_pay_manage_dialog_data *data;
-GtkWidget *window, *content, *mainvbox, *getwidget;
+GtkWidget *dialog, *content_area, *content_grid, *group_grid;
+GtkWidget *label, *widget;
+GtkWidget *ST_name, *PO_cat, *NU_mode;
+gint crow, row;
 guint32 key;
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(dowidget, GTK_TYPE_WINDOW)), "inst_data");
 	DB( g_print("(defayee) modify %p\n", data) );
 
 	key = ui_pay_listview_get_selected_key(GTK_TREE_VIEW(data->LV_pay));
@@ -740,7 +865,7 @@ guint32 key;
 
 		item = da_pay_get( key );
 
-		window = gtk_dialog_new_with_buttons (_("Edit..."),
+		dialog = gtk_dialog_new_with_buttons (_("Edit..."),
 						    GTK_WINDOW (data->window),
 						    0,
 						    _("_Cancel"),
@@ -749,35 +874,82 @@ guint32 key;
 						    GTK_RESPONSE_ACCEPT,
 						    NULL);
 
-		content = gtk_dialog_get_content_area(GTK_DIALOG (window));
-		mainvbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
-		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), SPACING_MEDIUM);
+		content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
 
-		getwidget = gtk_entry_new();
-		gtk_box_pack_start (GTK_BOX (mainvbox), getwidget, TRUE, TRUE, 0);
+		content_grid = gtk_grid_new();
+		gtk_grid_set_row_spacing (GTK_GRID (content_grid), SPACING_LARGE);
+		gtk_orientable_set_orientation(GTK_ORIENTABLE(content_grid), GTK_ORIENTATION_VERTICAL);
+		gtk_container_set_border_width (GTK_CONTAINER(content_grid), SPACING_MEDIUM);
+		gtk_box_pack_start (GTK_BOX (content_area), content_grid, TRUE, TRUE, 0);
 
-		gtk_entry_set_text(GTK_ENTRY(getwidget), item->name);
-		gtk_widget_grab_focus (getwidget);
+		crow = 0;
+		// group :: General
+		group_grid = gtk_grid_new ();
+		gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+		gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+		gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+	
+		//label = make_label_group(_("General"));
+		//gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 
-		gtk_entry_set_activates_default (GTK_ENTRY(getwidget), TRUE);
+		row = 1;
+		label = make_label_widget(_("_Name:"));
+		gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+		widget = gtk_entry_new();
+		ST_name = widget;
+		gtk_widget_set_hexpand(widget, TRUE);
+		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-		g_signal_connect (G_OBJECT (getwidget), "changed", G_CALLBACK (ui_pay_manage_dialog_edit_entry_cb), window);
+		// group :: Default
+		group_grid = gtk_grid_new ();
+		gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+		gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+		gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+	
+		label = make_label_group(_("Default"));
+		gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 4, 1);
+
+		row = 1;
+		label = make_label_widget(_("_Category:"));
+		gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+		widget = ui_cat_comboboxentry_new(label);
+		PO_cat = widget;
+		gtk_widget_set_hexpand (widget, TRUE);
+		gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+
+		row++;
+		label = make_label_widget(_("Pa_yment:"));
+		gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+		widget = make_paymode(label);
+		NU_mode = widget;
+		gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+
+		//setup
+		gtk_entry_set_text(GTK_ENTRY(ST_name), item->name);
+		gtk_widget_grab_focus (ST_name);
+		gtk_entry_set_activates_default (GTK_ENTRY(ST_name), TRUE);
+		
+		ui_cat_comboboxentry_populate(GTK_COMBO_BOX(PO_cat), GLOBALS->h_cat);
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(PO_cat), item->kcat);
+
+		gtk_combo_box_set_active(GTK_COMBO_BOX(NU_mode), item->paymode);
+
+		g_signal_connect (G_OBJECT (ST_name), "changed", G_CALLBACK (ui_pay_manage_dialog_edit_entry_cb), dialog);
+
+		gtk_widget_show_all(content_grid);
 
 
-		gtk_widget_show_all(mainvbox);
-
-		gtk_dialog_set_default_response(GTK_DIALOG( window ), GTK_RESPONSE_ACCEPT);
+		gtk_dialog_set_default_response(GTK_DIALOG( dialog ), GTK_RESPONSE_ACCEPT);
 
 		//wait for the user
-		gint result = gtk_dialog_run (GTK_DIALOG (window));
+		gint result = gtk_dialog_run (GTK_DIALOG (dialog));
 
 		if(result == GTK_RESPONSE_ACCEPT)
 		{
 		const gchar *name;
 
 			// 1: manage renaming
-			name = gtk_entry_get_text(GTK_ENTRY(getwidget));
+			name = gtk_entry_get_text(GTK_ENTRY(ST_name));
 			// ignore if item is empty
 			if (name && *name)
 			{
@@ -789,7 +961,7 @@ guint32 key;
 				}
 				else
 				{
-					ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_ERROR,
+					ui_dialog_msg_infoerror(GTK_WINDOW(dialog), GTK_MESSAGE_ERROR,
 						_("Error"),
 						_("Cannot rename this Payee,\n"
 						"from '%s' to '%s',\n"
@@ -800,10 +972,14 @@ guint32 key;
 
 				}
 			}
+
+			item->kcat    = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(PO_cat));
+			item->paymode = gtk_combo_box_get_active(GTK_COMBO_BOX(NU_mode));
+
 	    }
 
 		// cleanup and destroy
-		gtk_widget_destroy (window);
+		gtk_widget_destroy (dialog);
 	}
 
 }
@@ -958,7 +1134,7 @@ gint result;
 		title = g_strdup_printf (
 			_("Are you sure you want to permanently delete '%s'?"), item->name);
 
-		if( payee_is_used(key) == TRUE )
+		if( item->usage_count > 0 )
 		{
 			secondtext = _("This payee is used.\n"
 			    "Any transaction using that payee will be set to (no payee)");
@@ -1088,6 +1264,13 @@ gint w, h, row;
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
 	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_pay_manage_dialog_save_csv), &data);
 	
+	menuitem = gtk_separator_menu_item_new();
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	
+	menuitem = gtk_menu_item_new_with_mnemonic (_("_Delete unused"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	g_signal_connect (G_OBJECT (menuitem), "activate", G_CALLBACK (ui_pay_manage_dialog_delete_unused), &data);
+	
 	gtk_widget_show_all (menu);
 	
 	widget = gtk_menu_button_new();
@@ -1113,6 +1296,7 @@ gint w, h, row;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrollwin), HB_MINHEIGHT_LIST);
 	treeview = ui_pay_listview_new(FALSE, TRUE);
 	data.LV_pay = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);

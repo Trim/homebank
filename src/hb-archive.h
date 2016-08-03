@@ -37,7 +37,7 @@ struct _archive
 
 	//guint32		date;
 	//gushort		pos;
-	gushort     status;
+	gushort     status, _pad1;
 	//gchar		*info;
 	//guint32		*tags;
 	//guint32		kxfer;		//strong link xfer key

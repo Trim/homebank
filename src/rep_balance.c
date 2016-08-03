@@ -28,6 +28,7 @@
 
 #include "ui-account.h"
 #include "dsp_mainwindow.h"
+#include "ui-transaction.h"
 
 
 /****************************************************************************/
@@ -102,11 +103,7 @@ static const gchar *ui_info =
 "</ui>";
 
 
-
 //extern gchar *CYA_FLT_SELECT[];
-
-
-
 
 
 /* action functions -------------------- */
@@ -369,6 +366,39 @@ guint32 acckey;
 
 	}
 }
+
+
+static void repbalance_detail_onRowActivated (GtkTreeView        *treeview,
+                       GtkTreePath        *path,
+                       GtkTreeViewColumn  *col,
+                       gpointer            userdata)
+{
+struct repbalance_data *data;
+Transaction *active_txn;
+gboolean result;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print ("\n[repbalance] A detail row has been double-clicked!\n") );
+
+	active_txn = list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_detail));
+	if(active_txn)
+	{
+	Transaction *old_txn, *new_txn;
+
+		old_txn = da_transaction_clone (active_txn);
+		new_txn = active_txn;
+		result = deftransaction_external_edit(GTK_WINDOW(data->window), old_txn, new_txn);
+
+		if(result == GTK_RESPONSE_ACCEPT)
+		{
+			repbalance_compute (data->window, NULL);
+		}
+
+		da_transaction_free (old_txn);
+	}
+}
+
 
 
 static void repbalance_update_detail(GtkWidget *widget, gpointer user_data)
@@ -1005,6 +1035,8 @@ GError *error = NULL;
 	g_signal_connect (data->PO_acc, "changed", G_CALLBACK (repbalance_compute), NULL);
 
 	g_signal_connect (data->RG_zoomx, "value-changed", G_CALLBACK (repbalance_zoomx_callback), NULL);
+
+	g_signal_connect (GTK_TREE_VIEW(data->LV_detail), "row-activated", G_CALLBACK (repbalance_detail_onRowActivated), NULL);
 
 
 	/* toolbar */

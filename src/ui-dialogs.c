@@ -266,7 +266,7 @@ gint crow, row, count;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-static struct dialog_currency_data
+struct dialog_currency_data
 {
 	GtkWidget   *window;
 	GtkWidget   *LB_currency;
@@ -691,12 +691,13 @@ GtkWidget *dialog = NULL;
 }
 
 
-
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 struct xfer_data
 {
 	GtkWidget   *window;
 	GtkWidget	*radio[2];
+	GtkWidget	*srctreeview;
 	GtkWidget	*treeview;
 };
 
@@ -735,18 +736,16 @@ static void ui_dialog_transaction_xfer_select_child_selection_cb(GtkTreeSelectio
 }
 
 
-Transaction *ui_dialog_transaction_xfer_select_child(GtkWidget *treeview, GList *matchlist)
+Transaction *ui_dialog_transaction_xfer_select_child(GtkWindow *parentwindow, Transaction *stxn, GList *matchlist)
 {
 struct xfer_data data;
-GtkWidget *parentwindow, *window, *content, *mainvbox, *vbox, *sw, *label;
+GtkWidget *window, *content, *mainvbox, *vbox, *sw, *label, *LB_several;
 GtkTreeModel		 *newmodel;
 GtkTreeIter			 newiter;
 Transaction *retval = NULL;
 
-	parentwindow = gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW);
-
 	window = gtk_dialog_new_with_buttons (
-    			NULL,
+    			_("Select among possible transactions..."),
     			GTK_WINDOW (parentwindow),
 			    0,
 			    _("_Cancel"),
@@ -766,18 +765,19 @@ Transaction *retval = NULL;
 		gtk_box_pack_start (GTK_BOX (content), mainvbox, TRUE, TRUE, 0);
 		gtk_container_set_border_width (GTK_CONTAINER (mainvbox), SPACING_SMALL);
 
-		gtk_window_set_title (GTK_WINDOW (window), _("Select among possible transactions..."));
+	// source listview
+	sw = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	//gtk_widget_set_size_request(sw, -1, HB_MINWIDTH_LIST/2);
 
-		label = make_label(_(
-		"HomeBank has found some transaction that may be " \
-		"the associated transaction for the internal transfer."), 0.0, 0.5
-		);
-	gimp_label_set_attributes (GTK_LABEL (label),
-                             PANGO_ATTR_SCALE,  PANGO_SCALE_SMALL,
-                             -1);
-	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, SPACING_SMALL);
+	data.srctreeview = create_list_transaction(LIST_TXN_TYPE_DETAIL, PREFS->lst_ope_columns);
+	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(data.srctreeview)), GTK_SELECTION_NONE);
+	gtk_container_add (GTK_CONTAINER (sw), data.srctreeview);
+	gtk_box_pack_start (GTK_BOX (mainvbox), sw, TRUE, TRUE, 0);
 
 
+	// actions 
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (mainvbox), vbox, FALSE, TRUE, SPACING_SMALL);
 
@@ -785,33 +785,49 @@ Transaction *retval = NULL;
 	gimp_label_set_attributes(GTK_LABEL(label), PANGO_ATTR_WEIGHT, PANGO_WEIGHT_BOLD, -1);
     gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
-
 	data.radio[0] = gtk_radio_button_new_with_label (NULL, _("create a new transaction"));
 	gtk_box_pack_start (GTK_BOX (vbox), data.radio[0], FALSE, FALSE, 0);
 
 	data.radio[1] = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON (data.radio[0]), _("select an existing transaction"));
 	gtk_box_pack_start (GTK_BOX (vbox), data.radio[1], FALSE, FALSE, 0);
 
+
+	label = make_label(_(
+		"HomeBank has found some transaction that may be " \
+		"the associated transaction for the internal transfer."), 0.0, 0.5
+		);
+	LB_several = label;
+	gimp_label_set_attributes (GTK_LABEL (label),
+                             PANGO_ATTR_SCALE,  PANGO_SCALE_SMALL,
+                             -1);
+	gtk_box_pack_start (GTK_BOX (mainvbox), label, FALSE, FALSE, SPACING_SMALL);
+
+	// target listview
 	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-	data.treeview = create_list_transaction(LIST_TXN_TYPE_BOOK, PREFS->lst_ope_columns);
+	data.treeview = create_list_transaction(LIST_TXN_TYPE_DETAIL, PREFS->lst_ope_columns);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), GTK_SELECTION_SINGLE);
 	gtk_container_add (GTK_CONTAINER (sw), data.treeview);
 	gtk_box_pack_start (GTK_BOX (mainvbox), sw, TRUE, TRUE, 0);
 
-	g_signal_connect (data.radio[0], "toggled", G_CALLBACK (ui_dialog_transaction_xfer_select_child_cb), NULL);
-	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), "changed", G_CALLBACK (ui_dialog_transaction_xfer_select_child_selection_cb), NULL);
+	/* populate source */
+	if( stxn != NULL )
+	{
+		newmodel = gtk_tree_view_get_model(GTK_TREE_VIEW(data.srctreeview));
+		gtk_list_store_clear (GTK_LIST_STORE(newmodel));
 	
-	/* populate */
+		gtk_list_store_append (GTK_LIST_STORE(newmodel), &newiter);
+
+		gtk_list_store_set (GTK_LIST_STORE(newmodel), &newiter,
+		LST_DSPOPE_DATAS, stxn,
+		-1);
+	}
+
+	/* populate target */
 	newmodel = gtk_tree_view_get_model(GTK_TREE_VIEW(data.treeview));
-
-
-
-
 	gtk_list_store_clear (GTK_LIST_STORE(newmodel));
-
 
 	GList *tmplist = g_list_first(matchlist);
 	while (tmplist != NULL)
@@ -830,37 +846,53 @@ Transaction *retval = NULL;
 		tmplist = g_list_next(tmplist);
 	}
 
+
+	g_signal_connect (data.radio[0], "toggled", G_CALLBACK (ui_dialog_transaction_xfer_select_child_cb), NULL);
+	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview)), "changed", G_CALLBACK (ui_dialog_transaction_xfer_select_child_selection_cb), NULL);
+
+	gtk_widget_show_all(mainvbox);
+
 	//initialize
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data.radio[1]), TRUE);
+	gtk_widget_set_sensitive (data.radio[1], TRUE);
+	if( g_list_length (matchlist) <= 0 )
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data.radio[0]), TRUE);
+		gtk_widget_set_sensitive (data.radio[1], FALSE);
+		gtk_widget_set_visible (LB_several, FALSE);
+	}
+	else
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data.radio[1]), TRUE);
+		gtk_widget_set_visible (LB_several, TRUE);
+	}
+	
+	ui_dialog_transaction_xfer_select_child_cb(data.radio[0], NULL);
 
+	//wait for the user
+	gint result = gtk_dialog_run (GTK_DIALOG (window));
 
-		gtk_widget_show_all(mainvbox);
+	if(result == GTK_RESPONSE_ACCEPT)
+	{
+	gboolean bnew;
 
-		//wait for the user
-		gint result = gtk_dialog_run (GTK_DIALOG (window));
-
-		if(result == GTK_RESPONSE_ACCEPT)
+		bnew = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data.radio[0]));
+		if( bnew == FALSE )
 		{
-		gboolean bnew;
+		GtkTreeSelection *selection;
+		GtkTreeModel		 *model;
+		GtkTreeIter			 iter;
 
-			bnew = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data.radio[0]));
-			if( bnew == FALSE)
+			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview));
+			if (gtk_tree_selection_get_selected(selection, &model, &iter))
 			{
-			GtkTreeSelection *selection;
-			GtkTreeModel		 *model;
-			GtkTreeIter			 iter;
-
-				selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data.treeview));
-				if (gtk_tree_selection_get_selected(selection, &model, &iter))
-				{
-					gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &retval, -1);
-				}
+				gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &retval, -1);
 			}
-
 		}
 
-		// cleanup and destroy
-		gtk_widget_destroy (window);
+	}
+
+	// cleanup and destroy
+	gtk_widget_destroy (window);
 
 	return retval;
 }

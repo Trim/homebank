@@ -289,7 +289,6 @@ GQueue *txn_queue;
 			lnk_txn = g_list_previous(lnk_txn);
 		}
 	
-	next_acc:
 		lnk_acc = g_list_next(lnk_acc);
 	}
 	g_list_free(lst_acc);
@@ -1288,11 +1287,6 @@ struct import_data *data;
 }
 
 
-
-
-
-
-
 static void _import_tryload_file(struct import_data *data)
 {
 ImportContext *ictx = &data->ictx;
@@ -1344,21 +1338,35 @@ ImportContext *ictx = &data->ictx;
 
 		for(i=0;i<NUM_PRF_DATEFMT;i++)
 		{
+		gboolean do_fix;
+
 			if(i != PREFS->dtex_datefmt)	//don't reload with user pref date format
 			{
-				DB( g_print(" fail, reload with '%s'\n", CYA_IMPORT_DATEORDER[i]) );
-				//#1448549
-				import_clearall(data);
-				ictx->encoding = encoding; //#1425986 keep encoding with us
-				ictx->datefmt = i;
-				_import_tryload_file(data);
+				do_fix = ui_dialog_msg_question(
+					GTK_WINDOW(data->assistant),
+					_("Some date convertion failed"),
+					_("Reload using date order: '%s' ?"),
+					CYA_IMPORT_DATEORDER[i]
+					);
 
-				DB( g_print(" -> reloaded: nbtrans=%d, date errors=%d\n", ictx->cnt_new_ope, ictx->cnt_err_date) );
+				if(do_fix == GTK_RESPONSE_YES)
+				{	
+					DB( g_print(" fail, reload with '%s'\n", CYA_IMPORT_DATEORDER[i]) );
+					//#1448549
+					import_clearall(data);
+					ictx->encoding = encoding; //#1425986 keep encoding with us
+					ictx->datefmt = i;
+					_import_tryload_file(data);
 
-				if(ictx->cnt_err_date == 0)
-					break;
+					DB( g_print(" -> reloaded: nbtrans=%d, date errors=%d\n", ictx->cnt_new_ope, ictx->cnt_err_date) );
+
+					if(ictx->cnt_err_date == 0)
+						break;
+				}
+
 			}
 		}
+		
 	}
 
 	DB( g_print(" end of try import\n") );
@@ -1981,7 +1989,6 @@ gint crow, row;
 	gtk_container_add (GTK_CONTAINER (scrollwin), widget);
 	gtk_grid_attach (GTK_GRID (group_grid), scrollwin, 0, row, 2, 1);
 
-	row++;
 	expander = gtk_expander_new (_("Detail of existing transaction (possible duplicate)"));
 	data->GR_duplicate = expander;
 	gtk_grid_attach (GTK_GRID (group_grid), expander, 0, crow++, 2, 1);

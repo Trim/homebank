@@ -31,6 +31,7 @@
 #include "ui-payee.h"
 #include "ui-category.h"
 #include "ui-filter.h"
+#include "ui-transaction.h"
 
 /****************************************************************************/
 /* Debug macros                                                             */
@@ -842,6 +843,35 @@ gdouble exprate, incrate, balrate;
 				//trn_amount = ope->amount;
 				trn_amount = hb_amount_base(ope->amount, ope->kcur);
 
+				//#1562372 in case of a split we need to take amount for filter categories only
+				if( ope->flags & OF_SPLIT )
+				{
+				guint nbsplit = da_splits_count(ope->splits);
+				Split *split;
+				Category *catentry;
+				gint sinsert;
+
+					trn_amount = 0.0;
+
+					for(i=0;i<nbsplit;i++)
+					{
+						split = ope->splits[i];
+						catentry = da_cat_get(split->kcat);
+						if(catentry == NULL) continue;
+						sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
+						if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
+
+						DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );
+
+						if( (data->filter->option[FILTER_CATEGORY] == 0) || sinsert)
+						{
+							trn_amount += hb_amount_base(split->amount, ope->kcur);
+						}
+					}
+
+				}
+
+
 				if( tmpfor != BY_REPDIST_TAG )
 				{
 					if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
@@ -910,7 +940,7 @@ gdouble exprate, incrate, balrate;
 					}
 				}
 				else
-				/* the TAG process is particular */
+				/* the TAG process is particularly */
 				{
 					if(ope->tags != NULL)
 					{
@@ -1149,6 +1179,38 @@ gint page;
 	sensitive = page == 0 ? TRUE : FALSE;
 	gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/ToolBar/Rate"), sensitive);
 
+}
+
+
+static void ui_repdist_detail_onRowActivated (GtkTreeView        *treeview,
+                       GtkTreePath        *path,
+                       GtkTreeViewColumn  *col,
+                       gpointer            userdata)
+{
+struct ui_repdist_data *data;
+Transaction *active_txn;
+gboolean result;
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(GTK_WIDGET(treeview), GTK_TYPE_WINDOW)), "inst_data");
+
+	DB( g_print ("\n[repdist] A detail row has been double-clicked!\n") );
+
+	active_txn = list_txn_get_active_transaction(GTK_TREE_VIEW(data->LV_detail));
+	if(active_txn)
+	{
+	Transaction *old_txn, *new_txn;
+
+		old_txn = da_transaction_clone (active_txn);
+		new_txn = active_txn;
+		result = deftransaction_external_edit(GTK_WINDOW(data->window), old_txn, new_txn);
+
+		if(result == GTK_RESPONSE_ACCEPT)
+		{
+			ui_repdist_compute(data->window, NULL);
+		}
+
+		da_transaction_free (old_txn);
+	}
 }
 
 
@@ -1663,6 +1725,7 @@ GError *error = NULL;
 
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), "changed", G_CALLBACK (ui_repdist_selection), NULL);
 
+	g_signal_connect (GTK_TREE_VIEW(data->LV_detail), "row-activated", G_CALLBACK (ui_repdist_detail_onRowActivated), NULL);
 
 	//setup, init and show window
 	ui_repdist_setup(data);

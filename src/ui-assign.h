@@ -59,7 +59,7 @@ struct ui_asg_manage_data
 
 	GtkWidget   *GR_condition;
 	GtkWidget   *CY_field;
-	GtkWidget	*ST_name;
+	GtkWidget	*ST_text;
 	GtkWidget	*CM_exact;
 	GtkWidget	*CM_re;
 

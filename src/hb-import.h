@@ -112,6 +112,9 @@ gdouble hb_qif_parser_get_amount(gchar *string);
 Account *import_create_account(gchar *name, gchar *number);
 GList *homebank_ofx_import(gchar *filename, ImportContext *ictx);
 
+gboolean hb_csv_row_valid(gchar **str_array, guint nbcolumns, gint *csvtype);
+gchar **hb_csv_row_get(gchar *string, gchar *delimiter, gint max_tokens);
+
 GList *homebank_csv_import(gchar *filename, ImportContext *ictx);
 
 #endif

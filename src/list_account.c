@@ -333,13 +333,18 @@ GtkTreeViewColumn  *column;
     gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* Account */
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+		"ellipsize-set", TRUE,
+		NULL);
+
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Accounts"));
-
-	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(column, renderer, text_cell_data_function, GINT_TO_POINTER(1), NULL);
 	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 

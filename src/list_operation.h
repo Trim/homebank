@@ -43,6 +43,8 @@ GtkWidget *create_list_import_transaction(gboolean enable_choose);
 
 gboolean list_txn_column_id_isvisible(GtkTreeView *treeview, gint sort_id);
 
+Transaction *list_txn_get_active_transaction(GtkTreeView *treeview);
+
 void list_txn_set_save_column_width(GtkTreeView *treeview, gboolean save_column_width);
 void list_txn_sort_force(GtkTreeSortable *sortable, gpointer user_data);
 guint list_txn_get_quicksearch_column_mask(GtkTreeView *treeview);
