@@ -697,7 +697,7 @@ gint result;
 
 	result = ui_dialog_msg_confirm_alert(
 			GTK_WINDOW(data->window),
-			_("Are you sure you want to convert this account\nto Major euro currency?"),
+			_("Are you sure you want to convert this account\nto Euro as Major currency?"),
 			msg,
 			_("_Convert")
 		);
@@ -730,10 +730,10 @@ gboolean usermode = TRUE;
 		if(count == 0)
 			txt = _("No transaction changed");
 		else
-			txt = _("transaction auto assigned: %d");
+			txt = _("transaction changed: %d");
 
 		ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_INFO,
-			_("Auto assignment result"),
+			_("Automatic assignment result"),
 			txt,
 			count);
 	}
@@ -2154,7 +2154,7 @@ quick_search_icon_press_cb (GtkEntry       *entry,
 static GtkActionEntry entries[] = {
 
 	/* name, icon-name, label */
-	{ "AccountMenu"	 , NULL, N_("_Account"), NULL, NULL, NULL },
+	{ "AccountMenu"	 , NULL, N_("A_ccount"), NULL, NULL, NULL },
 	{ "TxnMenu"      , NULL, N_("Transacti_on"), NULL, NULL, NULL },
 	{ "TxnStatusMenu", NULL, N_("_Status"), NULL, NULL, NULL },
 	{ "ToolsMenu"	 , NULL, N_("_Tools"), NULL, NULL, NULL },
@@ -2163,7 +2163,7 @@ static GtkActionEntry entries[] = {
 
 	/* name, icon-name, label, accelerator, tooltip */
 	{ "Filter"		, ICONNAME_HB_FILTER        , N_("_Filter..."), NULL,			N_("Open the list filter"), G_CALLBACK (register_panel_action_editfilter) },
-	{ "ConvToEuro"	, NULL                      , N_("Convert to euro..."), NULL,	N_("Convert this account to euro"), G_CALLBACK (register_panel_action_converttoeuro) },
+	{ "ConvToEuro"	, NULL                      , N_("Convert to Euro..."), NULL,	N_("Convert this account to Euro currency"), G_CALLBACK (register_panel_action_converttoeuro) },
 
 	{ "Add"			, ICONNAME_HB_OPE_ADD	    , N_("_Add..."), NULL,		N_("Add a new transaction"), G_CALLBACK (register_panel_action_add) },
 	{ "Inherit"		, ICONNAME_HB_OPE_HERIT	    , N_("_Inherit..."), NULL, N_("Inherit from the active transaction"), G_CALLBACK (register_panel_action_inherit) },
@@ -2177,7 +2177,7 @@ static GtkActionEntry entries[] = {
 	{ "Template"    , ICONNAME_CONVERT          , N_("Create template..."), NULL,		N_("Create template"), G_CALLBACK (register_panel_action_createtemplate) },
 	{ "Delete"		, ICONNAME_HB_OPE_DELETE    , N_("_Delete..."), NULL,		N_("Delete selected transaction(s)"), G_CALLBACK (register_panel_action_remove) },
 
-	{ "Assign"		, ICONNAME_HB_ASSIGN_RUN    , N_("Auto. Assignments"), NULL,	N_("Run auto assignments"), G_CALLBACK (register_panel_action_assign) },
+	{ "Assign"		, ICONNAME_HB_ASSIGN_RUN    , N_("Auto. assignments"), NULL,	N_("Run automatic assignments"), G_CALLBACK (register_panel_action_assign) },
 	{ "ExportQIF"	, NULL						, N_("Export QIF..."), NULL,		N_("Export as QIF"), G_CALLBACK (register_panel_action_exportqif) },
 	{ "ExportCSV"	, NULL				   		, N_("Export CSV..."), NULL,		N_("Export as CSV"), G_CALLBACK (register_panel_action_exportcsv) },
 
@@ -2427,12 +2427,12 @@ GError *error = NULL;
 	data->CY_status = make_cycle(label, CYA_FLT_STATUS);
 	gtk_grid_attach (GTK_GRID(table), data->CY_status, 5, 0, 1, 1);
 
-	widget = gtk_button_new_with_mnemonic (_("Reset _Filters"));
+	widget = gtk_button_new_with_mnemonic (_("Reset _filters"));
 	data->BT_reset = widget;
 	gtk_grid_attach (GTK_GRID(table), widget, 6, 0, 1, 1);
 
 	//TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
-	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
+	widget = gtk_check_button_new_with_mnemonic (_("Euro _minor"));
 	data->CM_minor = widget;
 	gtk_grid_attach (GTK_GRID(table), widget, 8, 0, 1, 1);
 

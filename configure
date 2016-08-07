@@ -4858,7 +4858,7 @@ CFLAGS="${CFLAGS} -Wall -Wmissing-prototypes"
 CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 
 # extended flags
-CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
+#CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter"
 
 # profiling valgrind/gprof flags
 #CFLAGS="${CFLAGS} -g -O0 -pg"

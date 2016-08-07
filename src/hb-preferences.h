@@ -57,6 +57,7 @@ struct Preferences
 	gboolean	showsplash;
 	gboolean	loadlast;
 	gboolean	appendscheduled;
+	gboolean	do_update_currency;
 	gshort		fisc_year_day;
 	gshort		fisc_year_month;
 	gint		date_range_wal;

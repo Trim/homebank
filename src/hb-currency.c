@@ -448,12 +448,12 @@ Currency *base;
 Currency *item;
 gint i;
 
-//https://query.yahooapis.com/v1/public/yql
+//http://query.yahooapis.com/v1/public/yql
 //?q=select * from yahoo.finance.xchange where pair in ("EURGBP","EURUSD")
 //&env=store://datatables.org/alltableswithkeys
 	
 	node = g_string_sized_new(1024);
-	g_string_append(node, "https://query.yahooapis.com/v1/public/yql");
+	g_string_append(node, "http://query.yahooapis.com/v1/public/yql");
 	g_string_append(node, "?q=select * from yahoo.finance.xchange where pair in (");
 
 	base = da_cur_get (GLOBALS->kcur);

@@ -1376,7 +1376,7 @@ gint w, h, row;
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 1, 1, 1);
 
-	label = make_label_group(_("Balance Limits"));
+	label = make_label_group(_("Balance limits"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	//TODO: warning/absolute minimum balance

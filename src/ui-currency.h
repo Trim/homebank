@@ -112,6 +112,8 @@ void ui_cur_listview_remove_selected(GtkTreeView *treeview);
 void ui_cur_listview_populate(GtkWidget *view);
 GtkWidget *ui_cur_listview_new(gboolean withtoggle);
 
+gint ui_cur_manage_dialog_update_currencies(GtkWindow *parent);
+
 GtkWidget *ui_cur_manage_dialog (void);
 
 Currency4217 *ui_cur_select_dialog_new(GtkWindow *parent, gint select_mode);

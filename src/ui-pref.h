@@ -60,6 +60,7 @@ struct defpref_data
 	GtkWidget	*CM_load_last;
 	GtkWidget	*CM_show_splash;
 	GtkWidget	*CM_append_scheduled;
+	GtkWidget   *CM_do_update_currency;
 	GtkWidget	*CM_herit_date;
 	GtkWidget	*CM_hide_reconciled;
 	GtkWidget	*CM_show_remind;

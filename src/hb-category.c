@@ -976,7 +976,7 @@ const gchar *encoding;
 
 					if( g_strv_length (str_array) != 3 )
 					{
-						*error = _("invalid csv format");
+						*error = _("invalid CSV format");
 						retval = FALSE;
 						DB( g_print(" + error %s\n", *error) );
 					}

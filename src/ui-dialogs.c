@@ -534,12 +534,12 @@ gboolean retval;
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
-		title = _("Open homebank file");
+		title = _("Open HomeBank file");
 		button = _("_Open");
 	}
 	else
 	{
-		title = _("Save homebank file as");
+		title = _("Save HomeBank file as");
 		button = _("_Save");
 	}
 

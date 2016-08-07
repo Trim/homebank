@@ -63,7 +63,6 @@ static void homebank_pref_init_monetary(void)
     //LPWSTR wcBuffer = buffer;
     LPSTR wcBuffer = buffer;
     int iResult;
-    gsize toto;
 
 	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd464799%28v=vs.85%29.aspx
 
@@ -317,6 +316,7 @@ gint i;
 	PREFS->showsplash = TRUE;
 	PREFS->loadlast = TRUE;
 	PREFS->appendscheduled = FALSE;
+	PREFS->do_update_currency = FALSE;
 
 	PREFS->heritdate = FALSE;
 	PREFS->hidereconciled = FALSE;
@@ -666,6 +666,7 @@ GError *error = NULL;
 				homebank_pref_get_boolean(keyfile, group, "ShowSplash", &PREFS->showsplash);
 				homebank_pref_get_boolean(keyfile, group, "LoadLast", &PREFS->loadlast);
 				homebank_pref_get_boolean(keyfile, group, "AppendScheduled", &PREFS->appendscheduled);
+				homebank_pref_get_boolean(keyfile, group, "UpdateCurrency", &PREFS->do_update_currency);	
 
 				homebank_pref_get_boolean(keyfile, group, "HeritDate", &PREFS->heritdate);
 				homebank_pref_get_boolean(keyfile, group, "HideReconciled", &PREFS->hidereconciled);
@@ -996,6 +997,7 @@ gsize length;
 		g_key_file_set_boolean (keyfile, group, "ShowSplash", PREFS->showsplash);
 		g_key_file_set_boolean (keyfile, group, "LoadLast", PREFS->loadlast);
 		g_key_file_set_boolean (keyfile, group, "AppendScheduled", PREFS->appendscheduled);
+		g_key_file_set_boolean (keyfile, group, "UpdateCurrency", PREFS->do_update_currency);
 
 		g_key_file_set_boolean (keyfile, group, "HeritDate", PREFS->heritdate);
 		g_key_file_set_boolean (keyfile, group, "HideReconciled", PREFS->hidereconciled);

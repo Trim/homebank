@@ -1109,7 +1109,7 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), data->CY_kind, 2, row, 1, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
+	widget = gtk_check_button_new_with_mnemonic (_("Euro _minor"));
 	data->CM_minor = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 

@@ -65,12 +65,12 @@ gchar *CYA_FLT_STATUS[] = {
 };
 
 gchar *CYA_FLT_RANGE[] = {
-	N_("This Month"),
-	N_("Last Month"),
-	N_("This Quarter"),
-	N_("Last Quarter"),
-	N_("This Year"),
-	N_("Last Year"),
+	N_("This month"),
+	N_("Last month"),
+	N_("This quarter"),
+	N_("Last quarter"),
+	N_("This year"),
+	N_("Last year"),
 	"",
 	N_("Last 30 days"),
 	N_("Last 60 days"),

@@ -976,7 +976,7 @@ gint row;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	row++;
-	label = make_label_widget(_("Acc_ount:"));
+	label = make_label_widget(_("A_ccount:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
 	data->PO_acc = widget;
@@ -1102,7 +1102,7 @@ gint crow;
 		{
 			gtk_dialog_add_buttons (GTK_DIALOG(dialog),
 				_("_Close"), GTK_RESPONSE_REJECT,
-				_("_Add & Keep"), GTK_RESPONSE_ADDKEEP,
+				_("_Add & keep"), GTK_RESPONSE_ADDKEEP,
 				_("_Add"), GTK_RESPONSE_ADD,
 				NULL);
 		}

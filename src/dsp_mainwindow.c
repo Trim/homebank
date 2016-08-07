@@ -178,7 +178,7 @@ static GtkActionEntry entries[] = {
 
   { "Properties" , ICONNAME_PROPERTIES     , N_("Properties..."), NULL, N_("Configure the file"),    G_CALLBACK (ui_mainwindow_action_properties) },
   { "Close"      , ICONNAME_CLOSE          , N_("_Close")        , "<control>W", N_("Close the current file"),    G_CALLBACK (ui_mainwindow_action_close) },
-  { "Quit"       , ICONNAME_QUIT           , N_("_Quit")         , "<control>Q", N_("Quit homebank"),    G_CALLBACK (ui_mainwindow_action_quit) },
+  { "Quit"       , ICONNAME_QUIT           , N_("_Quit")         , "<control>Q", N_("Quit HomeBank"),    G_CALLBACK (ui_mainwindow_action_quit) },
 
   /* Exchange */
   { "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
@@ -188,7 +188,7 @@ static GtkActionEntry entries[] = {
   { "ExportQIF" , ICONNAME_HB_FILE_EXPORT  , N_("Export QIF file...")     , NULL, N_("Export all account in a QIF file"),    G_CALLBACK (ui_mainwindow_action_export) },
 
   /* EditMenu */
-  { "Preferences", ICONNAME_PREFERENCES    , N_("Preferences..."), NULL,    N_("Configure homebank"),    G_CALLBACK (ui_mainwindow_action_preferences) },
+  { "Preferences", ICONNAME_PREFERENCES    , N_("Preferences..."), NULL,    N_("Configure HomeBank"),    G_CALLBACK (ui_mainwindow_action_preferences) },
 
   /* ManageMenu */
   { "Currency"   , ICONNAME_HB_CURRENCY    , N_("Currencies...") , NULL,    N_("Configure the currencies"), G_CALLBACK (ui_mainwindow_action_defcurrency) },
@@ -234,7 +234,7 @@ static GtkToggleActionEntry toggle_entries[] = {
   { "Toolbar"    , NULL                 , N_("_Toolbar")  , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_toolbar), TRUE },
   { "Spending"   , NULL                 , N_("_Top spending") , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_topspending), TRUE },
   { "Upcoming"   , NULL                 , N_("_Scheduled list") , NULL,    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_upcoming), TRUE },
-  { "AsMinor"    , NULL                 , N_("Minor currency"), "<control>M",    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_minor), FALSE },
+  { "AsMinor"    , NULL                 , N_("Euro minor"), "<control>M",    NULL,    G_CALLBACK (ui_mainwindow_action_toggle_minor), FALSE },
 };
 
 static guint n_toggle_entries = G_N_ELEMENTS (toggle_entries);
@@ -1749,6 +1749,9 @@ gint r;
 			if(PREFS->appendscheduled)
 				scheduled_post_all_pending();
 
+			if(PREFS->do_update_currency)
+				ui_cur_manage_dialog_update_currencies(GTK_WINDOW(GLOBALS->mainwindow));
+
 			homebank_lastopenedfiles_save();
 
 			//todo: delete this after computing done at xml read
@@ -1838,7 +1841,7 @@ gint r = XML_UNSET;
 	}
 	else
 	{
-	gchar *msg = _("I/O error for file %s.");
+	gchar *msg = _("I/O error for file '%s'.");
 
 		ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
 			_("File error"),

@@ -1376,7 +1376,7 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	label = make_label_widget(_("_Account:"));
+	label = make_label_widget(_("A_ccount:"));
 	data->LB_acc = label;
 	gtk_grid_attach (GTK_GRID (table), label, 1, row, 1, 1);
 	widget = ui_acc_comboboxentry_new(label);
@@ -1417,7 +1417,7 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 
 	row++;
-	widget = gtk_check_button_new_with_mnemonic (_("_Minor currency"));
+	widget = gtk_check_button_new_with_mnemonic (_("Euro _minor"));
 	data->CM_minor = widget;
 	gtk_grid_attach (GTK_GRID (table), widget, 2, row, 1, 1);
 

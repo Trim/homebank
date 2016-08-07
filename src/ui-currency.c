@@ -769,7 +769,7 @@ GtkWidget *label, *widget, *expander;
 gint crow, row;
 
 	dialog = gtk_dialog_new_with_buttons (
-	                _("Edit Currency"),
+	                _("Edit currency"),
 				    GTK_WINDOW (parent),
 				    0,
 				    _("_Cancel"),
@@ -1140,20 +1140,55 @@ Currency4217 *curfmt = NULL;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
-static void
-ui_cur_manage_dialog_sync(GtkWidget *widget, gpointer user_data)
+gint ui_cur_manage_dialog_update_currencies(GtkWindow *parent)
 {
-struct ui_cur_manage_dialog_data *data;
 GError *error = NULL;
-gboolean retcode;
-	
-	DB( g_printf("\n(ui_cur_manage) add\n") );
+gboolean retcode = FALSE;
 
-	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+	DB( g_printf("\n(ui_cur_manage) update currencies\n") );
+
+	// do nothing if just the base currency
+	if(da_cur_length() <= 1)
+		return TRUE;
 
 	retcode = currency_sync_online(&error);
 	
 	DB( g_print("retcode: %d\n", retcode) );
+
+	if(!retcode)
+	{
+	gchar *msg = _("Unknow error");
+
+		if( error )
+			msg = error->message;
+
+		g_warning("update online: '%s'", msg);
+
+		ui_dialog_msg_infoerror(GTK_WINDOW(parent), GTK_MESSAGE_ERROR,
+			_("Update online error"),
+			msg,
+			NULL
+			);
+	
+		if( error )
+			g_error_free (error);
+	}
+	
+	return retcode;
+}
+
+
+static void
+ui_cur_manage_dialog_sync(GtkWidget *widget, gpointer user_data)
+{
+struct ui_cur_manage_dialog_data *data;
+gboolean retcode;
+	
+	DB( g_printf("\n(ui_cur_manage) sync online\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	retcode = ui_cur_manage_dialog_update_currencies(GTK_WINDOW(data->window));
 
 	if(retcode == TRUE)
 	{
@@ -1161,29 +1196,6 @@ gboolean retcode;
 		//todo: (or not) msg with changes
 		
 	}
-	else
-	{
-	gchar *msg = _("Unknow error");
-	
-		if( error )
-		{
-			msg = error->message;
-		}
-
-		g_warning("update online: '%s'", msg);
-
-		ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
-			_("Update online error"),
-			msg,
-			NULL
-			);	
-	
-		if( error )
-		{
-			g_error_free (error);
-		}
-	}
-
 }
 
 

@@ -1162,7 +1162,7 @@ gchar *error;
 		{
 			ui_dialog_msg_infoerror(GTK_WINDOW(data->window), GTK_MESSAGE_ERROR,
 					_("File format error"),
-					_("The csv file must contains the exact numbers of column,\nseparated by a semi-colon, please see the help for more details.")
+					_("The CSV file must contains the exact numbers of column,\nseparated by a semi-colon, please see the help for more details.")
 					);
 		}
 
