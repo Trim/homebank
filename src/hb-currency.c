@@ -242,20 +242,27 @@ da_cur_get(guint32 key)
 
 
 
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
 /**
- * da_cur_is_used:
+ * currency_is_used:
  * 
  * controls if a currency is used [base or account]
  * 
  * Return value: TRUE if used, FALSE, otherwise
  */
 gboolean
-da_cur_is_used(guint32 key)
+currency_is_used(guint32 key)
 {
 GList *list;
+gboolean retval;
 
 	if(GLOBALS->kcur == key)
 		return TRUE;
+	
+	retval = FALSE;
 	
 	list = g_hash_table_get_values(GLOBALS->h_acc);
 	while (list != NULL)
@@ -264,17 +271,18 @@ GList *list;
 
 		if(item->kcur == key)
 		{	
-			return TRUE;
+			retval = TRUE;
+			goto end;
 		}		
 		list = g_list_next(list);
 	}
+
+end:
 	g_list_free(list);
 
-	return FALSE;
+	return retval;
 }
 
-
-/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
 Currency4217 *iso4217format_get(gchar *code)

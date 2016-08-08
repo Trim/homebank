@@ -1262,7 +1262,7 @@ GtkWidget *parentwindow, *window, *content, *mainbox, *notebook, *label, *page;
 
 	parentwindow = gtk_widget_get_ancestor(GTK_WIDGET(widget), GTK_TYPE_WINDOW);
 
-	window = gtk_dialog_new_with_buttons (_("Edit Filter"),
+	window = gtk_dialog_new_with_buttons (_("Edit filter"),
 					    GTK_WINDOW (parentwindow),
 					    0,
 					    _("_Reset"),

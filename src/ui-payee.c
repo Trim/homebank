@@ -33,6 +33,7 @@
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
+extern struct Preferences *PREFS;
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -646,6 +647,8 @@ GtkTreeViewColumn	*column;
 
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
+
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
 
 	// column: toggle
 	if( withtoggle == TRUE )

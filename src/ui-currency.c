@@ -336,16 +336,10 @@ gchar *name1, *name2;
     gtk_tree_model_get(model, a, LST_DEFCUR_DATAS, &entry1, -1);
     gtk_tree_model_get(model, b, LST_DEFCUR_DATAS, &entry2, -1);
 
-	name1 = entry1->name;
-	name2 = entry2->name;
-    if (name1 == NULL || name2 == NULL)
-    {
-        result = (name1 == NULL) ? -1 : 1;
-    }
-    else
-    {
-        result = g_utf8_collate(name1,name2);
-    }
+	name1 = (entry1->key == GLOBALS->kcur) ? NULL : entry1->iso_code;
+	name2 = (entry2->key == GLOBALS->kcur) ? NULL : entry2->iso_code;
+
+    result = hb_string_compare(name1,name2);
 
     return result;
 }
@@ -367,14 +361,14 @@ gint weight;
 
 	#if MYDEBUG
 		if( entry->key == GLOBALS->kcur )
-			string = g_strdup_printf ("[%d] %s - %s<span size=\"x-small\">\n(%s)</span>", entry->key, entry->iso_code, entry->name, _("Base currency"));
+			string = g_strdup_printf ("[%d] %s - %s<span size=\"small\">\n(%s)</span>", entry->key, entry->iso_code, entry->name, _("Base currency"));
 		else
 			string = g_strdup_printf ("[%d] %s - %s", entry->key, entry->iso_code, entry->name);
 		g_object_set(renderer, "weight", weight, "markup", string, NULL);
 		g_free(string);
 	#else
 		if( entry->key == GLOBALS->kcur )
-			string = g_strdup_printf ("%s - %s<span size=\"x-small\">\n(%s)</span>", entry->iso_code, entry->name, _("Base currency"));
+			string = g_strdup_printf ("%s - %s<span size=\"small\">\n(%s)</span>", entry->iso_code, entry->name, _("Base currency"));
 		else
 			string = g_strdup_printf ("%s - %s", entry->iso_code, entry->name);
 		g_object_set(renderer, "weight", weight, "markup", string, NULL);
@@ -493,7 +487,7 @@ GtkTreeIter			 iter;
 
 		gtk_tree_model_get(model, &iter, LST_DEFCUR_DATAS, &item, -1);
 
-		if( item!= NULL	 )
+		if( item != NULL )
 			return item->key;
 	}
 	return 0;
@@ -611,6 +605,8 @@ GtkTreeViewColumn	*column;
 
 	}
 
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
+
 
 	// column 1: name
 	renderer = gtk_cell_renderer_text_new ();
@@ -624,7 +620,7 @@ GtkTreeViewColumn	*column;
 
 	// column 2: code
 	renderer = gtk_cell_renderer_text_new ();
-	//g_object_set(renderer, "xalign", 1.0, NULL);
+	g_object_set(renderer, "xalign", 0.5, NULL);
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Symbol"));
 	gtk_tree_view_column_set_alignment (column, 0.5);
@@ -636,7 +632,7 @@ GtkTreeViewColumn	*column;
 	// column 3: base rate
 	renderer = gtk_cell_renderer_text_new ();
 	//g_object_set (renderer, "editable", TRUE, NULL);
-	//g_object_set(renderer, "xalign", 1.0, NULL);
+	g_object_set(renderer, "xalign", 1.0, NULL);
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Exchange rate"));
 	gtk_tree_view_column_set_alignment (column, 0.5);
@@ -649,6 +645,7 @@ GtkTreeViewColumn	*column;
 
 	// column 4: last modified
 	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, "xalign", 0.5, NULL);
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Last modfied"));
 	gtk_tree_view_column_set_alignment (column, 0.5);
@@ -921,6 +918,14 @@ enum {
 };
 
 
+static void ui_cur_select_rowactivated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer userdata)
+{
+struct ui_cur_select_dialog_data *data = userdata;
+
+	gtk_dialog_response(GTK_DIALOG(data->window), GTK_RESPONSE_ACCEPT);
+}
+
+
 static GtkTreeModel *ui_cur_select_model_create (void)
 {
 guint i = 0;
@@ -1120,6 +1125,7 @@ Currency4217 *curfmt = NULL;
 
 	// signals
 	g_signal_connect (data.ST_search, "search-changed", G_CALLBACK (ui_cur_select_search_changed_cb), &data);
+	g_signal_connect (GTK_TREE_VIEW(data.LV_cur), "row-activated", G_CALLBACK (ui_cur_select_rowactivated), &data);
 
 	
 	// wait for the user
@@ -1224,6 +1230,8 @@ Currency4217 *curfmt;
 		{
 			item = currency_add_from_user(curfmt);
 			ui_cur_listview_add(GTK_TREE_VIEW(data->LV_cur), item);
+			gtk_tree_sortable_sort_column_changed(GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_cur))));
+			
 			ui_cur_manage_dialog_update (widget, user_data);
 			GLOBALS->changes_count++;
 		}
@@ -1287,7 +1295,7 @@ gboolean do_remove, result;
 	gchar *title;
 	gchar *secondtext;
 
-		if( da_cur_is_used(key) == TRUE )
+		if( currency_is_used(key) == TRUE )
 		{
 			do_remove = FALSE;
 		}
@@ -1350,6 +1358,7 @@ gboolean do_change;
 		if(do_change == GTK_RESPONSE_YES)
 		{
 			hbfile_change_basecurrency(key);
+			gtk_tree_view_columns_autosize(GTK_TREE_VIEW(data->LV_cur));
 		}
 	}
 
@@ -1385,7 +1394,7 @@ gboolean sensitive;
 
 		gtk_widget_set_sensitive(data->BT_edit, TRUE);
 
-		sensitive = !(da_cur_is_used(item->key));
+		sensitive = !(currency_is_used(item->key));
 		//gtk_widget_set_sensitive(data->BT_mov, sensitive);
 		//gtk_widget_set_sensitive(data->BT_mod, sensitive);
 		gtk_widget_set_sensitive(data->BT_rem, sensitive);
@@ -1468,8 +1477,8 @@ gint crow, row, w, h;
 	data.window = dialog;
 	data.change = 0;
 
-	//homebank_window_set_icon_from_file(GTK_WINDOW (dialog), "curee.svg");
-	//gtk_window_set_icon_name(GTK_WINDOW (dialog), HB_STOCK_CURRENCY);
+	//set the dialog icon
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_CURRENCY);
 
 	//set a nice dialog size
 	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
@@ -1515,6 +1524,7 @@ gint crow, row, w, h;
 	scrollwin = gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrollwin), HB_MINHEIGHT_LIST);
 	treeview = ui_cur_listview_new(FALSE);
  	data.LV_cur = treeview;
 	gtk_container_add(GTK_CONTAINER(scrollwin), treeview);

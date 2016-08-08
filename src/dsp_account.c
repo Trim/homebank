@@ -217,10 +217,16 @@ GList *selection, *list;
 		
 		if( gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_info)) )
 		{
+			if(txn->info)
+			{
+				g_free(txn->info);
+				txn->info = NULL;
+				change = TRUE;
+			}
+
 			txt = gtk_entry_get_text(GTK_ENTRY(data->ST_info));
 			if (txt && *txt)
 			{
-				g_free(txn->info);
 				txn->info = g_strdup(txt);
 				change = TRUE;
 			}
@@ -256,10 +262,16 @@ GList *selection, *list;
 
 		if( gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_memo)) )
 		{
+			if(txn->wording)
+			{
+				g_free(txn->wording);
+				txn->wording = NULL;	
+				change = TRUE;
+			}
+
 			txt = gtk_entry_get_text(GTK_ENTRY(data->ST_memo));
 			if (txt && *txt)
 			{
-				g_free(txn->wording);
 				txn->wording = g_strdup(txt);
 				change = TRUE;
 			}

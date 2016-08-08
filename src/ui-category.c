@@ -32,6 +32,7 @@
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
+extern struct Preferences *PREFS;
 
 
 gchar *CYA_CAT_TYPE[] = { 
@@ -555,7 +556,6 @@ gint retval = 0;
 	gtk_tree_model_get(model, a, LST_DEFCAT_DATAS, &entry1, -1);
 	gtk_tree_model_get(model, b, LST_DEFCAT_DATAS, &entry2, -1);
 
-
     switch (sortcol)
     {
 		case LST_DEFCAT_SORT_NAME:
@@ -1007,6 +1007,9 @@ GtkTreeViewColumn	*column;
 
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
+
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
+
 
 	// column 1: toggle
 	if( withtoggle == TRUE )

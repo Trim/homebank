@@ -66,7 +66,7 @@ static GtkActionEntry entries[] = {
   { "Column"  , ICONNAME_HB_VIEW_COLUMN , N_("Column") , NULL,    N_("View results as column"), G_CALLBACK (ui_repdist_action_viewbar) },
   { "Donut"   , ICONNAME_HB_VIEW_DONUT  , N_("Donut")  , NULL,    N_("View results as donut"), G_CALLBACK (ui_repdist_action_viewpie) },
 
-  { "Filter"  , ICONNAME_HB_FILTER      , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_repdist_action_filter) },
+  { "Filter"  , ICONNAME_HB_FILTER      , N_("Filter") , NULL,   N_("Edit filter"), G_CALLBACK (ui_repdist_action_filter) },
   { "Refresh" , ICONNAME_REFRESH        , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
 
   { "Export"  , ICONNAME_HB_FILE_EXPORT , N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_repdist_action_export) },

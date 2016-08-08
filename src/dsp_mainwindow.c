@@ -451,7 +451,7 @@ gchar *version;
 	
 	//gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), );
 	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "http://homebank.free.fr");
-	//gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Visit the HomeBank website");
+	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Visit the HomeBank website");
 
 	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog), "homebank");
 
@@ -895,7 +895,7 @@ GtkWidget *mainvbox, *widget, *label;
 	gtk_box_pack_start (GTK_BOX (mainvbox), widget, FALSE, FALSE, 0);
 	g_signal_connect (widget, "clicked", G_CALLBACK (ui_mainwindow_action_help_welcome1), dialog);
 	
-	widget = gtk_button_new_with_mnemonic(_("Configure _Preferences"));
+	widget = gtk_button_new_with_mnemonic(_("Configure _preferences"));
 	gtk_box_pack_start (GTK_BOX (mainvbox), widget, FALSE, FALSE, 0);
 	g_signal_connect (widget, "clicked", G_CALLBACK (ui_mainwindow_action_help_welcome2), dialog);
 	

@@ -28,6 +28,8 @@ enum
 	ARC_TYPE_TEMPLATE
 };
 
+#define LST_DEFARC_SORT_MEMO  1
+#define LST_DEFARC_SORT_PAYEE 2
 
 enum {
 	HID_ARC_MEMO,

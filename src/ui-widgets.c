@@ -267,19 +267,15 @@ GtkWidget *entry;
 
 GtkWidget *make_search(GtkWidget *label)
 {
-GtkWidget *entry;
+GtkWidget *search;
 
-	entry = gtk_entry_new ();
-	gtk_entry_set_placeholder_text(GTK_ENTRY(entry), _("Search...") );
-	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry), GTK_ENTRY_ICON_PRIMARY, ICONNAME_FIND);
-	gtk_entry_set_icon_from_icon_name (GTK_ENTRY (entry), GTK_ENTRY_ICON_SECONDARY, ICONNAME_CLEAR);
-
-	gtk_entry_set_icon_sensitive (GTK_ENTRY(entry), GTK_ENTRY_ICON_SECONDARY, FALSE);
+	search = gtk_search_entry_new();
+	gtk_entry_set_placeholder_text(GTK_ENTRY(search), _("Search...") );
 
 	if(label)
-		gtk_label_set_mnemonic_widget (GTK_LABEL(label), entry);
+		gtk_label_set_mnemonic_widget (GTK_LABEL(label), search);
 
-	return entry;
+	return search;
 }
 
 

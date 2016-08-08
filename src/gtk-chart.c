@@ -170,7 +170,7 @@ GtkWidget *scrollwin, *treeview;
 	//gtk_widget_set_double_buffered (GTK_WIDGET(widget), FALSE);
 	
 	gtk_container_add( GTK_CONTAINER(scrollwin), chart->drawarea );
-	gtk_widget_set_size_request(chart->drawarea, 150, 150 );
+	gtk_widget_set_size_request(chart->drawarea, 100, 100 );
 	gtk_widget_set_has_tooltip(chart->drawarea, TRUE);
 	gtk_widget_show(chart->drawarea);
 
@@ -1470,7 +1470,8 @@ cairo_t *cr;
 #if CHART_PIE_DONUT == 1
 	a1 = 0;
 	a2 = 2 * M_PI;
-	radius = (gint)((chart->rayon/3) * (1 / PHI));
+	//radius = (gint)((chart->rayon/3) * (1 / PHI));
+	radius = (gint)((chart->rayon/2) * 2 / 3);
 
 	cairo_arc(cr, cx, cy, radius, a1, a2);
 	cairo_user_set_rgbcol(cr, &global_colors[THBASE]);

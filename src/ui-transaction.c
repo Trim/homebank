@@ -865,9 +865,8 @@ GtkWidget *box, *widget, *scrollwin, *treeview;
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, SPACING_SMALL);
 
-	widget = gtk_search_entry_new();
+	widget = make_search(NULL);
 	data->ST_search = widget;
-	gtk_entry_set_placeholder_text(GTK_ENTRY(widget), _("Search...") );
 	gtk_box_pack_start (GTK_BOX(box), widget, FALSE, FALSE, 0);
 
 

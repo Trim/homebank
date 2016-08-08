@@ -5,14 +5,16 @@
  Made 5.1 rc release.
 
  * change: xhb data file format (v1.2)
- * change: win32: upgraded to gtk+ 3.20.x
+ * change: win32: upgraded to gtk+ 3.20.6
  * change: internal storage of txn into accounts
  * change: ??transaction dialog, changed the layout
  * change: ??template/scheduled dialog, changed the layout
  * change: register, refactored toolbar grouping single and multiple actions
  * change: listview, removed deprecated rule hint (alternate row color)
  * change: listview, added line grid (new GTK+ option)
- * change: preferences, reworked layout 
+ * change: preferences, reworked layout
+ * wish  : #1610672 multiple edit should allow clearing fields
+ * wish  : #1608025 revert prefill with shift/ctrl clicked txn when multiple edit
  * wish  : #1608025 revert prefill with shift/ctrl clicked txn when multiple edit
  * wish  : #1500235 automatic assignments based on regular expressions
  * wish  : #1500220 allow auto assignments to overwrite payee

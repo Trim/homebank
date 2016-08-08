@@ -85,9 +85,8 @@ guint32 da_cur_get_max_key(void);
 
 Currency *da_cur_get_by_iso_code(gchar *iso_code);
 Currency *da_cur_get(guint32 key);
-gboolean da_cur_is_used(guint32 key);
 
-
+gboolean currency_is_used(guint32 key);
 Currency *currency_add_from_user(Currency4217 *curfmt);
 gboolean currency_sync_online(GError **error);
 

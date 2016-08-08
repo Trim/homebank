@@ -41,6 +41,7 @@
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
+extern struct Preferences *PREFS;
 
 
 gchar *CYA_ARCHIVE_TYPE[] = { 
@@ -142,12 +143,38 @@ Archive *arc = user_data;
 */
 static gint ui_arc_listview_compare_func (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer userdata)
 {
+gint sortcol = GPOINTER_TO_INT(userdata);
 Archive *entry1, *entry2;
+gint retval = 0;
 
 	gtk_tree_model_get(model, a, LST_DEFARC_DATAS, &entry1, -1);
 	gtk_tree_model_get(model, b, LST_DEFARC_DATAS, &entry2, -1);
 
-    return hb_string_utf8_compare(entry1->wording, entry2->wording);
+    switch (sortcol)
+    {
+		case LST_DEFARC_SORT_MEMO:
+			retval = (entry1->flags & GF_INCOME) - (entry2->flags & GF_INCOME);
+			if(!retval)
+			{
+				retval = hb_string_utf8_compare(entry1->wording, entry2->wording);
+			}
+			break;
+		case LST_DEFARC_SORT_PAYEE:
+			{
+			Payee *p1, *p2;
+
+				p1 = da_pay_get(entry1->kpay);
+				p2 = da_pay_get(entry2->kpay);
+				if( p1 != NULL && p2 != NULL )
+				{
+					retval = hb_string_utf8_compare(p1->name, p2->name);
+				}
+			}
+			break;
+		default:
+			g_return_val_if_reached(0);
+	}
+    return retval;
 }
 
 
@@ -171,7 +198,7 @@ gchar *iconname = NULL;
 /*
 ** draw some text from the stored data structure
 */
-static void ui_arc_listview_text_cell_data_function (GtkTreeViewColumn *col,
+static void ui_arc_listview_cell_data_function_memo (GtkTreeViewColumn *col,
 				GtkCellRenderer *renderer,
 				GtkTreeModel *model,
 				GtkTreeIter *iter,
@@ -188,6 +215,28 @@ gchar *name;
 }
 
 
+
+static void ui_arc_listview_cell_data_function_payee (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+{
+Archive *arc;
+Payee *pay;
+
+	gtk_tree_model_get(model, iter,
+		LST_DEFARC_DATAS, &arc,
+		-1);
+
+	if(arc)
+	{
+
+		pay = da_pay_get(arc->kpay);
+
+		if(pay != NULL)
+			g_object_set(renderer, "text", pay->name, NULL);
+	}
+		else
+		g_object_set(renderer, "text", NULL, NULL);
+
+}
 
 /*
 **
@@ -207,15 +256,13 @@ GtkTreeViewColumn  *column;
 		G_TYPE_BOOLEAN
 		);
 
-	//sortable
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFARC_DATAS, ui_arc_listview_compare_func, GINT_TO_POINTER(LST_DEFARC_DATAS), NULL);
-
-
 	//treeview
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
 
-	/* text column */
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (view), PREFS->grid_lines);
+
+	/* column: Memo */
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set(renderer, 
 		"ellipsize", PANGO_ELLIPSIZE_END,
@@ -225,13 +272,32 @@ GtkTreeViewColumn  *column;
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Memo"));
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_text_cell_data_function, GINT_TO_POINTER(1), NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_cell_data_function_memo, GINT_TO_POINTER(LST_DEFARC_SORT_MEMO), NULL);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DEFARC_SORT_MEMO);
 	gtk_tree_view_column_set_alignment (column, 0.5);
 	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
-	/* icon column */
+	/* column: Payee */
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set(renderer, 
+		"ellipsize", PANGO_ELLIPSIZE_END,
+	    "ellipsize-set", TRUE,
+	    NULL);
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Payee"));
+	gtk_tree_view_column_pack_start(column, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_cell_data_function_payee, GINT_TO_POINTER(LST_DEFARC_SORT_PAYEE), NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	//gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
+	gtk_tree_view_column_set_sort_column_id (column, LST_DEFARC_SORT_PAYEE);
+	gtk_tree_view_column_set_alignment (column, 0.5);
+	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
+
+
+	/* column: Scheduled icon */
 	column = gtk_tree_view_column_new();
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	//gtk_cell_renderer_set_fixed_size(renderer, GLOBALS->lst_pixbuf_maxwidth, -1);
@@ -239,7 +305,14 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_cell_data_func(column, renderer, ui_arc_listview_auto_cell_data_function, NULL, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
-	
+
+	//sortable
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFARC_SORT_MEMO, ui_arc_listview_compare_func, GINT_TO_POINTER(LST_DEFARC_SORT_MEMO), NULL);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE(store), LST_DEFARC_SORT_PAYEE, ui_arc_listview_compare_func, GINT_TO_POINTER(LST_DEFARC_SORT_PAYEE), NULL);
+
+
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), LST_DEFARC_SORT_MEMO, GTK_SORT_ASCENDING);
+
 	//gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(view), FALSE);
 	//gtk_tree_view_set_reorderable (GTK_TREE_VIEW(view), TRUE);
 
@@ -762,7 +835,7 @@ Archive *arcitem;
 		data->lastarcitem = NULL;
 	}
 
-	gtk_widget_set_sensitive(data->LB_schedinsert, sensitive);
+	//gtk_widget_set_sensitive(data->LB_schedinsert, sensitive);
 
 
 	DB( g_print(" - call scheduled\n") );
