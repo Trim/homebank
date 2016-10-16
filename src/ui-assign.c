@@ -403,7 +403,7 @@ gint active;
 		if(item->flags & ASGF_DOCAT) active = 1;
 		else if(item->flags & ASGF_OVWCAT) active = 2;
 		radio_set_active(GTK_CONTAINER(data->RA_cat), active);
-		ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), item->kcat);
+		ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_cat), item->kcat);
 
 		active = 0;
 		if(item->flags & ASGF_DOMOD) active = 1;
