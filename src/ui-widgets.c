@@ -425,7 +425,8 @@ GtkWidget *make_amount(GtkWidget *label)
 GtkWidget *spinner;
 GtkAdjustment *adj;
 
-	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.01, 1.0, 0.0);
+	//adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -G_MAXDOUBLE, G_MAXDOUBLE, 0.01, 1.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -8589934588, 8589934588, 0.01, 1.0, 0.0);
 	spinner = gtk_spin_button_new (adj, 1.0, 2);
 	g_object_set(spinner, "xalign", 1.0, NULL);
 
