@@ -3,15 +3,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-02-13 15:20+0000\n"
-"Last-Translator: Xuanly <436061155@qq.com>\n"
+"PO-Revision-Date: 2016-10-05 00:48+0000\n"
+"Last-Translator: 陈柳云 <chenliuyun82@gmail.com>\n"
 "Language-Team: \n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:17+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -32,21 +31,21 @@ msgstr "财务，会计，预算，个人，现金"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
-msgstr ""
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
+msgstr "HomeBank是一个免费的并且能协助你管理个人账户的软件。"
 
 #: ../data/homebank.appdata.xml.in.h:2
 msgid ""
 "It is designed to easy to use and be able to analyse your personal finance "
 "in detail using powerful filtering tools and beautiful graphs."
-msgstr ""
+msgstr "它易于使用并且能将你个人财务状况用强大的过滤工具和美丽的图表展现出来。"
 
 #: ../data/homebank.appdata.xml.in.h:3
 msgid ""
 "If you are looking for a completely free and easy way to manage your "
 "personal accounting then HomeBank should be the software of choice."
-msgstr ""
+msgstr "如果你正在寻找一个完全免费并且能轻松上手的个人财务管理软件，HomeBank是一个很棒的选择。"
 
 #. GTK_FILE_CHOOSER_ACTION_OPEN,
 #: ../src/dsp_account.c:338 ../src/ui-account.c:657
@@ -71,7 +70,7 @@ msgstr "确定(_O)"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "编辑多个交易"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -102,11 +101,11 @@ msgstr "备注(_e)"
 
 #: ../src/dsp_account.c:628 ../src/dsp_account.c:638
 msgid "Check internal transfert result"
-msgstr ""
+msgstr "检查内部传输结果"
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "没有发现不一致！"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -114,6 +113,8 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"不一致的情况出现： %d\n"
+"你想回顾并修复么？"
 
 #: ../src/dsp_account.c:696
 #, c-format
@@ -121,13 +122,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr ""
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"你确定要把这个帐户的主要货币\n"
-"转换为欧元？"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -138,14 +136,13 @@ msgid "No transaction changed"
 msgstr "没有记账发生改动"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "添加记账：%d"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "自动分配结果显示"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -196,9 +193,8 @@ msgstr "%d项目(%d选中%s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "账户(_C)："
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -239,11 +235,8 @@ msgid "Convert to Euro..."
 msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
 msgstr ""
-"你确定要把这个帐户的主要货币\n"
-"转换为欧元？"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -318,14 +311,12 @@ msgid "Delete selected transaction(s)"
 msgstr "删除所选交易"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "自动归类"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "运行自动归类"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -367,7 +358,7 @@ msgstr "过滤"
 #. balances area
 #: ../src/dsp_account.c:2377
 msgid "Bank:"
-msgstr "银行："
+msgstr "余额"
 
 #: ../src/dsp_account.c:2383
 msgid "Today:"
@@ -393,9 +384,8 @@ msgid "_Status:"
 msgstr "状态(_S)："
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "重置过滤器"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -481,9 +471,8 @@ msgid "Save the current file"
 msgstr "保存当前文件"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "另存为..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -498,9 +487,8 @@ msgid "Revert to a saved version of this file"
 msgstr "取消当前的修改,恢复到上一次保存的状态"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "属性(_P)..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -515,9 +503,8 @@ msgid "_Quit"
 msgstr "退出(_Q)"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "退出 HomeBank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -551,20 +538,17 @@ msgid "Preferences..."
 msgstr "首选项..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "配置 Homebank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "首选项..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "管理类别"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -982,9 +966,8 @@ msgid "(new archive)"
 msgstr "(新模板)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "无效的 csv 格式"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1116,7 +1099,7 @@ msgstr "-拆分-"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1536,7 +1519,7 @@ msgstr "累计(_C)"
 msgid "_View by:"
 msgstr "查看方式(_V)："
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1545,10 +1528,10 @@ msgstr "查看方式(_V)："
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1556,7 +1539,7 @@ msgstr "查看方式(_V)："
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1715,9 +1698,8 @@ msgid "General"
 msgstr "常规"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "简化金额(_M)"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1761,14 +1743,12 @@ msgid "N_umber:"
 msgstr "账户号码(_U)："
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "余额"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "透支(_O)："
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1787,14 +1767,12 @@ msgid "exclude from any _reports"
 msgstr "从报告中排除(_r)"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "计划列表(_S)"
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "模板(_T)："
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1920,28 +1898,24 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "每天(_D)"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "(无收款人)"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "(没有分类)"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "归类..."
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1957,9 +1931,8 @@ msgid "_Owner:"
 msgstr "所有者(_O)："
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "简化金额"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2269,12 +2242,10 @@ msgid "File format error"
 msgstr "文件格式错误"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"CSV文件必须包含由分号分隔的确定数目的列，请查阅帮助文档以获知更多细节。"
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2413,9 +2384,8 @@ msgid "_Merge"
 msgstr ""
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "简化金额"
+msgstr ""
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2426,19 +2396,16 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "自动打开上次的财务文档"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "简化金额"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "简化金额"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
@@ -2457,27 +2424,24 @@ msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "小数点："
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "小数位数(_F)："
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "分隔符："
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "简化金额"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2502,9 +2466,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "首选项"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2541,14 +2504,12 @@ msgid "Import from CSV"
 msgstr "导入 CSV 文件"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "打开家庭理财文件"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "另存家庭理财文件"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2620,34 +2581,28 @@ msgid "Any Status"
 msgstr "任何状态"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "本月"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "上个月"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "本季度"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "上个季度"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "今年"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "去年"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2791,9 +2746,8 @@ msgid "days in advance the current date"
 msgstr "提前N天"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "子类别"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2806,9 +2760,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "默认(_D)："
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2992,9 +2945,8 @@ msgid "Charts options"
 msgstr ""
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "配色方案"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3026,9 +2978,8 @@ msgid "_Preset:"
 msgstr "预设(_P)："
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "按照(_F)："
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3350,62 +3301,3 @@ msgstr "包含"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "排除"
-
-#~ msgid "_Account"
-#~ msgstr "账户(_A)"
-
-#~ msgid "_Account:"
-#~ msgstr "账户(_A)："
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "csv文件必须包含正确的列数，\n"
-#~ "以分号作分隔，详细信息请参阅帮助文档。"
-
-#~ msgid "Acc_ount:"
-#~ msgstr "账户(_o)"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "自动分配的交易 ：%d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "文件 %s I/O 错误。"
-
-#~ msgid "_Minor currency"
-#~ msgstr "简化金额(_M)"
-
-#~ msgid "Minor currency"
-#~ msgstr "简化金额"
-
-#~ msgid "_Actions"
-#~ msgstr "操作(_A)"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr "类别可以自动补全和直接输入"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr "交易人可以自动补全和直接输入"
-
-#~ msgid "Owner:"
-#~ msgstr "所属"
-
-#~ msgid "Fill from:"
-#~ msgstr "使用模板："
-
-#~ msgid "Country:"
-#~ msgstr "国家："
-
-#~ msgid "Value:"
-#~ msgstr "欧元汇率："
-
-#~ msgid "_Date format:"
-#~ msgstr "日期格式(_D)："
-
-#~ msgid "Fill in with a template"
-#~ msgstr "用模板填充"

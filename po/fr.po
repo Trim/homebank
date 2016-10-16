@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-08-07 12:02+0200\n"
-"Last-Translator: Maxime Doyen <Unknown>\n"
+"PO-Revision-Date: 2016-08-23 03:51+0000\n"
+"Last-Translator: Binnette <Unknown>\n"
 "Language-Team: fr <fr@li.org>\n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-08-06 15:44+0000\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
+"Language: fr\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +37,8 @@ msgstr "finance;comptabilité;budget;personnel; argent;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank est un logiciel libre (comme dans « libre parole » ou « bière "
 "gratuite ») qui vous assistera pour gérer votre comptabilité personnelle."
@@ -139,7 +139,7 @@ msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Êtes-vous sûr de vouloir convertir ce compte\n"
+"Êtes-vous sûr(e) de vouloir convertir ce compte\n"
 "en devise Euro Majeur ?"
 
 #: ../src/dsp_account.c:702
@@ -177,7 +177,7 @@ msgstr ""
 
 #: ../src/dsp_account.c:1607
 msgid "Are you sure you want to change the status to None?"
-msgstr "Êtes-vous sur de vouloir changer l'état en Aucun ?"
+msgstr "Êtes-vous sûr(e) de vouloir changer l'état en Aucun ?"
 
 #: ../src/dsp_account.c:1608 ../src/dsp_account.c:1670
 msgid "Some transaction in your selection are already Reconciled."
@@ -190,7 +190,7 @@ msgstr "_Changer"
 
 #: ../src/dsp_account.c:1669
 msgid "Are you sure you want to toggle the status Reconciled?"
-msgstr "Êtes-vous sûr de vouloir basculer l'état à Rapproché ?"
+msgstr "Êtes-vous sûr(e) de vouloir basculer l'état à Rapproché ?"
 
 #: ../src/dsp_account.c:1671
 msgid "_Toggle"
@@ -781,7 +781,7 @@ msgstr "_Rétablir"
 
 #: ../src/dsp_mainwindow.c:565
 msgid "Are you sure you want to anonymize the file?"
-msgstr "Êtes-vous sûr de vouloir anonymiser le fichier ?"
+msgstr "Êtes-vous sûr(e) de vouloir anonymiser le fichier ?"
 
 #: ../src/dsp_mainwindow.c:568
 msgid ""
@@ -964,7 +964,7 @@ msgstr "Opérations planifiées"
 
 #: ../src/dsp_mainwindow.c:2764
 msgid "maximum post date"
-msgstr "date de postage maximum "
+msgstr "date de postage maximum"
 
 #: ../src/dsp_mainwindow.c:2800
 msgid "Skip"
@@ -1118,7 +1118,7 @@ msgstr "- ventilé -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1539,7 +1539,7 @@ msgstr "_Cumuler"
 msgid "_View by:"
 msgstr "_Afficher par :"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1548,10 +1548,10 @@ msgstr "_Afficher par :"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1559,7 +1559,7 @@ msgstr "_Afficher par :"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1673,7 +1673,7 @@ msgstr ""
 #: ../src/ui-category.c:1560 ../src/ui-currency.c:1299 ../src/ui-payee.c:1135
 #, c-format
 msgid "Are you sure you want to permanently delete '%s'?"
-msgstr "Êtes-vous sûr de vouloir supprimer définitivement « %s » ?"
+msgstr "Êtes-vous sûr(e) de vouloir supprimer définitivement « %s » ?"
 
 #: ../src/ui-account.c:1011
 msgid "If you delete an account, it will be permanently lost."
@@ -2007,7 +2007,7 @@ msgstr "Créer un compte"
 #: ../src/ui-assist-start.c:425
 msgid "This is a confirmation page, press 'Apply' to apply changes"
 msgstr ""
-"Ceci est une page de confirmation, cliquez sur 'Appliquer' pour appliquer "
+"Ceci est une page de confirmation, cliquez sur « Appliquer » pour appliquer "
 "les changements."
 
 #: ../src/ui-assist-start.c:431 ../src/ui-assist-import.c:62
@@ -2136,12 +2136,12 @@ msgid ""
 "No changes will be made until you click \"Apply\" at the end\n"
 "of this assistant."
 msgstr ""
-"Bienvenue dans l’assistant d’import d’HomeBank\n"
+"Bienvenue dans l’assistant d’importation d’HomeBank\n"
 "\n"
 "Cet assistant vous guidera dans les étapes\n"
-"d’import d’un fichier externe dans HomeBank.\n"
+"d’importation d’un fichier externe dans HomeBank.\n"
 "\n"
-"Aucun changement ne sera fait avant que vous cliquiez sur « Appliquer »\n"
+"Aucun changement ne sera fait avant que vous ne cliquiez sur « Appliquer »\n"
 "à la fin de cet assistant."
 
 #: ../src/ui-assist-import.c:1629
@@ -2285,7 +2285,7 @@ msgstr ""
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
-msgstr "Êtes-vous sûr de vouloir effacer l'entrée ?"
+msgstr "Êtes-vous sûr(e) de vouloir effacer l'entrée ?"
 
 #: ../src/ui-budget.c:695
 msgid "If you proceed, every amount will be set to 0."
@@ -2353,7 +2353,7 @@ msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
-"Êtes-vous sûr de vouloir supprimer\n"
+"Êtes-vous sûr(e) de vouloir supprimer\n"
 "définitivement les catégories inutilisées ?"
 
 #: ../src/ui-category.c:1301 ../src/ui-payee.c:868
@@ -2808,7 +2808,7 @@ msgid ""
 "Are you sure you want to\n"
 "permanently delete unused payee?"
 msgstr ""
-"Êtes-vous sûr de vouloir supprimer\n"
+"Êtes-vous sûr(e) de vouloir supprimer\n"
 "définitivement les tiers inutilisés ?"
 
 #: ../src/ui-payee.c:909
@@ -3363,114 +3363,3 @@ msgstr "Inclure"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Exclure"
-
-#~ msgid "_Account"
-#~ msgstr "_Compte"
-
-#~ msgid "Euro _Minor"
-#~ msgstr "Euro _mineur"
-
-#~ msgid "_Account:"
-#~ msgstr "_Compte :"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Le fichier au format CSV doit contenir le nombre exact de colonnes,\n"
-#~ "séparées par un point-virgule, lisez l’aide pour plus de détails."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "C_ompte :"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "opérations auto-affectées : %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Erreur d’E/S pour le fichier %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "Devise _secondaire"
-
-#~ msgid "Minor currency"
-#~ msgstr "Devise secondaire"
-
-#~ msgid "_Actions"
-#~ msgstr "_Actions"
-
-#~ msgid "Owner:"
-#~ msgstr "Propriétaire :"
-
-#~ msgid "Country:"
-#~ msgstr "Pays :"
-
-#~ msgid "Value:"
-#~ msgstr "Valeur :"
-
-#~ msgid "Decimal char:"
-#~ msgstr "Caractère décimal :"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Format de date :"
-
-#~ msgid "Grouping char:"
-#~ msgstr "Caractère du groupement :"
-
-#~ msgid "Limits"
-#~ msgstr "Limites"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Détail de l'opération"
-
-#~ msgid "Numbers format"
-#~ msgstr "Format de nombres"
-
-#~ msgid "Numbers options"
-#~ msgstr "Options des nombres"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "Solde _minimum :"
-
-#~ msgid "Assignments"
-#~ msgstr "Affectations"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Activer les lignes de couleurs alternées"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Complétion automatique et saisie directe\n"
-#~ "disponible pour les catégories"
-
-#~ msgid "Fill from:"
-#~ msgstr "Remplir depuis :"
-
-#~ msgid "Is prefix"
-#~ msgstr "Est en préfixe"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Complétion automatique et saisie directe\n"
-#~ "disponible pour les bénéficiaires"
-
-#~ msgid "Save As..."
-#~ msgstr "Enregistrer sous..."
-
-#~ msgid "_Properties..."
-#~ msgstr "_Propriétés...."
-
-#~ msgid "_Field:"
-#~ msgstr "_Champ :"
-
-#~ msgid "Con_tains:"
-#~ msgstr "Con_tient :"
-
-#~ msgid "Symbol:"
-#~ msgstr "Symbole :"
-
-#~ msgid "type to search"
-#~ msgstr "tapez pour chercher"

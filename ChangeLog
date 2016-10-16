@@ -1,30 +1,37 @@
 
+2016-10-16  Maxime Doyen
 
-2016-08-06  Maxime Doyen
-
- Made 5.1 rc release.
+ Made 5.1 release.
 
  * change: xhb data file format (v1.2)
- * change: win32: upgraded to gtk+ 3.20.6
  * change: internal storage of txn into accounts
- * change: ??transaction dialog, changed the layout
- * change: ??template/scheduled dialog, changed the layout
+ * change: transaction dialog, changed the layout
+ * change: template/scheduled dialog, changed the layout
  * change: register, refactored toolbar grouping single and multiple actions
  * change: listview, removed deprecated rule hint (alternate row color)
  * change: listview, added line grid (new GTK+ option)
  * change: preferences, reworked layout
  * wish  : #1610672 multiple edit should allow clearing fields
  * wish  : #1608025 revert prefill with shift/ctrl clicked txn when multiple edit
- * wish  : #1608025 revert prefill with shift/ctrl clicked txn when multiple edit
  * wish  : #1500235 automatic assignments based on regular expressions
  * wish  : #1500220 allow auto assignments to overwrite payee
- * wish  : #1484449	warn when amount sign and category don't match
+ * wish  : #1484449 warn when amount sign and category don't match
  * wish  : #1448613 display full category name in autocompletion
- * wish  : #1242312	split amount for template/scheduled transaction
- * wish  : #1102981	add comment bloc for accounts
+ * wish  : #1424365 separe scheduled transaction from template transaction
+ * wish  : #1242312 category split for template/scheduled transaction
+ * wish  : #1102981 add comment bloc for accounts
  * wish  : #1094528 auto-assign Payment
- * wish  : #844576 	payee default category and payment type
+ * wish  : #844576  payee default category and payment type
  * wish  : #552565  multiple currency accounting
+ * bugfix: #1631888 amount input limited to -/+ 2,147,483,647 
+ * bugfix: #1628664 internal xfer assign to existing txn no longer work
+ * bugfix: #1625913 category with 0 budget should display 'over'
+ * bugfix: #1615245 dst_account remains into file for non intxfer
+
+
+2016-08-06  Maxime Doyen
+
+ Made 5.1 rc release.
 
 
 2016-07-22  Maxime Doyen
@@ -121,10 +128,10 @@
  Made 5.0.3 release.
 
  * change: win32: upgraded to libofx 0.9.9 again
- * wish  : #1460370	internal xfer credit should display 'From account'
- * wish  : #1444792	button to expand/collapse all in "Manage Categories"
- * wish  : #1429413	thinking of icon credit vs debit card
- * wish  : #1416957	add ability to modify transaction when posting from template 
+ * wish  : #1460370 internal xfer credit should display 'From account'
+ * wish  : #1444792 button to expand/collapse all in "Manage Categories"
+ * wish  : #1429413 thinking of icon credit vs debit card
+ * wish  : #1416957 add ability to modify transaction when posting from template 
  * bugfix: #1460390 Saving a file as do not work since last 5.0.2
  * bugfix: #1434972 (libofx 0.8.3 bug) win32: some OFX files leads to crash
  * bugfix: #1424660 (libofx 0.8.3 bug) win32: memo field truncated

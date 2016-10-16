@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2016-07-20 17:25+0000\n"
 "Last-Translator: aidul1117 <aidul1117@gmail.com>\n"
 "Language-Team: Indonesian <id@li.org>\n"
-"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "Gratis, mudah, akuntansi pribadi untuk semua orang"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank adalah perangkat lunak gratis (seperti dalam \"bebas berbicara\" "
 "dan juga seperti dalam \"minuman gratis\") yang akan membantu Anda untuk "
@@ -134,13 +133,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Semua transaksi akan di bagi dengan %.6f"
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Apakah Anda yakin Anda ingin mengkonversi akun ini\n"
-"ke mata uang euro Major?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -151,14 +147,13 @@ msgid "No transaction changed"
 msgstr "Tidak ada transaksi yang berubah"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "Tidak ada transaksi yang berubah"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Hasil tugas otomatis"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -211,9 +206,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "A_kun:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -254,11 +248,8 @@ msgid "Convert to Euro..."
 msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
 msgstr ""
-"Apakah Anda yakin Anda ingin mengkonversi akun ini\n"
-"ke mata uang euro Major?"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -333,14 +324,12 @@ msgid "Delete selected transaction(s)"
 msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Hasil tugas otomatis"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Hasil tugas otomatis"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -495,9 +484,8 @@ msgid "Save the current file"
 msgstr "Simpan berkas ini"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Simpan Sebagai..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -512,9 +500,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Kembali ke versi tersimpan dari berkas ini"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Properti..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -529,9 +516,8 @@ msgid "_Quit"
 msgstr "_Keluar"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Keluar homebank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -565,20 +551,17 @@ msgid "Preferences..."
 msgstr "Preferensi..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Konfigurasi homebank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Preferensi..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Pengaturan Kategori"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -991,9 +974,8 @@ msgid "(new archive)"
 msgstr "(arsip baru)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "format csv salah"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1125,7 +1107,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1545,7 +1527,7 @@ msgstr ""
 msgid "_View by:"
 msgstr "_Tampilan dalam bentuk:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1554,10 +1536,10 @@ msgstr "_Tampilan dalam bentuk:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1565,7 +1547,7 @@ msgstr "_Tampilan dalam bentuk:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1722,9 +1704,8 @@ msgid "General"
 msgstr "Umum"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "Mata uang _minor"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1768,14 +1749,12 @@ msgid "N_umber:"
 msgstr "_Nomor"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Neraca"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Ditarik pada:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1794,9 +1773,8 @@ msgid "exclude from any _reports"
 msgstr ""
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "Terjadwal/Template..."
+msgstr ""
 
 #: ../src/ui-archive.c:48
 msgid "Template"
@@ -1938,9 +1916,8 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "Subkategori"
+msgstr ""
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
@@ -1960,9 +1937,8 @@ msgid "_Owner:"
 msgstr "_Pemilik:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Mata uang minor"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2265,14 +2241,10 @@ msgid "File format error"
 msgstr "Format berkas salah"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Berkas csv harus mengandung jumlah kolom yang sesuai,\n"
-"dipisahkan dengan tanda titik-koma, silahkan baca bantuan untuk detail lebih "
-"lanjut."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2411,9 +2383,8 @@ msgid "_Merge"
 msgstr ""
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Mata uang minor"
+msgstr ""
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2424,19 +2395,16 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Buka berkas terakhir"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Mata uang minor"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Mata uang minor"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
@@ -2455,27 +2423,24 @@ msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Karakter desimal:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "Digit _pecahan"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Karakter Pengelompokan:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Mata uang minor"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2500,9 +2465,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Pengaturan"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2539,14 +2503,12 @@ msgid "Import from CSV"
 msgstr "Impor dari CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Buka berkas homebank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Simpan berkas homebank sebagai"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2618,24 +2580,20 @@ msgid "Any Status"
 msgstr ""
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Seluruh bulan"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "12 bulan terakhir"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Kuartal"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Kuartal"
+msgstr ""
 
 #: ../src/ui-filter.c:72
 msgid "This year"
@@ -2787,9 +2745,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "Subkategori"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -3020,9 +2977,8 @@ msgid "_Preset:"
 msgstr ""
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Untuk:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3327,47 +3283,3 @@ msgstr "Termasuk"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Pengecualian"
-
-#~ msgid "_Account"
-#~ msgstr "_Akun"
-
-#~ msgid "_Account:"
-#~ msgstr "_Akun"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Berkas csv harus mengandung jumlah kolom yang sesuai,\n"
-#~ "dipisahkan dengan tanda titik-koma, baca bantuan untuk detail lebih "
-#~ "lanjut."
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "auto transaksi ditugaskan: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Galat I/O untuk berkas %s"
-
-#~ msgid "_Minor currency"
-#~ msgstr "Mata uang _minor"
-
-#~ msgid "Minor currency"
-#~ msgstr "Mata uang minor"
-
-#~ msgid "_Actions"
-#~ msgstr "Tind_akan"
-
-#~ msgid "Owner:"
-#~ msgstr "Pemilik"
-
-#~ msgid "Fill from:"
-#~ msgstr "Diisi dari:"
-
-#~ msgid "Country:"
-#~ msgstr "Negara:"
-
-#~ msgid "Value:"
-#~ msgstr "Nilai:"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Format tanggal:"

@@ -448,7 +448,7 @@ gchar *color;
 
 	//if(amount != 0)
 	//{
-		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, ope->amount, ope->kcur, GLOBALS->minor);
+		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, ope->kcur, GLOBALS->minor);
 		color = get_normal_color_amount(amount);
 
 		g_object_set(renderer,

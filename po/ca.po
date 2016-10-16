@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2016-06-05 11:22+0000\n"
 "Last-Translator: Joan Duran <jodufi@gmail.com>\n"
 "Language-Team: Catalan <ca@li.org>\n"
-"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:17+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finances;comptabilitat;pressupost;personal;diners;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "El HomeBank és un programari lliure que us ajudarà a gestionar la vostra "
 "comptabilitat personal."
@@ -133,11 +132,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "L'import de totes les transaccions es dividirà per %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
-msgstr "Segur que voleu convertir aquest compte a euros?"
+msgstr ""
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -148,14 +146,13 @@ msgid "No transaction changed"
 msgstr "No ha canviat cap transacció"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "transacció afegida: %d"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Resultat de l'assignació automàtica"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -208,9 +205,8 @@ msgstr "%d elements (%d seleccionats %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "_Compte:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -247,14 +243,12 @@ msgid "Open the list filter"
 msgstr "Obre el filtre de llista"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Converteix a euros..."
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Converteix aquest compte a euros"
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -329,14 +323,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Suprimeix les transaccions seleccionades"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Assignacions automàtiques"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Executa les assignacions automàtiques"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -404,16 +396,14 @@ msgid "_Status:"
 msgstr "_Estat:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Elimina els _filtres"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Euro minor"
+msgstr ""
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -493,9 +483,8 @@ msgid "Save the current file"
 msgstr "Desa el fitxer actual"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Anomena i desa..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -510,9 +499,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Recupera una versió desada d'aquest fitxer"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Propietats..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -527,9 +515,8 @@ msgid "_Quit"
 msgstr "_Surt"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Surt del HomeBank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -563,20 +550,17 @@ msgid "Preferences..."
 msgstr "Preferències..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Configura el HomeBank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Preferències..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Configura les categories"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -998,9 +982,8 @@ msgid "(new archive)"
 msgstr "(arxiu nou)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "format CSV no vàlid"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1132,7 +1115,7 @@ msgstr "- separador -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1552,7 +1535,7 @@ msgstr "_Acumulat"
 msgid "_View by:"
 msgstr "_Visualitza per:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1561,10 +1544,10 @@ msgstr "_Visualitza per:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1572,7 +1555,7 @@ msgstr "_Visualitza per:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1678,7 +1661,8 @@ msgstr "No es pot suprimir el compte '%s'"
 #: ../src/ui-account.c:998
 msgid ""
 "This account contains transactions and/or is part of internal transfers."
-msgstr "Aquest compte té transaccions i/o és part de transferències internes."
+msgstr ""
+"Aquest compte té transaccions i/o és part de transferències internes."
 
 #: ../src/ui-account.c:1009 ../src/ui-archive.c:316 ../src/ui-assign.c:545
 #: ../src/ui-category.c:1560 ../src/ui-currency.c:1299 ../src/ui-payee.c:1135
@@ -1733,9 +1717,8 @@ msgid "General"
 msgstr "General"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Moneda menor"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1779,14 +1762,12 @@ msgid "N_umber:"
 msgstr "_Número:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Saldos"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Descobert de:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1805,14 +1786,12 @@ msgid "exclude from any _reports"
 msgstr "exclou de qualsevol _informe"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "_Llista programada"
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Plantilla:"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1940,28 +1919,24 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Cada _dia"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "nou beneficiari"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "nova categoria"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Assignació"
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1977,9 +1952,8 @@ msgid "_Owner:"
 msgstr "_Propietari:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Moneda menor"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2297,13 +2271,10 @@ msgid "File format error"
 msgstr "Error en el format del fitxer"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"El fitxer CSV ha de contenir el número de columnes exacte,\n"
-"separades per un punt i coma. Consulteu l'ajuda per a obtenir més informació."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2447,75 +2418,64 @@ msgid "_Merge"
 msgstr "_Fusiona"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Moneda menor"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Símbol"
+msgstr ""
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Carrega el darrer fitxer obert"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Moneda menor"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Moneda menor"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Anonimiza"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Símbol"
+msgstr ""
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "És prefix"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Caràcter decimal:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Número de decimals:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Separador de milers:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Moneda menor"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2526,9 +2486,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Si esborreu un compte, aquest no es podrà recuperar."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2541,9 +2500,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Preferències"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2566,9 +2524,8 @@ msgid "Upgrade"
 msgstr ""
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Seleccioni una acció:"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2581,14 +2538,12 @@ msgid "Import from CSV"
 msgstr "Importa des de CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Obre el fitxer homebank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Anomena i desa el fitxer homebank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2664,34 +2619,28 @@ msgid "Any Status"
 msgstr "Qualsevol estat"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Aquest mes"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Darrer mes"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Aquest trimestre"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Darrer trimestre"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Aquest any"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "L'any passat"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2835,9 +2784,8 @@ msgid "days in advance the current date"
 msgstr "dies d'antelació a la data actual"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "nova categoria"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2850,9 +2798,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "_Predeterminat:"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -3041,9 +2988,8 @@ msgid "Charts options"
 msgstr "Opcions dels gràfics"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Esquema de color:"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3075,9 +3021,8 @@ msgid "_Preset:"
 msgstr "_Predefinit:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Per:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3344,9 +3289,8 @@ msgstr ""
 "està disponible"
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "_Afegeix mantenint dades"
+msgstr ""
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3408,98 +3352,3 @@ msgstr "Incloure"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Excloure"
-
-#~ msgid "_Account"
-#~ msgstr "_Compte"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Euro minor"
-
-#~ msgid "_Account:"
-#~ msgstr "_Compte:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "El fitxer CSV ha de contenir el número de columnes exacte,\n"
-#~ "separades per un punt i coma. Consulteu l'ajuda per a obtenir més "
-#~ "informació."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "Com_pte:"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "transaccions assignades automàticament: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "S'ha produït un error d'entrada/sortida al fitxer %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Moneda menor"
-
-#~ msgid "Minor currency"
-#~ msgstr "Moneda menor"
-
-#~ msgid "_Actions"
-#~ msgstr "_Accions"
-
-#~ msgid "Limits"
-#~ msgstr "Límits"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "_Mín.  balanç:"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Detall de transacció"
-
-#~ msgid "_Field:"
-#~ msgstr "_Camp:"
-
-#~ msgid "Con_tains:"
-#~ msgstr "Con_té:"
-
-#~ msgid "Assignments"
-#~ msgstr "Assignacions"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "El completat automàtic i la inserció directa\n"
-#~ "estan disponibles per a la categoria"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "El completat automàtic i la inserció directa\n"
-#~ "estan disponibles per al beneficiari"
-
-#~ msgid "Owner:"
-#~ msgstr "Propietari:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Omple des de:"
-
-#~ msgid "Country:"
-#~ msgstr "País:"
-
-#~ msgid "Value:"
-#~ msgstr "Valor:"
-
-#~ msgid "Numbers format"
-#~ msgstr "Format de nombres"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Format de la data:"
-
-#~ msgid "Numbers options"
-#~ msgstr "Opcions de nombres"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Habilita files en colors alterns"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Omplir amb plantilla"

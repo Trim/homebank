@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2013-12-02 02:39+0000\n"
 "Last-Translator: Litty <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
-"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -195,9 +194,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "계좌"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -474,9 +472,8 @@ msgid "Save the current file"
 msgstr "현재 파일 저장"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "다른 이름으로 저장..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -491,9 +488,8 @@ msgid "Revert to a saved version of this file"
 msgstr "이 파일의 저장된 버전으로 복원"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "등록 정보(_P)..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -508,9 +504,8 @@ msgid "_Quit"
 msgstr "끝내기(_Q)"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "홈뱅크 끝내기"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -544,20 +539,17 @@ msgid "Preferences..."
 msgstr "기본 설정..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "홈뱅크 구성"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "기본 설정..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "범주 구성"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -1102,7 +1094,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1522,7 +1514,7 @@ msgstr ""
 msgid "_View by:"
 msgstr ""
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1531,10 +1523,10 @@ msgstr ""
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1542,7 +1534,7 @@ msgstr ""
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1741,14 +1733,12 @@ msgid "N_umber:"
 msgstr ""
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "잔고"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "대출금"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1910,9 +1900,8 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "하위 범주"
+msgstr ""
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
@@ -2382,9 +2371,8 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "최근 연 파일 불러오기"
+msgstr ""
 
 #: ../src/ui-currency.c:772
 msgid "Edit currency"
@@ -2453,9 +2441,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "기본 설정"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2492,14 +2479,12 @@ msgid "Import from CSV"
 msgstr "CSV에서 들여오기"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "홈뱅크 파일 열기"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "홈뱅크 파일을 다음으로 저장"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2571,14 +2556,12 @@ msgid "Any Status"
 msgstr ""
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "모든 월"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "최근 12개월"
+msgstr ""
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
@@ -2738,9 +2721,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "하위 범주"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2968,9 +2950,8 @@ msgid "_Preset:"
 msgstr ""
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "날짜 형식(_D):"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3271,15 +3252,3 @@ msgstr "포함"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "제외"
-
-#~ msgid "_Account"
-#~ msgstr "계정(_A)"
-
-#~ msgid "Fill from:"
-#~ msgstr "다음으로 채움:"
-
-#~ msgid "Country:"
-#~ msgstr "나라:"
-
-#~ msgid "Value:"
-#~ msgstr "값:"

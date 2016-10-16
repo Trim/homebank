@@ -11,12 +11,12 @@ msgstr ""
 "PO-Revision-Date: 2016-02-29 23:27+0000\n"
 "Last-Translator: Roemy <toonen.remy@gmail.com>\n"
 "Language-Team: Dutch <vertaling@nl.linux.org>\n"
-"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:17+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
+"Language: nl\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +37,8 @@ msgstr "financiën;boekhouding;budget;persoonlijk;geld;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank is gratis software ( zoals in \"vrije meningsuiting\" en ook als in "
 "\"gratis bier\") die u zal helpen om uw persoonlijke boekhouding te beheren."
@@ -128,13 +128,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Iedere transactie wordt gedeeld door %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Converteer deze rekening naar grote Euro munt.\n"
-"Zeker weten?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -145,14 +142,13 @@ msgid "No transaction changed"
 msgstr "Geen gewijzigde transactie(s)"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "Transactie(s) toegevoegd: %d"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Resultaat automatische toewijzing"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -205,9 +201,8 @@ msgstr "%d transactie(s) (%d geselecteerd %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "R_ekening"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -244,14 +239,12 @@ msgid "Open the list filter"
 msgstr "Open de filterlijst"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Converteer naar euro..."
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Converteer deze rekening naar euro..."
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -326,14 +319,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Verwijder de geslecteerde transactie(s)"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Auto.Toewijzingen"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Voer automatische toewijzingen uit"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -401,16 +392,14 @@ msgid "_Status:"
 msgstr "_Status:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Herstel _filters"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Euro alternatief"
+msgstr ""
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -490,9 +479,8 @@ msgid "Save the current file"
 msgstr "Huidig bestand opslaan"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Opslaan als..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -507,9 +495,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Herstellen naar een vorige versie van dit bestand"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Eigenschappen..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -524,9 +511,8 @@ msgid "_Quit"
 msgstr "_Afsluiten"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "HomeBank afsluiten"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -560,20 +546,17 @@ msgid "Preferences..."
 msgstr "Instellingen..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Configureer HomeBank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Instellingen..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Configureer de categorieën"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -989,9 +972,8 @@ msgid "(new archive)"
 msgstr "(nieuw archief)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "Ongeldige CSV-indeling"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1123,7 +1105,7 @@ msgstr "- split -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1543,7 +1525,7 @@ msgstr "_Cumuleren"
 msgid "_View by:"
 msgstr "_Toon volgens:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1552,10 +1534,10 @@ msgstr "_Toon volgens:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1563,7 +1545,7 @@ msgstr "_Toon volgens:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1725,9 +1707,8 @@ msgid "General"
 msgstr "Algemeen"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "Alternatieve _munteenheid"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1771,14 +1752,12 @@ msgid "N_umber:"
 msgstr "N_ummer:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Saldo"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Debetsaldo op:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1797,14 +1776,12 @@ msgid "exclude from any _reports"
 msgstr "uitgesloten van elk rapport"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "_Geplande lijst"
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Sjabloon:"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1931,28 +1908,24 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Elke _dag"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "nieuwe begunstigde"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "nieuwe categorie"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Taak"
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1968,9 +1941,8 @@ msgid "_Owner:"
 msgstr "_Eigenaar:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Alternatieve munteenheid"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2290,13 +2262,10 @@ msgid "File format error"
 msgstr "Bestandsformaat fout"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Het CSV-bestand moet het juiste aantal kolommen bevatten,\n"
-"gescheiden door puntkomma's. Zie de helpfunctie voor meer details."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2439,75 +2408,64 @@ msgid "_Merge"
 msgstr "_Samenvoegen"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Alternatieve munteenheid"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Symbool:"
+msgstr ""
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Laad laatst geopend bestand"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Alternatieve munteenheid"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Alternatieve munteenheid"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Anonimiseer"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Symbool:"
+msgstr ""
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "Als voorvoegsel"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Scheidingsteken decimalen:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "Aantal decimalen:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Scheidingsteken duizendtallen:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Alternatieve munteenheid"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2518,9 +2476,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Als je een rekening verwijderd, zal het definitief verloren zijn."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2533,9 +2490,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Voorkeuren"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2558,9 +2514,8 @@ msgid "Upgrade"
 msgstr ""
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Kies een actie:"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2573,14 +2528,12 @@ msgid "Import from CSV"
 msgstr "Importeer uit CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "HomeBank-bestand openen"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "HomeBank bestand opslaan als..."
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2656,34 +2609,28 @@ msgid "Any Status"
 msgstr "Iedere Status"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Deze maand"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Afgelopen maand"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Dit Kwartaal"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Afgelopen kwartaal"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Dit jaar"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Vorig Jaar"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2827,9 +2774,8 @@ msgid "days in advance the current date"
 msgstr "dag(en) voor de huidige datum"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "nieuwe categorie"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2842,9 +2788,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "_Standaard:"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -3032,9 +2977,8 @@ msgid "Charts options"
 msgstr "Instellingen grafieken"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Kleurschema:"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3066,9 +3010,8 @@ msgid "_Preset:"
 msgstr "_Voorinstelling:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Voor:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3333,9 +3276,8 @@ msgstr ""
 "is beschikbaar"
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "_Voeg toe & Houd vast"
+msgstr ""
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3397,97 +3339,3 @@ msgstr "Inclusief"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Exclusief"
-
-#~ msgid "_Account"
-#~ msgstr "_Rekeningen"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Euro alternatief"
-
-#~ msgid "_Account:"
-#~ msgstr "_Rekening:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Het csv bestand moet het exacte aantal kolommen bevatten,\n"
-#~ "gescheiden door puntkomma's, lees de hulp voor meer informatie."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "_Rekening"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "Transactie(s) automatisch toegewezen: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "I/O fout voor het bestand %s"
-
-#~ msgid "_Minor currency"
-#~ msgstr "Alternatieve _munteenheid"
-
-#~ msgid "Minor currency"
-#~ msgstr "Alternatieve munteenheid"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Transactie details"
-
-#~ msgid "_Actions"
-#~ msgstr "_Acties"
-
-#~ msgid "Limits"
-#~ msgstr "Beperkingen"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "_Min. Bedrag:"
-
-#~ msgid "_Field:"
-#~ msgstr "_Veld:"
-
-#~ msgid "Con_tains:"
-#~ msgstr "_Bevat:"
-
-#~ msgid "Assignments"
-#~ msgstr "Toekenningen"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Automatisch aanvullen en rechtstreekse toewijzing\n"
-#~ "is beschikbaar voor deze Categorie"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Automatisch aanvullen en rechtstreekse toewijzing\n"
-#~ "is beschikbaar voor deze Begunstigde"
-
-#~ msgid "Owner:"
-#~ msgstr "Eigenaar:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Invullen van:"
-
-#~ msgid "Country:"
-#~ msgstr "Land:"
-
-#~ msgid "Value:"
-#~ msgstr "Waarde:"
-
-#~ msgid "Numbers format"
-#~ msgstr "Formaat nummers"
-
-#~ msgid "_Date format:"
-#~ msgstr "Datumnotatie"
-
-#~ msgid "Numbers options"
-#~ msgstr "Instellingen nummers"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Toon rijen in wisselende kleuren"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Invullen met behulp van een sjabloon"

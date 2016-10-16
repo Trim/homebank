@@ -11,12 +11,11 @@ msgstr ""
 "PO-Revision-Date: 2016-05-28 10:35+0000\n"
 "Last-Translator: Christian <christian042@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
-"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:17+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finanser;bokföring;budget;privat;pengar"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank är ett gratis program (som i \"gratis öl\") som kan hjälpa dig med "
 "din privata bokföring."
@@ -146,14 +145,13 @@ msgid "No transaction changed"
 msgstr "Ingen transaktion är ändrad"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "Ingen transaktion är ändrad"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Konfigurera automatisk assignation"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -204,9 +202,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "K_onto:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -243,14 +240,12 @@ msgid "Open the list filter"
 msgstr "Öppna listfilter"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Konvertera till euro..."
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Konvertera detta konto till euro"
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -325,14 +320,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Ta bort valda transaktion(er)"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Assignation..."
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Konfigurera automatisk assignation"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -400,9 +393,8 @@ msgid "_Status:"
 msgstr "_Status:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Återställ _filter"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -488,9 +480,8 @@ msgid "Save the current file"
 msgstr "Spara den aktuella filen"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Spara som..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -505,9 +496,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Återgå till senast sparade version av denna fil"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Egenskaper..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -522,9 +512,8 @@ msgid "_Quit"
 msgstr "_Avsluta"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Avsluta HomeBank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -558,20 +547,17 @@ msgid "Preferences..."
 msgstr "Egenskaper..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Konfigurera homebank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Egenskaper..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Konfigurera kategorier"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -985,9 +971,8 @@ msgid "(new archive)"
 msgstr "(nytt arkiv)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "ogiltigt csv-format"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1119,7 +1104,7 @@ msgstr "- delad -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1539,7 +1524,7 @@ msgstr ""
 msgid "_View by:"
 msgstr ""
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1548,10 +1533,10 @@ msgstr ""
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1559,7 +1544,7 @@ msgstr ""
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1718,9 +1703,8 @@ msgid "General"
 msgstr "Allmänt"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1764,14 +1748,12 @@ msgid "N_umber:"
 msgstr "Nummer:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Balans"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "Över_trasserat vid:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1790,14 +1772,12 @@ msgid "exclude from any _reports"
 msgstr ""
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "Schema/Mall..."
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Mall:"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1923,9 +1903,8 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Varje _dag"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
@@ -1936,14 +1915,12 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "ny kategori"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Assignation..."
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1959,9 +1936,8 @@ msgid "_Owner:"
 msgstr "_Ägare"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2265,13 +2241,10 @@ msgid "File format error"
 msgstr "Filformatsfel"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"CSV-filen måste innehålla rätt antal kolumner,\n"
-"separerade med semi-kolon. Se hjälp för detaljer."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2412,75 +2385,64 @@ msgid "_Merge"
 msgstr "_Slå samman"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Symbol:"
+msgstr ""
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Öppna senast öppnade filen"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Anonymisera"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Symbol:"
+msgstr ""
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "Är prefix"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Decimaltecken:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Decimaler:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Grupperingstecken:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Sekundär valuta"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2491,11 +2453,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
 msgstr ""
-"Om du inte sparar kommer förändringar du gjort försvinna.\n"
-"Antal förändringar: %d."
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2508,9 +2467,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Inställningar"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2547,14 +2505,12 @@ msgid "Import from CSV"
 msgstr "Importera från CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Öppna homebank fil"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Spara homebank fil som"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2628,34 +2584,28 @@ msgid "Any Status"
 msgstr ""
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Denna månad"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Förra månaden"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Detta kvartal"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Förra kvartalet"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Detta året"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Förra året"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2799,9 +2749,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "ny kategori"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2814,9 +2763,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "Stan_dard;"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -3000,9 +2948,8 @@ msgid "Charts options"
 msgstr ""
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Färgschema:"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3034,9 +2981,8 @@ msgid "_Preset:"
 msgstr "_Förinställd:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_För:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3345,63 +3291,3 @@ msgstr "Inkludera"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Uteslut"
-
-#~ msgid "_Account"
-#~ msgstr "_Konto"
-
-#~ msgid "_Account:"
-#~ msgstr "_Konto:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "csv filen måste innehålla exakt antal kolumner,\n"
-#~ "separerade med semikolon, läs hjälpfilen för mer info."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "K_onto:"
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Sekundär valuta"
-
-#~ msgid "Minor currency"
-#~ msgstr "Sekundär valuta"
-
-#~ msgid "_Actions"
-#~ msgstr "_Åtgärder"
-
-#~ msgid "Limits"
-#~ msgstr "Begränsingar"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Automatisk komplettering och direkt utmätning\n"
-#~ "är tillgängligt för kategorin"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Automatisk komplettering och direkt utmätning\n"
-#~ "är tillgängligt för betalningsmottagaren"
-
-#~ msgid "Owner:"
-#~ msgstr "Ägare:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Fyll från:"
-
-#~ msgid "Country:"
-#~ msgstr "Land:"
-
-#~ msgid "Value:"
-#~ msgstr "Värde:"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Datumformat:"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Fyll i med en mall"

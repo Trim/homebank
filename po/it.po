@@ -11,12 +11,11 @@ msgstr ""
 "PO-Revision-Date: 2016-06-19 14:04+0000\n"
 "Last-Translator: Michele Giannelli <jockerfox@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
-"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:17+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finanza, contabilità, bilancio, personale, soldi"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank è un software gratuito (sia come \"libertà di parola\" che come "
 "\"birra gratis\") che vi aiuterà a gestire la contabilità personale."
@@ -133,13 +132,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Ogni importo della transazione sarà diviso in %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Sei sicuro di voler convertire questo conto\n"
-"alla valuta principale Euro?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -150,14 +146,13 @@ msgid "No transaction changed"
 msgstr "Nessuna transazione modificata"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "transazione aggiunta: %d"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Risultato assegnazioni automatiche"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -210,9 +205,8 @@ msgstr "%d elementi (%d selezionati %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "A_ccount:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -249,14 +243,12 @@ msgid "Open the list filter"
 msgstr "Apri elenco filtri"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Converti in euro..."
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Converti questo conto in euro"
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -331,14 +323,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Elimina transazioni selezionate"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Assegnamenti automatici"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Esegui assegnamenti automatici"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -406,16 +396,14 @@ msgid "_Status:"
 msgstr "_Stato:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Reimposta _filtri"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Tasso di cambio Euro"
+msgstr ""
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -495,9 +483,8 @@ msgid "Save the current file"
 msgstr "Salva il file attuale"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Salva come..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -512,9 +499,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Ripristina una versione salvata di questo file"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Proprietà..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -529,9 +515,8 @@ msgid "_Quit"
 msgstr "_Esci"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Esci da Homebank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -565,20 +550,17 @@ msgid "Preferences..."
 msgstr "Preferenze..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Configura HomeBank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Preferenze..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Configura le categorie"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -738,7 +720,8 @@ msgstr "Traduci questa applicazione..."
 
 #: ../src/dsp_mainwindow.c:223
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Collegati al sito LaunchPad per aiutare a tradurre questa applicazione"
+msgstr ""
+"Collegati al sito LaunchPad per aiutare a tradurre questa applicazione"
 
 #: ../src/dsp_mainwindow.c:224
 msgid "Report a Problem..."
@@ -996,9 +979,8 @@ msgid "(new archive)"
 msgstr "(nuovo modello)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "formato csv non valido"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1130,7 +1112,7 @@ msgstr "- suddividi -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1550,7 +1532,7 @@ msgstr "_Accumula"
 msgid "_View by:"
 msgstr "_Mostra per:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1559,10 +1541,10 @@ msgstr "_Mostra per:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1570,7 +1552,7 @@ msgstr "_Mostra per:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1732,9 +1714,8 @@ msgid "General"
 msgstr "Generale"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Valuta secondaria"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1778,14 +1759,12 @@ msgid "N_umber:"
 msgstr "N_umero:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Saldo"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "Sc_operto al:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1804,14 +1783,12 @@ msgid "exclude from any _reports"
 msgstr "escludi da tutti i _resoconti"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "_Elenco schedulazioni"
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Modello:"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1937,28 +1914,24 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Ogni _giorno"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "nuovo beneficiario"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "nuova categoria"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Assegnazione"
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1974,9 +1947,8 @@ msgid "_Owner:"
 msgstr "_Proprietario:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Valuta minore"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2294,13 +2266,10 @@ msgid "File format error"
 msgstr "Errore nel formato file"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Il file csv deve contenere l'esatto numero di colonne,\n"
-"separate da punto e virgola, leggi la guida per maggiori dettagli."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2444,75 +2413,64 @@ msgid "_Merge"
 msgstr "_Unisci"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Valuta minore"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Simbolo:"
+msgstr ""
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Carica ultimo file aperto"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Valuta minore"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Valuta minore"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "Rendi _anonimo"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Simbolo:"
+msgstr ""
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "Usa come prefisso"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Separatore decimale:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Separazione dei decimali:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Separatore migliaia:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Valuta minore"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2523,9 +2481,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Se elimini un conto, sarà perso in modo definitivo."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2538,9 +2495,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Preferenze"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2563,9 +2519,8 @@ msgid "Upgrade"
 msgstr ""
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Seleziona un'azione:"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2578,14 +2533,12 @@ msgid "Import from CSV"
 msgstr "Importa da CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Apri file HomeBank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Salva file HomeBank come"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2661,34 +2614,28 @@ msgid "Any Status"
 msgstr "Qualsiasi stato"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Questo mese"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Mese scorso"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Questo trimestre"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Trimestre scorso"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Quest'anno"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Anno scorso"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2832,9 +2779,8 @@ msgid "days in advance the current date"
 msgstr "giorni in anticipo rispetto ad oggi"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "nuova categoria"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2847,9 +2793,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "_Predefinito:"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -3038,9 +2983,8 @@ msgid "Charts options"
 msgstr "Opzioni Grafici"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Schema colori"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3072,9 +3016,8 @@ msgid "_Preset:"
 msgstr "_Predefinito:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Per:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3341,9 +3284,8 @@ msgstr ""
 "e l'inserimento diretto"
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "_Aggiungi e mantieni"
+msgstr ""
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3405,97 +3347,3 @@ msgstr "Includi"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Escludi"
-
-#~ msgid "_Account"
-#~ msgstr "_Conto"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Tasso di cambio Euro"
-
-#~ msgid "_Account:"
-#~ msgstr "_Conto"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Il file csv deve contenere l'esatto numero di colonne,\n"
-#~ "separate da punto e virgola, leggi la guida per maggiori dettagli."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "_Conto:"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "transazione assegnata in automatico: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Errore di I/O per il file %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Valuta secondaria"
-
-#~ msgid "Minor currency"
-#~ msgstr "Valuta minore"
-
-#~ msgid "_Actions"
-#~ msgstr "_Azioni"
-
-#~ msgid "Limits"
-#~ msgstr "Limiti"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "Saldo _minimo:"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Dettaglio transazione"
-
-#~ msgid "_Field:"
-#~ msgstr "_Campo:"
-
-#~ msgid "Con_tains:"
-#~ msgstr "Con_tiene:"
-
-#~ msgid "Assignments"
-#~ msgstr "Assegnazioni"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "È disponibile il completamento automatico \n"
-#~ "della categoria"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "É disponibile il completamento automatico\n"
-#~ "e l'inserimento diretto del beneficiario"
-
-#~ msgid "Owner:"
-#~ msgstr "Proprietario:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Compila da:"
-
-#~ msgid "Country:"
-#~ msgstr "Paese:"
-
-#~ msgid "Value:"
-#~ msgstr "Valore:"
-
-#~ msgid "Numbers format"
-#~ msgstr "Formato numeri"
-
-#~ msgid "_Date format:"
-#~ msgstr "Formato _data:"
-
-#~ msgid "Numbers options"
-#~ msgstr "Opzioni numeri"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Abilita righe con colori alternati"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Compila da un modello"

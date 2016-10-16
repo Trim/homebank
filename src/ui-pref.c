@@ -127,8 +127,8 @@ NULL
 };
 
 gchar *CYA_IMPORT_OFXNAME[] = {
-N_("Memo"),
 N_("Payee"),
+N_("Memo"),
 NULL
 };
 

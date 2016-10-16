@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2014-06-08 10:52+0000\n"
 "Last-Translator: David Jones <Unknown>\n"
 "Language-Team: Welsh <cy@li.org>\n"
-"Language: cy\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -195,9 +194,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "Adroddiad:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -314,14 +312,12 @@ msgid "Delete selected transaction(s)"
 msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Aseiniadau..."
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Rheoli Gorchwylion"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -476,9 +472,8 @@ msgid "Save the current file"
 msgstr "Cadw'r ffeil cyfredol"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Cadw Fel..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -493,9 +488,8 @@ msgid "Revert to a saved version of this file"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "Rhinweddau..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -510,9 +504,8 @@ msgid "_Quit"
 msgstr "Gadael"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Gadael homebank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -546,20 +539,17 @@ msgid "Preferences..."
 msgstr "Dewisiadau..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Ffurfweddu HomeBank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Dewisiadau..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Ffurfweddu y adroddiadau"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -1104,7 +1094,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1524,7 +1514,7 @@ msgstr ""
 msgid "_View by:"
 msgstr ""
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1533,10 +1523,10 @@ msgstr ""
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1544,7 +1534,7 @@ msgstr ""
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1698,9 +1688,8 @@ msgid "General"
 msgstr "Cyffredinol"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1744,9 +1733,8 @@ msgid "N_umber:"
 msgstr "Rhif:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Cyd-bwysedd"
+msgstr ""
 
 #: ../src/ui-account.c:1385
 msgid "_Overdraft at:"
@@ -1900,9 +1888,8 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Pob _dydd"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
@@ -1913,14 +1900,12 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "Categori"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Aseiniadau..."
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1936,9 +1921,8 @@ msgid "_Owner:"
 msgstr "Perchennog:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2375,9 +2359,8 @@ msgid "_Merge"
 msgstr ""
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2392,14 +2375,12 @@ msgid "Last modfied"
 msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
@@ -2434,9 +2415,8 @@ msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Llai Arian Cyfred"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2461,9 +2441,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Blaenoriaethau"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2500,14 +2479,12 @@ msgid "Import from CSV"
 msgstr "Mewnforio o CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Agored ffeil HomeBank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Cadw ffeil HomeBank fel"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2587,19 +2564,16 @@ msgid "Last month"
 msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Eleni"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Chwarter"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Eleni"
+msgstr ""
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
@@ -2761,9 +2735,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "Gwreiddiol:"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2977,9 +2950,8 @@ msgid "_Preset:"
 msgstr "Rhagosodedig:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "Fformat _dyddiad:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3280,27 +3252,3 @@ msgstr "Cynnwys"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Allgau"
-
-#~ msgid "_Account"
-#~ msgstr "_Adroddiad"
-
-#~ msgid "_Account:"
-#~ msgstr "Adroddiad:"
-
-#~ msgid "_Minor currency"
-#~ msgstr "Llai Arian Cyfred"
-
-#~ msgid "Minor currency"
-#~ msgstr "Llai Arian Cyfred"
-
-#~ msgid "_Actions"
-#~ msgstr "Gweithredoedd"
-
-#~ msgid "Owner:"
-#~ msgstr "Perchennog:"
-
-#~ msgid "Country:"
-#~ msgstr "Gwlad:"
-
-#~ msgid "Value:"
-#~ msgstr "Gwerth:"

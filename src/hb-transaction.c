@@ -546,22 +546,13 @@ GList *list, *matchlist = NULL;
 void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual)
 {
 GList *matchlist;
-gint count;
 
 	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
 
 	matchlist = transaction_xfer_child_might_list_get(ope);
-	count = g_list_length(matchlist);
 
-	DB( g_print(" - found result is %d, switching\n", count) );
+	DB( g_print(" - found result is %d, switching\n", g_list_length(matchlist)) );
 
-	if(count <= 1 && manual == FALSE)
-	{
-		//we should create the child
-		transaction_xfer_create_child(ope);
-	}
-	else
-	{
 	Transaction *child;
 
 		child = ui_dialog_transaction_xfer_select_child(parentwindow, ope, matchlist);
@@ -569,7 +560,7 @@ gint count;
 			transaction_xfer_create_child(ope);
 		else
 			transaction_xfer_change_to_child(ope, child);
-	}
+
 
 	g_list_free(matchlist);
 }

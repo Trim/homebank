@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2015-12-27 15:52+0000\n"
+"PO-Revision-Date: 2016-08-21 08:42+0000\n"
 "Last-Translator: Alan <Unknown>\n"
 "Language-Team: Breton <alan.monfort@free.fr>\n"
-"Language: br\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 "X-Poedit-SearchPath-0: br\n"
 "X-Poedit-Basepath: .\n"
 
@@ -39,8 +38,8 @@ msgstr "kellidoù;kontoù;kellidsteuñv;personel;arc'hant;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "Ur meziant digor ha digoust eo HomeBank a roy skoazell deoc'h da verañ ho "
 "jederezh personel."
@@ -85,7 +84,7 @@ msgstr "_Mat eo"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "Embannadur treuzgreadoù lies"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -116,11 +115,11 @@ msgstr "Koung_er :"
 
 #: ../src/dsp_account.c:628 ../src/dsp_account.c:638
 msgid "Check internal transfert result"
-msgstr ""
+msgstr "Gwiriañ disoc'h an treuzdoug diabrzh"
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Digempoellder ebet bet kavet !"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -128,6 +127,8 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"Kavet ez eus bet un digempoellder : %d\n"
+"Ha fellout a ra deoc'h adgwelout ha ratreañ ?"
 
 #: ../src/dsp_account.c:696
 #, c-format
@@ -135,13 +136,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Pep sav treuzgread a vo rannet dre %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Ha sur oc'h e fell deoc'h amdreiñ ar gont-mañ\n"
-"da deulenn euro dreistrenk"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -152,14 +150,13 @@ msgid "No transaction changed"
 msgstr "N'eus treuzgread ebet bet kemmet"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "treuzgread ouzhpennet : %d"
+msgstr "treuzgread bet kemmet : %d"
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Disoc'h an dezverkañ emgefreek"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -212,9 +209,8 @@ msgstr "%d elfenn (%d diuzet %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "Ko_nt :"
+msgstr "K_ont"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -251,14 +247,12 @@ msgid "Open the list filter"
 msgstr "Digeriñ sil ar roll"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Amdreiñ da euroioù..."
+msgstr "Amdreiñ da Euro..."
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Amdreiñ ar gont-mañ da eurioù"
+msgstr "Amdreiñ ar gontad-mañ da deulenn Euro"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -310,11 +304,11 @@ msgstr "Trec'haoliñ da reizhaet an treuzgread(où) bet diuzet"
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
-msgstr ""
+msgstr "_Embann lies..."
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
-msgstr ""
+msgstr "Embann meur a dreuzgread"
 
 #: ../src/dsp_account.c:2177
 msgid "Create template..."
@@ -333,14 +327,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Diverkañ an treuzgread(où) bet diuzet"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Derannadurioù emgefreek"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Erounit derannadurioù emgefreek"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -361,7 +353,7 @@ msgstr "Ezporzhiañ evel restr mod CSV..."
 
 #: ../src/dsp_account.c:2184
 msgid "Check internal xfer..."
-msgstr ""
+msgstr "Gwiriañ an treuzdoug diabarzh..."
 
 #: ../src/dsp_account.c:2317 ../src/dsp_mainwindow.c:2574
 msgid "Add"
@@ -408,16 +400,14 @@ msgid "_Status:"
 msgstr "_Stad :"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
 msgstr "Adderaouekaat ar _siloù"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Moneiz vroadel kent an euro"
+msgstr "Moneiz _vroadel kent an euro"
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -497,9 +487,8 @@ msgid "Save the current file"
 msgstr "Enrollañ ar restr vremanel"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Enrollañ evel..."
+msgstr "_Enrollañ evel..."
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -514,9 +503,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Distreiñ d'un handelv enrollet eus ar restr-mañ"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Perzhioù..."
+msgstr "Perzhioù..."
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -531,9 +519,8 @@ msgid "_Quit"
 msgstr "_Kuitaat"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Kuitaat Homebank"
+msgstr "Kuitaat HomeBank"
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -567,20 +554,17 @@ msgid "Preferences..."
 msgstr "Gwellvezioù..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Kefluniañ homebank"
+msgstr "Kefluniañ HomeBank"
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Gwellvezioù..."
+msgstr "Teulennoù..."
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Kefluniañ ar rummadoù"
+msgstr "Kefluniañ an teulennoù"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -1000,7 +984,6 @@ msgid "(new archive)"
 msgstr "(diell nevez)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
 msgstr "mentrezh mod CSV didalvoudek"
 
@@ -1134,7 +1117,7 @@ msgstr "- marz -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1554,7 +1537,7 @@ msgstr "_Dassammañ"
 msgid "_View by:"
 msgstr "_Gwelout dre :"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1563,10 +1546,10 @@ msgstr "_Gwelout dre :"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1574,7 +1557,7 @@ msgstr "_Gwelout dre :"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1736,9 +1719,8 @@ msgid "General"
 msgstr "Hollek"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Moneiz vroadel a-gent"
+msgstr "_Teulenn :"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1746,7 +1728,7 @@ msgstr "Kregiñ gant ar _ventelad :"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Notennoù :"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
@@ -1782,14 +1764,12 @@ msgid "N_umber:"
 msgstr "Ni_ver :"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Menteladoù"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Trazennet gant :"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1808,14 +1788,12 @@ msgid "exclude from any _reports"
 msgstr "ezlakaat diouzh an holl _zanevelloù"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "Roll _steuñvet"
+msgstr "Steuñvet"
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Standilhon :"
+msgstr "Patrom"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1836,7 +1814,8 @@ msgstr "(patrom %d)"
 
 #: ../src/ui-archive.c:318
 msgid "If you delete a scheduled/template, it will be permanently lost."
-msgstr "Mar bez diverket ur gwezhiadur steuñvet/ur patrom e vo kollet da vat."
+msgstr ""
+"Mar bez diverket ur gwezhiadur steuñvet/ur patrom e vo kollet da vat."
 
 #: ../src/ui-archive.c:908 ../src/ui-transaction.c:939
 msgid "_Amount:"
@@ -1913,15 +1892,15 @@ msgstr "Mar bez diverket un dezverkadur e vo kollet da vat."
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Diweredekaet"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
-msgstr ""
+msgstr "Mar goullo"
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Flastrañ"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1933,36 +1912,32 @@ msgstr "Diferadenn"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Klask _e :"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "Ka_vout :"
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Bem_dez"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "emvataer nevez"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "rummad nevez"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Dezverkadur"
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1978,9 +1953,8 @@ msgid "_Owner:"
 msgstr "_Perc'henner :"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Moneiz vroadel a-gent"
+msgstr "Teulenn :"
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2299,13 +2273,10 @@ msgid "File format error"
 msgstr "Fazi mentrezh ar restr"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Gant ar restr mod CSV e rank bezañ an niver rik a vannoù,\n"
-"dispartiet gant ur pik-skej, lennit ar skoazell da c'houzout hiroc'h."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2362,11 +2333,11 @@ msgstr "_Bountañ war ouarnerezh ar rummad-mañ"
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Anv"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
-msgstr ""
+msgstr "Arver"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
@@ -2448,75 +2419,64 @@ msgid "_Merge"
 msgstr "_Toueziañ"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Moneiz vroadel a-gent"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Arouez :"
+msgstr "Arouez"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Kargañ ar restr digoret da ziwezhañ"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Moneiz vroadel a-gent"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Moneiz vroadel a-gent"
+msgstr "Teulenn"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Mentrezh"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Lakaat da zizanv"
+msgstr "_Personelaat"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Arouez :"
+msgstr "_Arouez :"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "A dalv da rakger"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Arouezenn dekrannel :"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "Si_froù goude ar skej :"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Arouezenn strollañ :"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Moneiz vroadel a-gent"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2527,9 +2487,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Mar bez diverket ur gont e vo kollet da vat."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2542,9 +2501,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Gwellvezioù"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2564,12 +2522,11 @@ msgstr "Dezverkadur"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Hiziavaat"
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Diuzañ ur gwezh :"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2582,14 +2539,12 @@ msgid "Import from CSV"
 msgstr "Enporzhiañ diouzh ur restr mod CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Digeriñ ur restr mod Homebank"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Enrollañ ar restr mod Homebank evel"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2665,34 +2620,28 @@ msgid "Any Status"
 msgstr "Ne vern pe stad"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Er miz-mañ"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Er miz tremenet"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "En trimiziad-mañ"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "En trimiziad diwezhañ"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Er bloaz-mañ"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Er bloaz tremenet"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2836,9 +2785,8 @@ msgid "days in advance the current date"
 msgstr "a zeizioù a-raok an deiziad bremanel"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "rummad nevez"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2851,9 +2799,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "Ar re _dre ziouer :"
+msgstr "Dre ziouer"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2938,15 +2885,15 @@ msgstr "Testenn e-kichen an arlunioù"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "A-blaen"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "A-serzh"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "An eil hag egile"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -3041,9 +2988,8 @@ msgid "Charts options"
 msgstr "Dibarzhioù an diervadoù"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Livaoueg :"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3075,9 +3021,8 @@ msgid "_Preset:"
 msgstr "_Ragarventennañ :"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Evit :"
+msgstr "_Mentrezh :"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3313,7 +3258,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Klask..."
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
@@ -3344,9 +3289,8 @@ msgstr ""
 "hag ar biziata eeun"
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "_Ouzhpennañ & Mirout"
+msgstr ""
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3408,97 +3352,3 @@ msgstr "Enlakaat"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Ezlakaat"
-
-#~ msgid "_Account"
-#~ msgstr "_Kont"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Moneiz vroadel kent an euro"
-
-#~ msgid "_Account:"
-#~ msgstr "_Kont"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Gant ar restr mod CSV e rank bezañ an niver rik a vannoù,\n"
-#~ "dispartiet gant ur pik-skej, lennit ar skoazell da c'houzout hiroc'h."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "K_ont :"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "treuzgread derannet ent emgefreek : %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Fazi enankañ/ec'hankañ gant ar restr %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Moneiz vroadel a-gent"
-
-#~ msgid "Minor currency"
-#~ msgstr "Moneiz vroadel a-gent"
-
-#~ msgid "_Actions"
-#~ msgstr "_Gwezhioù"
-
-#~ msgid "Limits"
-#~ msgstr "Bevennoù"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "_Mentelad izek :"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Munudoù an treuzgread"
-
-#~ msgid "_Field:"
-#~ msgstr "_Maezienn :"
-
-#~ msgid "Con_tains:"
-#~ msgstr "Enderc'hel a ra :"
-
-#~ msgid "Assignments"
-#~ msgstr "Derannadurioù"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Hegerz eo an emglokaat hag\n"
-#~ "an emenankañ evit ar rummadoù"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Hegerz eo an emglokaat hag\n"
-#~ "an emenankañ evit an emvataerion"
-
-#~ msgid "Owner:"
-#~ msgstr "Perc'hennour :"
-
-#~ msgid "Fill from:"
-#~ msgstr "Leuniañ diouzh :"
-
-#~ msgid "Country:"
-#~ msgstr "Bro :"
-
-#~ msgid "Value:"
-#~ msgstr "Talvoud :"
-
-#~ msgid "Numbers format"
-#~ msgstr "Mentrezh an niveroù"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Mentrezh an deiziad :"
-
-#~ msgid "Numbers options"
-#~ msgstr "Dibarzhioù an niveroù"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Gweredekaat ar renkoù o livioù dazeilet"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Leuniañ gant ur standilhoñ"

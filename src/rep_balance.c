@@ -1117,7 +1117,7 @@ gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
 gboolean is_balance;
 gchar *color;
 gint weight;
-guint32 kcur = (guint32)g_object_get_data(G_OBJECT(gtk_tree_view_column_get_tree_view(col)), "kcur_data");
+guint32 kcur = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(gtk_tree_view_column_get_tree_view(col)), "kcur_data"));
 
 
 	//get datas
@@ -1176,7 +1176,7 @@ GtkCellRenderer    *renderer;
 
 static void ui_repbalance_list_set_cur(GtkTreeView *treeview, guint32 kcur)
 {
-	g_object_set_data(G_OBJECT(treeview), "kcur_data", GINT_TO_POINTER(kcur));
+	g_object_set_data(G_OBJECT(treeview), "kcur_data", GUINT_TO_POINTER(kcur));
 }
 
 

@@ -2106,60 +2106,11 @@ struct register_panel_data *data;
 }
 
 
-static void 
-quick_search_activate_cb (GtkEntry  *entry, gpointer  user_data)
+static void quick_search_text_changed_cb (GtkWidget *widget, gpointer user_data)
 {
 struct register_panel_data *data = user_data;
-
-	DB( g_print("quick search activate !\n") );
-
-	
-	register_panel_listview_populate (data->LV_ope);
-}
-
-
-static gint quick_search_text_changed_timeout (gpointer user_data)
-{
-struct register_panel_data *data = user_data;
-	
-	DB( g_print("quick search timed out !\n") );
 
 	register_panel_listview_populate (data->window);
-
-	data->timer_tag = 0;
-
-	return FALSE;
-}
-
-static void
-quick_search_text_changed_cb (GtkEntry   *entry,
-                 GParamSpec *pspec,
-                 gpointer user_data)
-{
-struct register_panel_data *data = user_data;
-
-	gboolean has_text;
-
-  has_text = gtk_entry_get_text_length (entry) > 0;
-  gtk_entry_set_icon_sensitive (entry,
-                                GTK_ENTRY_ICON_SECONDARY,
-                                has_text);
-
-	if(data->timer_tag == 0 )
-		data->timer_tag = g_timeout_add( DEFAULT_DELAY, quick_search_text_changed_timeout, (gpointer)user_data);
-
-
-	
-}
-
-static void
-quick_search_icon_press_cb (GtkEntry       *entry,
-               gint            position,
-               GdkEventButton *event,
-               gpointer        data)
-{
-  if (position == GTK_ENTRY_ICON_SECONDARY)
-    gtk_entry_set_text (entry, "");
 }
 
 
@@ -2411,10 +2362,7 @@ GError *error = NULL;
 	gtk_widget_set_size_request(widget, HB_MINWIDTH_SEARCH, -1);
 	gtk_grid_attach (GTK_GRID(table), widget, 12, 0, 1, 1);
 
-	g_signal_connect (widget, "activate", G_CALLBACK (quick_search_activate_cb), data);
-	data->handler_id[HID_SEARCH] = g_signal_connect (widget, "notify::text", G_CALLBACK (quick_search_text_changed_cb), data);
-	g_signal_connect (widget, "icon-press", G_CALLBACK (quick_search_icon_press_cb), data);
-
+	data->handler_id[HID_SEARCH] = g_signal_connect (data->ST_search, "search-changed", G_CALLBACK (quick_search_text_changed_cb), data);
 	
 	// windows interior
 	table = gtk_grid_new();

@@ -537,11 +537,11 @@ Archive *item;
 */
 static void ui_arc_manage_getlast(struct ui_arc_manage_data *data)
 {
+Archive *item;
 gchar *txt;
-gboolean bool;
 gdouble value;
 gint active;
-Archive *item;
+
 
 	DB( g_print("\n[ui_scheduled] getlast\n") );
 
@@ -551,6 +551,8 @@ Archive *item;
 	{
 		DB( g_print(" -> %s\n", item->wording) );
 
+		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_arc));
+
 		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_word));
 		// ignore if entry is empty
 		if (txt && *txt)
@@ -559,29 +561,9 @@ Archive *item;
 			item->wording = g_strdup(txt);
 		}
 
-		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_arc));
-
 		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_amount));
 		value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 		item->amount = value;
-
-		//item->flags = 0;
-		item->flags &= (OF_SPLIT);	//(split is set in hb_archive)
-
-		active = item->amount > 0 ? TRUE : FALSE;
-		//active = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_amount));
-		if(active == 1) item->flags |= OF_INCOME;
-
-		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque));
-		if(bool) item->flags |= OF_CHEQ2;
-
-		item->status = radio_get_active(GTK_CONTAINER(data->RA_status));
-
-		/*bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_valid));
-		if(bool) item->flags |= OF_VALID;
-
-		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_remind));
-		if(bool == 1) item->flags |= OF_REMIND;*/
 
 		item->paymode	= gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
 		item->kcat		= ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_grp));
@@ -589,19 +571,39 @@ Archive *item;
 		item->kacc		= ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 		item->kxferacc	= ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_accto));
 
-		DB( g_print(" -> PO_acc %d\n", item->kacc) );
-		DB( g_print(" -> PO_accto %d\n", item->kxferacc) );
+		item->status = radio_get_active(GTK_CONTAINER(data->RA_status));
 
-		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_auto));
-		if(bool) item->flags |= OF_AUTO;
+		//#1615245: moved here, after get combo entry key
+		if( item->paymode != PAYMODE_INTXFER )
+		{
+			//#677351: revert kxferacc to 0
+			item->kxferacc = 0;
+		}
+
+		/* flags */
+		//item->flags = 0;
+		item->flags &= (OF_SPLIT);	//(split is set in hb_archive)
+
+		active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque));
+		if(active == 1) item->flags |= OF_CHEQ2;
+
+		//active = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_amount));
+		active = item->amount > 0 ? TRUE : FALSE;
+		if(active == TRUE) item->flags |= OF_INCOME;
+
+
+		/* -- automated -- */
+
+		active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_auto));
+		if(active == 1) item->flags |= OF_AUTO;
 
 		gtk_spin_button_update(GTK_SPIN_BUTTON(data->NB_every));
 		item->every   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->NB_every));
 		item->unit    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_unit));
 		item->nextdate	= gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_next));
 
-		bool = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_limit));
-		if(bool) item->flags |= OF_LIMIT;
+		active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_limit));
+		if(active == 1) item->flags |= OF_LIMIT;
 
 		gtk_spin_button_update(GTK_SPIN_BUTTON(data->NB_limit));
 		item->limit   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->NB_limit));

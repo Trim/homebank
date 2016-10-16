@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2016-04-09 14:42+0000\n"
 "Last-Translator: Rimas Kudelis <rq@akl.lt>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
-"Language: lt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
+"Language: lt\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +37,8 @@ msgstr "finansai;apskaita;biudžetas;asmeninė;pinigai;namai;šeimos;bankas;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "„HomeBank“ – tai laisvai ir nemokamai platinama programa, padėsianti jums "
 "tvarkyti ir stebėti savo asmeninius bei šeimos (namų) finansus."
@@ -132,11 +132,10 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Visų operacijų sumos bus padalintos iš %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
-msgstr "Ar tikrai norite konvertuoti šią sąskaitą į kitą valiutą?"
+msgstr ""
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -147,14 +146,13 @@ msgid "No transaction changed"
 msgstr "Nepakeista nė viena operacija"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "pridėta operacijų: %d"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Automatinio priskyrimo rezultatas"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -205,9 +203,8 @@ msgstr "%d eil. (%d pasirinkta – %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "_Sąskaita:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -244,14 +241,12 @@ msgid "Open the list filter"
 msgstr "Atverti sąrašo filtrą"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Keisti valiutą į Eurą…"
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Konvertuoti šios sąskaitos valiutą fiksuotu kursu"
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -326,14 +321,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Šalinti pasirinktas operacijas"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Automatiniai priskyrimai"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Vykdyti automatinius priskyrimus"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -401,16 +394,14 @@ msgid "_Status:"
 msgstr "_Būsena:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Numatytieji _filtrai"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -490,9 +481,8 @@ msgid "Save the current file"
 msgstr "Įrašyti esamąjį failą"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Įrašyti kaip…"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -507,9 +497,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Grąžinti įrašytą šio failą būseną"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Savybės…"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -524,9 +513,8 @@ msgid "_Quit"
 msgstr "_Baigti darbą"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Baigti darbą su „HomeBank“"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -560,20 +548,17 @@ msgid "Preferences..."
 msgstr "_Nustatymai…"
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Konfigūruoti „HomeBank“ programą"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "_Nustatymai…"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Tvarkyti operacijų kategorijas"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -733,7 +718,8 @@ msgstr "Versti šią programą…"
 
 #: ../src/dsp_mainwindow.c:223
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Atverti „LaunchPad“ svetainės vertimų skyrių su šios programos vertimu"
+msgstr ""
+"Atverti „LaunchPad“ svetainės vertimų skyrių su šios programos vertimu"
 
 #: ../src/dsp_mainwindow.c:224
 msgid "Report a Problem..."
@@ -991,9 +977,8 @@ msgid "(new archive)"
 msgstr "(naujas šablonas)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "netinkamas CSV formatas"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1125,7 +1110,7 @@ msgstr "- išskaidyta -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1545,7 +1530,7 @@ msgstr "S_umuoti"
 msgid "_View by:"
 msgstr "_Detalumas:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1554,10 +1539,10 @@ msgstr "_Detalumas:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1565,7 +1550,7 @@ msgstr "_Detalumas:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1725,9 +1710,8 @@ msgid "General"
 msgstr "Pagrindai"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1771,14 +1755,12 @@ msgid "N_umber:"
 msgstr "_Numeris:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Balansai"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Kritinis ties:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1797,14 +1779,12 @@ msgid "exclude from any _reports"
 msgstr "neįtraukti į jokias _ataskaitas"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "Planinių _operacijų sąrašas"
+msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "Ša_blonas:"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1930,28 +1910,24 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Kiekviena _diena"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
 msgstr ""
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "naujas gavėjas (mokėtojas)"
+msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "Nauja kategorija"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Priskyrimai"
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1967,9 +1943,8 @@ msgid "_Owner:"
 msgstr "_Savininkas:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2286,13 +2261,10 @@ msgid "File format error"
 msgstr "Failo formato klaida"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"CSV failą privalo sudaryti konkretus kabliataškiais atskirtų\n"
-"stulpelių skaičius. Išsamesnės informacijos ieškokite žinyne."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2434,75 +2406,64 @@ msgid "_Merge"
 msgstr "_Jungti"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Valiutos žymuo:"
+msgstr ""
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Įkelti paskiausiai naudotą failą"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Maskuoti"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Valiutos žymuo:"
+msgstr ""
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
-#, fuzzy
 msgid "Is pre_fix"
-msgstr "Žymuo prieš skaičių"
+msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Trupmenos skirtukas:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Skaitmenys po kablelio:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Tūkstančių skirtukas:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Antrinė valiuta"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2513,9 +2474,8 @@ msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Sąskaitos pašalinimas yra negrąžinamas veiksmas."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2528,9 +2488,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Nustatymai"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2553,9 +2512,8 @@ msgid "Upgrade"
 msgstr ""
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Pasirinkite veiksmą:"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2568,14 +2526,12 @@ msgid "Import from CSV"
 msgstr "Importuoti iš CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "„HomeBank“ failo atvėrimas"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "„HomeBank“ failo įrašymas kaip…"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2651,34 +2607,28 @@ msgid "Any Status"
 msgstr "Visos būsenos"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Šis mėnuo"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Praėjęs mėnuo"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Šis ketvirtis"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Praėjęs ketvirtis"
+msgstr ""
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "Šie metai"
+msgstr ""
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Praėję metai"
+msgstr ""
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2822,9 +2772,8 @@ msgid "days in advance the current date"
 msgstr "d. prieš operacijos datą"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "Nauja kategorija"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2837,9 +2786,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "_Numatytasis:"
+msgstr ""
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -3026,9 +2974,8 @@ msgid "Charts options"
 msgstr "Grafikai"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
-msgstr "Spalvų schema:"
+msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3060,9 +3007,8 @@ msgid "_Preset:"
 msgstr "_Numatytosios spalvos:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Pjūvis:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3330,9 +3276,8 @@ msgstr ""
 "rašykite ir rinkitės iš pateikiamų siūlymų"
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "Pridėti _neišvalant"
+msgstr ""
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3394,97 +3339,3 @@ msgstr "Įtraukti"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Neįtraukti"
-
-#~ msgid "_Account"
-#~ msgstr "_Sąskaita"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Antrinė valiuta"
-
-#~ msgid "_Account:"
-#~ msgstr "_Sąskaita:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "CSV failą privalo sudaryti konkretus kabliataškiais atskirtų\n"
-#~ "stulpelių skaičius. Išsamesnės informacijos ieškokite žinyne."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "S_ąskaita:"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "operacija automatiškai priskirta: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Skaitymo arba rašymo klaida, kreipiantis į failą „%s“."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Antrinė valiuta"
-
-#~ msgid "Minor currency"
-#~ msgstr "Antrinė valiuta"
-
-#~ msgid "_Actions"
-#~ msgstr "_Veiksmai"
-
-#~ msgid "Limits"
-#~ msgstr "Ribos"
-
-#~ msgid "_Min. balance:"
-#~ msgstr "_Min. balansas:"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Operacijos savybės"
-
-#~ msgid "_Field:"
-#~ msgstr "_Lauke:"
-
-#~ msgid "Con_tains:"
-#~ msgstr "Yra _tekstas:"
-
-#~ msgid "Assignments"
-#~ msgstr "Priskyrimai"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Kategoriją galite pasirinkti iš sąrašo, arba \n"
-#~ "tiesiog rašykite ir rinkitės iš pateikiamų pasiūlymų"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Gavėją (davėją) galite pasirinkti iš sąrašo, arba \n"
-#~ "tiesiog rašykite ir rinkitės iš pateikiamų pasiūlymų"
-
-#~ msgid "Owner:"
-#~ msgstr "Savininkas:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Užpildyti pagal šabloną:"
-
-#~ msgid "Country:"
-#~ msgstr "Šalis:"
-
-#~ msgid "Value:"
-#~ msgstr "Kursas:"
-
-#~ msgid "Numbers format"
-#~ msgstr "Skaičių formatas"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Datos formatas:"
-
-#~ msgid "Numbers options"
-#~ msgstr "Skaičiai"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Skirtingomis spalvomis atskirti sąrašų eilutes"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Užpildyti pagal šabloną"

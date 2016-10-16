@@ -821,6 +821,8 @@ gchar *title;
 					{
 						rawrate = tmp_spent[pos] / tmp_budget[pos];
 					}
+					else if(tmp_budget[pos] == 0.0)
+						rawrate = ABS(tmp_spent[pos]);
 
 					status = "";
 					if(rawrate > 1.0)
@@ -831,12 +833,11 @@ gchar *title;
 					{
 						if(tmp_budget[pos] < 0.0)
 							status = _(" left");
-						else
+						else if(tmp_budget[pos] > 0.0)
 							status = _(" under");
 					}
 
-
-					DB( g_print(" => insert %.2f %.2f %.2f %s\n", tmp_spent[pos], tmp_budget[pos], result, status ) );
+					DB( g_print(" => insert %.2f | %.2f = %.2f '%s'\n", tmp_spent[pos], tmp_budget[pos], result, status ) );
 
 					gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 			 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -1446,6 +1447,10 @@ gint column_id = GPOINTER_TO_INT(user_data);
 			"foreground",  color,
 			"text", status,
 			NULL);
+	}
+	else
+	{
+		g_object_set(renderer, "text", "", NULL);
 	}
 }
 

@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: homebank master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-05-03 19:43+0000\n"
+"PO-Revision-Date: 2016-09-14 20:39+0000\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 "X-Poedit-Country: SLOVENIA\n"
+"Language: \n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
@@ -41,8 +41,8 @@ msgstr "finance;računovodstvo;denar;osebno;budget;banka;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "Program HomeBank je prosta programska oprema (kot \"svoboda govora\" in tudi "
 "kot \"brezplačno pivo\"), s katero je mogoče enostavno upravljati osebno "
@@ -83,7 +83,7 @@ msgstr "_V redu"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "Urejanje več transakcij"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -114,11 +114,11 @@ msgstr "_Opomnik:"
 
 #: ../src/dsp_account.c:628 ../src/dsp_account.c:638
 msgid "Check internal transfert result"
-msgstr ""
+msgstr "Preveri notranji rezultat transakcije"
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Ni zaznanih neskladnosti!"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -126,18 +126,19 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"Zaznane neskladnosti: %d\n"
+"Ali jih želite pregledati in popraviti?"
 
 #: ../src/dsp_account.c:696
 #, c-format
 msgid "Every transaction amount will be divided by %.6f."
-msgstr ""
+msgstr "Vsak znesek transakcije bo deljen z %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
-msgstr "Ali ste prepričani, da želite preklopiti stanje Potrjeno?"
+msgstr "Ali ste prepričani, da želite pretvoriti ta račun v evrski račun?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -148,14 +149,13 @@ msgid "No transaction changed"
 msgstr "Ni spremenjenih transakcij"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "dodana transakcija: %d"
+msgstr "spremenjena transakcija: %d"
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Rezultati samodejnih nakazil"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -209,9 +209,8 @@ msgstr "%d predmetov (%d izbranih %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "Rač_un:"
+msgstr "_Račun"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -248,14 +247,12 @@ msgid "Open the list filter"
 msgstr "Odpri filter seznama"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Pretvori valuto v evro ..."
+msgstr "Pretvori v evro ..."
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Pretvori valuto v evro"
+msgstr "Pretvori račun v evrski račun"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -311,7 +308,7 @@ msgstr ""
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
-msgstr ""
+msgstr "Urejanje več transakcij"
 
 #: ../src/dsp_account.c:2177
 msgid "Create template..."
@@ -330,14 +327,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Izbriši izbrane transakcije"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Samodejna nakazila"
+msgstr "Samodejne naloge"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Zaženi samodejno vpisovanje nakazil"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -405,16 +400,14 @@ msgid "_Status:"
 msgstr "_Stanje:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Počisti _filtre"
+msgstr "Ponastavi _filtre"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
-#, fuzzy
 msgid "Euro _minor"
-msgstr "Druga valuta"
+msgstr ""
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -494,9 +487,8 @@ msgid "Save the current file"
 msgstr "Shrani trenutno datoteko"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Shrani kot ..."
+msgstr "Shrani _kot ..."
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -511,9 +503,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Povrni na shranjeno različico datoteke"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Lastnosti ..."
+msgstr "Lastnosti ..."
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -528,7 +519,6 @@ msgid "_Quit"
 msgstr "_Končaj"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
 msgstr "Končaj program"
 
@@ -564,20 +554,17 @@ msgid "Preferences..."
 msgstr "Možnosti ..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Nastavitve programa"
+msgstr "Nastavitve"
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Možnosti ..."
+msgstr "Valute ..."
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Nastavitev kategorij"
+msgstr "Nastavitev valut"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -654,11 +641,11 @@ msgstr "Nastavitev načrtovanih transakcij"
 
 #: ../src/dsp_mainwindow.c:206
 msgid "Post scheduled"
-msgstr ""
+msgstr "Objavi načrtovane transakcije"
 
 #: ../src/dsp_mainwindow.c:206 ../src/ui-pref.c:1776
 msgid "Post pending scheduled transactions"
-msgstr ""
+msgstr "Objavi načrtovane transakcije v čakanju"
 
 #. ReportMenu
 #: ../src/dsp_mainwindow.c:209
@@ -737,7 +724,8 @@ msgstr "Prevod programa ..."
 
 #: ../src/dsp_mainwindow.c:223
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Povezava s spletno stranjo LaunchPad za pomoč pri prevajanju programa"
+msgstr ""
+"Povezava s spletno stranjo LaunchPad za pomoč pri prevajanju programa"
 
 #: ../src/dsp_mainwindow.c:224
 msgid "Report a Problem..."
@@ -782,6 +770,8 @@ msgid ""
 "- Changes made to the file will be permanently lost\n"
 "- File will be reloaded from the last save (.xhb~)"
 msgstr ""
+"- Spremembe, narejene v datoteki, bodo trajno izgubljene\n"
+"- Datoteka bo naložena iz zadnje shranjene varnostne kopije (.xhb~)"
 
 #: ../src/dsp_mainwindow.c:377
 msgid "_Revert"
@@ -789,17 +779,19 @@ msgstr "_Povrni"
 
 #: ../src/dsp_mainwindow.c:565
 msgid "Are you sure you want to anonymize the file?"
-msgstr ""
+msgstr "Ali ste prepričani, da želite počistiti vse osebne podatke?"
 
 #: ../src/dsp_mainwindow.c:568
 msgid ""
 "Proceeding will anonymize any text, \n"
 "like 'account x', 'payee y', 'memo z', ..."
 msgstr ""
+"Z dejanjem bodo izbrisana osebna besedila, \n"
+"kot so 'račun x', 'stranka y', 'opomnik z', ..."
 
 #: ../src/dsp_mainwindow.c:575
 msgid "_Anonymize"
-msgstr ""
+msgstr "_Počisti osebne podatke"
 
 #: ../src/dsp_mainwindow.c:863
 msgid "Welcome to HomeBank"
@@ -962,11 +954,11 @@ msgstr "Kam gre denar"
 
 #: ../src/dsp_mainwindow.c:2704
 msgid "Top spending"
-msgstr ""
+msgstr "Skupna poraba"
 
 #: ../src/dsp_mainwindow.c:2757
 msgid "Scheduled transactions"
-msgstr ""
+msgstr "Načrtovane transakcije"
 
 #: ../src/dsp_mainwindow.c:2764
 msgid "maximum post date"
@@ -991,9 +983,8 @@ msgid "(new archive)"
 msgstr "(nov trajnik)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "neveljaven csv zapis"
+msgstr "neveljaven zapis CSV"
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1125,7 +1116,7 @@ msgstr "- razdelitev -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1545,7 +1536,7 @@ msgstr "_Seštevaj"
 msgid "_View by:"
 msgstr "_Pokaži za:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1554,10 +1545,10 @@ msgstr "_Pokaži za:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1565,7 +1556,7 @@ msgstr "_Pokaži za:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1724,9 +1715,8 @@ msgid "General"
 msgstr "Splošno"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Druga valuta"
+msgstr "_Valuta:"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1734,7 +1724,7 @@ msgstr "Začetno _stanje:"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Opombe:"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
@@ -1770,14 +1760,12 @@ msgid "N_umber:"
 msgstr "_Številka:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Stanje"
+msgstr "Limit računa"
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Prekoračitev pri:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1796,14 +1784,12 @@ msgid "exclude from any _reports"
 msgstr "izloči iz _vseh poročil"
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "Seznam _načrtovanih transakcij"
+msgstr "Načrtovano"
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "_Predloga:"
+msgstr "Predloga"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1901,7 +1887,7 @@ msgstr "Če nakazilo izbrišete, bo trajno izgubljeno."
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Onemogočeno"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
@@ -1909,7 +1895,7 @@ msgstr ""
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Prepiši"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1921,36 +1907,32 @@ msgstr "Pogoj"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Najdi _v:"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "_Najdi"
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Vsak _dan"
+msgstr "Upoštevaj _velikost črk"
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
-msgstr ""
+msgstr "Uporabi _logične izraze"
 
 #: ../src/ui-assign.c:831
-#, fuzzy
 msgid "Assign payee"
-msgstr "(ni določene stranke)"
+msgstr "Dodeli stranko"
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "nova kategorija"
+msgstr "Dodeli kategorijo"
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Nakazila"
+msgstr "Dodeli plačilo"
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1966,9 +1948,8 @@ msgid "_Owner:"
 msgstr "_Lastnik:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Druga valuta"
+msgstr "Valuta:"
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2216,7 +2197,7 @@ msgstr "Izbor dejanja za račune"
 
 #: ../src/ui-assist-import.c:1924
 msgid "Change _action"
-msgstr ""
+msgstr "Spremeni _dejanje"
 
 #: ../src/ui-assist-import.c:1978
 msgid "Choose transactions to import"
@@ -2280,13 +2261,10 @@ msgid "File format error"
 msgstr "Napaka zapisa datoteke"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Datoteka CSV mora vsebovati natančno število stolpcev\n"
-"ločenih s podpičjem. Več podrobnosti lahko poiščete v pomoči."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2343,11 +2321,11 @@ msgstr "_Vsili nadzor nad kategorijo"
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Ime"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
-msgstr ""
+msgstr "Uporaba"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
@@ -2410,7 +2388,7 @@ msgstr "Upravljanje kategorij"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "_Izbriši neuporabljeno"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
@@ -2425,86 +2403,76 @@ msgid "_Merge"
 msgstr "_Združi"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Druga valuta"
+msgstr "Osnovna valuta"
 
 #: ../src/ui-currency.c:629
-#, fuzzy
 msgid "Symbol"
-msgstr "Simbol:"
+msgstr "Simbol"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
-msgstr ""
+msgstr "Menjalni tečaj"
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Naloži zadnje odprto datoteko"
+msgstr "Zadnjič spremenjeno"
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Druga valuta"
+msgstr "Uredi valuto"
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Druga valuta"
+msgstr "Valuta"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Oblika"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
 msgid "_Customize"
-msgstr ""
+msgstr "_Prilagodi"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
-#, fuzzy
 msgid "_Symbol:"
-msgstr "Simbol:"
+msgstr "_Simbol:"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Decimalno ločilo:"
+msgstr "_Decimalni znak:"
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Decimalna mesta:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Znak za združevanje:"
+msgstr "Znak za _skupinjenje:"
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Izbor osnovne valute"
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Druga valuta"
+msgstr "Izbor valute"
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
-msgstr ""
+msgstr "Koda ISO"
 
 #: ../src/ui-currency.c:1168
 msgid "Update online error"
 msgstr ""
 
 #: ../src/ui-currency.c:1301
-#, fuzzy
 msgid "If you delete a currency, it will be permanently lost."
-msgstr "Izbrisan račun je trajno izgubljen."
+msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
@@ -2517,13 +2485,12 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Možnosti"
+msgstr "Valute"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
-msgstr ""
+msgstr "Posodobi prek omrežja"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
@@ -2539,12 +2506,11 @@ msgstr "Nakazila"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Nadgradi"
 
 #: ../src/ui-dialogs.c:349
-#, fuzzy
 msgid "Select a base currency"
-msgstr "Izbor  dejanja:"
+msgstr ""
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2557,14 +2523,12 @@ msgid "Import from CSV"
 msgstr "Uvoz iz CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Odpri datoteko"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Shrani datoteko"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2637,34 +2601,28 @@ msgid "Any Status"
 msgstr "Kakršnokoli stanje"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "trenutni mesec"
+msgstr "Ta mesec"
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "prejšnji mesec"
+msgstr "Predhodni mesec"
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "trenutno četrtletje"
+msgstr "To četrtletje"
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "zadnje četrtletje"
+msgstr "Zadnje četrtletje"
 
 #: ../src/ui-filter.c:72
-#, fuzzy
 msgid "This year"
-msgstr "trenutno leto"
+msgstr "To leto"
 
 #: ../src/ui-filter.c:73
-#, fuzzy
 msgid "Last year"
-msgstr "Preteklo leto"
+msgstr "Prejšnje leto"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2808,9 +2766,8 @@ msgid "days in advance the current date"
 msgstr "dni po trenutnem datumu"
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "nova kategorija"
+msgstr "Privzeta kategorija"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2823,9 +2780,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-payee.c:909
-#, fuzzy
 msgid "Default"
-msgstr "_Privzeto:"
+msgstr "Privzeto"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2906,15 +2862,15 @@ msgstr "Besedilo ob ikonah"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "Vodoravno"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "Navpično"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Oboje"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -3009,7 +2965,6 @@ msgid "Charts options"
 msgstr "Možnosti diagramov"
 
 #: ../src/ui-pref.c:1276
-#, fuzzy
 msgid "Color scheme:"
 msgstr "Barvna shema:"
 
@@ -3043,9 +2998,8 @@ msgid "_Preset:"
 msgstr "_Privzeto:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Za:"
+msgstr "_Oblika:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3140,11 +3094,11 @@ msgstr "_Orodna vrstica:"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1682
 msgid "_Grid line:"
-msgstr ""
+msgstr "_Mrežne črte:"
 
 #: ../src/ui-pref.c:1694
 msgid "Amount colors"
-msgstr ""
+msgstr "Barve vrednosti"
 
 #: ../src/ui-pref.c:1698
 msgid "Uses custom colors"
@@ -3282,7 +3236,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Poišči ..."
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
@@ -3311,9 +3265,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-transaction.c:1105
-#, fuzzy
 msgid "_Add & keep"
-msgstr "_Dodaj in nadaljuj"
+msgstr "_Dodaj in pusti odprto"
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3321,7 +3274,7 @@ msgstr "_Oddaj"
 
 #: ../src/ui-transaction.c:1157
 msgid "Use a _template"
-msgstr ""
+msgstr "Uporabi _predlogo"
 
 #: ../src/ui-transaction.c:1201
 msgid "Warning: amount and category sign don't match"
@@ -3375,94 +3328,3 @@ msgstr "Vključi"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Ne upoštevaj"
-
-#~ msgid "_Account"
-#~ msgstr "_Račun"
-
-#, fuzzy
-#~ msgid "Euro _Minor"
-#~ msgstr "Druga valuta"
-
-#~ msgid "_Account:"
-#~ msgstr "R_ačun:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Vsaka datoteka CSV mora vsebovati natančno število stolpcev\n"
-#~ "ločenih s podpičji. Za podrobnosti si poglejte pomoč programa."
-
-#~ msgid "Acc_ount:"
-#~ msgstr "_Račun:"
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "prenos je bil samodejno dodeljen: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "V/I napaka za datoteko %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Druga valuta"
-
-#~ msgid "Minor currency"
-#~ msgstr "Druga valuta"
-
-#~ msgid "_Actions"
-#~ msgstr "_Dejanja"
-
-#~ msgid "Limits"
-#~ msgstr "Omejitve"
-
-#~ msgid "Transaction detail"
-#~ msgstr "Podrobnosti transakcije"
-
-#~ msgid "_Field:"
-#~ msgstr "_Polje:"
-
-#~ msgid "Con_tains:"
-#~ msgstr "_Vsebuje:"
-
-#~ msgid "Assignments"
-#~ msgstr "Nakazila"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Samodejno dopolnjevanje in neposredni prevzem\n"
-#~ "je na voljo za kategorije"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Samodejno dopolnjevanje in neposredni prevzem\n"
-#~ "je na voljo za plačnike"
-
-#~ msgid "Owner:"
-#~ msgstr "Lastnik:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Izpiši iz:"
-
-#~ msgid "Country:"
-#~ msgstr "Država:"
-
-#~ msgid "Value:"
-#~ msgstr "Vrednost:"
-
-#~ msgid "Numbers format"
-#~ msgstr "Zapis števil"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Zapis datuma:"
-
-#~ msgid "Numbers options"
-#~ msgstr "Možnosti števil"
-
-#~ msgid "Enable rows in alternating colors"
-#~ msgstr "Omogoči izmenjujoče obarvanje vrstic"
-
-#~ msgid "Fill in with a template"
-#~ msgstr "Zapolni iz predloge"

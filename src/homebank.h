@@ -68,13 +68,13 @@
 /* = = = = = = = = = = = = = = = = */
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
-#define HB_UNSTABLE		TRUE
+#define HB_UNSTABLE		FALSE
 
 #define HB_VERSION_MAJOR	5
 #define HB_VERSION_MINOR	1
 #define HB_VERSION_MICRO	0
 
-#define HB_VERSION			"5.1-rc"
+#define HB_VERSION			"5.1"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
 #define FILE_VERSION		1.2

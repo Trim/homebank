@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2016-01-27 22:32+0000\n"
 "Last-Translator: Mikel Haranburu <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
-"Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finantza;kontuak;aurrekontua;pertsonala;dirua"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "Homebank software librea da, lagunduko zaituena zure kontularitza pertsonala "
 "egiten."
@@ -146,14 +145,13 @@ msgid "No transaction changed"
 msgstr "Ez da eragiketarik aldatu"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "Ez da eragiketarik aldatu"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Auto esleipenaren emaitza"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -204,9 +202,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "Kontu_a:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -243,14 +240,12 @@ msgid "Open the list filter"
 msgstr "Ireki zerrenda iragazkia"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Eurotara bihurtu..."
+msgstr ""
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Kontu hau eurotara bihurtu"
+msgstr ""
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -325,14 +320,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Ezabatu hautaturiko eragiketa(k)"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Auto. Esleipenak"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Auto esleipenak egin"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -400,9 +393,8 @@ msgid "_Status:"
 msgstr "_Egoera:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Iragazkiak hasieratu"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -488,9 +480,8 @@ msgid "Save the current file"
 msgstr "Gorde uneko fitxategia"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Honela Gorde..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -505,9 +496,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Artxibategi honen aurrreko bertsio batera leheneratu"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Propietateak..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -522,9 +512,8 @@ msgid "_Quit"
 msgstr "_Irten"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Homebanketik irten"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -558,20 +547,17 @@ msgid "Preferences..."
 msgstr "Hobespenak..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Homebank konfiguratu"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Hobespenak..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Kategoriak konfiguratu"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -731,7 +717,8 @@ msgstr "Aplikazio hau itzuli..."
 
 #: ../src/dsp_mainwindow.c:223
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "LaunchPad webgunera konektatu aplikazio hau itzultzen laguntza izateko"
+msgstr ""
+"LaunchPad webgunera konektatu aplikazio hau itzultzen laguntza izateko"
 
 #: ../src/dsp_mainwindow.c:224
 msgid "Report a Problem..."
@@ -983,9 +970,8 @@ msgid "(new archive)"
 msgstr "(fitxategi berria)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "CSV formato baliogabea"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1117,7 +1103,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1537,7 +1523,7 @@ msgstr "_Metatua"
 msgid "_View by:"
 msgstr "_Honela ikus:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1546,10 +1532,10 @@ msgstr "_Honela ikus:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1557,7 +1543,7 @@ msgstr "_Honela ikus:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1714,9 +1700,8 @@ msgid "General"
 msgstr "Orokorra"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Moneta txikia"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1760,14 +1745,12 @@ msgid "N_umber:"
 msgstr "Z_enbakia:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Balantzea"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Zor honetan:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1790,9 +1773,8 @@ msgid "Scheduled"
 msgstr ""
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "Eredua sortu"
+msgstr ""
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1918,9 +1900,8 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "_Egun bakoitza"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
@@ -1931,14 +1912,12 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "Azpikategoria"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Esleipenak..."
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1954,9 +1933,8 @@ msgid "_Owner:"
 msgstr "_Jabea:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Dirua xeheka"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2260,13 +2238,10 @@ msgid "File format error"
 msgstr "Errorea fitxategiaren formatuan"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"CSV artxibategiak zutabe kopuru zehatza eduki behar du,\n"
-"komatxo batez berezirik, ikus zehaztapenak laguntzan, arren."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2405,9 +2380,8 @@ msgid "_Merge"
 msgstr ""
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Dirua xeheka"
+msgstr ""
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2418,28 +2392,24 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Karga azkenez ireki fitxategia"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Dirua xeheka"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Dirua xeheka"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
 msgstr ""
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Izengabetu"
+msgstr ""
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
 msgid "_Symbol:"
@@ -2450,27 +2420,24 @@ msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Hamarren hizkia:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Frakzio digitoak:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Multzokatze hizkia:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Dirua xeheka"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2495,9 +2462,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Hobespenak"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2534,14 +2500,12 @@ msgid "Import from CSV"
 msgstr "CSVtik inportatu"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Ireki HomeBank fitxategia"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Gorde HomeBank fitxategia honela"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2613,24 +2577,20 @@ msgid "Any Status"
 msgstr ""
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Hil guztiak"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Azken 12 hilak"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Laurdena"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Laurdena"
+msgstr ""
 
 #: ../src/ui-filter.c:72
 msgid "This year"
@@ -2782,9 +2742,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "Azpikategoria"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -3015,9 +2974,8 @@ msgid "_Preset:"
 msgstr "_Aurredoitu:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Honetako:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3322,60 +3280,3 @@ msgstr "Sartu"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Kanpoan"
-
-#~ msgid "_Account"
-#~ msgstr "_Kontua"
-
-#~ msgid "_Account:"
-#~ msgstr "_Kontua:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "CSV artxibategiak zutabe kopuru zehatza izan behar du,\n"
-#~ "koma batez bereiztuta, irakur laguntza zehaztasunak ikusteko."
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "Autoesleitutako eragiketa: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "I/O akatsa %s fitxategian."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Moneta txikia"
-
-#~ msgid "Minor currency"
-#~ msgstr "Dirua xeheka"
-
-#~ msgid "_Actions"
-#~ msgstr "_Ekintzak"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Kategoriako autoeragiketa eta zuzenki\n"
-#~ "kargatzea erabilgarriak dira"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Onuradunetako autoeragiketa eta zuzenki\n"
-#~ "kargatzea erabilgarriak dira"
-
-#~ msgid "Owner:"
-#~ msgstr "Jabea:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Bete honetatik:"
-
-#~ msgid "Country:"
-#~ msgstr "Herrialdea:"
-
-#~ msgid "Value:"
-#~ msgstr "Balioa:"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Data formatoa:"

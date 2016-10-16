@@ -8,17 +8,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2014-03-04 14:33+0000\n"
 "Last-Translator: Gatis Kalnins <gatis.kalnins@metatrons.lv>\n"
 "Language-Team: gnome-gimp.doc.lv.2010-12-13 <kde-i18n-doc@kde.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -39,8 +38,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -142,14 +141,13 @@ msgid "No transaction changed"
 msgstr "Neviena transakcija nav mainīta"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "Neviena transakcija nav mainīta"
+msgstr ""
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Automātiskie uzdevumi"
+msgstr ""
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -200,9 +198,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "_Konts:"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -319,14 +316,12 @@ msgid "Delete selected transaction(s)"
 msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Automātiskie uzdevumi"
+msgstr ""
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Izpildīt automātiskos uzdevumus"
+msgstr ""
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -394,9 +389,8 @@ msgid "_Status:"
 msgstr ""
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Iestatījumu fails:"
+msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -482,9 +476,8 @@ msgid "Save the current file"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Saglabāt kā..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -499,9 +492,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Atgriezties uz šī faila saglabāto versiju"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "Ī_pašības..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -516,9 +508,8 @@ msgid "_Quit"
 msgstr "_Iziet"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Iziet no HomeBank"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -552,20 +543,17 @@ msgid "Preferences..."
 msgstr "Iestatījumi..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Konfigurēt HomeBank"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Iestatījumi..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Konfigurēt kategorijas"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -977,9 +965,8 @@ msgid "(new archive)"
 msgstr "(jauns arhīvs)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "nederīgs CSV formāts"
+msgstr ""
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1111,7 +1098,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1531,7 +1518,7 @@ msgstr "_Kumulāta"
 msgid "_View by:"
 msgstr "_Skats:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1540,10 +1527,10 @@ msgstr "_Skats:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1551,7 +1538,7 @@ msgstr "_Skats:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1708,9 +1695,8 @@ msgid "General"
 msgstr "Vispārēji"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Otra valūta"
+msgstr ""
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1754,14 +1740,12 @@ msgid "N_umber:"
 msgstr "N_umurs:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Bilance"
+msgstr ""
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Pārtērēts:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1911,9 +1895,8 @@ msgid "Fi_nd:"
 msgstr ""
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Katru _dienu"
+msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
@@ -1924,14 +1907,12 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "Apakškategorija"
+msgstr ""
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Uzdevumi..."
+msgstr ""
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1947,9 +1928,8 @@ msgid "_Owner:"
 msgstr "_Īpašnieks:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Otra valūta"
+msgstr ""
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2096,7 +2076,8 @@ msgstr "Nezināms/nederīgs fails..."
 #: ../src/ui-assist-import.c:1226
 #, c-format
 msgid "account: %d - transaction: %d - payee: %d - categorie: %d"
-msgstr "konti: %d | transakcijas: %d | darījumu partneri: %d | kategorijas: %d"
+msgstr ""
+"konti: %d | transakcijas: %d | darījumu partneri: %d | kategorijas: %d"
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
@@ -2254,13 +2235,10 @@ msgid "File format error"
 msgstr "Faila formatēšanas kļūda"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"CSV failam jāsatur precīzs ar semikolu atdalītu kolonnu skaits.\n"
-"Lai iegūtu vairāk informācijas, lūdzu, ieskatieties HomeBank rokasgrāmatā."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2399,9 +2377,8 @@ msgid "_Merge"
 msgstr ""
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Otra valūta"
+msgstr ""
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2412,19 +2389,16 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Ielādēt pēdējo atvērto failu"
+msgstr ""
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Otra valūta"
+msgstr ""
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Otra valūta"
+msgstr ""
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
@@ -2443,27 +2417,24 @@ msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Decimālā rakstzīme:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "Cipari _aiz komata:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Grupēšanas rakstzīme:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
 msgstr ""
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Otra valūta"
+msgstr ""
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2488,9 +2459,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Iestatījumi"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2527,14 +2497,12 @@ msgid "Import from CSV"
 msgstr "Importēt no CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Atvērt HomeBank failu"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Saglabāt HomeBank failu kā"
+msgstr ""
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2606,24 +2574,20 @@ msgid "Any Status"
 msgstr ""
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Visi mēneši"
+msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Pēdējie 12 mēneši"
+msgstr ""
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Ceturksnis"
+msgstr ""
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Ceturksnis"
+msgstr ""
 
 #: ../src/ui-filter.c:72
 msgid "This year"
@@ -2775,9 +2739,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "Apakškategorija"
+msgstr ""
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -3008,9 +2971,8 @@ msgid "_Preset:"
 msgstr "_Komplekts:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "Šķi_rot:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3314,56 +3276,3 @@ msgstr "Iekļaut"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Izslēgt"
-
-#~ msgid "_Account"
-#~ msgstr "_Konts"
-
-#~ msgid "_Account:"
-#~ msgstr "_Konts:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "CSV failam jāsatur precīzs ar semikolu atdalītu kolonnu skaits.\n"
-#~ "Lai iegūtu vairāk informācijas, ieskatieties HomeBank rokasgrāmatā."
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "transakcija automātiski piesaistīta: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "Ievadizvades kļūda failam %s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Otra valūta"
-
-#~ msgid "Minor currency"
-#~ msgstr "Otra valūta"
-
-#~ msgid "_Actions"
-#~ msgstr "D_arbības"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr "Pieejama automātiskā pabeigšana un tiešā sagrābšana"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr "Pieejama automātiskā pabeigšana un tiešā sagrābšana"
-
-#~ msgid "Owner:"
-#~ msgstr "Īpašnieks:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Gatavie iestatījumi:"
-
-#~ msgid "Country:"
-#~ msgstr "Valsts:"
-
-#~ msgid "Value:"
-#~ msgstr "Vērtība:"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Datuma formāts:"

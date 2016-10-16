@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
 "PO-Revision-Date: 2009-02-03 18:37+0000\n"
 "Last-Translator: Dimitri Kurashvili <dimakura@gmail.com>\n"
 "Language-Team: Georgian <ka@li.org>\n"
-"Language: ka\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -197,9 +196,8 @@ msgstr ""
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "ანგარიში"
+msgstr ""
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -476,9 +474,8 @@ msgid "Save the current file"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "შენახვა როგორც..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -493,9 +490,8 @@ msgid "Revert to a saved version of this file"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_პარამეტრები..."
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -510,9 +506,8 @@ msgid "_Quit"
 msgstr "_გასვლა"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "საშინაო ბანკი"
+msgstr ""
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -546,20 +541,17 @@ msgid "Preferences..."
 msgstr "პარამეტრები"
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "გადახდის მიმღებების კონფიგურაცია"
+msgstr ""
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "პარამეტრები"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "კატეგორიების კონფიგურირება"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -1104,7 +1096,7 @@ msgstr ""
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1524,7 +1516,7 @@ msgstr ""
 msgid "_View by:"
 msgstr ""
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1533,10 +1525,10 @@ msgstr ""
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1544,7 +1536,7 @@ msgstr ""
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1910,9 +1902,8 @@ msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "კატეგორია"
+msgstr ""
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
@@ -2231,14 +2222,10 @@ msgid "File format error"
 msgstr "ფაილის ფორმატის შეცდომა"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"csv ფაილი შეიცავს მკაცრად განსაზღვრულ სვეტების რაოდენობას,\n"
-"რომლებიც გამოყოფილია ერთმანეთისგან წერტილ-მძიმით. მეტი ინფორმაციის მისაღებად "
-"გაეცანით დოკუმენტაციას."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2386,9 +2373,8 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "ბოლოს გახსნილი ფაილი"
+msgstr ""
 
 #: ../src/ui-currency.c:772
 msgid "Edit currency"
@@ -2415,18 +2401,16 @@ msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "ათობითი სიმბოლო:"
+msgstr ""
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "წილადები:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "ჯგუფის სიმბოლო:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
@@ -2459,9 +2443,8 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "პარამეტრები"
+msgstr ""
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2498,9 +2481,8 @@ msgid "Import from CSV"
 msgstr ""
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "საშინაო ბანკი"
+msgstr ""
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
@@ -2580,9 +2562,8 @@ msgid "This month"
 msgstr ""
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "ბოლოს გახსნილი ფაილი"
+msgstr ""
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
@@ -2971,9 +2952,8 @@ msgid "_Preset:"
 msgstr ""
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "თარიღის ფორმატი:"
+msgstr ""
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3274,15 +3254,3 @@ msgstr "ჩართვა"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "გამოტოვება"
-
-#~ msgid "_Account"
-#~ msgstr "_ანგარიში"
-
-#~ msgid "Fill from:"
-#~ msgstr "ფორმის შევსება:"
-
-#~ msgid "Country:"
-#~ msgstr "ქვეყანა:"
-
-#~ msgid "Value:"
-#~ msgstr "მნიშვნელობა:"

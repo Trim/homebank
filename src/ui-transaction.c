@@ -329,13 +329,6 @@ gint active;
 		entry->wording = g_strdup(txt);
 	}
 
-	entry->paymode    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
-	if( entry->paymode != PAYMODE_INTXFER )
-	{
-		//#677351: revert kxferacc to 0
-		entry->kxferacc = 0;
-	}
-
 	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 	entry->amount = value;
 
@@ -362,6 +355,7 @@ gint active;
 		entry->info = g_strdup(txt);
 	}
 
+	entry->paymode  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
 	entry->kcat     = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_grp));
 	entry->kpay     = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_pay));
 	entry->kacc     = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
@@ -373,7 +367,14 @@ gint active;
 	transaction_tags_parse(entry, txt);
 
 	entry->status = radio_get_active(GTK_CONTAINER(data->RA_status));
-	
+
+	//#1615245: moved here, after get combo entry key
+	if( entry->paymode != PAYMODE_INTXFER )
+	{
+		//#677351: revert kxferacc to 0
+		entry->kxferacc = 0;
+	}
+
 	/* flags */
 	//entry->flags = 0;
 	entry->flags &= (OF_SPLIT);	//(split is set in hb_transaction)

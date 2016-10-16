@@ -8,15 +8,14 @@ msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-05-22 13:16+0000\n"
-"Last-Translator: George Melidis <melidis@gmail.com>\n"
+"PO-Revision-Date: 2016-08-08 11:16+0000\n"
+"Last-Translator: ntelos <Unknown>\n"
 "Language-Team: Hellenic <christosvas@in.gr>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-21 21:16+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
+"X-Generator: Launchpad (build 18232)\n"
 "X-Poedit-Country: GREECE\n"
 "X-Poedit-Language: Greek\n"
 
@@ -39,21 +38,30 @@ msgstr "Οικονομία;λογιστικά;προϋπολογισμός; πρ
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
+"Το λογισμικό του HomeBank είναι ελεύθερο (με την έννοια της \"ελευθερίας του "
+"λόγου\" αλλά και με την έννοια \"δωρεάν (ελεύθερη) μπύρα\"), που θα σας "
+"βοηθήσει να διαχειριστείτε τα προσωπικά λογιστικά σας."
 
 #: ../data/homebank.appdata.xml.in.h:2
 msgid ""
 "It is designed to easy to use and be able to analyse your personal finance "
 "in detail using powerful filtering tools and beautiful graphs."
 msgstr ""
+"Έχει σχεδιαστεί για είναι εύκολο στη χρήση και να είναι σε θέση να αναλύσει "
+"τα προσωπικά οικονομικά σας λεπτομερώς χρησιμοποιώντας ισχυρά εργαλεία "
+"φιλτραρίσματος και όμορφα γραφήματα."
 
 #: ../data/homebank.appdata.xml.in.h:3
 msgid ""
 "If you are looking for a completely free and easy way to manage your "
 "personal accounting then HomeBank should be the software of choice."
 msgstr ""
+"Αν ψάχνετε για ένα εντελώς δωρεάν και εύκολο τρόπο για να διαχειριστείτε τα "
+"οικονομικά σας τότε το HomeBank θα έπρεπε να αποτελεί το λογισμικό της "
+"επιλογής σας."
 
 #. GTK_FILE_CHOOSER_ACTION_OPEN,
 #: ../src/dsp_account.c:338 ../src/ui-account.c:657
@@ -78,7 +86,7 @@ msgstr "Ε_ντάξει"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "Επεξεργασία πολλαπλών συναλλαγών"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -109,11 +117,11 @@ msgstr "Ση_μείωση"
 
 #: ../src/dsp_account.c:628 ../src/dsp_account.c:638
 msgid "Check internal transfert result"
-msgstr ""
+msgstr "Ελέγξτε αποτέλεσμα της εσωτερικής μεταφοράς"
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Δεν βρέθηκε ασυνέπεια !"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -121,6 +129,8 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"Βρέθηκε ασυνέπεια: %d\n"
+"Θέλετε μια ανασκόπηση και διόρθωση ;"
 
 #: ../src/dsp_account.c:696
 #, c-format
@@ -128,13 +138,12 @@ msgid "Every transaction amount will be divided by %.6f."
 msgstr "Κάθε ποσό συναλλαγής θα διαιρεθεί με %.6f."
 
 #: ../src/dsp_account.c:700
-#, fuzzy
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
-"Είστε σίγουροι ότι θέλετε να μετατρέψετε αυτό το λογαριασμό\n"
-"σε βασικό νόμισμα ευρώ;"
+"Είστε σίγουροι πως θέλετε να μετατρέψετε το νόμισμα βάσης του λογαριασμού "
+"σας σε Ευρώ;"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -145,14 +154,13 @@ msgid "No transaction changed"
 msgstr "Δεν τροποποιήθηκε καμία συναλλαγή"
 
 #: ../src/dsp_account.c:733
-#, fuzzy, c-format
+#, c-format
 msgid "transaction changed: %d"
-msgstr "συναλλαγή προστέθηκε: %d"
+msgstr "η συναλλαγή άλλαξε: %d"
 
 #: ../src/dsp_account.c:736
-#, fuzzy
 msgid "Automatic assignment result"
-msgstr "Αυτόματη ανάθεση αποτελέσματος"
+msgstr "Αποτέλεσμα αυτόματης ανάθεσης"
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -172,11 +180,12 @@ msgstr ""
 
 #: ../src/dsp_account.c:1607
 msgid "Are you sure you want to change the status to None?"
-msgstr ""
+msgstr "Είστε σίγουροι ότι θέλετε να αλλάξετε την κατάσταση σε Κανένα;"
 
 #: ../src/dsp_account.c:1608 ../src/dsp_account.c:1670
 msgid "Some transaction in your selection are already Reconciled."
-msgstr "Ορισμένες από τις επιλεγμένες συνναλαγές σας είναι ήδη εναρμωνησμένες"
+msgstr ""
+"Ορισμένες από τις επιλεγμένες συνναλαγές σας είναι ήδη εναρμωνησμένες"
 
 #: ../src/dsp_account.c:1609 ../src/ui-assist-start.c:265
 #: ../src/ui-dialogs.c:368
@@ -205,9 +214,8 @@ msgstr "%d αντικείμενα (%d επιλεγμένα %s)"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
-#, fuzzy
 msgid "A_ccount"
-msgstr "_Λογαριασμός:"
+msgstr "Λογαριασμός"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -244,14 +252,12 @@ msgid "Open the list filter"
 msgstr "Άνοιγμα της λίστας φίλτρων"
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert to Euro..."
-msgstr "Μετατροπή σε ευρώ..."
+msgstr "Μετατροπή σε Ευρώ..."
 
 #: ../src/dsp_account.c:2166
-#, fuzzy
 msgid "Convert this account to Euro currency"
-msgstr "Μετατροπή του λογαριασμού σε ευρώ"
+msgstr "Μετατροπή του νομίσματος βάσης του λογαριασμού αυτού σε Ευρώ"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -283,7 +289,7 @@ msgstr "_Τίποτα"
 
 #: ../src/dsp_account.c:2172
 msgid "Toggle none for selected transaction(s)"
-msgstr ""
+msgstr "Εναλλαγή \"κανένα\" για επιλεγμένη συναλλαγή (ες)"
 
 #: ../src/dsp_account.c:2173
 msgid "_Cleared"
@@ -291,7 +297,8 @@ msgstr "Ε_κκαθάριση"
 
 #: ../src/dsp_account.c:2173
 msgid "Toggle cleared for selected transaction(s)"
-msgstr "Ενναλαγή της κατάστασης εκκαθαρισένο για την επιλεγμένη συνναλαγή(ες)"
+msgstr ""
+"Ενναλαγή της κατάστασης εκκαθαρισένο για την επιλεγμένη συνναλαγή(ες)"
 
 #: ../src/dsp_account.c:2174
 msgid "_Reconciled"
@@ -299,7 +306,8 @@ msgstr "_Εναρμονησμένο"
 
 #: ../src/dsp_account.c:2174
 msgid "Toggle reconciled for selected transaction(s)"
-msgstr "Ενναλαγή της κατάστασης εναρμονησμένο για την επιλεγμένη συνναλαγή(ες)"
+msgstr ""
+"Ενναλαγή της κατάστασης εναρμονησμένο για την επιλεγμένη συνναλαγή(ες)"
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
@@ -326,14 +334,12 @@ msgid "Delete selected transaction(s)"
 msgstr "Διαγραφή της(ων) επιλεγμένης(ων) συνναλαγής(ων)"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Auto. assignments"
-msgstr "Αυτόματες αντιστοιχίσεις"
+msgstr "Αυτόματες αναθέσεις"
 
 #: ../src/dsp_account.c:2180
-#, fuzzy
 msgid "Run automatic assignments"
-msgstr "Εκτελέστε αυτόματα τις εργασιών"
+msgstr "Τρέξε αυτόματες αναθέσεις"
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -354,7 +360,7 @@ msgstr "Εξαγωγή από CSV"
 
 #: ../src/dsp_account.c:2184
 msgid "Check internal xfer..."
-msgstr ""
+msgstr "Έλεγχος εσωτερικής μεταφοράς..."
 
 #: ../src/dsp_account.c:2317 ../src/dsp_mainwindow.c:2574
 msgid "Add"
@@ -401,9 +407,8 @@ msgid "_Status:"
 msgstr "_Κατάσταση:"
 
 #: ../src/dsp_account.c:2430
-#, fuzzy
 msgid "Reset _filters"
-msgstr "Καθαρισμός φίλτρων"
+msgstr "Επαναφορά φίλτρων"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -489,9 +494,8 @@ msgid "Save the current file"
 msgstr "Αποθήκευση τρέχοντος αρχείου"
 
 #: ../src/dsp_mainwindow.c:176
-#, fuzzy
 msgid "Save _As..."
-msgstr "Αποθήκευση ως..."
+msgstr "Αποθήκευση Ως..."
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -506,9 +510,8 @@ msgid "Revert to a saved version of this file"
 msgstr "Αντιστροφή σε μια αποθηκευμένη έκδοση του αρχείου"
 
 #: ../src/dsp_mainwindow.c:179
-#, fuzzy
 msgid "Properties..."
-msgstr "_Ιδιότητες..."
+msgstr "Ιδιότητες..."
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -523,9 +526,8 @@ msgid "_Quit"
 msgstr "_Έξοδος"
 
 #: ../src/dsp_mainwindow.c:181
-#, fuzzy
 msgid "Quit HomeBank"
-msgstr "Έξοδος από το homebank"
+msgstr "Έξοδος από το HomeBank"
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -559,20 +561,17 @@ msgid "Preferences..."
 msgstr "Προτιμήσεις..."
 
 #: ../src/dsp_mainwindow.c:191
-#, fuzzy
 msgid "Configure HomeBank"
-msgstr "Ρύθμιση του homebank"
+msgstr "Ρύθμιση του HomeBank"
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Currencies..."
-msgstr "Προτιμήσεις..."
+msgstr "Νομίσματα..."
 
 #: ../src/dsp_mainwindow.c:194
-#, fuzzy
 msgid "Configure the currencies"
-msgstr "Ρύθμιση των κατηγοριών"
+msgstr "Ρύθμιση νομισμάτων"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -779,6 +778,9 @@ msgid ""
 "- Changes made to the file will be permanently lost\n"
 "- File will be reloaded from the last save (.xhb~)"
 msgstr ""
+"- Αλλαγές που τυχόν έγιναν στο αρχείο θα χαθούν οριστικά\n"
+"- Θα φορτωθεί αντίγραφο ασφαλείας από την τελευταία αποθήκευση (.xhb ~) "
+"(.xhb~)"
 
 #: ../src/dsp_mainwindow.c:377
 msgid "_Revert"
@@ -786,7 +788,7 @@ msgstr "_Επαναφορά"
 
 #: ../src/dsp_mainwindow.c:565
 msgid "Are you sure you want to anonymize the file?"
-msgstr ""
+msgstr "Είστε βέβαιοι ότι θέλετε ανώνυμο το αρχείο;"
 
 #: ../src/dsp_mainwindow.c:568
 msgid ""
@@ -981,16 +983,15 @@ msgstr "Επεξεργασία & Δημοσίευση"
 #. TRANSLATORS: Before that action the automated transaction occurrence is pending and not yet really existing.
 #: ../src/dsp_mainwindow.c:2810
 msgid "Post"
-msgstr ""
+msgstr "Δημοσίευση"
 
 #: ../src/hb-archive.c:163
 msgid "(new archive)"
 msgstr "(νέο αρχείο)"
 
 #: ../src/hb-category.c:979
-#, fuzzy
 msgid "invalid CSV format"
-msgstr "άκυρη CSV μορφή"
+msgstr "Μή έγκυρη μορφή CSV"
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1079,7 +1080,7 @@ msgstr "Πληροφορίες"
 #: ../src/ui-archive.c:226 ../src/ui-assign.c:39 ../src/ui-pref.c:130
 #: ../src/ui-split.c:410
 msgid "Memo"
-msgstr ""
+msgstr "Σημείωση"
 
 #. column: Amount
 #: ../src/list_operation.c:49 ../src/list_operation.c:1103
@@ -1112,17 +1113,17 @@ msgstr "Ετικέτες"
 #: ../src/list_operation.c:55 ../src/list_operation.c:1085
 #: ../src/ui-filter.c:1307
 msgid "Status"
-msgstr ""
+msgstr "Κατάσταση"
 
 #: ../src/list_operation.c:478
 msgid "- split -"
-msgstr ""
+msgstr "-διαχωρισμός-"
 
 #. common (date + status + amount)
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1361
 #: ../src/rep_balance.c:1222 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1480
@@ -1132,11 +1133,11 @@ msgstr "Ημερομηνία"
 #. TRANSLATORS: title of list column to inform the scheduled transaction is Late
 #: ../src/list_upcoming.c:316
 msgid "Late"
-msgstr ""
+msgstr "Αργοπορημένη"
 
 #: ../src/list_upcoming.c:348
 msgid "Next date"
-msgstr ""
+msgstr "Επόμενη ημερομηνία"
 
 #: ../src/rep_balance.c:76 ../src/rep_budget.c:80 ../src/rep_stats.c:65
 #: ../src/rep_time.c:66
@@ -1193,7 +1194,7 @@ msgstr "Έκθεση υπολοίπου"
 #: ../src/rep_balance.c:831 ../src/rep_budget.c:1093 ../src/rep_stats.c:1501
 #: ../src/rep_time.c:1368 ../src/rep_vehicle.c:723
 msgid "Display"
-msgstr ""
+msgstr "Προβολή"
 
 #: ../src/rep_balance.c:835 ../src/rep_time.c:1379 ../src/ui-archive.c:942
 #: ../src/ui-assist-import.c:974 ../src/ui-transaction.c:979
@@ -1215,7 +1216,7 @@ msgstr "_Μεγένθυνση X:"
 #: ../src/rep_balance.c:870 ../src/rep_budget.c:1121 ../src/rep_stats.c:1549
 #: ../src/rep_time.c:1438 ../src/rep_vehicle.c:744
 msgid "Date filter"
-msgstr ""
+msgstr "Φίλτρο ημερομηνίας"
 
 #: ../src/rep_balance.c:880 ../src/rep_budget.c:1131 ../src/rep_stats.c:1559
 #: ../src/rep_time.c:1448 ../src/rep_vehicle.c:754 ../src/ui-filter.c:960
@@ -1251,7 +1252,7 @@ msgstr "Αποτέλεσμα"
 
 #: ../src/rep_budget.c:81
 msgid "Stack"
-msgstr ""
+msgstr "Στοίβα"
 
 #: ../src/rep_budget.c:81
 msgid "View results as stack bars"
@@ -1268,17 +1269,17 @@ msgstr ""
 
 #: ../src/rep_budget.c:833
 msgid " left"
-msgstr ""
+msgstr " Αριστερά"
 
 #: ../src/rep_budget.c:835
 msgid " under"
-msgstr ""
+msgstr " Κάτω από"
 
 #. update stack chart
 #: ../src/rep_budget.c:875
 #, c-format
 msgid "Budget for %s"
-msgstr ""
+msgstr "Budget για %s"
 
 #: ../src/rep_budget.c:1068
 msgid "Budget report"
@@ -1294,7 +1295,7 @@ msgstr "_Τύπος:"
 
 #: ../src/rep_budget.c:1206
 msgid "Result:"
-msgstr ""
+msgstr "Αποτέλεσμα:"
 
 #: ../src/rep_budget.c:1212
 msgid "Budget:"
@@ -1306,7 +1307,7 @@ msgstr "Έξοδα:"
 
 #: ../src/rep_budget.c:1336
 msgid "No account is defined to be part of the budget."
-msgstr ""
+msgstr "Δεν έχει οριστεί λογαριασμός ώστε να είναι μέρος του budget."
 
 #: ../src/rep_budget.c:1337
 msgid "You should include some accounts from the account dialog."
@@ -1322,11 +1323,11 @@ msgstr ""
 
 #: ../src/rep_stats.c:67
 msgid "Donut"
-msgstr ""
+msgstr "Ντόνατ"
 
 #: ../src/rep_stats.c:67
 msgid "View results as donut"
-msgstr ""
+msgstr "Δείτε τα αποτελέσματα ως ντόνατ"
 
 #: ../src/rep_stats.c:69
 msgid "Edit the filter"
@@ -1419,7 +1420,7 @@ msgstr "Δεκέμβριος"
 #: ../src/rep_stats.c:607
 #, c-format
 msgid "%s by %s"
-msgstr ""
+msgstr "%s από %s"
 
 #: ../src/rep_stats.c:705
 msgid "expense"
@@ -1439,7 +1440,7 @@ msgstr "_Προβολή:"
 
 #: ../src/rep_stats.c:1512
 msgid "_By:"
-msgstr ""
+msgstr "_Από:"
 
 #: ../src/rep_stats.c:1519
 msgid "By _amount"
@@ -1528,7 +1529,7 @@ msgstr "Μερίδιο χρόνου"
 #: ../src/rep_time.c:1031
 #, c-format
 msgid "Average: %s"
-msgstr ""
+msgstr "Μέσος όρος: %s"
 
 #: ../src/rep_time.c:1345
 msgid "Trend Time Report"
@@ -1542,7 +1543,7 @@ msgstr "_Άθροισμα"
 msgid "_View by:"
 msgstr "_Προβολή κατά:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1551,10 +1552,10 @@ msgstr "_Προβολή κατά:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1562,7 +1563,7 @@ msgstr "_Προβολή κατά:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1643,7 +1644,7 @@ msgstr "Ορατά"
 
 #: ../src/ui-account.c:945 ../src/ui-account.c:1052
 msgid "Account name"
-msgstr ""
+msgstr "Όνομα λογαριασμού"
 
 #: ../src/ui-account.c:951 ../src/ui-account.c:1058
 #: ../src/ui-assist-import.c:1034 ../src/ui-category.c:1375
@@ -1657,11 +1658,13 @@ msgid ""
 "Cannot add an account '%s',\n"
 "this name already exists."
 msgstr ""
+"Δεν μπορεί να προστεθεί λογαριασμός '%s', \n"
+"το όνομα αυτό ήδη υπάρχει."
 
 #: ../src/ui-account.c:994
 #, c-format
 msgid "Cannot delete account '%s'"
-msgstr ""
+msgstr "Δεν μπορεί να διαγραφεί ο λογαριασμός '%s'"
 
 #: ../src/ui-account.c:998
 msgid ""
@@ -1672,11 +1675,11 @@ msgstr ""
 #: ../src/ui-category.c:1560 ../src/ui-currency.c:1299 ../src/ui-payee.c:1135
 #, c-format
 msgid "Are you sure you want to permanently delete '%s'?"
-msgstr ""
+msgstr "Είστε σίγουροι ότι επιθυμείτε μόνιμη διαγραφή του '%s';"
 
 #: ../src/ui-account.c:1011
 msgid "If you delete an account, it will be permanently lost."
-msgstr ""
+msgstr "Άν διαγράψετε έναν λογαριασμό, θα χαθεί μόνιμα."
 
 #: ../src/ui-account.c:1017 ../src/ui-account.c:1245 ../src/ui-archive.c:324
 #: ../src/ui-archive.c:1152 ../src/ui-assign.c:553 ../src/ui-assign.c:769
@@ -1685,7 +1688,7 @@ msgstr ""
 #: ../src/ui-currency.c:1539 ../src/ui-payee.c:745 ../src/ui-payee.c:1147
 #: ../src/ui-payee.c:1319
 msgid "_Delete"
-msgstr ""
+msgstr "Διαγραφή"
 
 #: ../src/ui-account.c:1059 ../src/ui-assist-import.c:1035
 #, c-format
@@ -1707,11 +1710,13 @@ msgid ""
 "Drag & drop to change the order\n"
 "Double-click to rename"
 msgstr ""
+"Σύρσιμο και απόθεση για να αλλάξετε την σειρά \n"
+"Διπλό κλικ για μετονομασία"
 
 #: ../src/ui-account.c:1241 ../src/ui-archive.c:1148 ../src/ui-assign.c:765
 #: ../src/ui-currency.c:1531 ../src/ui-transaction.c:1106
 msgid "_Add"
-msgstr ""
+msgstr "Προσθήκη"
 
 #: ../src/ui-account.c:1262 ../src/ui-hbfile.c:222 ../src/ui-pref.c:86
 #: ../src/ui-pref.c:1350 ../src/ui-pref.c:1661
@@ -1719,21 +1724,20 @@ msgid "General"
 msgstr "Γενικά"
 
 #: ../src/ui-account.c:1282
-#, fuzzy
 msgid "_Currency:"
-msgstr "_Δευτερεύον νόμισμα"
+msgstr "Νόμισμα:"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
-msgstr ""
+msgstr "Έναρξη_ισοζυγίου:"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Σημειώσεις:"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
-msgstr ""
+msgstr "αυτός ο λογαριασμός έκλεισε"
 
 #: ../src/ui-account.c:1322
 msgid "Current check number"
@@ -1749,11 +1753,11 @@ msgstr ""
 
 #: ../src/ui-account.c:1345 ../src/ui-budget.c:1189
 msgid "Options"
-msgstr ""
+msgstr "Επιλογές"
 
 #: ../src/ui-account.c:1354
 msgid "Institution"
-msgstr ""
+msgstr "Θεσμός"
 
 #: ../src/ui-account.c:1358 ../src/ui-assist-start.c:364
 #: ../src/ui-assist-import.c:962 ../src/ui-payee.c:896
@@ -1765,14 +1769,12 @@ msgid "N_umber:"
 msgstr "Α_ριθμός:"
 
 #: ../src/ui-account.c:1379
-#, fuzzy
 msgid "Balance limits"
-msgstr "Ισοζύγιο"
+msgstr "Όρια ισοζυγίου"
 
 #: ../src/ui-account.c:1385
-#, fuzzy
 msgid "_Overdraft at:"
-msgstr "_Υπερανάληψη στα:"
+msgstr ""
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1791,35 +1793,33 @@ msgid "exclude from any _reports"
 msgstr ""
 
 #: ../src/ui-archive.c:47
-#, fuzzy
 msgid "Scheduled"
-msgstr "_Χρονοδιάγραμμα"
+msgstr "Προγραμματισμένο"
 
 #: ../src/ui-archive.c:48
-#, fuzzy
 msgid "Template"
-msgstr "Δημιουργία προσχεδίου"
+msgstr "Πρότυπο"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
-msgstr ""
+msgstr "Εφικτό"
 
 #: ../src/ui-archive.c:55
 msgid "Before"
-msgstr ""
+msgstr "Πριν"
 
 #: ../src/ui-archive.c:55
 msgid "After"
-msgstr ""
+msgstr "Μετά"
 
 #: ../src/ui-archive.c:271
 #, c-format
 msgid "(template %d)"
-msgstr ""
+msgstr "(πρότυπο %d)"
 
 #: ../src/ui-archive.c:318
 msgid "If you delete a scheduled/template, it will be permanently lost."
-msgstr ""
+msgstr "Εάν διαγράψετε ένα πρότυπο, θα χαθεί μόνιμα."
 
 #: ../src/ui-archive.c:908 ../src/ui-transaction.c:939
 msgid "_Amount:"
@@ -1831,7 +1831,7 @@ msgstr ""
 
 #: ../src/ui-archive.c:924 ../src/ui-split.c:362 ../src/ui-transaction.c:955
 msgid "Transaction splits"
-msgstr ""
+msgstr "Διαχωρισμοί συναλλαγών"
 
 #: ../src/ui-archive.c:927 ../src/ui-assign.c:897
 msgid "Pay_ment:"
@@ -1847,11 +1847,11 @@ msgstr "_Στο λογαριασμό:"
 
 #: ../src/ui-archive.c:983 ../src/ui-filter.c:1020
 msgid "_Memo:"
-msgstr ""
+msgstr "Σημείωση:"
 
 #: ../src/ui-archive.c:1007
 msgid "Scheduled insertion"
-msgstr ""
+msgstr "Προγραμματισμένη εισαγωγή"
 
 #: ../src/ui-archive.c:1012
 msgid "_Activate"
@@ -1859,7 +1859,7 @@ msgstr "_Ενεργοποίησε"
 
 #: ../src/ui-archive.c:1017
 msgid "Next _date:"
-msgstr ""
+msgstr "Επόμενη _ημερομηνία:"
 
 #: ../src/ui-archive.c:1025
 msgid "Ever_y:"
@@ -1867,15 +1867,15 @@ msgstr "_Κάθε:"
 
 #: ../src/ui-archive.c:1041
 msgid "Week end:"
-msgstr ""
+msgstr "Τέλος εβδομάδας:"
 
 #: ../src/ui-archive.c:1053
 msgid "_Stop after:"
-msgstr ""
+msgstr "_Παύση μετά από:"
 
 #: ../src/ui-archive.c:1061
 msgid "posts"
-msgstr ""
+msgstr "εγγραφές"
 
 #: ../src/ui-archive.c:1083
 msgid "Manage scheduled/template transactions"
@@ -1883,7 +1883,7 @@ msgstr ""
 
 #: ../src/ui-assign.c:268 ../src/ui-filter.c:1322
 msgid "Text"
-msgstr ""
+msgstr "Κείμενο"
 
 #: ../src/ui-assign.c:517
 #, c-format
@@ -1892,19 +1892,19 @@ msgstr "(ανάθεση %d)"
 
 #: ../src/ui-assign.c:547
 msgid "If you delete an assignment, it will be permanently lost."
-msgstr ""
+msgstr "Εάν διαγράψετε μια ανάθεση, θα χαθεί μόνιμα."
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Απενεργοποιημένο"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
-msgstr ""
+msgstr "Εάν άδειο"
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Επανεγγραφή"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1912,44 +1912,41 @@ msgstr "Διαχείριση αναθέσεων"
 
 #: ../src/ui-assign.c:791
 msgid "Condition"
-msgstr ""
+msgstr "Συνθήκη"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Αναζήτηση σε:"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "Εύρεση:"
 
 #: ../src/ui-assign.c:811
-#, fuzzy
 msgid "Match _case"
-msgstr "Κάθε _μέρα"
+msgstr "Ταίριασμα πεζών/κεφαλαίων"
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
-msgstr ""
+msgstr "Χρησιμοποίησε κοινές εκφράσεις"
 
 #: ../src/ui-assign.c:831
 msgid "Assign payee"
 msgstr ""
 
 #: ../src/ui-assign.c:860
-#, fuzzy
 msgid "Assign category"
-msgstr "(χωρίς κατηγορία)"
+msgstr "Όρισε κατηγορία"
 
 #: ../src/ui-assign.c:888
-#, fuzzy
 msgid "Assign payment"
-msgstr "Aναθέσεις..."
+msgstr "Ανάθεση πληρωμής"
 
 #: ../src/ui-assist-start.c:129
 #, c-format
 msgid "New HomeBank file (%d of %d)"
-msgstr ""
+msgstr "Νέο αρχείο HomeBank (%d of %d)"
 
 #: ../src/ui-assist-start.c:160
 msgid "Not found"
@@ -1960,18 +1957,17 @@ msgid "_Owner:"
 msgstr "_Ιδιοκτήτης:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
-#, fuzzy
 msgid "Currency:"
-msgstr "Δευτερεύουσα μονάδα"
+msgstr "Νόμισμα:"
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
 msgid "File properties"
-msgstr ""
+msgstr "Ιδιότητες αρχείου"
 
 #: ../src/ui-assist-start.c:298
 msgid "System detection"
-msgstr ""
+msgstr "Ανίχνευση συστήματος"
 
 #: ../src/ui-assist-start.c:302
 msgid "Languages:"
@@ -1991,11 +1987,11 @@ msgstr "Προκαθορισμένες κατηγορίες"
 
 #: ../src/ui-assist-start.c:360
 msgid "Informations"
-msgstr ""
+msgstr "Πληροφορίες"
 
 #: ../src/ui-assist-start.c:395
 msgid "Balances"
-msgstr ""
+msgstr "Ισοζύγια"
 
 #: ../src/ui-assist-start.c:399
 msgid "_Initial:"
@@ -2021,35 +2017,35 @@ msgstr "Επιβεβαίωση"
 
 #: ../src/ui-assist-import.c:56
 msgid "Welcome"
-msgstr ""
+msgstr "Καλώς ήρθατε"
 
 #: ../src/ui-assist-import.c:57
 msgid "Select file"
-msgstr ""
+msgstr "Επιλογή αρχείου"
 
 #: ../src/ui-assist-import.c:58
 msgid "Import"
-msgstr ""
+msgstr "Εισαγωγή"
 
 #: ../src/ui-assist-import.c:59
 msgid "Properties"
-msgstr ""
+msgstr "Ιδιότητες"
 
 #: ../src/ui-assist-import.c:61 ../src/ui-dialogs.c:216
 msgid "Transaction"
-msgstr ""
+msgstr "Συναλλαγή"
 
 #: ../src/ui-assist-import.c:132 ../src/ui-assist-import.c:958
 msgid "create new"
-msgstr ""
+msgstr "δημιουργία νέου"
 
 #: ../src/ui-assist-import.c:134 ../src/ui-assist-import.c:970
 msgid "use existing"
-msgstr ""
+msgstr "χρήση υπάρχοντος"
 
 #: ../src/ui-assist-import.c:216
 msgid "Name in the file"
-msgstr ""
+msgstr "Όνομα αρχείου"
 
 #: ../src/ui-assist-import.c:224
 msgid "Action"
@@ -2057,7 +2053,7 @@ msgstr "Ενέργεια"
 
 #: ../src/ui-assist-import.c:232
 msgid "Name in HomeBank"
-msgstr ""
+msgstr "Όνομα στο HomeBank"
 
 #: ../src/ui-assist-import.c:597 ../src/ui-assist-import.c:843
 msgid "All seems all right here, your validation is optional!"
@@ -2069,6 +2065,8 @@ msgid ""
 "No account information has been found into the file '%s'.\n"
 "Please select the appropriate action for account below."
 msgstr ""
+"Δεν έχει βρεθεί καμμία πληροφορία λογαριασμού στο αρχείο '%s'. \n"
+"Παρακαλούμε επιλέξτε την κατάλληλη ενέργεια για τον λογαριασμό σας παρακάτω."
 
 #: ../src/ui-assist-import.c:849
 msgid ""
@@ -2079,7 +2077,7 @@ msgstr ""
 
 #: ../src/ui-assist-import.c:936
 msgid "Change account action"
-msgstr ""
+msgstr "Αλλαγή ενέργειας λογαριασμού"
 
 #: ../src/ui-assist-import.c:1083
 msgid "Please select a file..."
@@ -2099,7 +2097,7 @@ msgstr "** Η υποστήριξη OFX είναι απενεργοποιημέν
 
 #: ../src/ui-assist-import.c:1114
 msgid "CSV transaction file recognised !"
-msgstr ""
+msgstr "Φάκελος συναλλαγής CSV αναγνωρίστηκε !"
 
 #: ../src/ui-assist-import.c:1120
 msgid "Unknown/Invalid file..."
@@ -2114,7 +2112,7 @@ msgstr "λογαριασμός: %d - συναλλαγή: %d - πίστωση: %d
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
-msgstr ""
+msgstr "Ένα μέρος της μετατροπής ημερομηνίας απέτυχε"
 
 #: ../src/ui-assist-import.c:1348
 #, c-format
@@ -2158,7 +2156,7 @@ msgstr ""
 
 #: ../src/ui-assist-import.c:1669
 msgid "Known files"
-msgstr ""
+msgstr "Γνωστά αρχεία"
 
 #: ../src/ui-assist-import.c:1680 ../src/ui-dialogs.c:440
 msgid "QIF files"
@@ -2179,7 +2177,7 @@ msgstr "Όλα τα αρχεία"
 
 #: ../src/ui-assist-import.c:1768
 msgid "A general error occured, and this file cannot be loaded."
-msgstr ""
+msgstr "Προέκυψε γενικό σφάλμα και η φόρτωση του αρχείου είναι αδύνατη."
 
 #: ../src/ui-assist-import.c:1805
 msgid "Name:"
@@ -2195,11 +2193,11 @@ msgstr "Κωδικοποίηση:"
 
 #: ../src/ui-assist-import.c:1826
 msgid "Date format:"
-msgstr ""
+msgstr "Μορφή ημερομηνίας:"
 
 #: ../src/ui-assist-import.c:1838
 msgid "File content"
-msgstr ""
+msgstr "Περιεχόμενο αρχείου"
 
 #: ../src/ui-assist-import.c:1842
 msgid "Content:"
@@ -2207,15 +2205,15 @@ msgstr "Περιεχόμενο:"
 
 #: ../src/ui-assist-import.c:1908
 msgid "Choose the action for accounts"
-msgstr ""
+msgstr "Επιλέξτε ενέργεια για λογαριασμούς"
 
 #: ../src/ui-assist-import.c:1924
 msgid "Change _action"
-msgstr ""
+msgstr "Αλλαγή _ενέργειας"
 
 #: ../src/ui-assist-import.c:1978
 msgid "Choose transactions to import"
-msgstr ""
+msgstr "Επιλέξτε συναλλαγές προς εισαγωγή"
 
 #: ../src/ui-assist-import.c:1992
 msgid "Detail of existing transaction (possible duplicate)"
@@ -2232,7 +2230,7 @@ msgstr "Ημέρα(ες)"
 
 #: ../src/ui-assist-import.c:2025
 msgid "_Refresh"
-msgstr ""
+msgstr "_Ανανέωση"
 
 #: ../src/ui-assist-import.c:2035
 msgid ""
@@ -2256,7 +2254,7 @@ msgstr "για να δημιουργήσετε"
 
 #: ../src/ui-assist-import.c:2103 ../src/ui-pref.c:88
 msgid "Transactions"
-msgstr ""
+msgstr "Συναλλαγές"
 
 #: ../src/ui-assist-import.c:2112
 msgid "to import"
@@ -2275,25 +2273,22 @@ msgid "File format error"
 msgstr "Σφάλμα μορφής αρχείου"
 
 #: ../src/ui-budget.c:509 ../src/ui-category.c:1165
-#, fuzzy
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
-"Το αρχείο csv πρέπει να περιέχει τον ακριβή αριθμό στηλών,\n"
-"διαχωρισμένες με άνω κάτω τελεία, παρακαλώ δείτε τη βοήθεια."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
-msgstr ""
+msgstr "Είστε σίγουροι ότι επιθυμείτε εκκαθάριση δεδομένων;"
 
 #: ../src/ui-budget.c:695
 msgid "If you proceed, every amount will be set to 0."
-msgstr ""
+msgstr "Εάν προχωρήσετε, κάθε ποσό θα οριστεί σε 0."
 
 #: ../src/ui-budget.c:701
 msgid "_Clear"
-msgstr ""
+msgstr "_Εκκαθάριση"
 
 #: ../src/ui-budget.c:993
 msgid "Manage Budget"
@@ -2301,23 +2296,23 @@ msgstr "Διαχείριση Κονδυλίου"
 
 #: ../src/ui-budget.c:1036 ../src/ui-category.c:1862 ../src/ui-payee.c:1259
 msgid "_Import CSV"
-msgstr ""
+msgstr "_Εισαγωγή CSV"
 
 #: ../src/ui-budget.c:1040 ../src/ui-category.c:1866 ../src/ui-payee.c:1263
 msgid "E_xport CSV"
-msgstr ""
+msgstr "Ε_ξαγωγή CSV"
 
 #: ../src/ui-budget.c:1099 ../src/ui-category.c:1970
 msgid "Expand all"
-msgstr ""
+msgstr "Επέκταση όλων"
 
 #: ../src/ui-budget.c:1103 ../src/ui-category.c:1974
 msgid "Collapse all"
-msgstr ""
+msgstr "Σύμπτυξη όλων"
 
 #: ../src/ui-budget.c:1125
 msgid "Budget for each month"
-msgstr ""
+msgstr "Μπάτζετ για κάθε μήνα"
 
 #: ../src/ui-budget.c:1130
 msgid "is the same"
@@ -2325,7 +2320,7 @@ msgstr "είναι το ίδιο"
 
 #: ../src/ui-budget.c:1142
 msgid "_Clear input"
-msgstr ""
+msgstr "_Καθαρισμός καταχωρήσεων"
 
 #: ../src/ui-budget.c:1156
 msgid "is different"
@@ -2338,25 +2333,27 @@ msgstr "Εξαναγκασμός παρακολούθησης αυτής της 
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Όνομα"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
-msgstr ""
+msgstr "Χρήση"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
-msgstr ""
+msgstr "Διαγραφή μη χρησιμοποιούμενων κατηγοριών"
 
 #: ../src/ui-category.c:1123
 msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
+"Είστε σίγουροι ότι θέλετε να διαγράψετε \n"
+"μόνιμα μη χρησιμοποιούμενες κατηγορίες;"
 
 #: ../src/ui-category.c:1301 ../src/ui-payee.c:868
 msgid "Edit..."
-msgstr ""
+msgstr "Επεξεργασία..."
 
 #: ../src/ui-category.c:1325
 msgid "_Income"
@@ -2376,22 +2373,24 @@ msgstr ""
 #: ../src/ui-category.c:1441
 #, c-format
 msgid "Merge category '%s'"
-msgstr ""
+msgstr "Συγχώνευση κατηγορίας '%s'"
 
 #: ../src/ui-category.c:1453 ../src/ui-payee.c:1033
 msgid "Merge"
-msgstr ""
+msgstr "Συγχώνευση"
 
 #: ../src/ui-category.c:1462
 msgid ""
 "Transactions assigned to this category,\n"
 "will be moved to the category selected below."
 msgstr ""
+"Συναλλαγές που ανατέθηκαν σε αυτήν την κατηγορία \n"
+"θα μετακινηθούν στην κατηγορία που επιλέχτηκε παρακάτω."
 
 #: ../src/ui-category.c:1472
 #, c-format
 msgid "_Delete the category '%s'"
-msgstr ""
+msgstr "_Διαγραφή κατηγορίας '%s'"
 
 #: ../src/ui-category.c:1564
 msgid ""
@@ -2405,103 +2404,95 @@ msgstr "Διαχείρηση Κατηγοριών"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "_Διαγραφή μη χρησιμοποιούμενων"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
-msgstr ""
+msgstr "νέα κατηγορία"
 
 #: ../src/ui-category.c:1906
 msgid "new subcategory"
-msgstr ""
+msgstr "νέα υποκατηγορία"
 
 #: ../src/ui-category.c:1988 ../src/ui-payee.c:1316
 msgid "_Merge"
-msgstr ""
+msgstr "_Συγχώνευση"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
-#, fuzzy
 msgid "Base currency"
-msgstr "Δευτερεύουσα μονάδα"
+msgstr "Νόμισμα βάσης"
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
-msgstr ""
+msgstr "Σύμβολο"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
-msgstr ""
+msgstr "Ισοτιμία"
 
 #: ../src/ui-currency.c:653
-#, fuzzy
 msgid "Last modfied"
-msgstr "Φόρτωση τελευταίου ανοιγμένου αρχείου"
+msgstr "Τελευταία τροποποίηση"
 
 #: ../src/ui-currency.c:772
-#, fuzzy
 msgid "Edit currency"
-msgstr "Δευτερεύουσα μονάδα"
+msgstr "Επεξεργασία συνναλάγματος"
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
-#, fuzzy
 msgid "Currency"
-msgstr "Δευτερεύουσα μονάδα"
+msgstr "Συνάλλαγμα"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Μορφή"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
-#, fuzzy
 msgid "_Customize"
-msgstr "_Ανωνυμοποίηση"
+msgstr "_Προσαρμογή"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
 msgid "_Symbol:"
-msgstr ""
+msgstr "_Σύμβολο:"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
 msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
-#, fuzzy
 msgid "_Decimal char:"
-msgstr "Σύμβολο υποδιαστολής:"
+msgstr "_Δεκαδικός χαρακτήρας:"
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
 msgstr "_Δεκαδικά ψηφία:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
-#, fuzzy
 msgid "_Grouping char:"
-msgstr "Σύμβολο χιλιάδων:"
+msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Επιλογή νομίσματος βάσης"
 
 #: ../src/ui-currency.c:1040
-#, fuzzy
 msgid "Select currency"
-msgstr "Δευτερεύουσα μονάδα"
+msgstr "Επιλογή νομίσματος"
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
-msgstr ""
+msgstr "Κωδικός ISO"
 
 #: ../src/ui-currency.c:1168
 msgid "Update online error"
-msgstr ""
+msgstr "Ενημέρωση σφάλματος online"
 
 #: ../src/ui-currency.c:1301
 msgid "If you delete a currency, it will be permanently lost."
-msgstr ""
+msgstr "Εάν διαγράψετε ένα νόμισμα, τότε θα χαθεί μόνιμα."
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Αλλαγή νομίσματος βάσης"
 
 #: ../src/ui-currency.c:1346
 msgid ""
@@ -2510,13 +2501,12 @@ msgid ""
 msgstr ""
 
 #: ../src/ui-currency.c:1461
-#, fuzzy
 msgid "Currencies"
-msgstr "Προτιμήσεις"
+msgstr "Νομίσματα"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
-msgstr ""
+msgstr "Online ενημέρωση"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
@@ -2524,19 +2514,19 @@ msgstr ""
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
-msgstr ""
+msgstr "Στατιστικά αρχείων"
 
 #: ../src/ui-dialogs.c:243
 msgid "Assignment"
-msgstr ""
+msgstr "Ανάθεση"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Αναβάθμιση"
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Επιλέξτε ένα νόμισμα βάσης"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2549,14 +2539,12 @@ msgid "Import from CSV"
 msgstr "Εισαγωγή από CSV"
 
 #: ../src/ui-dialogs.c:537
-#, fuzzy
 msgid "Open HomeBank file"
-msgstr "Άνοιγμα αρχείου homebank"
+msgstr "Άνοιγμα αρχείου HomeBank"
 
 #: ../src/ui-dialogs.c:542
-#, fuzzy
 msgid "Save HomeBank file as"
-msgstr "Αποθήκευση αρχείου homebank ως"
+msgstr "Αποθήκευση αρχείου HomeBank ως"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2564,7 +2552,7 @@ msgstr "Αρχεία HomeBank"
 
 #: ../src/ui-dialogs.c:655
 msgid "Save changes to the file before closing?"
-msgstr ""
+msgstr "Αποθήκευση αλλαγών στο αρχείο πριν το κλείσιμο;"
 
 #: ../src/ui-dialogs.c:659
 #, c-format
@@ -2572,26 +2560,28 @@ msgid ""
 "If you don't save, changes will be permanently lost.\n"
 "Number of changes: %d."
 msgstr ""
+"Εάν δεν γίνει αποθήκευση, οι αλλαγές θα χαθούν οριστικά. \n"
+"Αριθμός αλλαγών: %d."
 
 #: ../src/ui-dialogs.c:664
 msgid "Close _without saving"
-msgstr ""
+msgstr "Κλείσιμο _χωρίς αποθήκευση"
 
 #: ../src/ui-dialogs.c:748
 msgid "Select among possible transactions..."
-msgstr ""
+msgstr "Επιλογή μεταξύ πιθανών συναλλαγών..."
 
 #: ../src/ui-dialogs.c:784
 msgid "Select an action:"
-msgstr ""
+msgstr "Επιλογή ενέργειας:"
 
 #: ../src/ui-dialogs.c:788
 msgid "create a new transaction"
-msgstr ""
+msgstr "δημιουργία νέας συναλλαγής"
 
 #: ../src/ui-dialogs.c:791
 msgid "select an existing transaction"
-msgstr ""
+msgstr "επιλογή ήδη υπάρχουσας συναλλαγής"
 
 #: ../src/ui-dialogs.c:796
 msgid ""
@@ -2601,15 +2591,15 @@ msgstr ""
 
 #: ../src/ui-filter.c:52
 msgid "Any Type"
-msgstr ""
+msgstr "Οποιοσδήποτε Τύπος"
 
 #: ../src/ui-filter.c:57
 msgid "Uncategorized"
-msgstr ""
+msgstr "Χωρίς Κατηγορία"
 
 #: ../src/ui-filter.c:58
 msgid "Unreconciled"
-msgstr ""
+msgstr "Μη συμφωνημένα"
 
 #: ../src/ui-filter.c:59
 msgid "Uncleared"
@@ -2617,43 +2607,39 @@ msgstr ""
 
 #: ../src/ui-filter.c:60 ../src/ui-transaction.c:59
 msgid "Reconciled"
-msgstr ""
+msgstr "Συμφωνημένο"
 
 #: ../src/ui-filter.c:61 ../src/ui-transaction.c:58
 msgid "Cleared"
-msgstr ""
+msgstr "Καθαρίστηκε"
 
 #: ../src/ui-filter.c:63
 msgid "Any Status"
-msgstr ""
+msgstr "Οποιαδήποτε κατάσταση"
 
 #: ../src/ui-filter.c:68
-#, fuzzy
 msgid "This month"
-msgstr "Όλοι οι μήνες"
+msgstr "Αυτόν το μήνα"
 
 #: ../src/ui-filter.c:69
-#, fuzzy
 msgid "Last month"
-msgstr "Τελευταίοι 12 μήνες"
+msgstr "Τον προηγούμενο μήνα"
 
 #: ../src/ui-filter.c:70
-#, fuzzy
 msgid "This quarter"
-msgstr "Τρίμηνο"
+msgstr "Αυτό το τρίμηνο"
 
 #: ../src/ui-filter.c:71
-#, fuzzy
 msgid "Last quarter"
-msgstr "Τρίμηνο"
+msgstr "Το τελευταίο τρίμηνο"
 
 #: ../src/ui-filter.c:72
 msgid "This year"
-msgstr ""
+msgstr "Αυτό το έτος"
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
-msgstr ""
+msgstr "Το προηγούμενο έτος"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2661,11 +2647,11 @@ msgstr "Τελευταίες 30 ημέρες"
 
 #: ../src/ui-filter.c:76
 msgid "Last 60 days"
-msgstr ""
+msgstr "Τις τελευταίες 60 ημέρες"
 
 #: ../src/ui-filter.c:77
 msgid "Last 90 days"
-msgstr ""
+msgstr "Τις τελευταίες 90 ημέρες"
 
 #: ../src/ui-filter.c:78
 msgid "Last 12 months"
@@ -2673,7 +2659,7 @@ msgstr "Τελευταίοι 12 μήνες"
 
 #: ../src/ui-filter.c:80
 msgid "Other..."
-msgstr ""
+msgstr "Άλλο..."
 
 #: ../src/ui-filter.c:82
 msgid "All date"
@@ -2704,7 +2690,7 @@ msgstr "Αντιστροφή"
 
 #: ../src/ui-filter.c:949
 msgid "Filter Date"
-msgstr ""
+msgstr "Φίλτρο Ημερομηνίας"
 
 #: ../src/ui-filter.c:976
 msgid "_Month:"
@@ -2716,7 +2702,7 @@ msgstr "_Έτος:"
 
 #: ../src/ui-filter.c:1003
 msgid "Filter Text"
-msgstr ""
+msgstr "Φίλτρο Κειμένου"
 
 #: ../src/ui-filter.c:1016
 msgid "Case _sensitive"
@@ -2736,11 +2722,11 @@ msgstr ""
 
 #: ../src/ui-filter.c:1121
 msgid "reconciled"
-msgstr ""
+msgstr "συμφωνημένο"
 
 #: ../src/ui-filter.c:1125
 msgid "cleared"
-msgstr ""
+msgstr "καθαρισμός"
 
 #: ../src/ui-filter.c:1130
 msgid "Force:"
@@ -2769,19 +2755,19 @@ msgstr "Επεξεργασία φίλτρου"
 #. clear button
 #: ../src/ui-filter.c:1268 ../src/ui-pref.c:1998
 msgid "_Reset"
-msgstr ""
+msgstr "_Επαναφορά"
 
 #: ../src/ui-filter.c:1312
 msgid "Payment"
-msgstr ""
+msgstr "Πληρωμή"
 
 #: ../src/ui-hbfile.c:239
 msgid "Scheduled transaction"
-msgstr ""
+msgstr "Προγραμματισμένη συναλλαγή"
 
 #: ../src/ui-hbfile.c:243
 msgid "add until"
-msgstr ""
+msgstr "προσθήκη έως"
 
 #: ../src/ui-hbfile.c:251
 msgid "of each month (excluded)"
@@ -2789,7 +2775,7 @@ msgstr ""
 
 #: ../src/ui-hbfile.c:256
 msgid "add"
-msgstr ""
+msgstr "προσθήκη"
 
 #. TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
 #: ../src/ui-hbfile.c:265 ../src/ui-pref.c:1592
@@ -2797,9 +2783,8 @@ msgid "days in advance the current date"
 msgstr ""
 
 #: ../src/ui-payee.c:705
-#, fuzzy
 msgid "Default category"
-msgstr "Υποκατηγορία"
+msgstr "Προκαθορισμένη κατηγορία"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2813,7 +2798,7 @@ msgstr ""
 
 #: ../src/ui-payee.c:909
 msgid "Default"
-msgstr ""
+msgstr "Προεπιλογή"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2866,11 +2851,11 @@ msgstr "Μορφή εμφάνισης"
 
 #: ../src/ui-pref.c:90
 msgid "Import/Export"
-msgstr ""
+msgstr "Εισαγωγή / Εξαγωγή"
 
 #: ../src/ui-pref.c:91
 msgid "Report"
-msgstr ""
+msgstr "Αναφορά"
 
 #: ../src/ui-pref.c:97
 msgid "System defaults"
@@ -2894,15 +2879,15 @@ msgstr "Κείμενο δίπλα από τα εικονίδια"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "Οριζόντιος"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "Κάθετος"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Και τα δύο"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -2918,15 +2903,15 @@ msgstr "Tango σκούρο"
 
 #: ../src/ui-pref.c:123
 msgid "m-d-y"
-msgstr ""
+msgstr "μήνας-ημέρα-έτος"
 
 #: ../src/ui-pref.c:124
 msgid "d-m-y"
-msgstr ""
+msgstr "ημέρα-μήνας-έτος"
 
 #: ../src/ui-pref.c:125
 msgid "y-m-d"
-msgstr ""
+msgstr "έτος-μήνας-ημέρα"
 
 #: ../src/ui-pref.c:136
 msgid "Ignore"
@@ -2942,7 +2927,7 @@ msgstr ""
 
 #: ../src/ui-pref.c:504
 msgid "System Language"
-msgstr ""
+msgstr "Γλώσσα συστήματος"
 
 #: ../src/ui-pref.c:629
 msgid "Choose a default HomeBank files folder"
@@ -2958,15 +2943,15 @@ msgstr ""
 
 #: ../src/ui-pref.c:1122
 msgid "Date options"
-msgstr ""
+msgstr "Επιλογές ημερομηνίας"
 
 #: ../src/ui-pref.c:1126
 msgid "Date order:"
-msgstr ""
+msgstr "Διάταξη ως προς την ημερομηνία:"
 
 #: ../src/ui-pref.c:1141
 msgid "OFX/QFX options"
-msgstr ""
+msgstr "επιλογές OFX/QFX"
 
 #: ../src/ui-pref.c:1145
 msgid "_Memo field:"
@@ -2974,7 +2959,7 @@ msgstr ""
 
 #: ../src/ui-pref.c:1160 ../src/ui-pref.c:1830
 msgid "Files folder"
-msgstr ""
+msgstr "Φάκελος αρχείων"
 
 #: ../src/ui-pref.c:1164
 msgid "_Import:"
@@ -2986,15 +2971,15 @@ msgstr "_Εξαγωγή:"
 
 #: ../src/ui-pref.c:1254
 msgid "Initial filter"
-msgstr ""
+msgstr "Αρχικό φίλτρο"
 
 #: ../src/ui-pref.c:1258 ../src/ui-pref.c:1575 ../src/ui-pref.c:1818
 msgid "Date _range:"
-msgstr ""
+msgstr "Εύρος_ημερομηνίας:"
 
 #: ../src/ui-pref.c:1272
 msgid "Charts options"
-msgstr ""
+msgstr "Επιλογές γραφημάτων"
 
 #: ../src/ui-pref.c:1276
 msgid "Color scheme:"
@@ -3002,7 +2987,7 @@ msgstr ""
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
-msgstr ""
+msgstr "Επιλογές στατιστικών"
 
 #: ../src/ui-pref.c:1302
 msgid "Show by _amount"
@@ -3018,7 +3003,7 @@ msgstr "Εμφάνιση _λεπτομερειών"
 
 #: ../src/ui-pref.c:1322
 msgid "Budget options"
-msgstr ""
+msgstr "Επιλογές budget"
 
 #: ../src/ui-pref.c:1354
 msgid "_Enable"
@@ -3030,9 +3015,8 @@ msgid "_Preset:"
 msgstr "_Προκαθορισμένο:"
 
 #: ../src/ui-pref.c:1498
-#, fuzzy
 msgid "_Format:"
-msgstr "_Για:"
+msgstr "_Μορφοποίηση:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3056,39 +3040,39 @@ msgstr ""
 
 #: ../src/ui-pref.c:1538
 msgid "Measurement units"
-msgstr ""
+msgstr "Μονάδες μέτρησης"
 
 #: ../src/ui-pref.c:1542
 msgid "Use _miles for meter"
-msgstr ""
+msgstr "Χρησιμοποίησε _μίλια αντί μέτρων"
 
 #: ../src/ui-pref.c:1547
 msgid "Use _gallon for fuel"
-msgstr ""
+msgstr "Χρησιμοποίησε _γαλόνια για καύσιμα"
 
 #: ../src/ui-pref.c:1571
 msgid "Transaction window"
-msgstr ""
+msgstr "Παράθυρο συναλλαγής"
 
 #: ../src/ui-pref.c:1583
 msgid "_Show:"
-msgstr ""
+msgstr "_Εμφάνιση:"
 
 #: ../src/ui-pref.c:1596
 msgid "Hide reconciled transactions"
-msgstr ""
+msgstr "Κρύψε συμφωνημένες συναλλαγές"
 
 #: ../src/ui-pref.c:1601
 msgid "Always show remind transactions"
-msgstr ""
+msgstr "Εμφάνιση πάντα υπομνήσεων συναλλαγών"
 
 #: ../src/ui-pref.c:1611
 msgid "Multiple add"
-msgstr ""
+msgstr "Πολλαπλή προσθήκη"
 
 #: ../src/ui-pref.c:1615
 msgid "Keep the last date"
-msgstr ""
+msgstr "Κράτα την τελευταία ημερομηνία"
 
 #: ../src/ui-pref.c:1625
 msgid "Column list"
@@ -3100,7 +3084,7 @@ msgstr "Σύρετε για να αλλάξετε την σειρά"
 
 #: ../src/ui-pref.c:1665
 msgid "_Language:"
-msgstr ""
+msgstr "_Γλώσσα:"
 
 #: ../src/ui-pref.c:1672
 msgid "_Toolbar:"
@@ -3110,11 +3094,11 @@ msgstr "_Εργαλειοθήκη:"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1682
 msgid "_Grid line:"
-msgstr ""
+msgstr "_Γραμμή πλέγματος:"
 
 #: ../src/ui-pref.c:1694
 msgid "Amount colors"
-msgstr ""
+msgstr "Ποσό χρωμάτων"
 
 #: ../src/ui-pref.c:1698
 msgid "Uses custom colors"
@@ -3134,7 +3118,7 @@ msgstr "_Προειδοποίηση:"
 
 #: ../src/ui-pref.c:1762
 msgid "Program start"
-msgstr ""
+msgstr "Έναρξη προγράμματος"
 
 #: ../src/ui-pref.c:1766
 msgid "Show splash screen"
@@ -3146,11 +3130,11 @@ msgstr "Φόρτωση τελευταίου ανοιγμένου αρχείου"
 
 #: ../src/ui-pref.c:1781
 msgid "Update currencies online"
-msgstr ""
+msgstr "Ενημέρωση νομισμάτων/ισοτιμιών online"
 
 #: ../src/ui-pref.c:1791
 msgid "Fiscal year"
-msgstr ""
+msgstr "Λογιστικό έτος"
 
 #. TRANSLATORS: (fiscal year) starts on
 #: ../src/ui-pref.c:1796
@@ -3159,25 +3143,27 @@ msgstr ""
 
 #: ../src/ui-pref.c:1814
 msgid "Main window reports"
-msgstr ""
+msgstr "Αναφορές κυρίου παραθύρου"
 
 #: ../src/ui-pref.c:1834
 msgid "_Default:"
-msgstr ""
+msgstr "_Προεπιλογή:"
 
 #: ../src/ui-pref.c:1939
 msgid "Reset all preferences"
-msgstr ""
+msgstr "Επαναφορά όλων των επιλογών"
 
 #: ../src/ui-pref.c:1940
 msgid ""
 "Do you really want to reset all\n"
 "preferences to default values?"
 msgstr ""
+"Θέλετε να γίνει επαναφορά όλων των \n"
+"επιλογών στις προκαθορισμένες τους τιμές;"
 
 #: ../src/ui-pref.c:1941
 msgid "Reset"
-msgstr ""
+msgstr "Επαναφορά"
 
 #: ../src/ui-pref.c:1959
 msgid "Preferences"
@@ -3188,17 +3174,19 @@ msgid ""
 "You will have to restart HomeBank\n"
 "for the language change to take effect."
 msgstr ""
+"Θα πρέπει να επανεκκινήσετε το HomeBank\n"
+"για να λάβουν χώρα οι αλλαγές στην γλώσσα."
 
 #: ../src/ui-split.c:374
 msgid "_Remove"
-msgstr ""
+msgstr "_Απομάκρυνση"
 
 #. sum button must appear only when new split add
 #. #1258821
 #. if(data.splittype == TXN_SPLIT_NEW)
 #: ../src/ui-split.c:379
 msgid "Sum"
-msgstr ""
+msgstr "Σύνολο"
 
 #: ../src/ui-split.c:464
 msgid "Sum of splits:"
@@ -3206,11 +3194,11 @@ msgstr ""
 
 #: ../src/ui-split.c:475
 msgid "Unassigned:"
-msgstr ""
+msgstr "Δεν έχει ανατεθεί:"
 
 #: ../src/ui-split.c:490
 msgid "Transaction amount:"
-msgstr ""
+msgstr "Ποσό συναλλαγής:"
 
 #: ../src/ui-transaction.c:50
 msgid "Add transaction"
@@ -3226,15 +3214,15 @@ msgstr "Μεταβολή συναλλαγής"
 
 #: ../src/ui-transaction.c:60
 msgid "Remind"
-msgstr ""
+msgstr "Υπενθύμιση"
 
 #: ../src/ui-transaction.c:558
 msgid "From acc_ount:"
-msgstr ""
+msgstr "Από λογαριασμό:"
 
 #: ../src/ui-transaction.c:562 ../src/ui-transaction.c:987
 msgid "To acc_ount:"
-msgstr ""
+msgstr "Στον λογαριασμό:"
 
 #: ../src/ui-transaction.c:642
 msgid ""
@@ -3248,11 +3236,11 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Αναζήτηση..."
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
-msgstr ""
+msgstr "Δείξε _προγραμματισμένο"
 
 #: ../src/ui-transaction.c:930
 msgid "_Date:"
@@ -3340,61 +3328,3 @@ msgstr "Συμπερίληψη"
 #: ../src/ui-widgets.c:939
 msgid "Exclude"
 msgstr "Εξαίρεση"
-
-#~ msgid "_Account"
-#~ msgstr "_Λογαριασμός"
-
-#~ msgid "_Account:"
-#~ msgstr "_Λογαριασμός:"
-
-#~ msgid ""
-#~ "The csv file must contains the exact numbers of column,\n"
-#~ "separated by a semi-colon, read the help for more details."
-#~ msgstr ""
-#~ "Το αρχείο CSV πρέπει να περιέχει τους ακριβείς αριθμούς στηλών,\n"
-#~ "χωρισμένους με ελληνικό ερωτηματικό, διαβάστε τη βοήθεια για περισσότερες "
-#~ "πληροφορίες."
-
-#~ msgid "transaction auto assigned: %d"
-#~ msgstr "Αυτόματη ανάθεση συνναλαγής: %d"
-
-#~ msgid "I/O error for file %s."
-#~ msgstr "I/O  σφάλμα για το αρχείο%s."
-
-#~ msgid "_Minor currency"
-#~ msgstr "_Δευτερεύον νόμισμα"
-
-#~ msgid "Minor currency"
-#~ msgstr "Δευτερεύουσα μονάδα"
-
-#~ msgid "_Actions"
-#~ msgstr "_Ενέργειες"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Category"
-#~ msgstr ""
-#~ "Αυτόματη συμπλήρωση και η άμεση κατάσχεση\n"
-#~ "είναι διαθέσιμο για Κατηγορια"
-
-#~ msgid ""
-#~ "Autocompletion and direct seizure\n"
-#~ "is available for Payee"
-#~ msgstr ""
-#~ "Αυτόματη συμπλήρωση και η άμεση κατάσχεση\n"
-#~ "είναι διαθέσιμο για Δικαιούχου"
-
-#~ msgid "Owner:"
-#~ msgstr "Ιδιοκτήτης:"
-
-#~ msgid "Fill from:"
-#~ msgstr "Συμπλήρωση από:"
-
-#~ msgid "Country:"
-#~ msgstr "Χώρα:"
-
-#~ msgid "Value:"
-#~ msgstr "Αξία:"
-
-#~ msgid "_Date format:"
-#~ msgstr "_Μορφή ημερομηνίας:"

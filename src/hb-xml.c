@@ -936,7 +936,7 @@ gboolean rc;
 			}
 			if( ctx.file_version <= 1.1 )	// <= 5.1.0 
 			{
-				//hbfile_sanity_check();
+				hbfile_sanity_check();
 				homebank_upgrade_to_v12();
 			}
 
