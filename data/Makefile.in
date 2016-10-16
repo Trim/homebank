@@ -341,7 +341,7 @@ appdatadir = $(datadir)/appdata
 appdata_in_files = homebank.appdata.xml.in
 appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 EXTRA_DIST = \
-	$(desktop_in_files) \
+	homebank.desktop.in.in \
 	$(appdata_in_files)
 
 CLEANFILES = \
