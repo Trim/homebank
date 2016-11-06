@@ -342,15 +342,18 @@ gint active;
 
 		active = radio_get_active (GTK_CONTAINER(data->RA_pay));
 		if(active == 1) item->flags |= ASGF_DOPAY;
-		else if(active == 2) item->flags |= ASGF_OVWPAY;
+		else 
+			if(active == 2) item->flags |= ASGF_OVWPAY;
 		
 		active = radio_get_active (GTK_CONTAINER(data->RA_cat));
 		if(active == 1) item->flags |= ASGF_DOCAT;
-		else if(active == 2) item->flags |= ASGF_OVWCAT;
+		else 
+			if(active == 2) item->flags |= ASGF_OVWCAT;
 		
 		active = radio_get_active (GTK_CONTAINER(data->RA_mod));
 		if(active == 1) item->flags |= ASGF_DOMOD;
-		else if(active == 2) item->flags |= ASGF_OVWMOD;
+		else 
+			if(active == 2) item->flags |= ASGF_OVWMOD;
 
 		item->kcat    = ui_cat_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_cat));
 		item->kpay    = ui_pay_comboboxentry_get_key_add_new(GTK_COMBO_BOX(data->PO_pay));

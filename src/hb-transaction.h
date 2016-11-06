@@ -105,6 +105,8 @@ guint da_transaction_length(void);
 void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
 
+gboolean transaction_acc_move(Transaction *txn, guint32 okacc, guint32 nkacc);
+
 Transaction *transaction_xfer_child_strong_get(Transaction *src);
 void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);

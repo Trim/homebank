@@ -717,9 +717,9 @@ gchar label[128];
 	gtk_label_set_text_with_mnemonic (GTK_LABEL(data->LB_rate), label);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_rate), cur->rate);
 
-	da_cur_initformat(base);
-	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), base->format, HB_NUMBER_SAMPLE);
-	hb_str_formatd(label, 127, formatd_buf, base, TRUE);
+	da_cur_initformat(cur);
+	g_ascii_formatd(formatd_buf, sizeof (formatd_buf), cur->format, HB_NUMBER_SAMPLE);
+	hb_str_formatd(label, 127, formatd_buf, cur, TRUE);
 	gtk_label_set_text (GTK_LABEL(data->LB_sample), label);
 
 	ui_gtk_entry_set_text(data->ST_symbol, cur->symbol);

@@ -17,7 +17,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "homebank.h"
+
 #include "hb-preferences.h"
 #include "hb-filter.h"
 #include "gtk-chart-colors.h"

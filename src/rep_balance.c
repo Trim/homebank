@@ -300,16 +300,23 @@ Account *acc;
 	guint32 acckey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 
 	DB( g_print(" acc key = %d\n", acckey) );
+
 	acc = da_acc_get(acckey);
-	gboolean minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
+	// 1635857 
+	if( acc != NULL )
+	{
+		gboolean minor = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor));
 
-	hb_strfmon(buf, 127, data->minimum, selectall ? GLOBALS->kcur : acc->kcur, minor);
+		hb_strfmon(buf, 127, data->minimum, selectall ? GLOBALS->kcur : acc->kcur, minor);
 
-	////TRANSLATORS: count of transaction in balancedrawn / count of total transaction under abalancedrawn amount threshold
-	info = g_strdup_printf(_("%d/%d under %s"), data->nbbalance, data->nbope, buf);
-	gtk_label_set_text(GTK_LABEL(data->TX_info), info);
-	g_free(info);
+		////TRANSLATORS: count of transaction in balancedrawn / count of total transaction under abalancedrawn amount threshold
+		info = g_strdup_printf(_("%d/%d under %s"), data->nbbalance, data->nbope, buf);
+		gtk_label_set_text(GTK_LABEL(data->TX_info), info);
+		g_free(info);
+	}
+	
 }
+
 
 static void repbalance_detail(GtkWidget *widget, gpointer user_data)
 {
@@ -433,6 +440,7 @@ struct repbalance_data *data;
 		gtk_widget_hide(data->GR_detail);
 }
 
+
 static void repbalance_toggle_detail(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
@@ -446,6 +454,7 @@ struct repbalance_data *data;
 	repbalance_update_detail(widget, user_data);
 
 }
+
 
 static void repbalance_zoomx_callback(GtkWidget *widget, gpointer user_data)
 {
@@ -518,37 +527,39 @@ GList *list;
 			{
 			Account *acc = da_acc_get(ope->kacc);
 
-				pos = ope->date - data->filter->mindate;
-
-				// deal with account initial balance
-				if(accounts[ope->kacc] == 0)
+				if( acc != NULL )
 				{
-					if(selectall)
-						trn_amount = hb_amount_base(acc->initial, acc->kcur);
-					else
-						trn_amount = acc->initial;
+					pos = ope->date - data->filter->mindate;
 
+					// deal with account initial balance
+					if(accounts[ope->kacc] == 0)
+					{
+						if(selectall)
+							trn_amount = hb_amount_base(acc->initial, acc->kcur);
+						else
+							trn_amount = acc->initial;
+
+						if(trn_amount < 0)
+							data->tmp_expense[pos] += trn_amount;
+						else
+							data->tmp_income[pos] += trn_amount;
+
+						DB( g_print(" - stored initial %.2f for account %d\n", trn_amount, ope->kacc) );
+
+						accounts[ope->kacc] = 1;
+					}
+
+					if(selectall)
+						trn_amount = hb_amount_base(ope->amount, acc->kcur);
+					else
+						trn_amount = ope->amount;
+
+					//deal with transactions
 					if(trn_amount < 0)
 						data->tmp_expense[pos] += trn_amount;
 					else
 						data->tmp_income[pos] += trn_amount;
-
-					DB( g_print(" - stored initial %.2f for account %d\n", trn_amount, ope->kacc) );
-
-					accounts[ope->kacc] = 1;
 				}
-
-				if(selectall)
-					trn_amount = hb_amount_base(ope->amount, acc->kcur);
-				else
-					trn_amount = ope->amount;
-
-				//deal with transactions
-				if(trn_amount < 0)
-					data->tmp_expense[pos] += trn_amount;
-				else
-					data->tmp_income[pos] += trn_amount;
-
 			}
 
 			list = g_list_next(list);
@@ -711,11 +722,6 @@ gboolean selectall;
 }
 
 
-
-
-/*
-**
-*/
 static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 {
 	DB( g_print("(repbalance) setup\n") );
@@ -743,11 +749,6 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 }
 
 
-
-
-/*
-**
-*/
 static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
 struct repbalance_data *data = user_data;

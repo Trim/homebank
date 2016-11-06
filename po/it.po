@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-06-19 14:04+0000\n"
-"Last-Translator: Michele Giannelli <jockerfox@gmail.com>\n"
+"PO-Revision-Date: 2016-11-02 16:53+0000\n"
+"Last-Translator: Silverblade655 <Unknown>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
-"X-Generator: Launchpad (build 18232)\n"
+"X-Launchpad-Export-Date: 2016-11-06 07:52+0000\n"
+"X-Generator: Launchpad (build 18246)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -105,7 +105,7 @@ msgstr "_Categoria:"
 
 #: ../src/dsp_account.c:434 ../src/ui-transaction.c:1030
 msgid "Ta_gs:"
-msgstr "E_ttichette:"
+msgstr "E_tichette"
 
 #: ../src/dsp_account.c:450 ../src/ui-transaction.c:1022
 msgid "M_emo:"
@@ -117,7 +117,7 @@ msgstr ""
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Nessuna incoerenza trovata!"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -136,6 +136,8 @@ msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
+"Sei sicuro di voler convertire questo conto\n"
+"in Euro come valuta principale?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -206,7 +208,7 @@ msgstr "%d elementi (%d selezionati %s)"
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
 msgid "A_ccount"
-msgstr ""
+msgstr "_Conto"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -244,7 +246,7 @@ msgstr "Apri elenco filtri"
 
 #: ../src/dsp_account.c:2166
 msgid "Convert to Euro..."
-msgstr ""
+msgstr "Converti in Euro..."
 
 #: ../src/dsp_account.c:2166
 msgid "Convert this account to Euro currency"
@@ -397,7 +399,7 @@ msgstr "_Stato:"
 
 #: ../src/dsp_account.c:2430
 msgid "Reset _filters"
-msgstr ""
+msgstr "Cancella _filtri"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -484,11 +486,11 @@ msgstr "Salva il file attuale"
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save _As..."
-msgstr ""
+msgstr "S_alva con nome..."
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
-msgstr "Salva il file attuale con un diverso nome"
+msgstr "Salva il file attuale con un nome diverso"
 
 #: ../src/dsp_mainwindow.c:177
 msgid "Revert"
@@ -500,7 +502,7 @@ msgstr "Ripristina una versione salvata di questo file"
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Properties..."
-msgstr ""
+msgstr "Proprietà..."
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -516,7 +518,7 @@ msgstr "_Esci"
 
 #: ../src/dsp_mainwindow.c:181
 msgid "Quit HomeBank"
-msgstr ""
+msgstr "Esci da HomeBank"
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -556,11 +558,11 @@ msgstr ""
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
 msgid "Currencies..."
-msgstr ""
+msgstr "Valuta..."
 
 #: ../src/dsp_mainwindow.c:194
 msgid "Configure the currencies"
-msgstr ""
+msgstr "Configura le valute"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -980,7 +982,7 @@ msgstr "(nuovo modello)"
 
 #: ../src/hb-category.c:979
 msgid "invalid CSV format"
-msgstr ""
+msgstr "formato CSV invalido"
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1258,7 +1260,7 @@ msgstr " su"
 
 #: ../src/rep_budget.c:833
 msgid " left"
-msgstr " sinistra"
+msgstr " rimasti"
 
 #: ../src/rep_budget.c:835
 msgid " under"
@@ -1326,12 +1328,12 @@ msgstr "Modifica filtro"
 #. name, icon-name
 #: ../src/rep_stats.c:85
 msgid "Legend"
-msgstr "Leggenda"
+msgstr "Legenda"
 
 #. label, accelerator
 #: ../src/rep_stats.c:86
 msgid "Toggle legend"
-msgstr "Imposta leggenda"
+msgstr "Mostra/nascondi legenda"
 
 #. is_active
 #. name, icon-name
@@ -1715,7 +1717,7 @@ msgstr "Generale"
 
 #: ../src/ui-account.c:1282
 msgid "_Currency:"
-msgstr ""
+msgstr "_Valuta:"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1723,7 +1725,7 @@ msgstr "Saldo _iniziale"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Note:"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
@@ -1764,7 +1766,7 @@ msgstr ""
 
 #: ../src/ui-account.c:1385
 msgid "_Overdraft at:"
-msgstr ""
+msgstr "Sc_operto a:"
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1784,11 +1786,11 @@ msgstr "escludi da tutti i _resoconti"
 
 #: ../src/ui-archive.c:47
 msgid "Scheduled"
-msgstr ""
+msgstr "Pianificato"
 
 #: ../src/ui-archive.c:48
 msgid "Template"
-msgstr ""
+msgstr "Modello"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1886,15 +1888,15 @@ msgstr "Se elimini un'assegnazione, sarà persa in modo definitivo."
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Disabilitato"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
-msgstr ""
+msgstr "Se vuoto"
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Sovrascrivi"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1906,12 +1908,12 @@ msgstr "Condizione"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Cerca _in:"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "Tr_ova:"
 
 #: ../src/ui-assign.c:811
 msgid "Match _case"
@@ -1919,19 +1921,19 @@ msgstr ""
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
-msgstr ""
+msgstr "Usa espressioni _regolari"
 
 #: ../src/ui-assign.c:831
 msgid "Assign payee"
-msgstr ""
+msgstr "Assegna beneficiario"
 
 #: ../src/ui-assign.c:860
 msgid "Assign category"
-msgstr ""
+msgstr "Assegna categoria"
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
-msgstr ""
+msgstr "Assegna pagamento"
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1940,7 +1942,7 @@ msgstr "Nuovo file HomeBank (%d di %d)"
 
 #: ../src/ui-assist-start.c:160
 msgid "Not found"
-msgstr "Non trovata"
+msgstr "Non trovato"
 
 #: ../src/ui-assist-start.c:252 ../src/ui-hbfile.c:226
 msgid "_Owner:"
@@ -1948,7 +1950,7 @@ msgstr "_Proprietario:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
 msgid "Currency:"
-msgstr ""
+msgstr "Valuta:"
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2104,7 +2106,7 @@ msgstr "conto: %d - transazione: %d - beneficiario: %d - categoria: %d"
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
-msgstr ""
+msgstr "Alcune conversioni di data fallite"
 
 #: ../src/ui-assist-import.c:1348
 #, c-format
@@ -2277,7 +2279,7 @@ msgstr "Sei sicuro di voler pulire l'inserimento?"
 
 #: ../src/ui-budget.c:695
 msgid "If you proceed, every amount will be set to 0."
-msgstr "Se procedi, ogni conto sarà impostato a 0."
+msgstr ""
 
 #: ../src/ui-budget.c:701
 msgid "_Clear"
@@ -2326,21 +2328,23 @@ msgstr "_Forza il monitoraggio di questa categoria"
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
-msgstr ""
+msgstr "Uso"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
-msgstr ""
+msgstr "Elimina categorie inutilizzate"
 
 #: ../src/ui-category.c:1123
 msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
+"Sei sicuro di eliminare definitivamente\n"
+"le categorie inutilizzate?"
 
 #: ../src/ui-category.c:1301 ../src/ui-payee.c:868
 msgid "Edit..."
@@ -2398,7 +2402,7 @@ msgstr "Gestione Categorie"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "_Elimina inutilizzate"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
@@ -2414,15 +2418,15 @@ msgstr "_Unisci"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
 msgid "Base currency"
-msgstr ""
+msgstr "Valuta base"
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
-msgstr ""
+msgstr "Simbolo"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
-msgstr ""
+msgstr "Tasso di cambio"
 
 #: ../src/ui-currency.c:653
 msgid "Last modfied"
@@ -2430,23 +2434,23 @@ msgstr ""
 
 #: ../src/ui-currency.c:772
 msgid "Edit currency"
-msgstr ""
+msgstr "Modifica valuta"
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
 msgid "Currency"
-msgstr ""
+msgstr "Valuta"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Formato"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
 msgid "_Customize"
-msgstr ""
+msgstr "_Personalizza"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
 msgid "_Symbol:"
-msgstr ""
+msgstr "_Simbolo:"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
@@ -2466,11 +2470,11 @@ msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Seleziona valuta base"
 
 #: ../src/ui-currency.c:1040
 msgid "Select currency"
-msgstr ""
+msgstr "Seleziona valuta"
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2482,29 +2486,31 @@ msgstr ""
 
 #: ../src/ui-currency.c:1301
 msgid "If you delete a currency, it will be permanently lost."
-msgstr ""
+msgstr "Se elimini una valuta, sarà persa definitivamente."
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Cambia la valuta base"
 
 #: ../src/ui-currency.c:1346
 msgid ""
 "If you proceed, rates of other currencies\n"
 "will be set to 0, don't forget to update it"
 msgstr ""
+"Se procedi, i tassi delle altre valute\n"
+"saranno impostati a 0, non dimenticare di aggiornare"
 
 #: ../src/ui-currency.c:1461
 msgid "Currencies"
-msgstr ""
+msgstr "Valute"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
-msgstr ""
+msgstr "Aggiorna online"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
-msgstr ""
+msgstr "Imposta come principale"
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
@@ -2520,13 +2526,15 @@ msgstr ""
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Seleziona una valuta principale"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
 "Starting v5.1, HomeBank can manage several currencies\n"
 "if the currency below is not correct, please change it:"
 msgstr ""
+"A partire dalla v5.1, HomeBank può gestire molte valute\n"
+"se la valuta sotto sono è corretta, per favore cambiala:"
 
 #: ../src/ui-dialogs.c:475
 msgid "Import from CSV"
@@ -2534,11 +2542,11 @@ msgstr "Importa da CSV"
 
 #: ../src/ui-dialogs.c:537
 msgid "Open HomeBank file"
-msgstr ""
+msgstr "Apri un file HomeBank"
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
-msgstr ""
+msgstr "Salva un file HomeBank come"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2615,27 +2623,27 @@ msgstr "Qualsiasi stato"
 
 #: ../src/ui-filter.c:68
 msgid "This month"
-msgstr ""
+msgstr "Questo mese"
 
 #: ../src/ui-filter.c:69
 msgid "Last month"
-msgstr ""
+msgstr "Scorso mese"
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
-msgstr ""
+msgstr "Questo trimestre"
 
 #: ../src/ui-filter.c:71
 msgid "Last quarter"
-msgstr ""
+msgstr "Scorso trimestre"
 
 #: ../src/ui-filter.c:72
 msgid "This year"
-msgstr ""
+msgstr "Quest'anno"
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
-msgstr ""
+msgstr "Scorso anno"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2780,21 +2788,23 @@ msgstr "giorni in anticipo rispetto ad oggi"
 
 #: ../src/ui-payee.c:705
 msgid "Default category"
-msgstr ""
+msgstr "Categoria predefinita"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
-msgstr ""
+msgstr "Elimina beneficiari inutilizzati"
 
 #: ../src/ui-payee.c:744
 msgid ""
 "Are you sure you want to\n"
 "permanently delete unused payee?"
 msgstr ""
+"Sei sicuro di voler eliminare\n"
+"definitivamente i beneficiari inutilizzati?"
 
 #: ../src/ui-payee.c:909
 msgid "Default"
-msgstr ""
+msgstr "Predefinito"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2880,15 +2890,15 @@ msgstr "Testo accanto alle icone"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "Orizzontale"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "Verticale"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Entrambi"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -2984,7 +2994,7 @@ msgstr "Opzioni Grafici"
 
 #: ../src/ui-pref.c:1276
 msgid "Color scheme:"
-msgstr ""
+msgstr "Schema di colori:"
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3017,7 +3027,7 @@ msgstr "_Predefinito:"
 
 #: ../src/ui-pref.c:1498
 msgid "_Format:"
-msgstr ""
+msgstr "_Formato:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3111,7 +3121,7 @@ msgstr "_Barra degli strumenti:"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1682
 msgid "_Grid line:"
-msgstr ""
+msgstr "_Griglia:"
 
 #: ../src/ui-pref.c:1694
 msgid "Amount colors"
@@ -3147,7 +3157,7 @@ msgstr "Carica ultimo file aperto"
 
 #: ../src/ui-pref.c:1781
 msgid "Update currencies online"
-msgstr ""
+msgstr "Aggiorna valute online"
 
 #: ../src/ui-pref.c:1791
 msgid "Fiscal year"
@@ -3235,11 +3245,11 @@ msgstr "Promemoria"
 
 #: ../src/ui-transaction.c:558
 msgid "From acc_ount:"
-msgstr ""
+msgstr "Dal _conto:"
 
 #: ../src/ui-transaction.c:562 ../src/ui-transaction.c:987
 msgid "To acc_ount:"
-msgstr "Al c_onto"
+msgstr ""
 
 #: ../src/ui-transaction.c:642
 msgid ""
@@ -3253,11 +3263,11 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Cerca..."
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
-msgstr ""
+msgstr "Mostra schedulate"
 
 #: ../src/ui-transaction.c:930
 msgid "_Date:"
@@ -3285,7 +3295,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:1105
 msgid "_Add & keep"
-msgstr ""
+msgstr "_Aggiungi e mantieni"
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3293,7 +3303,7 @@ msgstr "Pubblica"
 
 #: ../src/ui-transaction.c:1157
 msgid "Use a _template"
-msgstr ""
+msgstr "Usa un _modello"
 
 #: ../src/ui-transaction.c:1201
 msgid "Warning: amount and category sign don't match"

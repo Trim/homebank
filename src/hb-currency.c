@@ -17,10 +17,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "homebank.h"
+
 #include "hb-currency.h"
 #include <libsoup/soup.h>
 
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif
+
+/****************************************************************************/
+/* Debug macros                                                             */
+/****************************************************************************/
 
 #define MYDEBUG 0
 
@@ -302,6 +311,124 @@ guint i;
 }
 
 
+static void currency_get_system_format(Currency *item)
+{
+	DB( g_printf("\n[(currency] get format from system '%s'\n", item->iso_code) );
+
+
+#ifdef G_OS_UNIX
+
+struct lconv *lc = localeconv();
+
+	DB( g_print("int_curr_symbol '%s'\n", lc->int_curr_symbol) );
+	
+	DB( g_print("mon_decimal_point is utf8: %d\n", g_utf8_validate(lc->mon_decimal_point, -1, NULL)) );
+	DB( g_print("mon_decimal_point '%s'\n", lc->mon_decimal_point) );
+	DB( g_print("mon_decimal_point %x %x %x %x\n", lc->mon_decimal_point[0], lc->mon_decimal_point[1], lc->mon_decimal_point[2], lc->mon_decimal_point[3]) );
+
+	DB( g_print("mon_thousands_sep is utf8: %d\n", g_utf8_validate(lc->mon_thousands_sep, -1, NULL)) );
+	DB( g_print("mon_thousands_sep '%s'\n", lc->mon_thousands_sep) );
+	DB( g_print("mon_thousands_sep %x %x %x %x\n", lc->mon_thousands_sep[0], lc->mon_thousands_sep[1], lc->mon_thousands_sep[2], lc->mon_thousands_sep[3]) );
+
+
+	DB( g_print("frac_digits '%d'\n", (gint)lc->frac_digits) );
+
+	DB( g_print("currency_symbol '%s'\n", lc->currency_symbol) );
+
+	DB( g_print("p_cs_precedes '%d'\n", lc->p_cs_precedes) );
+
+	DB( g_print("n_cs_precedes '%d'\n", lc->n_cs_precedes) );
+
+	/* ok assign */
+	item->symbol = g_strdup(lc->currency_symbol);
+
+	if( lc->p_cs_precedes || lc->n_cs_precedes )
+	{
+		item->sym_prefix  = TRUE;
+		DB( g_print("locale mon cs is a prefix\n") );
+	}
+	else
+	{
+		item->sym_prefix  = FALSE;
+	}
+
+	item->decimal_char = g_strdup(lc->mon_decimal_point);
+
+	item->grouping_char = g_strdup(lc->mon_thousands_sep);
+
+	//todo:fix
+	//PREFS->base_cur.grouping_char = g_locale_to_utf8(lc->mon_thousands_sep, -1, NULL, NULL, NULL);
+	//PREFS->base_cur.grouping_char = g_convert (lc->mon_thousands_sep, -1, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
+
+	DB( g_print(" -> grouping_char: '%s'\n", item->grouping_char) );
+
+	item->frac_digits = lc->frac_digits;
+
+	//fix 378992/421228
+	if( item->frac_digits > MAX_FRAC_DIGIT )
+	{
+		item->frac_digits = 2;
+		g_free(item->decimal_char);
+		item->decimal_char = g_strdup(".");
+	}
+
+#else
+	#ifdef G_OS_WIN32
+    #define BUFFER_SIZE 512
+    char buffer[BUFFER_SIZE];
+    //LPWSTR wcBuffer = buffer;
+    LPSTR wcBuffer = buffer;
+    int iResult;
+
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd464799%28v=vs.85%29.aspx
+
+    //see g_locale_to_utf8 here
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SCURRENCY, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_SCURRENCY='%s'\n", buffer) );
+        item->symbol = g_locale_to_utf8(buffer, -1, NULL, NULL, NULL);
+    }
+
+	item->sym_prefix = FALSE;
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_IPOSSYMPRECEDES, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_IPOSSYMPRECEDES='%s'\n", buffer) );
+		//todo item->sym_prefix
+        
+    }
+
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_SDECIMAL='%s'\n", buffer) );
+        item->decimal_char = g_locale_to_utf8(buffer, -1, NULL, NULL, NULL);
+    }
+
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_STHOUSAND='%s'\n", buffer) );
+        item->grouping_char = g_locale_to_utf8(buffer, -1, NULL, NULL, NULL);
+    }
+
+	iResult = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ICURRDIGITS, wcBuffer, BUFFER_SIZE);
+    if(iResult > 0)
+    {
+        DB( g_print("LOCALE_ICURRDIGITS='%s'\n", buffer) );
+        item->frac_digits = atoi(buffer);
+    }
+	else
+	 	item->frac_digits = 2;
+
+	#endif
+#endif
+
+
+}
+
+
 Currency *currency_add_from_user(Currency4217 *curfmt)
 {
 Currency *item;
@@ -318,11 +445,20 @@ Currency *item;
 		item->name = g_strdup(curfmt->name);
 		//item->country = cur.country_name;
 		item->iso_code = g_strdup(curfmt->curr_iso_code);
-		item->frac_digits = curfmt->curr_frac_digit;
-		item->symbol = g_strdup(curfmt->curr_symbol);
-		item->sym_prefix = curfmt->curr_is_prefix;
-		item->decimal_char = g_strdup(curfmt->curr_dec_char);
-		item->grouping_char = g_strdup(curfmt->curr_grp_char);
+		
+		//1634615 if the currency match the system, fill with it
+		if(!strcmp(item->iso_code, PREFS->IntCurrSymbol))
+		{
+			currency_get_system_format(item);
+		}
+		else
+		{
+			item->frac_digits = curfmt->curr_frac_digit;
+			item->symbol = g_strdup(curfmt->curr_symbol);
+			item->sym_prefix = curfmt->curr_is_prefix;
+			item->decimal_char = g_strdup(curfmt->curr_dec_char);
+			item->grouping_char = g_strdup(curfmt->curr_grp_char);
+		}
 	}
 	else
 	{

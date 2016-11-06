@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: HomeBank 3.2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-08-10 16:01+0000\n"
-"Last-Translator: Alexander Telenga <telenga@gmail.com>\n"
+"PO-Revision-Date: 2016-10-21 21:00+0000\n"
+"Last-Translator: draven <mdmitry072@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
-"X-Generator: Launchpad (build 18232)\n"
+"X-Launchpad-Export-Date: 2016-11-06 07:52+0000\n"
+"X-Generator: Launchpad (build 18246)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -28,7 +28,7 @@ msgstr "Личные финансы"
 #: ../data/homebank.desktop.in.in.h:3 ../src/dsp_mainwindow.c:449
 #: ../src/dsp_mainwindow.c:880
 msgid "Free, easy, personal accounting for everyone"
-msgstr "Бесплатный, простой, личный учёт для каждого"
+msgstr "Бесплатный простой личный учёт для каждого"
 
 #: ../data/homebank.desktop.in.in.h:4
 msgid "finance;accounting;budget;personal;money;"
@@ -117,7 +117,7 @@ msgstr "Проверить результат внутреннего перев�
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Несоответсвия не найдены !"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -125,6 +125,8 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"Найдено несоответствие: %d\n"
+"хотите посмотреть и исправить ?"
 
 #: ../src/dsp_account.c:696
 #, c-format
@@ -148,7 +150,7 @@ msgstr "Операция не была изменена"
 #: ../src/dsp_account.c:733
 #, c-format
 msgid "transaction changed: %d"
-msgstr ""
+msgstr "операция изменилась: %d"
 
 #: ../src/dsp_account.c:736
 msgid "Automatic assignment result"
@@ -206,7 +208,7 @@ msgstr "%d транзакции (выбрано %d, сумма %s)"
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
 msgid "A_ccount"
-msgstr ""
+msgstr "_Учётная запись"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -244,11 +246,11 @@ msgstr "Открыть фильтр списка"
 
 #: ../src/dsp_account.c:2166
 msgid "Convert to Euro..."
-msgstr ""
+msgstr "Перевести в евро..."
 
 #: ../src/dsp_account.c:2166
 msgid "Convert this account to Euro currency"
-msgstr ""
+msgstr "Перевести этот счёт по курсу евро"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -268,11 +270,11 @@ msgstr "Унаследовать от текущей операции"
 
 #: ../src/dsp_account.c:2170
 msgid "_Edit..."
-msgstr "_Правка..."
+msgstr "_Редактировать..."
 
 #: ../src/dsp_account.c:2170
 msgid "Edit the active transaction"
-msgstr "Править текущую операцию"
+msgstr "Редактировать текущую операцию"
 
 #: ../src/dsp_account.c:2172
 msgid "_None"
@@ -300,11 +302,11 @@ msgstr "Переключить \"проверен\" для выбранных о
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
-msgstr ""
+msgstr "_Множественное редактирование..."
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
-msgstr ""
+msgstr "Редактировать множественную операцию"
 
 #: ../src/dsp_account.c:2177
 msgid "Create template..."
@@ -324,11 +326,11 @@ msgstr "Удалить выбранные операции"
 
 #: ../src/dsp_account.c:2180
 msgid "Auto. assignments"
-msgstr ""
+msgstr "Автомат. назначения"
 
 #: ../src/dsp_account.c:2180
 msgid "Run automatic assignments"
-msgstr ""
+msgstr "Выполнить автоматические назначения"
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -397,7 +399,7 @@ msgstr "_Статус:"
 
 #: ../src/dsp_account.c:2430
 msgid "Reset _filters"
-msgstr ""
+msgstr "Сбросить_фильтры"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -484,7 +486,7 @@ msgstr "Сохранить текущий файл"
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save _As..."
-msgstr ""
+msgstr "Сохранить _как..."
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -500,7 +502,7 @@ msgstr "Откатить к сохранённой версии"
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Properties..."
-msgstr ""
+msgstr "Свойства..."
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -516,7 +518,7 @@ msgstr "_Выход"
 
 #: ../src/dsp_mainwindow.c:181
 msgid "Quit HomeBank"
-msgstr ""
+msgstr "Выйти из HomeBank"
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -551,16 +553,16 @@ msgstr "Параметры..."
 
 #: ../src/dsp_mainwindow.c:191
 msgid "Configure HomeBank"
-msgstr ""
+msgstr "Настроить HomeBank"
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
 msgid "Currencies..."
-msgstr ""
+msgstr "Курсы валют..."
 
 #: ../src/dsp_mainwindow.c:194
 msgid "Configure the currencies"
-msgstr ""
+msgstr "Редактировать курсы валют"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -980,7 +982,7 @@ msgstr "(новый шаблон)"
 
 #: ../src/hb-category.c:979
 msgid "invalid CSV format"
-msgstr ""
+msgstr "повреждённый формат CSV"
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1715,7 +1717,7 @@ msgstr "Общие"
 
 #: ../src/ui-account.c:1282
 msgid "_Currency:"
-msgstr ""
+msgstr "_Валюта:"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1723,7 +1725,7 @@ msgstr "Начальный _баланс"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Примечания:"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
@@ -1784,11 +1786,11 @@ msgstr "исключить из всех отчетов"
 
 #: ../src/ui-archive.c:47
 msgid "Scheduled"
-msgstr ""
+msgstr "Запланировано"
 
 #: ../src/ui-archive.c:48
 msgid "Template"
-msgstr ""
+msgstr "Шаблон"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1887,7 +1889,7 @@ msgstr "Если вы сотрёте эту запись, она будет бе
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Отключёно"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
@@ -1895,7 +1897,7 @@ msgstr ""
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Переписать"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1907,7 +1909,7 @@ msgstr "Условие"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Поиск _в:"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
@@ -2325,7 +2327,7 @@ msgstr "Принудительный мониторинг категории"
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
@@ -2333,7 +2335,7 @@ msgstr ""
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
-msgstr ""
+msgstr "Удалить неиспользованные категории"
 
 #: ../src/ui-category.c:1123
 msgid ""
@@ -2397,7 +2399,7 @@ msgstr "Управление категориями"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "_Удалить неиспользованное"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
@@ -2413,15 +2415,15 @@ msgstr "_Объединить"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
 msgid "Base currency"
-msgstr ""
+msgstr "Основная валюта"
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
-msgstr ""
+msgstr "Символ"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
-msgstr ""
+msgstr "Обменный курс"
 
 #: ../src/ui-currency.c:653
 msgid "Last modfied"
@@ -2429,23 +2431,23 @@ msgstr ""
 
 #: ../src/ui-currency.c:772
 msgid "Edit currency"
-msgstr ""
+msgstr "Изменить валюту"
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
 msgid "Currency"
-msgstr ""
+msgstr "Валюта"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Формат"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
 msgid "_Customize"
-msgstr ""
+msgstr "_Настроить"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
 msgid "_Symbol:"
-msgstr ""
+msgstr "_Символ"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
@@ -2465,11 +2467,11 @@ msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Выбрать основную валюту"
 
 #: ../src/ui-currency.c:1040
 msgid "Select currency"
-msgstr ""
+msgstr "Выбрать валюту"
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
@@ -2485,7 +2487,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Сменить основную валюту"
 
 #: ../src/ui-currency.c:1346
 msgid ""
@@ -2495,7 +2497,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:1461
 msgid "Currencies"
-msgstr ""
+msgstr "Вылюты"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
@@ -2519,7 +2521,7 @@ msgstr ""
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Выбрать основную валюту"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2533,11 +2535,11 @@ msgstr "Импорт из CSV"
 
 #: ../src/ui-dialogs.c:537
 msgid "Open HomeBank file"
-msgstr ""
+msgstr "Открыть файл HomeBank"
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
-msgstr ""
+msgstr "Сохранить файл HomeBank как"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2614,27 +2616,27 @@ msgstr "Любой статус"
 
 #: ../src/ui-filter.c:68
 msgid "This month"
-msgstr ""
+msgstr "Текущий месяц"
 
 #: ../src/ui-filter.c:69
 msgid "Last month"
-msgstr ""
+msgstr "Предыдущий месяц"
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
-msgstr ""
+msgstr "Текущий квартал"
 
 #: ../src/ui-filter.c:71
 msgid "Last quarter"
-msgstr ""
+msgstr "Предыдущий квартал"
 
 #: ../src/ui-filter.c:72
 msgid "This year"
-msgstr ""
+msgstr "Текущий год"
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
-msgstr ""
+msgstr "Предыдущий год"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2779,7 +2781,7 @@ msgstr "дней от текущей даты"
 
 #: ../src/ui-payee.c:705
 msgid "Default category"
-msgstr ""
+msgstr "Категория по умолчанию"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
@@ -2793,7 +2795,7 @@ msgstr ""
 
 #: ../src/ui-payee.c:909
 msgid "Default"
-msgstr ""
+msgstr "По умолчанию"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2878,15 +2880,15 @@ msgstr "Текст рядом со значками"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "По горизонтали"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "По вертикали"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Оба"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -2982,7 +2984,7 @@ msgstr "настройки диаграмм"
 
 #: ../src/ui-pref.c:1276
 msgid "Color scheme:"
-msgstr ""
+msgstr "Цветовая схема:"
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3015,7 +3017,7 @@ msgstr "_Схема:"
 
 #: ../src/ui-pref.c:1498
 msgid "_Format:"
-msgstr ""
+msgstr "_Формат:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3107,7 +3109,7 @@ msgstr "_Панель инструментов"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1682
 msgid "_Grid line:"
-msgstr ""
+msgstr "Линия _сетки"
 
 #: ../src/ui-pref.c:1694
 msgid "Amount colors"
@@ -3248,7 +3250,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Найти…"
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"

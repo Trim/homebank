@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: homebank master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-09-14 20:39+0000\n"
+"PO-Revision-Date: 2016-10-20 18:20+0000\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
-"X-Generator: Launchpad (build 18232)\n"
+"X-Launchpad-Export-Date: 2016-11-06 07:52+0000\n"
+"X-Generator: Launchpad (build 18246)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "Language: \n"
 "X-Poedit-Language: Slovenian\n"
@@ -304,7 +304,7 @@ msgstr "Preklopi stanje potrjeno za izbrane transakcije."
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
-msgstr ""
+msgstr "_Hkratno urejanje ..."
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
@@ -1842,7 +1842,7 @@ msgstr "_Opomnik:"
 
 #: ../src/ui-archive.c:1007
 msgid "Scheduled insertion"
-msgstr ""
+msgstr "Načrtovan vnos"
 
 #: ../src/ui-archive.c:1012
 msgid "_Activate"
@@ -1858,7 +1858,7 @@ msgstr "_Vsak:"
 
 #: ../src/ui-archive.c:1041
 msgid "Week end:"
-msgstr "KOnec tedna:"
+msgstr "Konec tedna:"
 
 #: ../src/ui-archive.c:1053
 msgid "_Stop after:"
@@ -2100,7 +2100,7 @@ msgstr "račun: %d - transakcija: %d - stranka: %d - kategorija: %d"
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
-msgstr ""
+msgstr "Pretvorba nekaterih datumov je spodletela"
 
 #: ../src/ui-assist-import.c:1348
 #, c-format
@@ -2201,11 +2201,11 @@ msgstr "Spremeni _dejanje"
 
 #: ../src/ui-assist-import.c:1978
 msgid "Choose transactions to import"
-msgstr ""
+msgstr "Izbor transakcije za uvoz"
 
 #: ../src/ui-assist-import.c:1992
 msgid "Detail of existing transaction (possible duplicate)"
-msgstr ""
+msgstr "Podrobnosti obstoječe transakcije (morda podvojeno)"
 
 #: ../src/ui-assist-import.c:2014
 msgid "Date _tolerance:"
@@ -2329,13 +2329,15 @@ msgstr "Uporaba"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
-msgstr ""
+msgstr "Izbriši neuporabljene kategorije"
 
 #: ../src/ui-category.c:1123
 msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
+"Ali ste prepričani, da želite\n"
+"trajno izbrisati neuporabljene kategorije?"
 
 #: ../src/ui-category.c:1301 ../src/ui-payee.c:868
 msgid "Edit..."
@@ -2440,7 +2442,7 @@ msgstr "_Simbol:"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
-msgstr ""
+msgstr "Je pre_dpona"
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
 msgid "_Decimal char:"
@@ -2468,7 +2470,7 @@ msgstr "Koda ISO"
 
 #: ../src/ui-currency.c:1168
 msgid "Update online error"
-msgstr ""
+msgstr "Posodobi omrežno napako"
 
 #: ../src/ui-currency.c:1301
 msgid "If you delete a currency, it will be permanently lost."
@@ -2476,7 +2478,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Spremeni osnovno valuto"
 
 #: ../src/ui-currency.c:1346
 msgid ""
@@ -2494,7 +2496,7 @@ msgstr "Posodobi prek omrežja"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
-msgstr ""
+msgstr "Nastavi kot osnovno"
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
@@ -2510,7 +2512,7 @@ msgstr "Nadgradi"
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Izbor osnovne valute"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2528,7 +2530,7 @@ msgstr ""
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
-msgstr ""
+msgstr "Shrani datoteko kot"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2746,7 +2748,7 @@ msgstr "Plačilo"
 
 #: ../src/ui-hbfile.c:239
 msgid "Scheduled transaction"
-msgstr ""
+msgstr "Načrtovana transakcija"
 
 #: ../src/ui-hbfile.c:243
 msgid "add until"
@@ -3130,7 +3132,7 @@ msgstr "Naloži zadnje odprto datoteko"
 
 #: ../src/ui-pref.c:1781
 msgid "Update currencies online"
-msgstr ""
+msgstr "Posodobi spletne valute"
 
 #: ../src/ui-pref.c:1791
 msgid "Fiscal year"

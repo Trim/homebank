@@ -88,7 +88,7 @@ struct defpref_data
 	GtkWidget	*CY_euro_preset;
 	GtkWidget	*ST_euro_country;
 	GtkWidget	*NB_euro_value;
-	 
+
 	GtkWidget	*ST_euro_symbol;
 	GtkWidget	*CM_euro_isprefix;
 	GtkWidget	*ST_euro_decimalchar;	

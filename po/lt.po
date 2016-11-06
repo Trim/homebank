@@ -2,20 +2,20 @@
 # Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
 # This file is distributed under the same license as the homebank package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
-# Rimas Kudelis <rq@akl.lt>, 2015.
+# Rimas Kudelis <rq@akl.lt>, 2015, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-04-09 14:42+0000\n"
+"PO-Revision-Date: 2016-11-05 16:30+0000\n"
 "Last-Translator: Rimas Kudelis <rq@akl.lt>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-10-16 06:41+0000\n"
-"X-Generator: Launchpad (build 18232)\n"
+"X-Launchpad-Export-Date: 2016-11-06 07:52+0000\n"
+"X-Generator: Launchpad (build 18246)\n"
 "Language: lt\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
@@ -82,7 +82,7 @@ msgstr "_Gerai"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "Daugybinis operacijų taisymas"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -113,11 +113,11 @@ msgstr "_Pastabos:"
 
 #: ../src/dsp_account.c:628 ../src/dsp_account.c:638
 msgid "Check internal transfert result"
-msgstr ""
+msgstr "Vidinių pavedimų patikra"
 
 #: ../src/dsp_account.c:629
 msgid "No inconsistency found !"
-msgstr ""
+msgstr "Neatitikimų nerasta!"
 
 #: ../src/dsp_account.c:639
 #, c-format
@@ -125,6 +125,8 @@ msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
+"Rasta neatitikimų: %d\n"
+"ar norite juos peržiūrėti ir ištaisyti?"
 
 #: ../src/dsp_account.c:696
 #, c-format
@@ -136,6 +138,8 @@ msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
+"Ar tikrai norite pakeisti šios sąskaitos\n"
+"pagrindinę valiutą į Eurus?"
 
 #: ../src/dsp_account.c:702
 msgid "_Convert"
@@ -148,11 +152,11 @@ msgstr "Nepakeista nė viena operacija"
 #: ../src/dsp_account.c:733
 #, c-format
 msgid "transaction changed: %d"
-msgstr ""
+msgstr "Pakeista operacijų: %d"
 
 #: ../src/dsp_account.c:736
 msgid "Automatic assignment result"
-msgstr ""
+msgstr "Automatinių priskyrimų rezultatas"
 
 #: ../src/dsp_account.c:917
 msgid ""
@@ -204,7 +208,7 @@ msgstr "%d eil. (%d pasirinkta – %s)"
 #. name, icon-name, label
 #: ../src/dsp_account.c:2157
 msgid "A_ccount"
-msgstr ""
+msgstr "_Sąskaita"
 
 #: ../src/dsp_account.c:2158
 msgid "Transacti_on"
@@ -242,11 +246,11 @@ msgstr "Atverti sąrašo filtrą"
 
 #: ../src/dsp_account.c:2166
 msgid "Convert to Euro..."
-msgstr ""
+msgstr "Konvertuoti į Eurus…"
 
 #: ../src/dsp_account.c:2166
 msgid "Convert this account to Euro currency"
-msgstr ""
+msgstr "Keisti šios sąskaitos valiutą į Eurus"
 
 #: ../src/dsp_account.c:2168
 msgid "_Add..."
@@ -298,11 +302,11 @@ msgstr "Perjungti pasirinktų operacijų būseną „Patvirtinta“"
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
-msgstr ""
+msgstr "_Daugybinis taisymas…"
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
-msgstr ""
+msgstr "Taisyti kelias operacijas"
 
 #: ../src/dsp_account.c:2177
 msgid "Create template..."
@@ -322,11 +326,11 @@ msgstr "Šalinti pasirinktas operacijas"
 
 #: ../src/dsp_account.c:2180
 msgid "Auto. assignments"
-msgstr ""
+msgstr "Automatiniai priskyrimai"
 
 #: ../src/dsp_account.c:2180
 msgid "Run automatic assignments"
-msgstr ""
+msgstr "Įvykdyti automatinius priskyrimus"
 
 #: ../src/dsp_account.c:2181
 msgid "Export QIF..."
@@ -347,7 +351,7 @@ msgstr "Eksportuoti CSV formatu"
 
 #: ../src/dsp_account.c:2184
 msgid "Check internal xfer..."
-msgstr ""
+msgstr "Tikrinti vidinius pavedimus…"
 
 #: ../src/dsp_account.c:2317 ../src/dsp_mainwindow.c:2574
 msgid "Add"
@@ -395,13 +399,13 @@ msgstr "_Būsena:"
 
 #: ../src/dsp_account.c:2430
 msgid "Reset _filters"
-msgstr ""
+msgstr "Atstatyti _filtrą"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
 #: ../src/rep_stats.c:1524 ../src/rep_time.c:1420 ../src/rep_vehicle.c:735
 msgid "Euro _minor"
-msgstr ""
+msgstr "_Antrinė valiuta"
 
 #. header
 #: ../src/dsp_mainwindow.c:148 ../src/dsp_mainwindow.c:2561
@@ -482,7 +486,7 @@ msgstr "Įrašyti esamąjį failą"
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save _As..."
-msgstr ""
+msgstr "Įrašyti kaip…"
 
 #: ../src/dsp_mainwindow.c:176
 msgid "Save the current file with a different name"
@@ -498,7 +502,7 @@ msgstr "Grąžinti įrašytą šio failą būseną"
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Properties..."
-msgstr ""
+msgstr "Savybės…"
 
 #: ../src/dsp_mainwindow.c:179
 msgid "Configure the file"
@@ -514,7 +518,7 @@ msgstr "_Baigti darbą"
 
 #: ../src/dsp_mainwindow.c:181
 msgid "Quit HomeBank"
-msgstr ""
+msgstr "Baigti programos „HomeBank“ darbą"
 
 #. Exchange
 #: ../src/dsp_mainwindow.c:184
@@ -549,16 +553,16 @@ msgstr "_Nustatymai…"
 
 #: ../src/dsp_mainwindow.c:191
 msgid "Configure HomeBank"
-msgstr ""
+msgstr "Konfigūruoti „HomeBank“ programą"
 
 #. ManageMenu
 #: ../src/dsp_mainwindow.c:194
 msgid "Currencies..."
-msgstr ""
+msgstr "Valiutos…"
 
 #: ../src/dsp_mainwindow.c:194
 msgid "Configure the currencies"
-msgstr ""
+msgstr "Tvarkyti valiutas"
 
 #: ../src/dsp_mainwindow.c:195
 msgid "Acc_ounts..."
@@ -978,7 +982,7 @@ msgstr "(naujas šablonas)"
 
 #: ../src/hb-category.c:979
 msgid "invalid CSV format"
-msgstr ""
+msgstr "netinkamas CSV formatas"
 
 #: ../src/hb-filter.c:74
 #, c-format
@@ -1711,7 +1715,7 @@ msgstr "Pagrindai"
 
 #: ../src/ui-account.c:1282
 msgid "_Currency:"
-msgstr ""
+msgstr "_Valiuta:"
 
 #: ../src/ui-account.c:1289
 msgid "Start _balance:"
@@ -1719,7 +1723,7 @@ msgstr "Pradinis _balansas:"
 
 #: ../src/ui-account.c:1297
 msgid "Notes:"
-msgstr ""
+msgstr "Pastabos:"
 
 #: ../src/ui-account.c:1311
 msgid "this account was _closed"
@@ -1756,11 +1760,11 @@ msgstr "_Numeris:"
 
 #: ../src/ui-account.c:1379
 msgid "Balance limits"
-msgstr ""
+msgstr "Balanso ribos"
 
 #: ../src/ui-account.c:1385
 msgid "_Overdraft at:"
-msgstr ""
+msgstr "Per_viršis ties:"
 
 #: ../src/ui-account.c:1397
 msgid "Report exclusion"
@@ -1780,11 +1784,11 @@ msgstr "neįtraukti į jokias _ataskaitas"
 
 #: ../src/ui-archive.c:47
 msgid "Scheduled"
-msgstr ""
+msgstr "Planinės operacijos"
 
 #: ../src/ui-archive.c:48
 msgid "Template"
-msgstr ""
+msgstr "Šablonai"
 
 #: ../src/ui-archive.c:55
 msgid "Possible"
@@ -1882,15 +1886,15 @@ msgstr "Priskyrimo pašalinimas yra negrįžtamas veiksmas."
 
 #: ../src/ui-assign.c:693
 msgid "Disabled"
-msgstr ""
+msgstr "Nepriskirti"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
-msgstr ""
+msgstr "Jei nenurodytas (-a)"
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
-msgstr ""
+msgstr "Perrašyti"
 
 #: ../src/ui-assign.c:714
 msgid "Manage Assignments"
@@ -1902,32 +1906,32 @@ msgstr "Sąlyga"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "_Ieškoti lauke:"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "_Teksto:"
 
 #: ../src/ui-assign.c:811
 msgid "Match _case"
-msgstr ""
+msgstr "_Atsižvelgti į raidžių registrą"
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
-msgstr ""
+msgstr "Naudoti _reguliariuosius reiškinius"
 
 #: ../src/ui-assign.c:831
 msgid "Assign payee"
-msgstr ""
+msgstr "Gavėjo (mokėtojo) priskyrimas"
 
 #: ../src/ui-assign.c:860
 msgid "Assign category"
-msgstr ""
+msgstr "Kategorijos priskyrimas"
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
-msgstr ""
+msgstr "Mokėjimo būdo priskyrimas"
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -1944,7 +1948,7 @@ msgstr "_Savininkas:"
 
 #: ../src/ui-assist-start.c:260 ../src/ui-dialogs.c:363
 msgid "Currency:"
-msgstr ""
+msgstr "Valiuta:"
 
 #: ../src/ui-assist-start.c:276 ../src/ui-assist-import.c:1801
 #: ../src/ui-hbfile.c:191
@@ -2101,12 +2105,12 @@ msgstr "sąskaitos: %d - operacijos: %d - gavėjai: %d - kategorijos: %d"
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
-msgstr ""
+msgstr "Nepavyko konvertuoti kai kurių datų"
 
 #: ../src/ui-assist-import.c:1348
 #, c-format
 msgid "Reload using date order: '%s' ?"
-msgstr ""
+msgstr "Įkelti iš naujo, naudojant datos formatą „%s“?"
 
 #: ../src/ui-assist-import.c:1563
 #, c-format
@@ -2265,6 +2269,8 @@ msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
+"CSV faile turi būti tiksliai apibrėžtas skaičius stulpelių,\n"
+"atskirtų kabliataškiu. Išsamesnės informacijos ieškokite žinyne."
 
 #: ../src/ui-budget.c:693
 msgid "Are you sure you want to clear input?"
@@ -2321,21 +2327,23 @@ msgstr "_Priverstinai stebėti šią kategoriją"
 #: ../src/ui-category.c:1032 ../src/ui-currency.c:618 ../src/ui-currency.c:1107
 #: ../src/ui-payee.c:671
 msgid "Name"
-msgstr ""
+msgstr "Pavadinimas"
 
 #: ../src/ui-category.c:1044 ../src/ui-payee.c:687
 msgid "Usage"
-msgstr ""
+msgstr "Naudojimas"
 
 #: ../src/ui-category.c:1122
 msgid "Delete unused categories"
-msgstr ""
+msgstr "Nenaudojamų kategorijų šalinimas"
 
 #: ../src/ui-category.c:1123
 msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
+"Ar tikrai norite negrįžtamai pašalinti\n"
+"nenaudojamas kategorijas?"
 
 #: ../src/ui-category.c:1301 ../src/ui-payee.c:868
 msgid "Edit..."
@@ -2391,7 +2399,7 @@ msgstr "Kategorijų tvarkymas"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "_Šalinti nenaudojamas"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
@@ -2407,47 +2415,47 @@ msgstr "_Jungti"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
 msgid "Base currency"
-msgstr ""
+msgstr "Bazinė valiuta"
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
-msgstr ""
+msgstr "Ženklas"
 
 #: ../src/ui-currency.c:641 ../src/ui-currency.c:817 ../src/ui-pref.c:1392
 msgid "Exchange rate"
-msgstr ""
+msgstr "Keitimo kursas"
 
 #: ../src/ui-currency.c:653
 msgid "Last modfied"
-msgstr ""
+msgstr "Atnaujinta"
 
 #: ../src/ui-currency.c:772
 msgid "Edit currency"
-msgstr ""
+msgstr "Valiutos taisymas"
 
 #: ../src/ui-currency.c:803 ../src/ui-pref.c:1365
 msgid "Currency"
-msgstr ""
+msgstr "Valiuta"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Formatas"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
 msgid "_Customize"
-msgstr ""
+msgstr "_Tinkinti"
 
 #: ../src/ui-currency.c:854 ../src/ui-pref.c:1428
 msgid "_Symbol:"
-msgstr ""
+msgstr "Ž_enklas:"
 
 #: ../src/ui-currency.c:861 ../src/ui-pref.c:1435
 msgid "Is pre_fix"
-msgstr ""
+msgstr "_Prieš skaičių"
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
 msgid "_Decimal char:"
-msgstr ""
+msgstr "T_rupmenos skirtukas:"
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
@@ -2455,49 +2463,51 @@ msgstr "_Skaitmenys po kablelio:"
 
 #: ../src/ui-currency.c:880 ../src/ui-pref.c:1454
 msgid "_Grouping char:"
-msgstr ""
+msgstr "_Grupavimo ženklas:"
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Bazinės valiutos pasirinkimas"
 
 #: ../src/ui-currency.c:1040
 msgid "Select currency"
-msgstr ""
+msgstr "Pasirinkti valiutą"
 
 #: ../src/ui-currency.c:1112
 msgid "ISO Code"
-msgstr ""
+msgstr "ISO kodas"
 
 #: ../src/ui-currency.c:1168
 msgid "Update online error"
-msgstr ""
+msgstr "Atnaujinimo internetu klaida"
 
 #: ../src/ui-currency.c:1301
 msgid "If you delete a currency, it will be permanently lost."
-msgstr ""
+msgstr "Jei pašalinsite valiutą, ji bus negrįžtamai prarasta."
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Ar pakeisti bazinę valiutą?"
 
 #: ../src/ui-currency.c:1346
 msgid ""
 "If you proceed, rates of other currencies\n"
 "will be set to 0, don't forget to update it"
 msgstr ""
+"Jei patvirtinsite šį veiksmą, visų kitų valiutų kursai\n"
+"bus pakeisti į 0 – nepamirškite jų atnaujinti."
 
 #: ../src/ui-currency.c:1461
 msgid "Currencies"
-msgstr ""
+msgstr "Valiutos"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
-msgstr ""
+msgstr "Atnaujinti internetu"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
-msgstr ""
+msgstr "Skirti bazine"
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
@@ -2509,17 +2519,19 @@ msgstr "Priskyrimai"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Naujovinimas"
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Pasirinkite bazinę valiutą"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
 "Starting v5.1, HomeBank can manage several currencies\n"
 "if the currency below is not correct, please change it:"
 msgstr ""
+"Pradedant 5.1 versija, „HomeBank“ programa gali dirbti iškart su keliomis\n"
+"valiutomis. Jei žemiau nurodyta valiuta yra neteisinga, pakeiskite ją:"
 
 #: ../src/ui-dialogs.c:475
 msgid "Import from CSV"
@@ -2527,11 +2539,11 @@ msgstr "Importuoti iš CSV"
 
 #: ../src/ui-dialogs.c:537
 msgid "Open HomeBank file"
-msgstr ""
+msgstr "„HomeBank“ failo atvėrimas"
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
-msgstr ""
+msgstr "„HomeBank“ failo įrašymas"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2608,27 +2620,27 @@ msgstr "Visos būsenos"
 
 #: ../src/ui-filter.c:68
 msgid "This month"
-msgstr ""
+msgstr "Šis mėnuo"
 
 #: ../src/ui-filter.c:69
 msgid "Last month"
-msgstr ""
+msgstr "Praėjęs mėnuo"
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
-msgstr ""
+msgstr "Šis ketvirtis"
 
 #: ../src/ui-filter.c:71
 msgid "Last quarter"
-msgstr ""
+msgstr "Ankstesnis ketvirtis"
 
 #: ../src/ui-filter.c:72
 msgid "This year"
-msgstr ""
+msgstr "Šie metai"
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
-msgstr ""
+msgstr "Praėję metai"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2773,21 +2785,23 @@ msgstr "d. prieš operacijos datą"
 
 #: ../src/ui-payee.c:705
 msgid "Default category"
-msgstr ""
+msgstr "Numatytoji kategorija"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
-msgstr ""
+msgstr "Nenaudojamų gavėjų šalinimas"
 
 #: ../src/ui-payee.c:744
 msgid ""
 "Are you sure you want to\n"
 "permanently delete unused payee?"
 msgstr ""
+"Ar tikrai norite negrįžtamai pašalinti\n"
+"nenaudojamus gavėjus (mokėtojus)?"
 
 #: ../src/ui-payee.c:909
 msgid "Default"
-msgstr ""
+msgstr "Numatytieji parametrai"
 
 #: ../src/ui-payee.c:966
 #, c-format
@@ -2796,8 +2810,9 @@ msgid ""
 "from '%s' to '%s',\n"
 "this name already exists."
 msgstr ""
-"Negalima šio gavėjo pervadinti iš „%s“ į „%s“ – toks pavadinimas jau "
-"naudojamas."
+"Negalima šio gavėjo pervadinti\n"
+"iš „%s“ į „%s“ –\n"
+"toks pavadinimas jau naudojamas."
 
 #: ../src/ui-payee.c:1021
 #, c-format
@@ -2871,15 +2886,15 @@ msgstr "Tekstas šalia piktogramų"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontalios"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikalios"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Abejos"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -2975,7 +2990,7 @@ msgstr "Grafikai"
 
 #: ../src/ui-pref.c:1276
 msgid "Color scheme:"
-msgstr ""
+msgstr "Spalvų paletė:"
 
 #: ../src/ui-pref.c:1298
 msgid "Statistics options"
@@ -3008,7 +3023,7 @@ msgstr "_Numatytosios spalvos:"
 
 #: ../src/ui-pref.c:1498
 msgid "_Format:"
-msgstr ""
+msgstr "_Formatas:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3102,7 +3117,7 @@ msgstr "P_riemonių juosta:"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1682
 msgid "_Grid line:"
-msgstr ""
+msgstr "_Tinklelio linijos:"
 
 #: ../src/ui-pref.c:1694
 msgid "Amount colors"
@@ -3138,7 +3153,7 @@ msgstr "Įkelti paskiausiai naudotą failą"
 
 #: ../src/ui-pref.c:1781
 msgid "Update currencies online"
-msgstr ""
+msgstr "Naujinti valiutas internetu"
 
 #: ../src/ui-pref.c:1791
 msgid "Fiscal year"
@@ -3244,11 +3259,11 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Ieškoti…"
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
-msgstr ""
+msgstr "Rodyti _planines"
 
 #: ../src/ui-transaction.c:930
 msgid "_Date:"
@@ -3277,7 +3292,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:1105
 msgid "_Add & keep"
-msgstr ""
+msgstr "Pridėti _neužveriant"
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3285,11 +3300,11 @@ msgstr "_Pridėti"
 
 #: ../src/ui-transaction.c:1157
 msgid "Use a _template"
-msgstr ""
+msgstr "Naudoti _šabloną"
 
 #: ../src/ui-transaction.c:1201
 msgid "Warning: amount and category sign don't match"
-msgstr ""
+msgstr "Dėmesio: kiekis neatitinka kategorijos ženklo"
 
 #: ../src/ui-widgets.c:799
 msgid "Check"

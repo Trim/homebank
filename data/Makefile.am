@@ -4,7 +4,7 @@ SUBDIRS = datas
 
 
 @INTLTOOL_DESKTOP_RULE@
-desktopdir 	 = $(datadir)/applications
+desktopdir 		 = $(datadir)/applications
 desktop_in_files = homebank.desktop.in
 desktop_DATA	 = $(desktop_in_files:.desktop.in=.desktop)
 
@@ -16,7 +16,7 @@ appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 
 
 EXTRA_DIST =	\
-	homebank.desktop.in.in \
+	$(desktop_in_files) \
 	$(appdata_in_files)
 
 CLEANFILES =	\

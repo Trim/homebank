@@ -849,6 +849,30 @@ GtkTreeIter  iter;
 }
 
 
+gboolean transaction_acc_move(Transaction *txn, guint32 okacc, guint32 nkacc)
+{
+Account *oacc, *nacc;
+
+	oacc = da_acc_get(okacc);
+	nacc = da_acc_get(nkacc);
+	if( oacc && nacc )
+	{
+		if( g_queue_remove(oacc->txn_queue, txn) )
+		{
+			g_queue_push_tail(nacc->txn_queue, txn);
+			txn->kacc = nacc->key;
+			txn->kcur = nacc->kcur;
+			nacc->flags |= AF_CHANGED;
+			return TRUE;
+		}
+		else
+			//ensure to keep txn into current account
+			txn->kacc = okacc;
+	}
+	return FALSE;
+}
+
+
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
@@ -1002,7 +1026,7 @@ gint changes = 0;
 			rul = transaction_auto_assign_eval_txn(l_rul, ope);
 			if( rul != NULL )
 			{
-				if( (ope->kpay == 0 || (rul->flags & ASGF_OVWPAY)) && (rul->flags & ASGF_DOPAY) )
+				if( (ope->kpay == 0 && (rul->flags & ASGF_DOPAY)) || (rul->flags & ASGF_OVWPAY) )
 				{
 					if(ope->kpay != rul->kpay) { changed = TRUE; }
 					ope->kpay = rul->kpay;
@@ -1010,14 +1034,14 @@ gint changes = 0;
 
 				if( !(ope->flags & OF_SPLIT) )
 				{
-					if( (ope->kcat == 0 || (rul->flags & ASGF_OVWCAT)) && (rul->flags & ASGF_DOCAT) )
+					if( (ope->kcat == 0 && (rul->flags & ASGF_DOCAT)) || (rul->flags & ASGF_OVWCAT) )
 					{
 						if(ope->kcat != rul->kcat) { changed = TRUE; }
 						ope->kcat = rul->kcat;
 					}
 				}
 
-				if( (ope->paymode == 0 || (rul->flags & ASGF_OVWMOD)) && (rul->flags & ASGF_DOMOD) )
+				if( (ope->paymode == 0 && (rul->flags & ASGF_DOMOD)) || (rul->flags & ASGF_OVWMOD) )
 				{
 					//ugly hack - don't allow modify intxfer
 					if(ope->paymode != PAYMODE_INTXFER && rul->paymode != PAYMODE_INTXFER) 

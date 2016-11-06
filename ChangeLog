@@ -1,4 +1,20 @@
 
+2016-11-06  Maxime Doyen
+
+ Made 5.1.1 release.
+
+ * wish  : #1634615 get currency format from system again 
+ * wish  : #1634182 template chooser popover could be wider by default
+ * wish  : #1629647 'Multiple Edit' to include account
+ * bugfix: #1638035 moving txn between account hide it into destination
+ * bugfix: #1637805 overwrite assignment doesnt work
+ * bugfix: #1635857 balance report crash when no selection in main window
+ * bugfix: #1635260 win: missing .dll for windows 7, vista, XP
+ * bugfix: #1635053 must enter Payment method twice in Add Transaction dialog
+ * bugfix: #1633915 win: libgnutls-30.dll missing XP, Vista, 7
+ * bugfix: #1633895 manage assignment display some payee instead of category 
+
+
 2016-10-16  Maxime Doyen
 
  Made 5.1 release.

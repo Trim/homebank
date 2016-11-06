@@ -586,7 +586,7 @@ gchar *secondtext;
 static void ui_mainwindow_action_defcurrency(void)
 {
 	ui_cur_manage_dialog();
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
+	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
 }
 
 

@@ -28,6 +28,7 @@ struct ui_multipleedit_dialog_data
 
 	GtkWidget	*LB_mode, *CM_mode, *NU_mode;
 	GtkWidget	*CM_info, *ST_info;
+	GtkWidget	*LB_acc, *CM_acc, *PO_acc;
 	GtkWidget	*CM_pay, *PO_pay;
 	GtkWidget	*CM_cat, *PO_cat;
 	GtkWidget	*CM_tags, *ST_tags;

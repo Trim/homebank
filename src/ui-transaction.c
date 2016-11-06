@@ -175,6 +175,7 @@ static void deftransaction_update_payee(GtkWidget *widget, gpointer user_data)
 {
 struct deftransaction_data *data;
 Category *cat;
+gint paymode;
 Payee *pay;
 
 	DB( g_print("\n[ui-transaction] update payee\n") );
@@ -182,13 +183,14 @@ Payee *pay;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	// only set for empty category
+	// 1635053 and also paymode unset
 	cat = ui_cat_comboboxentry_get(GTK_COMBO_BOX(data->PO_grp));
-	if(cat == NULL || cat->key == 0)
+	paymode = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
+	if( (cat == NULL || cat->key == 0) && (paymode == PAYMODE_NONE) )
 	{
 		pay = ui_pay_comboboxentry_get(GTK_COMBO_BOX(data->PO_pay));
 		if( pay != NULL )
 		{
-
 			g_signal_handlers_block_by_func (G_OBJECT (data->PO_grp), G_CALLBACK (deftransaction_update_warnsign), NULL);
 			ui_cat_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_grp), pay->kcat);
 			g_signal_handlers_unblock_by_func (G_OBJECT (data->PO_grp), G_CALLBACK (deftransaction_update_warnsign), NULL);
@@ -657,6 +659,24 @@ gboolean result;
 			}
 		}
 	}
+	
+	//1638035: manage account change
+	if( old_txn->kacc != new_txn->kacc )
+	{
+		//locked from ui, but test anyway: forbid change for internal transfer
+		if( new_txn->paymode == PAYMODE_INTXFER )
+		{
+			new_txn->kacc = old_txn->kacc;
+		}
+		else
+		{
+			//todo: maybe we should restrict this also to same currency account
+			account_balances_sub(new_txn);
+			transaction_acc_move(new_txn, old_txn->kacc, new_txn->kacc);
+			account_balances_add(new_txn);
+		}
+	}
+	
 	
 	deftransaction_dispose(dialog, NULL);
 	gtk_widget_destroy (dialog);
@@ -1170,7 +1190,7 @@ gint crow;
 		GtkWidget *popover = create_popover (menubutton, template, GTK_POS_BOTTOM);
 		gtk_widget_set_size_request (popover, HB_MINWIDTH_LIST, HB_MINHEIGHT_LIST);
 		gtk_widget_set_vexpand (popover, TRUE);
-		//gtk_widget_set_hexpand (popover, TRUE);
+		gtk_widget_set_hexpand (popover, TRUE);
 
 		/*gtk_widget_set_margin_start (popover, 10);
 		gtk_widget_set_margin_end (popover, 10);
