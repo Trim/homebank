@@ -640,7 +640,7 @@ GList *list = NULL;
 	//isodate = hb_qif_parser_check_iso_date(&ctx);
 	//DB( g_print(" -> date is dd/mm/yy: %d\n", isodate) );
 
-	DB( g_print(" -> transform to hb txn\n") );
+	DB( g_print("\n\n -> transform to hb txn\n") );
 
 	DB( g_print(" -> %d qif txn\n",  g_list_length(ctx.q_tra)) );
 
@@ -653,7 +653,7 @@ GList *list = NULL;
 	Account *accitem;
 	Payee *payitem;
 	Category *catitem;
-	gchar *name;
+	gchar *name, *tmpmemo, *tmppayee;
 	gint nsplit;
 
 		newope = da_transaction_malloc();
@@ -665,7 +665,18 @@ GList *list = NULL;
 		//newope->paymode	 = atoi(str_array[1]);
 		//newope->info		 = g_strdup(str_array[2]);
 
-		newope->wording		 = g_strdup(item->memo);
+		//#916690 manage memo, swap memo/payee
+		tmpmemo  = item->memo;
+		tmppayee = item->payee;
+		if( PREFS->dtex_qifswap )
+		{
+			tmpmemo  = item->payee;
+			tmppayee  = item->memo;
+		}
+
+		if( PREFS->dtex_qifmemo )
+			newope->wording	 = g_strdup(tmpmemo);
+		
 		newope->info		 = g_strdup(item->info);
 		newope->amount		 = item->amount;
 
@@ -674,15 +685,15 @@ GList *list = NULL;
 			newope->amount *= -1;
 
 		// payee + append
-		if( item->payee != NULL )
+		if( tmppayee != NULL )
 		{
-			payitem = da_pay_get_by_name(item->payee);
+			payitem = da_pay_get_by_name(tmppayee);
 			if(payitem == NULL)
 			{
-				//DB( g_print(" -> append pay: '%s'\n", item->payee ) );
+				//DB( g_print(" -> append pay: '%s'\n", tmppayee ) );
 
 				payitem = da_pay_malloc();
-				payitem->name = g_strdup(item->payee);
+				payitem->name = g_strdup(tmppayee);
 				payitem->imported = TRUE;
 				da_pay_append(payitem);
 
@@ -706,18 +717,7 @@ GList *list = NULL;
 				//remove brackets
 				accname = hb_strdup_nobrackets(item->category);
 
-				// search target account + append if not exixts
-				accitem = da_acc_get_by_name(accname);
-				if(accitem == NULL)
-				{
-					DB( g_print(" -> append dest acc: '%s'\n", accname ) );
-
-					accitem = da_acc_malloc();
-					accitem->name = g_strdup(accname);
-					accitem->imported = TRUE;
-					accitem->imp_name = g_strdup(accname);
-					da_acc_append(accitem);
-				}
+				accitem = import_create_account(accname, NULL);
 
 				newope->kxferacc = accitem->key;
 				newope->paymode = PAYMODE_INTXFER;

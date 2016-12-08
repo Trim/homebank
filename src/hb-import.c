@@ -49,6 +49,8 @@ Account *accitem, *existitem;
 	if(existitem != NULL)
 		return existitem;
 
+	DB( g_print(" ** create acc: '%s' '%s'\n", name, number) );
+
 	accitem = da_acc_malloc();
 	accitem->key  = da_acc_get_max_key() + 1;
 	accitem->pos  = da_acc_length() + 1;
@@ -59,15 +61,17 @@ Account *accitem, *existitem;
 		accitem->imp_key = existitem->key;
 
 	if(!existitem && *name != 0)
-			accitem->name = g_strdup(name);
+		accitem->name = g_strdup(name);
 	else
-		
 		accitem->name = g_strdup_printf(_("(account %d)"), accitem->key);
 
 	accitem->imp_name = g_strdup(name);
 
 	if(number)
 		accitem->number = g_strdup(number);
+
+	//fixed 5.1.2
+	accitem->kcur = GLOBALS->kcur;
 
 	accitem->imported = TRUE;
 	da_acc_insert(accitem);

@@ -91,6 +91,10 @@ gchar *tagstr;
 	{
 		switch( column_id )
 		{
+			case LST_DSPOPE_DATE:
+				gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_date), (guint)ope->date);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_date), TRUE);
+				break;
 			case LST_DSPOPE_INFO:
 				gtk_combo_box_set_active(GTK_COMBO_BOX(data->NU_mode), ope->paymode);
 				gtk_entry_set_text(GTK_ENTRY(data->ST_info), (ope->info != NULL) ? ope->info : "");
@@ -127,6 +131,9 @@ struct ui_multipleedit_dialog_data *data;
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	DB( g_print ("\n[ui-multipleedit] update\n") );
+
+	if(data->PO_date)
+		gtk_widget_set_sensitive (data->PO_date, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_date)) );
 
 	if(data->NU_mode && data->ST_info)
 	{
@@ -212,6 +219,16 @@ GList *selection, *list;
 		gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &txn, -1);
 
 		DB( g_print(" modifying %s %.2f\n", txn->wording, txn->amount) );
+
+		if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_DATE) == TRUE )
+		{
+			if( gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_date)) )
+			{
+				txn->date = gtk_date_entry_get_date(GTK_DATE_ENTRY(data->PO_date));
+				DB( g_print(" -> date: '%d'\n", txn->date) );
+				change = TRUE;
+			}
+		}
 
 		if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_INFO) == TRUE )
 		{
@@ -413,6 +430,22 @@ gint row;
 	gtk_container_add (GTK_CONTAINER (content_area), group_grid);
 
 	row = -1;
+
+	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_DATE) == TRUE )
+	{
+		row++;
+		label = make_label_widget(_("_Date:"));
+		gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+		widget = gtk_check_button_new();
+		data->CM_date = widget;
+		gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
+		widget = gtk_date_entry_new();
+		data->PO_date = widget;
+		gtk_widget_set_hexpand (widget, TRUE);
+		gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+		g_signal_connect (data->CM_date , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
+	}
 
 	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_INFO) == TRUE )
 	{

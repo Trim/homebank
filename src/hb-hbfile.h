@@ -20,6 +20,7 @@
 #ifndef __HB_HBFILE_H__
 #define __HB_HBFILE_H__
 
+GList *hbfile_transaction_get_all(guint32 kacc);
 GQueue *hbfile_transaction_get_partial(guint32 minjulian, guint32 maxjulian);
 
 gboolean hbfile_file_hasbackup(gchar *filepath);

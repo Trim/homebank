@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.52)
-AC_INIT([homebank], [5.1.1])
+AC_INIT([homebank], [5.1.2])
 #AC_INIT([homebank], [x.x-rc])
 
 AM_CONFIG_HEADER(config.h)

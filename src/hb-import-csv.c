@@ -141,6 +141,8 @@ gint lasttype;
 				valid = hb_string_isdigit(str_array[i]);
 				break;
 			case CSV_DOUBLE	:
+			
+				//todo: use strtod (to take care or . or ,)
 				g_ascii_strtod(str_array[i], NULL);
 				//todo : see this errno
 				if( errno )

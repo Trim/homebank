@@ -354,10 +354,10 @@ GtkTreeViewColumn  *column;
 
 	/* column: Payee */
 	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, 
+	/*g_object_set(renderer, 
 		"ellipsize", PANGO_ELLIPSIZE_END,
 	    "ellipsize-set", TRUE,
-	    NULL);
+	    NULL);*/
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Payee"));
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
@@ -366,15 +366,15 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
 	gtk_tree_view_column_set_alignment (column, 0.5);
-	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
+	//gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Wording */
 	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, 
+	/*g_object_set(renderer, 
 		"ellipsize", PANGO_ELLIPSIZE_END,
 	    "ellipsize-set", TRUE,
-	    NULL);
+	    NULL);*/
 
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Memo"));
@@ -384,7 +384,7 @@ GtkTreeViewColumn  *column;
 	//gtk_tree_view_column_add_attribute(column, renderer, "text", 2);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPACC_NAME);
 	gtk_tree_view_column_set_alignment (column, 0.5);
-	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
+	//gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 	/* column: Amount */
@@ -411,10 +411,10 @@ GtkTreeViewColumn  *column;
 
 	/* column: Account */
 	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, 
+	/*g_object_set(renderer, 
 		"ellipsize", PANGO_ELLIPSIZE_END,
 	    "ellipsize-set", TRUE,
-	    NULL);
+	    NULL);*/
 
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, _("Account"));
@@ -423,7 +423,7 @@ GtkTreeViewColumn  *column;
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	//gtk_tree_view_column_set_sort_column_id (column, LST_DSPOPE_DATE);
 	gtk_tree_view_column_set_alignment (column, 0.5);
-	gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
+	//gtk_tree_view_column_set_min_width(column, HB_MINWIDTH_LIST);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
 
 

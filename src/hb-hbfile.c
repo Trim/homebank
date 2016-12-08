@@ -135,6 +135,41 @@ guint32 oldkcur;
 }
 
 
+GList *hbfile_transaction_get_all(guint32 kacc)
+{
+GList *lst_acc, *lnk_acc;
+GList *lnk_txn;
+GList *list;
+
+	list = NULL;
+
+	lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+	lnk_acc = g_list_first(lst_acc);
+	while (lnk_acc != NULL)
+	{
+	Account *acc = lnk_acc->data;
+
+		if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+			goto next_acc;
+		if( (kacc > 0 ) && (acc->key != kacc) )
+			goto next_acc;
+
+		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
+		while (lnk_txn != NULL)
+		{
+			list = g_list_append(list, lnk_txn->data);
+			lnk_txn = g_list_next(lnk_txn);
+		}
+	
+	next_acc:
+		lnk_acc = g_list_next(lnk_acc);
+	}
+	g_list_free(lst_acc);
+
+	return da_transaction_sort (list);
+}
+
+
 GQueue *hbfile_transaction_get_partial(guint32 minjulian, guint32 maxjulian)
 {
 GList *lst_acc, *lnk_acc;

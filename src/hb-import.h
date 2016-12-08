@@ -21,18 +21,6 @@
 #define __HB_IMPORT_H__
 
 
-
-
-typedef struct _OfxContext OfxContext;
-struct _OfxContext
-{
-	GList		*trans_list;
-	Account 	*curr_acc;
-	gboolean	curr_acc_isnew;
-};
-
-
-
 typedef struct _ImportContext ImportContext;
 struct _ImportContext
 {
@@ -49,6 +37,17 @@ struct _ImportContext
 	gint			cnt_err_date;
 	gint			nb_duplicate;
 };
+
+
+typedef struct _OfxContext OfxContext;
+struct _OfxContext
+{
+	GList		*trans_list;
+	Account 	*curr_acc;
+	gboolean	curr_acc_isnew;
+	ImportContext *ictx;
+};
+
 
 typedef struct _QifContext QifContext;
 typedef struct _qif_split	QIFSplit;

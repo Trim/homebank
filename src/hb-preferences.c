@@ -399,7 +399,7 @@ gint i;
 	//import/export
 	PREFS->dtex_nointro = TRUE;
 	//PREFS->dtex_datefmt
-	PREFS->dtex_ofxname = 0;
+	PREFS->dtex_ofxname = 1;
 	PREFS->dtex_ofxmemo = 2;
 	PREFS->dtex_qifmemo = TRUE;
 	PREFS->dtex_qifswap = FALSE;
@@ -913,8 +913,12 @@ GError *error = NULL;
 
 				DB( g_print(" -> ** Exchange\n") );
 
+				//homebank_pref_get_boolean(keyfile, group, "DoIntro", &PREFS->dtex_nointro);
 				homebank_pref_get_integer(keyfile, group, "DateFmt", &PREFS->dtex_datefmt);
+				homebank_pref_get_integer(keyfile, group, "OfxName", &PREFS->dtex_ofxname);
 				homebank_pref_get_integer(keyfile, group, "OfxMemo", &PREFS->dtex_ofxmemo);
+				homebank_pref_get_boolean(keyfile, group, "QifMemo", &PREFS->dtex_qifmemo);
+				homebank_pref_get_boolean(keyfile, group, "QifSwap", &PREFS->dtex_qifswap);
 
 
 			//group = "Chart";
@@ -1085,8 +1089,13 @@ gsize length;
 
 
 		group = "Exchange";
+		//g_key_file_set_boolean (keyfile, group, "DoIntro", PREFS->dtex_nointro);
 		g_key_file_set_integer (keyfile, group, "DateFmt", PREFS->dtex_datefmt);
+		g_key_file_set_integer (keyfile, group, "OfxName", PREFS->dtex_ofxname);
 		g_key_file_set_integer (keyfile, group, "OfxMemo", PREFS->dtex_ofxmemo);
+		g_key_file_set_boolean (keyfile, group, "QifMemo", PREFS->dtex_qifmemo);
+		g_key_file_set_boolean (keyfile, group, "QifSwap", PREFS->dtex_qifswap);
+
 
 		//group = "Chart";
 		//g_key_file_set_boolean (keyfile, group, "Legend", PREFS->chart_legend);

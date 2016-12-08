@@ -210,7 +210,7 @@ struct tm *temp_tm;
 GDate date;
 Transaction *newope;
 
-	DB( g_print("** ofx_proc_transaction_cb()\n") );
+	DB( g_print("\n** ofx_proc_transaction_cb()\n") );
 
 	newope = da_transaction_malloc();
 
@@ -236,7 +236,6 @@ Transaction *newope;
 	if(data.amount_valid==true)
 	{
 		newope->amount = data.amount;
-
 	}
 
 // check number :: The check number is most likely an integer and can probably be converted properly with atoi(). 
@@ -247,21 +246,76 @@ Transaction *newope;
 	}
 	//todo: reference_number ?Might present in addition to or instead of a check_number. Not necessarily a number 
 
+	//ucfirst
+	//ucword
+
+
+
 // ofx:name = Can be the name of the payee or the description of the transaction 
 	if(data.name_valid==true)
 	{
-			newope->wording = g_strdup(data.name);
+	Payee *payitem;
+	gchar *name = NULL;
+
+		//#462919 name to payee or memo
+		DB( g_print(" -> ofxname option: '%d'\n", PREFS->dtex_ofxname) );
+		switch(PREFS->dtex_ofxname)
+		{
+			case 1: //to memo
+				DB( g_print(" -> name to memo: '%s'\n", data.name) );
+				newope->wording = g_strdup(data.name);
+
+				//test
+				//strip_extra_spaces(newope->wording);
+
+				break;
+			case 2: //to payee
+				//manage memo append to payee as well
+				if( (data.memo_valid==true) && (PREFS->dtex_ofxmemo == 3) )
+				{
+					name = g_strjoin(" ", data.name, data.memo, NULL);
+				}
+				else
+					name = g_strdup(data.name);
+				
+				g_strstrip(name);
+				//test
+				//strip_extra_spaces(name);
+				
+				DB( g_print(" -> name to payee: '%s'\n", name) );
+				
+				payitem = da_pay_get_by_name(name);
+				if(payitem == NULL)
+				{
+					DB( g_print(" -> create new payee\n") );
+
+					payitem = da_pay_malloc();
+					payitem->name = name;
+					payitem->imported = TRUE;
+					da_pay_append(payitem);
+
+					if( payitem->imported == TRUE )
+						ctx->ictx->cnt_new_pay += 1;
+				}
+				else
+				{
+					g_free(name);
+				}
+				
+				newope->kpay = payitem->key;
+				break;
+		}
 	}
 
 //memo ( new for v4.2) Extra information not included in name 
 
 	DB( g_print(" -> memo is='%d'\n", data.memo_valid) );
 
-
 	if(data.memo_valid==true)
 	{
 	gchar *old = NULL;
 
+		DB( g_print(" -> oxfmemo option: '%d'\n", PREFS->dtex_ofxmemo) );
 		switch(PREFS->dtex_ofxmemo)
 		{
 			case 1:	//add to info
@@ -289,7 +343,9 @@ Transaction *newope;
 				DB( g_print(" -> old='%s', new ='%s'\n", old, newope->wording) );
 
 				break;
+			//case 3 add to payee is managed above
 		}
+		
 	}
 
 // payment
@@ -448,6 +504,8 @@ extern int ofx_STATUS_msg;*/
 	ofx_ERROR_msg	= false;
 	ofx_INFO_msg	= false;
 	ofx_STATUS_msg	= false;*/
+	
+	ctx.ictx = ictx;
 
 	LibofxContextPtr libofx_context = libofx_get_new_context();
 

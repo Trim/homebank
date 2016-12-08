@@ -566,6 +566,7 @@ gboolean account_balances_add(Transaction *trn)
 }
 
 
+//todo: optim called 2 times from dsp_mainwindow
 void account_compute_balances(void)
 {
 GList *lst_acc, *lnk_acc;

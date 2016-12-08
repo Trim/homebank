@@ -398,6 +398,9 @@ gint nbsplit;
 	if( item->paymode != PAYMODE_INTXFER )
 		item->kxferacc = 0;
 
+	//#1628678 tags for internal xfer should be checked as well
+
+
 	//#1295877 ensure income flag is correctly set
 	item->flags &= ~(OF_INCOME);
 	if( item->amount > 0)
@@ -546,21 +549,43 @@ GList *list, *matchlist = NULL;
 void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual)
 {
 GList *matchlist;
+gint count;
 
 	DB( g_print("\n[transaction] transaction_xfer_search_or_add_child\n") );
 
 	matchlist = transaction_xfer_child_might_list_get(ope);
+	count = g_list_length(matchlist);
 
-	DB( g_print(" - found result is %d, switching\n", g_list_length(matchlist)) );
+	DB( g_print(" - found result is %d, switching\n", count) );
 
+	switch(count)
+	{
+		case 0:		//we should create the child
+			transaction_xfer_create_child(ope);
+			break;
+
+		//todo: maybe with just 1 match the user must choose ?
+		//#942346: bad idea so to no let the user confirm, so let hil confirm
+		/*
+		case 1:		//transform the transaction to a child transfer
+		{
+			GList *list = g_list_first(matchlist);
+			transaction_xfer_change_to_child(ope, list->data);
+			break;
+		}
+		*/
+
+		default:	//the user must choose himself
+		{
 	Transaction *child;
 
-		child = ui_dialog_transaction_xfer_select_child(parentwindow, ope, matchlist);
+			child = ui_dialog_transaction_xfer_select_child(ope, matchlist);
 		if(child == NULL)
 			transaction_xfer_create_child(ope);
 		else
 			transaction_xfer_change_to_child(ope, child);
-
+		}
+	}
 
 	g_list_free(matchlist);
 }

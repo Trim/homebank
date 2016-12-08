@@ -464,15 +464,24 @@ gdouble value;
 static void deftransaction_button_split_cb(GtkWidget *widget, gpointer user_data)
 {
 struct deftransaction_data *data;
+Transaction *ope;
 gdouble amount;
+gint nbsplit;
 
 	DB( g_print("\n[ui-transaction] doing split\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+	ope = data->ope;
 
-	ui_split_dialog(data->window, data->ope->splits, amount, &deftransaction_set_amount_from_split);
+	amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+	ui_split_dialog(data->window, ope->splits, amount, &deftransaction_set_amount_from_split);
+
+	//eval split to garantee disabled items
+	ope->flags &= ~(OF_SPLIT);
+	nbsplit = da_splits_count(ope->splits);
+	if(nbsplit > 0)
+		data->ope->flags |= (OF_SPLIT);
 
 	deftransaction_update(data->window, NULL);	
 }

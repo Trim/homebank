@@ -42,7 +42,7 @@ enum
 
 struct repbalance_data
 {
-	GQueue		*txn_queue;
+	GList		*ope_list;
 	Filter		*filter;
 
 	guint32		accnum;

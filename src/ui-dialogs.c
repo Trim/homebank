@@ -736,7 +736,7 @@ static void ui_dialog_transaction_xfer_select_child_selection_cb(GtkTreeSelectio
 }
 
 
-Transaction *ui_dialog_transaction_xfer_select_child(GtkWindow *parentwindow, Transaction *stxn, GList *matchlist)
+Transaction *ui_dialog_transaction_xfer_select_child(Transaction *stxn, GList *matchlist)
 {
 struct xfer_data data;
 GtkWidget *window, *content, *mainvbox, *vbox, *sw, *label, *LB_several;
@@ -746,7 +746,7 @@ Transaction *retval = NULL;
 
 	window = gtk_dialog_new_with_buttons (
     			_("Select among possible transactions..."),
-    			GTK_WINDOW (parentwindow),
+    			GTK_WINDOW (GLOBALS->mainwindow),
 			    0,
 			    _("_Cancel"),
 			    GTK_RESPONSE_REJECT,
@@ -757,7 +757,7 @@ Transaction *retval = NULL;
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)&data);
 	data.window = window;
 
-		//gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
+	//gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
 	gtk_window_set_default_size (GTK_WINDOW (window), 800, 494);
 
 	content = gtk_dialog_get_content_area(GTK_DIALOG (window));

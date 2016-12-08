@@ -1470,18 +1470,18 @@ cairo_t *cr;
 #if CHART_PIE_DONUT == 1
 	a1 = 0;
 	a2 = 2 * M_PI;
+
+	//original
 	//radius = (gint)((chart->rayon/3) * (1 / PHI));
-	radius = (gint)((chart->rayon/2) * 2 / 3);
+	//5.1
+	//radius = (gint)((chart->rayon/2) * 2 / 3);
+	//ynab
+	radius = (gint)(chart->rayon/2) * 0.5;
 
 	cairo_arc(cr, cx, cy, radius, a1, a2);
 	cairo_user_set_rgbcol(cr, &global_colors[THBASE]);
 	cairo_fill(cr);
-		
-
-		
 #endif
-		
-		
 
 	cairo_destroy(cr);
 

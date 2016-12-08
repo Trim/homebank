@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-07 11:54+0200\n"
-"PO-Revision-Date: 2016-09-14 05:38+0000\n"
-"Last-Translator: Michael Dix <thylamediol@googlemail.com>\n"
+"PO-Revision-Date: 2016-11-20 20:42+0000\n"
+"Last-Translator: Denis Graipel <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-11-06 07:52+0000\n"
-"X-Generator: Launchpad (build 18246)\n"
+"X-Launchpad-Export-Date: 2016-12-07 19:36+0000\n"
+"X-Generator: Launchpad (build 18292)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:876
 msgid "HomeBank"
@@ -81,7 +81,7 @@ msgstr "_OK"
 
 #: ../src/dsp_account.c:357
 msgid "Multiple edit transactions"
-msgstr ""
+msgstr "Mehrere Transaktionen bearbeiten"
 
 #: ../src/dsp_account.c:372 ../src/ui-payee.c:921 ../src/ui-transaction.c:958
 msgid "Pa_yment:"
@@ -301,11 +301,11 @@ msgstr "\"Ausgeglichen\" für ausgewählte Transaktion(en) umschalten"
 
 #: ../src/dsp_account.c:2176
 msgid "_Multiple Edit..."
-msgstr ""
+msgstr "_Mehrere bearbeiten..."
 
 #: ../src/dsp_account.c:2176
 msgid "Edit multiple transaction"
-msgstr ""
+msgstr "Mehrere Transaktionen bearbeiten"
 
 #: ../src/dsp_account.c:2177
 msgid "Create template..."
@@ -398,7 +398,7 @@ msgstr "_Status:"
 
 #: ../src/dsp_account.c:2430
 msgid "Reset _filters"
-msgstr ""
+msgstr "_Filter zurücksetzen"
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 #: ../src/dsp_account.c:2435 ../src/rep_balance.c:853 ../src/rep_budget.c:1112
@@ -1784,7 +1784,7 @@ msgstr "von Berichten ausschließen"
 
 #: ../src/ui-archive.c:47
 msgid "Scheduled"
-msgstr ""
+msgstr "Geplant"
 
 #: ../src/ui-archive.c:48
 msgid "Template"
@@ -1892,7 +1892,7 @@ msgstr "Deaktiviert"
 
 #: ../src/ui-assign.c:694
 msgid "If empty"
-msgstr ""
+msgstr "Wenn leer"
 
 #: ../src/ui-assign.c:695
 msgid "Overwrite"
@@ -1908,16 +1908,16 @@ msgstr "Bedingung"
 
 #: ../src/ui-assign.c:795
 msgid "Search _in:"
-msgstr ""
+msgstr "Suche in"
 
 #. label = make_label_widget(_("Con_tains:"));
 #: ../src/ui-assign.c:803
 msgid "Fi_nd:"
-msgstr ""
+msgstr "Enthäl_t"
 
 #: ../src/ui-assign.c:811
 msgid "Match _case"
-msgstr ""
+msgstr "Groß-/Kleinschreibung"
 
 #: ../src/ui-assign.c:816
 msgid "Use _regular expressions"
@@ -1925,15 +1925,15 @@ msgstr "Benutze _reguläre Ausdrücke"
 
 #: ../src/ui-assign.c:831
 msgid "Assign payee"
-msgstr ""
+msgstr "Zahlungsempfänger zuweisen"
 
 #: ../src/ui-assign.c:860
 msgid "Assign category"
-msgstr ""
+msgstr "Kategorie zuweisen"
 
 #: ../src/ui-assign.c:888
 msgid "Assign payment"
-msgstr ""
+msgstr "Bezahlung zuweisen"
 
 #: ../src/ui-assist-start.c:129
 #, c-format
@@ -2107,7 +2107,7 @@ msgstr "Konto: %d - Transaktion: %d - Zahlungsempfänger: %d - Kategorie: %d"
 
 #: ../src/ui-assist-import.c:1347
 msgid "Some date convertion failed"
-msgstr ""
+msgstr "Datumskonvertierung fehlgeschlagen"
 
 #: ../src/ui-assist-import.c:1348
 #, c-format
@@ -2405,7 +2405,7 @@ msgstr "Kategorien verwalten"
 
 #: ../src/ui-category.c:1873 ../src/ui-payee.c:1270
 msgid "_Delete unused"
-msgstr ""
+msgstr "Unbenutzte Löschen"
 
 #: ../src/ui-category.c:1893
 msgid "new category"
@@ -2421,7 +2421,7 @@ msgstr "_Zusammenführen"
 
 #: ../src/ui-currency.c:370 ../src/ui-currency.c:377
 msgid "Base currency"
-msgstr ""
+msgstr "Standardwährung"
 
 #: ../src/ui-currency.c:629
 msgid "Symbol"
@@ -2445,7 +2445,7 @@ msgstr "Währung"
 
 #: ../src/ui-currency.c:836 ../src/ui-pref.c:1410
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: ../src/ui-currency.c:845 ../src/ui-pref.c:1419 ../src/ui-pref.c:1489
 msgid "_Customize"
@@ -2461,7 +2461,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:866 ../src/ui-pref.c:1440
 msgid "_Decimal char:"
-msgstr ""
+msgstr "_Dezimalzeichen"
 
 #: ../src/ui-currency.c:873 ../src/ui-pref.c:1447
 msgid "_Frac digits:"
@@ -2473,7 +2473,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:1040
 msgid "Select base currency"
-msgstr ""
+msgstr "Als Standardwährung festlegen"
 
 #: ../src/ui-currency.c:1040
 msgid "Select currency"
@@ -2493,7 +2493,7 @@ msgstr ""
 
 #: ../src/ui-currency.c:1345
 msgid "Change the base currency"
-msgstr ""
+msgstr "Standwardwährung wählen"
 
 #: ../src/ui-currency.c:1346
 msgid ""
@@ -2507,11 +2507,11 @@ msgstr "Währungen"
 
 #: ../src/ui-currency.c:1511
 msgid "Update online"
-msgstr ""
+msgstr "Online aktualisieren"
 
 #: ../src/ui-currency.c:1543
 msgid "Set as base"
-msgstr ""
+msgstr "Als Standard festlegen"
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
@@ -2523,11 +2523,11 @@ msgstr "Zuweisung"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Aktualisieren"
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Standardwährung wählen"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
@@ -2791,7 +2791,7 @@ msgstr "Standard-Kategorie"
 
 #: ../src/ui-payee.c:743
 msgid "Delete unused payee"
-msgstr ""
+msgstr "Unbenutzen Zahlungsemfpänger löschen"
 
 #: ../src/ui-payee.c:744
 msgid ""
@@ -3024,7 +3024,7 @@ msgstr "V_orlage:"
 
 #: ../src/ui-pref.c:1498
 msgid "_Format:"
-msgstr ""
+msgstr "_Format:"
 
 #: ../src/ui-pref.c:1511
 msgid ""
@@ -3154,7 +3154,7 @@ msgstr "Zuletzt benutzte Datei öffnen"
 
 #: ../src/ui-pref.c:1781
 msgid "Update currencies online"
-msgstr ""
+msgstr "Währungen online aktualisieren"
 
 #: ../src/ui-pref.c:1791
 msgid "Fiscal year"
@@ -3259,11 +3259,11 @@ msgstr ""
 
 #: ../src/ui-transaction.c:870 ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Suchen …"
 
 #: ../src/ui-transaction.c:906
 msgid "Show _scheduled"
-msgstr ""
+msgstr "Zeige geplante"
 
 #: ../src/ui-transaction.c:930
 msgid "_Date:"
@@ -3291,7 +3291,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:1105
 msgid "_Add & keep"
-msgstr ""
+msgstr "Hinzufügen und beh_alten"
 
 #: ../src/ui-transaction.c:1113
 msgid "_Post"
@@ -3299,7 +3299,7 @@ msgstr "_Posten"
 
 #: ../src/ui-transaction.c:1157
 msgid "Use a _template"
-msgstr ""
+msgstr "Vorlage erstellen"
 
 #: ../src/ui-transaction.c:1201
 msgid "Warning: amount and category sign don't match"

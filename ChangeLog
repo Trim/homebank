@@ -1,4 +1,22 @@
 
+2016-12-08  Maxime Doyen
+
+ Made 5.1.2 release.
+
+ * wish  : #1645126 remember the size of columns in the main window
+ * wish  : #1639862 multiple edit transactions date
+ * wish  : #1638023 remind scheduled listview column width
+ * wish  : #916690 qif option (info to desc; payee to desc)
+ * wish  : #462919 option to choose to import OFX name to payee or memo 
+ * bugfix: import, new account don't have currency, result display NaN
+ * bugfix: import, amount was not displaying decimal part
+ * bugfix: import, dialog to choose child xfer was popup when no match found
+ * bugfix: txn dialog, after input a split amount/category widget were not disabled
+ * bugfix: #1645001 import shows rounded amount but import correctly
+ * bugfix: #1640885 txn changes in detail list cannot be saved
+ * bugfix: #1638064 balance report may show wrong values
+
+
 2016-11-06  Maxime Doyen
 
  Made 5.1.1 release.

@@ -1098,6 +1098,8 @@ gboolean result;
 
 		if(result == GTK_RESPONSE_ACCEPT)
 		{
+			//#1640885
+			GLOBALS->changes_count++;
 			ui_reptime_compute(data->window, NULL);
 		}
 

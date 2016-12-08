@@ -347,7 +347,7 @@ guint32 acckey;
 		acckey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 
 		/* fill in the model */
-		list = g_queue_peek_head_link(data->txn_queue);
+		list = g_list_first(data->ope_list);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
@@ -399,6 +399,8 @@ gboolean result;
 
 		if(result == GTK_RESPONSE_ACCEPT)
 		{
+			//#1640885
+			GLOBALS->changes_count++;
 			repbalance_compute (data->window, NULL);
 		}
 
@@ -498,8 +500,14 @@ GList *list;
 
 	DB( g_print("(repbalance) compute_full\n") );
 
+	g_list_free(data->ope_list);
+	data->ope_list = hbfile_transaction_get_all(selkey);
+
+	Transaction *omin = g_list_first(data->ope_list)->data;
+	Transaction *omax = g_list_last(data->ope_list)->data;
+
 	// total days in the hbfile
-	data->n_result = data->filter->maxdate - data->filter->mindate;
+	data->n_result = omax->date - omin->date;
 
 	DB( g_print(" - %d days in slice\n", data->n_result) );
 
@@ -512,11 +520,8 @@ GList *list;
 	if(data->tmp_income && data->tmp_expense)
 	{
 
-		g_queue_free (data->txn_queue);
-		data->txn_queue = hbfile_transaction_get_partial(data->filter->mindate, data->filter->maxdate);
-
 		/* compute the balance */
-		list = g_queue_peek_head_link(data->txn_queue);
+		list = g_list_first(data->ope_list);
 		while (list != NULL)
 		{
 		gint pos;
@@ -529,7 +534,7 @@ GList *list;
 
 				if( acc != NULL )
 				{
-					pos = ope->date - data->filter->mindate;
+					pos = ope->date - omin->date;
 
 					// deal with account initial balance
 					if(accounts[ope->kacc] == 0)
@@ -629,6 +634,7 @@ Account *acc;
 	g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 	gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_report), NULL); /* Detach model from view */
 
+	Transaction *omin = g_list_first(data->ope_list)->data;
 	gdouble balance = 0;
 
 	for(i=0;i<=data->n_result;i++)
@@ -638,7 +644,10 @@ Account *acc;
 	gchar buf[256];
 	guint32 posdate;
 
-		posdate = data->filter->mindate + i;
+		posdate = omin->date + i;
+		
+		DB( g_print("omin->date=%d posdate=%d\n", omin->date, posdate) );
+		
 
 		balance += data->tmp_expense[i];
 		balance += data->tmp_income[i];
@@ -726,7 +735,7 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 {
 	DB( g_print("(repbalance) setup\n") );
 
-	data->txn_queue = g_queue_new ();
+	data->ope_list = NULL;
 
 	data->filter = da_filter_malloc();
 	filter_default_all_set(data->filter);
@@ -756,7 +765,7 @@ struct WinGeometry *wg;
 
 	DB( g_print("(repbalance) dispose\n") );
 
-	g_queue_free (data->txn_queue);
+	g_list_free (data->ope_list);
 
 	da_filter_free(data->filter);
 

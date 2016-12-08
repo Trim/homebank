@@ -127,8 +127,9 @@ NULL
 };
 
 gchar *CYA_IMPORT_OFXNAME[] = {
-N_("Payee"),
+N_("Ignore"),
 N_("Memo"),
+N_("Payee"),
 NULL
 };
 
@@ -136,6 +137,7 @@ gchar *CYA_IMPORT_OFXMEMO[] = {
 N_("Ignore"),
 N_("Append to Info"),
 N_("Append to Memo"),
+N_("Append to Payee"),
 NULL
 };
 
@@ -978,10 +980,10 @@ GdkRGBA rgba;
 
 	/* import */
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_dtex_datefmt), PREFS->dtex_datefmt);
-
+	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_dtex_ofxname), PREFS->dtex_ofxname);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_dtex_ofxmemo), PREFS->dtex_ofxmemo);
-
-
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_dtex_qifmemo), PREFS->dtex_qifmemo);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_dtex_qifswap), PREFS->dtex_qifswap);
 
 
 }
@@ -1093,10 +1095,10 @@ const gchar *lang;
 
 	/* import */
 	PREFS->dtex_datefmt = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dtex_datefmt));
-
+	PREFS->dtex_ofxname = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dtex_ofxname));
 	PREFS->dtex_ofxmemo = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_dtex_ofxmemo));
-
-
+	PREFS->dtex_qifmemo = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_dtex_qifmemo));
+	PREFS->dtex_qifswap = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_dtex_qifswap));
 
 	//PREFS->chart_legend = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_chartlegend));
 
@@ -1142,6 +1144,15 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
 	
 	row = 1;
+	label = make_label_widget(_("_Name field:"));
+	//----------------------------------------- l, r, t, b
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = make_cycle(label, CYA_IMPORT_OFXNAME);
+	data->CY_dtex_ofxname = widget;
+	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	row++;
 	label = make_label_widget(_("_Memo field:"));
 	//----------------------------------------- l, r, t, b
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
@@ -1149,6 +1160,25 @@ gint crow, row;
 	data->CY_dtex_ofxmemo = widget;
 	//gtk_grid_attach (GTK_GRID (group_grid), data->CY_option[FILTER_DATE], 1, 2, row, row+1);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+
+	// group :: QIF options
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
+	
+	label = make_label_group(_("QIF options"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 3, 1);
+	
+	row = 1;
+	label = make_label_widget(_("Memos:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = gtk_check_button_new_with_mnemonic (_("_Import"));
+	data->CM_dtex_qifmemo = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
+	widget = gtk_check_button_new_with_mnemonic (_("_Swap with payees"));
+	data->CM_dtex_qifswap = widget;
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 3, row, 1, 1);
 
 
 	// group :: Files folder
