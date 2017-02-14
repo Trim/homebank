@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <string.h>
+
 #include <gtk/gtk.h>
 
 #include "homebank.h"

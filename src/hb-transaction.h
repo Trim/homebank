@@ -51,6 +51,7 @@ struct _transaction
 	GList		*same;		//used for import todo: change this
 	guint32		kcur;
 	gdouble		balance;
+	gboolean	overdraft;
 };
 
 #include "hb-archive.h"
@@ -110,7 +111,7 @@ gboolean transaction_acc_move(Transaction *txn, guint32 okacc, guint32 nkacc);
 Transaction *transaction_xfer_child_strong_get(Transaction *src);
 void transaction_xfer_search_or_add_child(GtkWindow *parentwindow, Transaction *ope, gboolean manual);
 void transaction_xfer_change_to_child(Transaction *ope, Transaction *child);
-void transaction_xfer_sync_child(Transaction *ope, Transaction *child);
+void transaction_xfer_child_sync(Transaction *s_txn, Transaction *child);
 void transaction_xfer_remove_child(Transaction *src);
 Transaction *transaction_old_get_child_transfer(Transaction *src);
 

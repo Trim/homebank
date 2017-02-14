@@ -22,6 +22,7 @@
 
 
 GtkWidget *make_label(gchar *str, gfloat xalign, gfloat yalign);
+GtkWidget *make_clicklabel(gchar *id, gchar *str);
 GtkWidget *make_label_group(gchar *str);
 GtkWidget *make_label_widget(gchar *str);
 GtkWidget *make_text(gfloat xalign);

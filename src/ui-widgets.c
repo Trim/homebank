@@ -218,6 +218,21 @@ const gchar *text;
 }
 
 
+GtkWidget *make_clicklabel(gchar *id, gchar *str)
+{
+GtkWidget *label;
+gchar buffer[255];
+
+	g_snprintf(buffer, 254, "<a href=\"%s\">%s</a>", id, str);
+	label = gtk_label_new(buffer);
+	gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
+	gtk_label_set_track_visited_links(GTK_LABEL(label), FALSE);
+	gtk_widget_set_halign(label, GTK_ALIGN_START);
+
+	return GTK_WIDGET(label);
+}
+
+
 GtkWidget *make_label_group(gchar *str)
 {
 GtkWidget *label = gtk_label_new (str);

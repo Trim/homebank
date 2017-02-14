@@ -17,9 +17,21 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "homebank.h"
 
 #include "list_upcoming.h"
+
+/****************************************************************************/
+/* Debug macros																*/
+/****************************************************************************/
+#define MYDEBUG 0
+
+#if MYDEBUG
+#define DB(x) (x);
+#else
+#define DB(x);
+#endif
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
@@ -282,6 +294,8 @@ static void list_upcoming_destroy(GtkTreeView *treeview, gpointer user_data)
 {
 GtkTreeViewColumn  *column;
 
+	DB( g_print ("\n[list_upcoming] destroy\n") );
+
 	//todo: unsafe to use direct column index
 	column = gtk_tree_view_get_column(treeview, 2);
 	if( column )
@@ -304,6 +318,8 @@ GtkListStore *store;
 GtkWidget *view;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column;
+
+	DB( g_print ("\n[list_upcoming] create\n") );
 
 	/* create list store */
 	store = gtk_list_store_new(

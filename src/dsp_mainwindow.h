@@ -34,6 +34,7 @@ struct hbfile_data
 	GtkWidget   *BT_expandall;
 	GtkWidget   *BT_collapseall;
 	gboolean	showall;
+	GSimpleActionGroup *action_group_acc;
 
 	GtkWidget	*GR_top;
 	GtkWidget	*LV_top;

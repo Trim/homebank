@@ -41,7 +41,7 @@ enum
 /* list display account */
 enum
 {
-	LST_DSPACC_STATE,	/* fake column */
+	LST_DSPACC_POS,	/* fake column */
 	LST_DSPACC_NAME,	/* fake column */
 	LST_DSPACC_BANK,
 	LST_DSPACC_TODAY,

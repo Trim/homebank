@@ -1290,8 +1290,17 @@ gint first, i;
 	{
 		if(chart->minimum != 0 && chart->minimum >= chart->min)
 		{
-			y  = 0.5 + chart->oy + (ABS(chart->minimum)/chart->range) * chart->graph_height;
+			if( chart->minimum < 0 )
+			{
+				y  = 0.5 + chart->oy + (ABS(chart->minimum)/chart->range) * chart->graph_height;
+			}
+			else
+			{
+				y  = 0.5 + chart->oy - (ABS(chart->minimum)/chart->range) * chart->graph_height;
+			}
+
 			y2 = (ABS(chart->min)/chart->range) * chart->graph_height - (y - chart->oy) + 1;
+
 			cairo_set_source_rgba(cr, COLTOCAIRO(255), COLTOCAIRO(0), COLTOCAIRO(0), AREA_ALPHA / 2);
 
 			DB( g_print(" draw over: x%f, y%f, w%f, h%f\n", chart->l, y, chart->w, y2) );

@@ -29,7 +29,7 @@ char *chart_colors[] =
 	"Quicken", 
 	"Office 2010", 
 	"Office 2013", 
-	"Analytics", 
+	"Analytics",
 	"YNAB",
 	NULL
 };

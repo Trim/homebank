@@ -449,7 +449,12 @@ gchar *color;
 	//if(amount != 0)
 	//{
 		hb_strfmon(buf, G_ASCII_DTOSTR_BUF_SIZE-1, amount, ope->kcur, GLOBALS->minor);
+
 		color = get_normal_color_amount(amount);
+		if( (column == LST_DSPOPE_BALANCE) && (ope->overdraft == TRUE) && (PREFS->custom_colors == TRUE) )
+		{
+			color = PREFS->color_warn;
+		}
 
 		g_object_set(renderer,
 			"foreground",  color,

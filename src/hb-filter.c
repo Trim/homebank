@@ -99,12 +99,14 @@ guint i;
 	flt->wording = NULL;
 	flt->tag = NULL;
 
-	flt->last_tab = 0;
+	*flt->last_tab = '\0';
 }
 
 
 void filter_default_all_set(Filter *flt)
 {
+GHashTableIter iter;
+gpointer key, value;
 gint i;
 
 	DB( g_print("(filter) reset %p\n", flt) );
@@ -124,6 +126,30 @@ gint i;
 		flt->paymode[i] = TRUE;
 
 	filter_preset_daterange_set(flt, flt->range, 0);
+
+	// set all account
+	g_hash_table_iter_init (&iter, GLOBALS->h_acc);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	{
+	Account *item = value;
+		item->filter = TRUE;
+	}
+
+	// set all payee
+	g_hash_table_iter_init (&iter, GLOBALS->h_pay);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	{
+	Payee *item = value;
+		item->filter = TRUE;
+	}
+
+	// set all payee
+	g_hash_table_iter_init (&iter, GLOBALS->h_cat);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	{
+	Category *item = value;
+		item->filter = TRUE;
+	}
 
 }
 
@@ -394,7 +420,8 @@ GList *lcat, *list;
 		case FLT_STATUS_UNCATEGORIZED:
 			flt->option[FILTER_CATEGORY] = 1;
 			catitem = da_cat_get(0);	// no category
-			catitem->filter = TRUE;
+			if(catitem != NULL)
+				catitem->filter = TRUE;
 			break;
 
 		case FLT_STATUS_UNRECONCILED:

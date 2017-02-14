@@ -46,6 +46,7 @@ struct _archive
 	Split		*splits[TXN_MAX_SPLIT+1];
 
 	guint32		nextdate;
+	gushort		daygap;
 	gushort		every;
 	gushort		unit;
 	gushort		limit;

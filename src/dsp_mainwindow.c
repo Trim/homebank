@@ -144,6 +144,8 @@ void ui_mainwindow_scheduled_postall(GtkWidget *widget, gpointer user_data);
 
 void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path);
 
+static void ui_panel_accounts_setup(struct hbfile_data *data);
+
 extern gchar *CYA_ACC_TYPE[];
 
 gchar *CYA_CATSUBCAT[] = { 
@@ -539,12 +541,10 @@ static void ui_mainwindow_action_quit(void)
 {
 gboolean result;
 
-	//gtk_widget_destroy(GLOBALS->mainwindow);
-
+	//emulate the wm close button
 	g_signal_emit_by_name(GLOBALS->mainwindow, "delete-event", NULL, &result);
-
-	//gtk_main_quit();
 }
+
 
 static void ui_mainwindow_action_file_statistics(void)
 {
@@ -1036,6 +1036,7 @@ gboolean file_clear = GPOINTER_TO_INT(user_data);
 	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_top))));
 	
 	data->showall = FALSE;
+	ui_panel_accounts_setup(data);
 	
 	hbfile_cleanup(file_clear);
 	hbfile_setup(file_clear);
@@ -1479,6 +1480,8 @@ struct hbfile_data *data = user_data;
 static void ui_mainwindow_scheduled_post_cb(GtkWidget *widget, gpointer user_data)
 {
 struct hbfile_data *data = user_data;
+
+	DB( g_print("\n[ui-mainwindow] scheduled post\n") );
 
 	Archive *arc = ui_mainwindow_scheduled_get_selected_item(GTK_TREE_VIEW(data->LV_upc));
 
@@ -1998,16 +2001,33 @@ gpointer key, value;
 	{
 	GPtrArray *gpa = value;
 	gdouble tbank, ttoday, tfuture;
+	gint position;
 
 		if(gpa != NULL)
 		{
 			nbtype++;
 			//1: Header: Bank, Cash, ...
-			//DB( g_print(" - append type '%s'\n", CYA_ACC_TYPE[i]) );
-			DB( g_print("\n - append type '%d'\n", key) );
+			DB( g_print("\n - append type '%s'\n", (gchar *)key) );
+
+			//#1663399 keep type position like in dropdown
+			position = 0;
+			if( PREFS->pnl_acc_show_by == DSPACC_GROUP_BY_TYPE )
+			{
+			gint t = 0;	
+
+				while(CYA_ACC_TYPE[t] != NULL && t < 15)
+				{
+					if( !strcmp(CYA_ACC_TYPE[t], key) )
+						break;
+					t++;
+				}
+
+				position = t;
+			}
 
 			gtk_tree_store_append (GTK_TREE_STORE(model), &iter1, NULL);
 			gtk_tree_store_set (GTK_TREE_STORE(model), &iter1,
+					  LST_DSPACC_POS, position,
 					  LST_DSPACC_DATATYPE, DSPACC_TYPE_HEADER,
 					  LST_DSPACC_NAME, key,
 					  -1);
@@ -2118,7 +2138,7 @@ gint flags;
 	gchar *basename;
 	gchar *changed;
 
-		DB( g_print(" +  1: wintitle %x\n", data->wintitle) );
+		DB( g_print(" +  1: wintitle %p\n", data->wintitle) );
 
 		basename = g_path_get_basename(GLOBALS->xhb_filepath);
 
@@ -2334,6 +2354,14 @@ static void
     }
   }
 
+
+static void ui_mainwindow_destroy(GtkTreeView *treeview, gpointer user_data)
+{
+	DB( g_print("\n[ui-mainwindow] destroy\n") );
+
+}
+
+
 /*
 **
 */
@@ -2343,7 +2371,7 @@ struct hbfile_data *data = user_data;
 struct WinGeometry *wg;
 gboolean retval = FALSE;
 
-	DB( g_print("\n[ui-mainwindow] dispose\n") );
+	DB( g_print("\n[ui-mainwindow] delete-event\n") );
 
 	//store position and size
 	wg = &PREFS->wal_wg;
@@ -2367,19 +2395,18 @@ gboolean retval = FALSE;
 	}
 	else
 	{
-		DB( g_print(" free wintitle %x\n", data->wintitle) );
-
+		//todo: retval is useless and below should move to destroy
+		retval = TRUE;
 		gtk_widget_destroy(data->LV_top);
 
 		g_free(data->wintitle);
 		da_filter_free(data->filter);
 		g_free(user_data);
+		
 		gtk_main_quit();
 	}
 
-
-
-	//delete-event TRUE abort/FALSE destroy
+	//TRUE:stop other handlers from being invoked for the event | FALSE: propagate
 	return retval;
 }
 
@@ -2792,9 +2819,35 @@ GVariant *old_state, *new_state;
 
 static const GActionEntry actions[] = {
 //  { "paste", activate_action, NULL, NULL,      NULL, {0,0,0} },
-  { "showall" ,  activate_toggle, NULL, "false",    NULL, {0,0,0} },
-  { "groupby",  activate_radio,  "s",  "'type'", NULL, {0,0,0} }
+	{ "showall", activate_toggle, NULL, "false" , NULL, {0,0,0} },
+	{ "groupby", activate_radio ,  "s", "'type'", NULL, {0,0,0} }
 };
+
+
+static void ui_panel_accounts_setup(struct hbfile_data *data)
+{
+GAction *action;
+GVariant *new_state;
+
+	if( !G_IS_SIMPLE_ACTION_GROUP(data->action_group_acc) )
+		return;
+
+	action = g_action_map_lookup_action (G_ACTION_MAP (data->action_group_acc), "showall");
+	if( action )
+	{
+		new_state = g_variant_new_boolean (data->showall);
+		g_simple_action_set_state (G_SIMPLE_ACTION(action), new_state);
+	}
+	
+	action = g_action_map_lookup_action (G_ACTION_MAP (data->action_group_acc), "groupby");
+	if( action )
+	{
+		const gchar *value = (PREFS->pnl_acc_show_by == DSPACC_GROUP_BY_TYPE) ? "type" : "bank";
+		new_state = g_variant_new_string (value);
+		g_simple_action_set_state (G_SIMPLE_ACTION (action), new_state);
+	}
+
+}
 
 
 static GtkWidget *ui_mainwindow_create_youraccounts(struct hbfile_data *data)
@@ -2850,16 +2903,6 @@ GtkToolItem *toolitem;
 
 
 	//gmenu test (see test folder into gtk)
-	widget = gtk_menu_button_new();
-	gtk_menu_button_set_direction (GTK_MENU_BUTTON(widget), GTK_ARROW_UP);
-	gtk_widget_set_halign (widget, GTK_ALIGN_END);
-	image = gtk_image_new_from_icon_name (ICONNAME_EMBLEM_SYSTEM, GTK_ICON_SIZE_MENU);
-	g_object_set (widget, "image", image,  NULL);
-
-	toolitem = gtk_tool_item_new();
-	gtk_container_add (GTK_CONTAINER(toolitem), widget);
-	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
-
 GMenu *menu, *section;
 
 	menu = g_menu_new ();
@@ -2878,15 +2921,21 @@ GMenu *menu, *section;
 
 
 	GSimpleActionGroup *group = g_simple_action_group_new ();
+	data->action_group_acc = group;
 	g_action_map_add_action_entries (G_ACTION_MAP (group), actions, G_N_ELEMENTS (actions), data);
 
-	//init radio
-	GAction *action = g_action_map_lookup_action (G_ACTION_MAP (group), "groupby");
-	const gchar *value = (PREFS->pnl_acc_show_by == DSPACC_GROUP_BY_TYPE) ? "type" : "bank";
-	g_simple_action_set_state (G_SIMPLE_ACTION (action), g_variant_new_string (value));
+
+	widget = gtk_menu_button_new();
+	gtk_menu_button_set_direction (GTK_MENU_BUTTON(widget), GTK_ARROW_UP);
+	gtk_widget_set_halign (widget, GTK_ALIGN_END);
+	image = gtk_image_new_from_icon_name (ICONNAME_EMBLEM_SYSTEM, GTK_ICON_SIZE_MENU);
+	g_object_set (widget, "image", image,  NULL);
+
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), widget);
+	gtk_toolbar_insert(GTK_TOOLBAR(tbar), GTK_TOOL_ITEM(toolitem), -1);
 
 	gtk_widget_insert_action_group (widget, "actions", G_ACTION_GROUP(group));
-
 	gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (widget), G_MENU_MODEL (menu));
 
 	return panel;
@@ -3059,7 +3108,7 @@ GtkAction *action;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_print(" - new window=%x, inst_data=%0x\n", window, data) );
+	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
 
 	// this is our mainwindow, so store it to GLOBALS data
 	data->window = window;
@@ -3095,21 +3144,16 @@ GtkWidget *bar, *label;
 		gtk_paned_pack1 (GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
 		widget = ui_mainwindow_scheduled_create(data);
-		gtk_paned_pack2 (GTK_PANED(vpaned), widget, FALSE, FALSE);
+		gtk_paned_pack2 (GTK_PANED(vpaned), widget, TRUE, FALSE);
 
 		widget = ui_mainwindow_create_youraccounts(data);
+		//gtk_widget_set_size_request (widget, 100, -1);
 		gtk_paned_pack1 (GTK_PANED(hpaned), widget, FALSE, FALSE);
 
 		widget = ui_mainwindow_create_topspending(data);
-		gtk_paned_pack2 (GTK_PANED(hpaned), widget, FALSE, FALSE);
+		//gtk_widget_set_size_request (widget, -1, 100);
+		gtk_paned_pack2 (GTK_PANED(hpaned), widget, TRUE, FALSE);
 
-
-	DB( g_print(" - vpaned=%d hpaned=%d\n", PREFS->wal_vpaned, PREFS->wal_hpaned) );
-
-	if(PREFS->wal_hpaned > 0)
-		gtk_paned_set_position(GTK_PANED(data->hpaned), PREFS->wal_hpaned);
-	if(PREFS->wal_vpaned > 0)
-		gtk_paned_set_position(GTK_PANED(data->vpaned), PREFS->wal_vpaned);
 
 	//setup, init and show window
 	wg = &PREFS->wal_wg;
@@ -3122,7 +3166,15 @@ GtkWidget *bar, *label;
 		gtk_window_maximize(GTK_WINDOW(window));
 
 	gtk_widget_show_all (window);
-	
+
+	//#1662197/1660910 moved after resize/show
+	DB( g_print(" - vpaned=%d hpaned=%d\n", PREFS->wal_vpaned, PREFS->wal_hpaned) );
+
+	if(PREFS->wal_hpaned > 0)
+		gtk_paned_set_position(GTK_PANED(data->hpaned), PREFS->wal_hpaned);
+	if(PREFS->wal_vpaned > 0)
+		gtk_paned_set_position(GTK_PANED(data->vpaned), PREFS->wal_vpaned);
+
 	//todo: move this elsewhere
 	DB( g_print(" - setup stuff\n") );
 
@@ -3176,6 +3228,7 @@ GtkWidget *bar, *label;
 
 	/* GtkWindow events */
     g_signal_connect (window, "delete-event", G_CALLBACK (ui_mainwindow_dispose), (gpointer)data);
+	g_signal_connect (window, "destroy", G_CALLBACK (ui_mainwindow_destroy), NULL);
 
 
 	g_signal_connect (window, "screen-changed",

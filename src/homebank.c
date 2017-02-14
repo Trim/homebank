@@ -1048,9 +1048,11 @@ gboolean openlast;
 			/* update the mainwin display */
 			ui_mainwindow_update(mainwin, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_BALANCE+UF_VISUAL));
 
-		DB( g_print(" - gtk_main()\n" ) );
-
+			DB( g_print(" - gtk_main()\n" ) );
 			gtk_main ();
+	
+			DB( g_print(" - call destroy mainwin\n" ) );
+			gtk_widget_destroy(mainwin);
 		}
 
 	}

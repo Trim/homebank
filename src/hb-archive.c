@@ -148,6 +148,8 @@ Payee *pay;
 
 Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn)
 {
+	DB( g_print("\n[scheduled] init from txn\n") );
+
 	//fill it
 	arc->amount		= txn->amount;
 	arc->kacc		= txn->kacc;
@@ -171,14 +173,16 @@ Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn)
 
 
 
-static guint32 _sched_date_get_next_post(Archive *arc, guint32 nextdate)
+static guint32 _sched_date_get_next_post(GDate *tmpdate, Archive *arc, guint32 nextdate)
 {
-GDate *tmpdate;
 guint32 nextpostdate = nextdate;
 
-	DB( g_print("\n[scheduled] _sched_date_get_next_post\n") );
+	//DB( g_print("\n[scheduled] date_get_next_post\n") );
 
-	tmpdate = g_date_new_julian(nextpostdate);
+	g_date_set_julian(tmpdate, nextpostdate);
+
+	//DB( g_print("in : %2d-%2d-%4d\n", g_date_get_day(tmpdate), g_date_get_month (tmpdate), g_date_get_year(tmpdate) ) );
+
 	switch(arc->unit)
 	{
 		case AUTO_UNIT_DAY:
@@ -195,9 +199,11 @@ guint32 nextpostdate = nextdate;
 			break;
 	}
 
+	//DB( g_print("out: %2d-%2d-%4d\n", g_date_get_day(tmpdate), g_date_get_month (tmpdate), g_date_get_year(tmpdate) ) );
+
+
 	/* get the final post date and free */
 	nextpostdate = g_date_get_julian(tmpdate);
-	g_date_free(tmpdate);
 	
 	return nextpostdate;
 }
@@ -222,7 +228,7 @@ GDateWeekday wday;
 guint32 finalpostdate;
 gint shift;
 
-	DB( g_print("\n[scheduled] scheduled_get_postdate\n") );
+	DB( g_print("\n[scheduled] get_postdate\n") );
 
 
 	finalpostdate = postdate;
@@ -264,10 +270,14 @@ gint shift;
 
 guint32 scheduled_get_latepost_count(Archive *arc, guint32 jrefdate)
 {
-guint32 curdate = jrefdate - arc->nextdate;
+GDate *post_date;
+guint32 curdate;
 guint32 nblate = 0;
 
+	//DB( g_print("\n[scheduled] get_latepost_count\n") );
+
 	/*
+	curdate = jrefdate - arc->nextdate;
 	switch(arc->unit)
 	{
 		case AUTO_UNIT_DAY:
@@ -303,15 +313,20 @@ guint32 nblate = 0;
 	
 
 	// pre 5.1 way
+	post_date = g_date_new();
 	curdate = arc->nextdate;
 	while(curdate <= jrefdate)
 	{
-		curdate = _sched_date_get_next_post(arc, curdate);
+		curdate = _sched_date_get_next_post(post_date, arc, curdate);
 		nblate++;
 		// break if over limit or at 11 max (to display +10)
 		if(nblate >= arc->limit || nblate >= 11)
 			break;
 	}
+
+	//DB( g_print(" nblate=%d\n", nblate) );
+
+	g_date_free(post_date);
 
 	return nblate;
 }
@@ -320,8 +335,45 @@ guint32 nblate = 0;
 /* return 0 is max number of post is reached */
 guint32 scheduled_date_advance(Archive *arc)
 {
-	arc->nextdate = _sched_date_get_next_post(arc, arc->nextdate);
-	
+GDate *post_date;
+gushort lastday;
+
+	DB( g_print("\n[scheduled] date_advance\n") );
+
+	DB( g_print(" arc: '%s'\n", arc->wording ) );
+
+	post_date = g_date_new();
+	g_date_set_julian(post_date, arc->nextdate);
+	// saved the current day number
+	lastday = g_date_get_day(post_date);
+
+	arc->nextdate = _sched_date_get_next_post(post_date, arc, arc->nextdate);
+
+	DB( g_print(" raw next post date: %2d-%2d-%4d\n", g_date_get_day(post_date), g_date_get_month (post_date), g_date_get_year(post_date) ) );
+
+	//for day > 28 we might have a gap to compensate later
+	if( (arc->unit==AUTO_UNIT_MONTH) || (arc->unit==AUTO_UNIT_YEAR) )
+	{
+		if( lastday >= 28 )
+		{
+			DB( g_print(" lastday:%d, daygap:%d\n", lastday, arc->daygap) );
+			if( arc->daygap > 0 )
+			{
+				g_date_add_days (post_date, arc->daygap);
+				arc->nextdate = g_date_get_julian (post_date);
+				lastday += arc->daygap;
+				DB( g_print(" adjusted post date: %2d-%2d-%4d\n", g_date_get_day(post_date), g_date_get_month (post_date), g_date_get_year(post_date) ) );
+			}
+
+			arc->daygap = CLAMP(lastday - g_date_get_day(post_date), 0, 3);
+		
+			DB( g_print(" daygap is %d\n", arc->daygap) );
+		}
+		else
+			arc->daygap = 0;
+	}
+
+
 	//#1556289
 	/* check limit, update and maybe break */
 	if(arc->flags & OF_LIMIT)
@@ -333,7 +385,9 @@ guint32 scheduled_date_advance(Archive *arc)
 			arc->nextdate = 0;
 		}
 	}
-	
+
+	g_date_free(post_date);
+
 	return arc->nextdate;
 }
 

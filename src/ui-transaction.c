@@ -154,8 +154,12 @@ guint kacc, kdst;
 
 		srcacc = da_acc_get(kacc);
 		dstacc = da_acc_get(kdst);
-		if(srcacc->kcur != dstacc->kcur) {
-			sensitive = FALSE;
+		if( srcacc && dstacc )
+		{
+			if(srcacc->kcur != dstacc->kcur)
+			{
+				sensitive = FALSE;
+			}
 		}
 	}
 
@@ -607,85 +611,87 @@ gboolean result;
 		account_balances_sub(old_txn);
 		account_balances_add(new_txn);
 
+		/* ok different case here
+
+			* new is intxfer
+				a) old was not
+					transaction_xfer_search_or_add_child
+				b) old was
+					sync (acc chnage is inside now)
+
+			* new is not intxfer
+				a) old was
+					manage break intxfer
+
+			* always manage account change
+
+		*/
+
 		if( new_txn->paymode == PAYMODE_INTXFER )
 		{
-			//nota: if kxfer is 0, the user may have just changed the paymode to xfer
-			DB( g_print(" - kxfer = %d\n", new_txn->kxfer) );
-
-			if(new_txn->kxfer > 0)	//1) search a strong linked child
+			if( old_txn->paymode != PAYMODE_INTXFER )
 			{
-			Transaction *ltxn;
-
-				DB( g_print(" - old_txn: kacc=%d kxferacc=%d\n", old_txn->kacc, old_txn->kxferacc) );
-				
-				//#1584342 was faultly old_txn
-				ltxn = transaction_xfer_child_strong_get(new_txn);
-				if(ltxn != NULL) //should never be the case
-				{
-					DB( g_print(" - strong link found, do sync\n") );
-					transaction_xfer_sync_child(new_txn, ltxn);
-				}
-				else
-				{
-					DB( g_print(" - no, somethin' went wrong here...\n") );
-				}
+				// this call can popup a user dialog to choose
+				transaction_xfer_search_or_add_child(GTK_WINDOW(dialog), new_txn, FALSE);
 			}
 			else
 			{
-				//2) any standard transaction that match ?
-				transaction_xfer_search_or_add_child(GTK_WINDOW(dialog), new_txn, FALSE);
+			Transaction *child;
+
+				//use old in case of dst_acc change
+				child = transaction_xfer_child_strong_get(old_txn);
+				//#1584342 was faultly old_txn
+				transaction_xfer_child_sync(new_txn, child);
 			}
-		}
-
-		//#1250061 : manage ability to break an internal xfer
-		if(old_txn->paymode == PAYMODE_INTXFER && new_txn->paymode != PAYMODE_INTXFER)
-		{
-		GtkWidget *p_dialog;
-		gboolean break_result;
-			
-			DB( g_print(" - should break internal xfer\n") );
-
-			p_dialog = gtk_message_dialog_new
-			(
-				GTK_WINDOW(parent),
-				GTK_DIALOG_MODAL,
-				GTK_MESSAGE_WARNING,
-				GTK_BUTTONS_YES_NO,
-				_("Do you want to break the internal transfer ?\n\n"
-				  "Proceeding will delete the target transaction.")
-			);
-
-			break_result = gtk_dialog_run( GTK_DIALOG( p_dialog ) );
-			gtk_widget_destroy( p_dialog );
-
-			if(break_result == GTK_RESPONSE_YES)
-			{
-				transaction_xfer_remove_child(old_txn);
-			}
-			else	//force paymode to internal xfer
-			{
-				new_txn->paymode = PAYMODE_INTXFER;
-			}
-		}
-	}
-	
-	//1638035: manage account change
-	if( old_txn->kacc != new_txn->kacc )
-	{
-		//locked from ui, but test anyway: forbid change for internal transfer
-		if( new_txn->paymode == PAYMODE_INTXFER )
-		{
-			new_txn->kacc = old_txn->kacc;
 		}
 		else
 		{
-			//todo: maybe we should restrict this also to same currency account
-			account_balances_sub(new_txn);
-			transaction_acc_move(new_txn, old_txn->kacc, new_txn->kacc);
-			account_balances_add(new_txn);
+			//#1250061 : manage ability to break an internal xfer
+			if(old_txn->paymode == PAYMODE_INTXFER)
+			{
+			GtkWidget *p_dialog;
+			gboolean break_result;
+		
+				DB( g_print(" - should break internal xfer\n") );
+
+				p_dialog = gtk_message_dialog_new
+				(
+					GTK_WINDOW(parent),
+					GTK_DIALOG_MODAL,
+					GTK_MESSAGE_WARNING,
+					GTK_BUTTONS_YES_NO,
+					_("Do you want to break the internal transfer ?\n\n"
+					  "Proceeding will delete the target transaction.")
+				);
+
+				break_result = gtk_dialog_run( GTK_DIALOG( p_dialog ) );
+				gtk_widget_destroy( p_dialog );
+
+				if(break_result == GTK_RESPONSE_YES)
+				{
+					//we must use old_txn to ensure get the child
+					//#1663789 but we must clean new as well
+					transaction_xfer_remove_child(old_txn);
+					new_txn->kxfer = 0;
+					new_txn->kxferacc = 0;
+				}
+				else	//force paymode to internal xfer
+				{
+					new_txn->paymode = PAYMODE_INTXFER;
+				}
+			}
 		}
+
+		//1638035: manage account change
+		if( old_txn->kacc != new_txn->kacc )
+		{
+			//todo: maybe we should restrict this also to same currency account
+			//=> no pb for normal, and intxfer is restricted by ui (in theory)
+			transaction_acc_move(new_txn, old_txn->kacc, new_txn->kacc);
+		}
+
+
 	}
-	
 	
 	deftransaction_dispose(dialog, NULL);
 	gtk_widget_destroy (dialog);

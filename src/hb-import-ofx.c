@@ -281,7 +281,13 @@ Transaction *newope;
 				g_strstrip(name);
 				//test
 				//strip_extra_spaces(name);
-				
+
+				#ifndef G_OS_UNIX
+					DB( g_print(" ensure UTF-8\n") );
+
+					name = homebank_utf8_ensure(name);
+				#endif
+		
 				DB( g_print(" -> name to payee: '%s'\n", name) );
 				
 				payitem = da_pay_get_by_name(name);

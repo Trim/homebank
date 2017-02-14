@@ -668,23 +668,21 @@ GtkWidget *dialog = NULL;
 
 		gtk_dialog_set_default_response(GTK_DIALOG( dialog ), 2);
 
-	  result = gtk_dialog_run( GTK_DIALOG( dialog ) );
-	  gtk_widget_destroy( dialog );
+		result = gtk_dialog_run( GTK_DIALOG( dialog ) );
+		gtk_widget_destroy( dialog );
 
-	  if(result == 1 || result == GTK_RESPONSE_DELETE_EVENT)
+		if(result == 1 || result == GTK_RESPONSE_DELETE_EVENT)
 		{
-	  	retval = FALSE;
+			retval = FALSE;
 		}
 		else
 		{
-	  if(result == 2)
-	  {
-		DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
-		homebank_save_xml(GLOBALS->xhb_filepath);
-	  }
+			if(result == 2)
+			{
+				DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
+				homebank_save_xml(GLOBALS->xhb_filepath);
+			}
 		}
-
-
 
 	}
 	return retval;

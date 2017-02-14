@@ -36,7 +36,7 @@ struct ui_flt_manage_data
 {
 	Filter		*filter;
 
-	GtkWidget	*notebook;
+	GtkWidget	*stack;
 
 	GtkWidget	*CY_option[FILTER_MAX];
 

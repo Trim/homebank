@@ -237,13 +237,16 @@ gint retval = 0;
 gint dt1, dt2;
 Account *entry1, *entry2;
 gchar *name1, *name2;
+gint pos1, pos2;
 
     gtk_tree_model_get(model, a, 
+		LST_DSPACC_POS, &pos1,
     	LST_DSPACC_DATATYPE, &dt1, 
     	LST_DSPACC_DATAS, &entry1,
     	LST_DSPACC_NAME, &name1,
     	-1);
     gtk_tree_model_get(model, b, 
+		LST_DSPACC_POS, &pos2,
     	LST_DSPACC_DATATYPE, &dt2, 
     	LST_DSPACC_DATAS, &entry2,
     	LST_DSPACC_NAME, &name2,
@@ -256,7 +259,9 @@ gchar *name1, *name2;
 	else
 	if( dt1 == DSPACC_TYPE_HEADER && dt2 == DSPACC_TYPE_HEADER )
 	{
-		retval = hb_string_utf8_compare(name1, name2);
+		retval = pos1 - pos2;
+		if( !retval )
+			retval = hb_string_utf8_compare(name1, name2);
 	}
 
 	g_free(name2);
@@ -298,6 +303,8 @@ static void list_account_destroy(GtkTreeView *treeview, gpointer user_data)
 {
 GtkTreeViewColumn  *column;
 
+	DB( g_print ("\n[list_account] destroy\n") );
+
 	//todo: unsafe to use direct column index
 	column = gtk_tree_view_get_column(treeview, LST_DSPACC_NAME);
 	if( column )
@@ -313,6 +320,8 @@ GtkTreeStore *store;
 GtkWidget *view;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column;
+
+	DB( g_print ("\n[list_account] create\n") );
 
 	/* create list store */
 	store = gtk_tree_store_new(

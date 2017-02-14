@@ -1468,7 +1468,7 @@ GError *error = NULL;
 
 	//disable define windows
 	GLOBALS->define_off++;
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(2));
+	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
 
     /* create window, etc */
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);

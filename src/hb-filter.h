@@ -110,7 +110,7 @@ struct _filter
 	gchar		*info;
 	gchar		*wording;
 	gchar		*tag;
-	guint		last_tab;
+	gchar		last_tab[8];
 };
 
 

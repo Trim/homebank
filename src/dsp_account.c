@@ -199,10 +199,13 @@ static void ui_multipleedit_dialog_apply( GtkWidget *widget, gpointer user_data 
 struct ui_multipleedit_dialog_data *data;
 GtkTreeModel *model;
 GList *selection, *list;
+guint changes;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	DB( g_print ("\n[ui-multipleedit] apply\n") );
+
+	changes = GLOBALS->changes_count; 
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->treeview));
 	selection = gtk_tree_selection_get_selected_rows(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->treeview)), &model);
@@ -259,13 +262,11 @@ GList *selection, *list;
 		if( gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_acc)) )
 		{
 		guint32 nkacc = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
-
-			account_balances_sub(txn);
+			
 			if( transaction_acc_move(txn, txn->kacc, nkacc) )
 			{
 			GtkTreeIter iter;
 
-				account_balances_add(txn);
 				DB( g_print(" -> acc: '%d'\n", nkacc) );	
 				gtk_tree_model_get_iter(model, &iter, list->data);
 				gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -354,14 +355,9 @@ GList *selection, *list;
 
 		if( data->has_xfer && txn->paymode == PAYMODE_INTXFER )
 		{
-		Transaction *ltxn;
-
-			ltxn = transaction_xfer_child_strong_get(txn);
-			if(ltxn != NULL) //should never be the case
-			{
-				DB( g_print(" - strong link found, do sync\n") );
-				transaction_xfer_sync_child(txn, ltxn);
-			}
+		Transaction *child;
+			child = transaction_xfer_child_strong_get(txn);
+			transaction_xfer_child_sync(txn, child);
 		}
 
 		list = g_list_previous(list);
@@ -369,6 +365,11 @@ GList *selection, *list;
 
 	g_list_foreach(selection, (GFunc)gtk_tree_path_free, NULL);
 	g_list_free(selection);
+
+	//refresh main
+	if( GLOBALS->changes_count > changes )
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
+
 
 }
 
@@ -747,7 +748,6 @@ gint count;
 		{	
 		GList *tmplist = g_list_first(badxferlist);
 
-
 			while (tmplist != NULL)
 			{
 			Transaction *stxn = tmplist->data;
@@ -839,6 +839,10 @@ gboolean usermode = TRUE;
 			txt,
 			count);
 	}
+
+	//refresh main
+	if( count > 0 )
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
 
 }
 
@@ -1196,9 +1200,12 @@ gushort lpos = 1;
 
 		//#1267344
 		if(!(ope->status == TXN_STATUS_REMIND))
-				balance += ope->amount;
+			balance += ope->amount;
 
 		ope->balance = balance;
+
+		//#1661806
+		ope->overdraft = (ope->balance < data->acc->minimum) ? TRUE : FALSE;
 
 		if(ope->date == ldate)
 		{
@@ -1475,6 +1482,7 @@ static void register_panel_action(GtkWidget *widget, gpointer user_data)
 {
 struct register_panel_data *data;
 gint action = GPOINTER_TO_INT(user_data);
+guint changes = GLOBALS->changes_count;
 gboolean result;
 
 	DB( g_print("\n[account] action\n") );
@@ -1572,6 +1580,8 @@ gboolean result;
 
 				if(result == GTK_RESPONSE_ACCEPT)
 				{
+					//manage current window display stuff
+					
 					//#1270687: sort if date changed
 					if(old_txn->date != new_txn->date)
 						data->do_sort = TRUE;
@@ -1813,6 +1823,10 @@ gboolean result;
 		break;
 
 	}
+
+	//refresh main
+	if( GLOBALS->changes_count > changes )
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
 
 }
 
@@ -2422,7 +2436,7 @@ GError *error = NULL;
 
 			GtkAccelGroup *ag = gtk_ui_manager_get_accel_group (ui);
 
-			DB( g_print(" - add_accel_group actions=%x, ui=%x, ag=%x\n", (gint)actions, (gint)ui, (gint)ag) );
+			DB( g_print(" - add_accel_group actions=%p, ui=%p, ag=%p\n", actions, ui, ag) );
 
 			gtk_window_add_accel_group (GTK_WINDOW (window), ag);
 
@@ -2634,7 +2648,7 @@ GError *error = NULL;
 
 	/* setup to moove later */
 	data->filter = da_filter_malloc();
-	DB( g_print(" - filter ok %x\n", (gint)data->filter) );
+	DB( g_print(" - filter ok %p\n", data->filter) );
 
 
 	return window;

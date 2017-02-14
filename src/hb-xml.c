@@ -607,6 +607,7 @@ gint i;
 		else if(!strcmp (attribute_names[i], "unit"       )) { entry->unit = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "limit"      )) { entry->limit = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "weekend"    )) { entry->weekend = atoi(attribute_values[i]); }
+		else if(!strcmp (attribute_names[i], "gap"        )) { entry->daygap = atoi(attribute_values[i]); }
 		else if(!strcmp (attribute_names[i], "scat" 	  )) { scat = (gchar *)attribute_values[i]; split = TRUE; }
 		else if(!strcmp (attribute_names[i], "samt"       )) { samt = (gchar *)attribute_values[i]; split = TRUE; }
 		else if(!strcmp (attribute_names[i], "smem"       )) { smem = (gchar *)attribute_values[i]; split = TRUE; }
@@ -939,8 +940,13 @@ gboolean rc;
 				hbfile_sanity_check();
 				homebank_upgrade_to_v12();
 			}
+			if( ctx.data_version < 050104 )	// <= 5.1.4 
+			{
+				hbfile_sanity_check();
+			}
 
 			// next ?
+
 			
 		}
 	}
@@ -1414,6 +1420,7 @@ GError *error = NULL;
 		hb_xml_append_int(node, "unit", item->unit);
 		hb_xml_append_int(node, "limit", item->limit);
 		hb_xml_append_int(node, "weekend", item->weekend);
+		hb_xml_append_int(node, "gap", item->daygap);
 
 		if(da_splits_count(item->splits) > 0)
 		{
