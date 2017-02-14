@@ -6,17 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-01-22 18:52+0100\n"
 "PO-Revision-Date: 2016-12-18 13:24+0000\n"
 "Last-Translator: Alireza jahani fard <136329@gmail.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
-"Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:37+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -829,9 +828,9 @@ msgstr ""
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "ـسقف خرج"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -889,9 +888,8 @@ msgid "File error"
 msgstr "خطای فایل"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "ایجاد"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -976,19 +974,16 @@ msgid "Collapse all"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "جزییات را نشان بده"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(فاقد نوع)"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "ایجاد"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1154,7 +1149,7 @@ msgstr "-فاصله-"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1569,7 +1564,7 @@ msgstr "ـتجمیع"
 msgid "_View by:"
 msgstr "ـنمایش بر اساس"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1578,10 +1573,10 @@ msgstr "ـنمایش بر اساس"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1589,7 +1584,7 @@ msgstr "ـنمایش بر اساس"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -2031,7 +2026,8 @@ msgstr "ساخت یک حساب"
 
 #: ../src/ui-assist-start.c:425
 msgid "This is a confirmation page, press 'Apply' to apply changes"
-msgstr "این صفحه ی تایید است. برای إعمال تغییرات بر دگمه‌ی 'Apply' کلیک کنید."
+msgstr ""
+"این صفحه ی تایید است. برای إعمال تغییرات بر دگمه‌ی 'Apply' کلیک کنید."
 
 #: ../src/ui-assist-start.c:431 ../src/ui-assist-import.c:62
 msgid "Confirmation"
@@ -3065,12 +3061,12 @@ msgstr ""
 "%b مخفف نام محلی ماه. \n"
 "%B نام کامل محلی ماه. \n"
 "%c نمایش مناسب زمان و تاریخ محل. \n"
-"%C عدد قرن (سال تقسیم بر ۱۰۰ و کوتاه شده به عنوان عدد صحیح) به مثابه‌ی یک عدد "
-"ده‌دهی [00-99]. \n"
+"%C عدد قرن (سال تقسیم بر ۱۰۰ و کوتاه شده به عنوان عدد صحیح) به مثابه‌ی یک "
+"عدد ده‌دهی [00-99]. \n"
 "%d روز ماه به مثابه‌ی یک عدد ده‌دهی [01,31]. \n"
 "%D همانند %m/%d/%y. \n"
-"%e روز ماه به مثابه‌ی یک عدد ده‌دهی[1,31]؛ با یک فاصله یک رقم تکی قبل‌ش اضافه "
-"می‌شود. \n"
+"%e روز ماه به مثابه‌ی یک عدد ده‌دهی[1,31]؛ با یک فاصله یک رقم تکی قبل‌ش "
+"اضافه می‌شود. \n"
 "%j روز سال به مثابه‌ی یک عدد ده‌دهی [001-366]. \n"
 "%m ماه به مثابه‌ی یک عدد ده‌دهی [01,12]. \n"
 "%p نمایش مناسب تاریخ محل. \n"
@@ -3361,12 +3357,3 @@ msgstr "شامل"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "خارج از شمول"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "پیکره‌بندی پیش‌فرض‌ها"
-
-#~ msgid "Edit the filter"
-#~ msgstr "فیلتر را ویرایش کن"
-
-#~ msgid "Edit Filter"
-#~ msgstr "فیلتر ویرایش"

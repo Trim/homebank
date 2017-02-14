@@ -11,12 +11,11 @@ msgstr ""
 "PO-Revision-Date: 2017-01-11 22:03+0000\n"
 "Last-Translator: Carlo <Unknown>\n"
 "Language-Team: Italian <it@li.org>\n"
-"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finanza, contabilità, bilancio, personale, soldi"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank è un software gratuito (sia come \"libertà di parola\" che come "
 "\"birra gratis\") che vi aiuterà a gestire la contabilità personale."
@@ -741,7 +740,8 @@ msgstr "Traduci questa applicazione..."
 
 #: ../src/dsp_mainwindow.c:225
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Collegati al sito LaunchPad per aiutare a tradurre questa applicazione"
+msgstr ""
+"Collegati al sito LaunchPad per aiutare a tradurre questa applicazione"
 
 #: ../src/dsp_mainwindow.c:226
 msgid "Report a Problem..."
@@ -844,9 +844,9 @@ msgstr "Spese maggiori"
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "Spese maggiori"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -904,9 +904,8 @@ msgid "File error"
 msgstr "Errore file"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Istituto"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -991,19 +990,16 @@ msgid "Collapse all"
 msgstr "Comprimi tutto"
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Mostra _dettagli"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(nessun tipo)"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Istituto"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1169,7 +1165,7 @@ msgstr "- suddividi -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1584,7 +1580,7 @@ msgstr "_Accumula"
 msgid "_View by:"
 msgstr "_Mostra per:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1593,10 +1589,10 @@ msgstr "_Mostra per:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1604,7 +1600,7 @@ msgstr "_Mostra per:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -3414,12 +3410,3 @@ msgstr "Includi"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Escludi"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Modifica filtro"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Configura _Preferenze"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Modifica filtro"

@@ -8,15 +8,14 @@ msgstr ""
 "Project-Id-Version: HomeBank 3.2 alpha2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-01-22 18:52+0100\n"
-"PO-Revision-Date: 2016-12-29 11:42+0000\n"
+"PO-Revision-Date: 2017-02-07 16:59+0000\n"
 "Last-Translator: Mike <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
-"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finanzas;contabilidad;presupuesto;personal;dinero;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank es un software libre que le ayudará a gestionar su contabilidad "
 "personal."
@@ -107,7 +106,7 @@ msgstr "_Cuenta:"
 #: ../src/dsp_account.c:497 ../src/rep_time.c:1400 ../src/ui-archive.c:1034
 #: ../src/ui-assign.c:843 ../src/ui-transaction.c:1025
 msgid "_Payee:"
-msgstr "_Portador:"
+msgstr "_Beneficiario"
 
 #: ../src/dsp_account.c:513 ../src/rep_time.c:1392 ../src/ui-archive.c:1042
 #: ../src/ui-assign.c:872 ../src/ui-hbfile.c:279 ../src/ui-payee.c:923
@@ -143,7 +142,7 @@ msgstr ""
 #: ../src/dsp_account.c:798
 #, c-format
 msgid "Every transaction amount will be divided by %.6f."
-msgstr "Cada cantidad de transacción será dividida po %.6f."
+msgstr "Cada cantidad de transacción será dividida por %.6f."
 
 #: ../src/dsp_account.c:802
 msgid ""
@@ -222,7 +221,7 @@ msgstr "%d elementos (%d seleccionados %s)"
 #: ../src/dsp_account.c:2134
 #, c-format
 msgid "[closed account] %s"
-msgstr ""
+msgstr "[cuenta cerrada] %s"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2243
@@ -824,7 +823,7 @@ msgstr "Lea el _manual de HomeBank"
 
 #: ../src/dsp_mainwindow.c:901
 msgid "Configure _preferences"
-msgstr ""
+msgstr "Configurar_preferencias"
 
 #: ../src/dsp_mainwindow.c:905
 msgid "Create a _new file"
@@ -845,9 +844,9 @@ msgstr "Gasto superior"
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "Gasto superior"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -905,9 +904,8 @@ msgid "File error"
 msgstr "Error de archivo"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Institución"
+msgstr "Sin institución"
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -992,19 +990,16 @@ msgid "Collapse all"
 msgstr "Contraer todo"
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Mostrar _detalles"
+msgstr "Mostrar todo"
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(sin tipo)"
+msgstr "Por Tipo"
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Institución"
+msgstr "Por institución"
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1170,7 +1165,7 @@ msgstr "- división -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1373,7 +1368,7 @@ msgstr "Ver resultados en gráfico circular"
 
 #: ../src/rep_stats.c:69 ../src/ui-filter.c:1265
 msgid "Edit filter"
-msgstr ""
+msgstr "Editar filtro"
 
 #. is_active
 #. name, icon-name
@@ -1585,7 +1580,7 @@ msgstr "_Acumulado"
 msgid "_View by:"
 msgstr "_Ver por:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1594,10 +1589,10 @@ msgstr "_Ver por:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1605,7 +1600,7 @@ msgstr "_Ver por:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -2980,7 +2975,7 @@ msgstr "Adjuntar a la memoria"
 
 #: ../src/ui-pref.c:140
 msgid "Append to Payee"
-msgstr ""
+msgstr "Anexar a beneficiario"
 
 #: ../src/ui-pref.c:500
 msgid "System Language"
@@ -3012,7 +3007,7 @@ msgstr "Opciones OFX/QFX"
 
 #: ../src/ui-pref.c:1177
 msgid "_Name field:"
-msgstr ""
+msgstr "Campo _Nombre"
 
 #: ../src/ui-pref.c:1186
 msgid "_Memo field:"
@@ -3020,15 +3015,15 @@ msgstr "Campo _Memo:"
 
 #: ../src/ui-pref.c:1200
 msgid "QIF options"
-msgstr ""
+msgstr "Opciones QIF"
 
 #: ../src/ui-pref.c:1204
 msgid "Memos:"
-msgstr ""
+msgstr "Notas:"
 
 #: ../src/ui-pref.c:1209
 msgid "_Swap with payees"
-msgstr ""
+msgstr "_Intercambiar con beneficiarios"
 
 #: ../src/ui-pref.c:1220 ../src/ui-pref.c:1890
 msgid "Files folder"
@@ -3413,12 +3408,3 @@ msgstr "Incluir"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Excluir"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Editar filtro"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Editar filtro"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Configurar _preferencias"

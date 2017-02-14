@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: homebank master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-01-22 18:52+0100\n"
-"PO-Revision-Date: 2017-01-13 09:16+0000\n"
+"PO-Revision-Date: 2017-01-22 21:58+0000\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 "X-Poedit-Country: SLOVENIA\n"
+"Language: \n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
@@ -41,8 +41,8 @@ msgstr "finance;računovodstvo;denar;osebno;budget;banka;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "Program HomeBank je prosta programska oprema (kot \"svoboda govora\" in tudi "
 "kot \"brezplačno pivo\"), s katero je mogoče enostavno upravljati osebno "
@@ -744,7 +744,8 @@ msgstr "Prevod programa ..."
 
 #: ../src/dsp_mainwindow.c:225
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Povezava s spletno stranjo LaunchPad za pomoč pri prevajanju programa"
+msgstr ""
+"Povezava s spletno stranjo LaunchPad za pomoč pri prevajanju programa"
 
 #: ../src/dsp_mainwindow.c:226
 msgid "Report a Problem..."
@@ -847,9 +848,9 @@ msgstr "Skupna poraba"
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "Skupna poraba"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -907,9 +908,8 @@ msgid "File error"
 msgstr "Napaka datoteke"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Ustanova"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -994,19 +994,16 @@ msgid "Collapse all"
 msgstr "Zloži vse"
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Pokaži _podrobnosti"
+msgstr "Pokaži vse"
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(ni določene vrste)"
+msgstr "Po vrsti"
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Ustanova"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1172,7 +1169,7 @@ msgstr "- razdelitev -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1375,7 +1372,7 @@ msgstr "Prikaz podatkov v diagramu"
 
 #: ../src/rep_stats.c:69 ../src/ui-filter.c:1265
 msgid "Edit filter"
-msgstr ""
+msgstr "Uredi filter"
 
 #. is_active
 #. name, icon-name
@@ -1587,7 +1584,7 @@ msgstr "_Seštevaj"
 msgid "_View by:"
 msgstr "_Pokaži za:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1596,10 +1593,10 @@ msgstr "_Pokaži za:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1607,7 +1604,7 @@ msgstr "_Pokaži za:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -3402,12 +3399,3 @@ msgstr "Vključi"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Ne upoštevaj"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Urejanje filtra"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Uredi filter"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Nastavitev _možosti"

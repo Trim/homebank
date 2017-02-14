@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-01-22 18:52+0100\n"
 "PO-Revision-Date: 2015-01-03 08:06+0000\n"
 "Last-Translator: Иван Костадинов <irkostadinov@abv.bg>\n"
 "Language-Team: Bulgarian <bg@li.org>\n"
-"Language: bg_BG\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
+"Language: bg_BG\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
@@ -38,8 +38,8 @@ msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 
 #: ../data/homebank.appdata.xml.in.h:2
@@ -828,9 +828,9 @@ msgstr ""
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "_Най-големи разходи"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -888,9 +888,8 @@ msgid "File error"
 msgstr "Грешка във файл"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Учреждение"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -975,19 +974,16 @@ msgid "Collapse all"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Показване на _подробности"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(без тип)"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Учреждение"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1153,7 +1149,7 @@ msgstr "- разделяне -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1336,7 +1332,8 @@ msgstr "Няма дефинирани сметки в бюджета"
 
 #: ../src/rep_budget.c:1340
 msgid "You should include some accounts from the account dialog."
-msgstr "Трябва да включите поне една сметка от диалоговия прозорец за сметки."
+msgstr ""
+"Трябва да включите поне една сметка от диалоговия прозорец за сметки."
 
 #: ../src/rep_stats.c:66 ../src/ui-pref.c:2446
 msgid "Column"
@@ -1568,7 +1565,7 @@ msgstr "_Натрупване"
 msgid "_View by:"
 msgstr "Преглед по:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1577,10 +1574,10 @@ msgstr "Преглед по:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1588,7 +1585,7 @@ msgstr "Преглед по:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -3349,12 +3346,3 @@ msgstr "Включване"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Изключване"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Редактиране на филтъра"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Редактиране на филтъра"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Конфигуриране на _Настройки"

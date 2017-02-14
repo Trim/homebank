@@ -8,15 +8,14 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-01-22 18:52+0100\n"
-"PO-Revision-Date: 2017-01-19 02:14+0000\n"
-"Last-Translator: Adriano Ramos <Unknown>\n"
+"PO-Revision-Date: 2017-02-03 16:19+0000\n"
+"Last-Translator: Andre Soares <soares.andre@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "finanças;contabilidade;orçamento;pessoal;dinheiro;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank é um software livre (como em \"liberdade de expressão\" e também em "
 "\"cerveja gratuita\") que auxiliará você a gerenciar suas finanças pessoais."
@@ -222,7 +221,7 @@ msgstr "%d itens (%d selecionados %s)"
 #: ../src/dsp_account.c:2134
 #, c-format
 msgid "[closed account] %s"
-msgstr ""
+msgstr "[Conta Encerrada]%s"
 
 #. name, icon-name, label
 #: ../src/dsp_account.c:2243
@@ -424,7 +423,7 @@ msgstr "Zerar_filtros"
 #: ../src/dsp_account.c:2519 ../src/rep_balance.c:871 ../src/rep_budget.c:1115
 #: ../src/rep_stats.c:1526 ../src/rep_time.c:1425 ../src/rep_vehicle.c:735
 msgid "Euro _minor"
-msgstr ""
+msgstr "Euro secundário"
 
 #. header
 #: ../src/dsp_mainwindow.c:150 ../src/dsp_mainwindow.c:2654
@@ -741,7 +740,8 @@ msgstr "Traduzir esta Aplicação..."
 
 #: ../src/dsp_mainwindow.c:225
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Conectar ao website do Launchpad para ajudar a traduzir esta aplicação"
+msgstr ""
+"Conectar ao website do Launchpad para ajudar a traduzir esta aplicação"
 
 #: ../src/dsp_mainwindow.c:226
 msgid "Report a Problem..."
@@ -823,7 +823,7 @@ msgstr "Leia o _manual do HomeBank"
 
 #: ../src/dsp_mainwindow.c:901
 msgid "Configure _preferences"
-msgstr ""
+msgstr "Configurar Preferências"
 
 #: ../src/dsp_mainwindow.c:905
 msgid "Create a _new file"
@@ -844,9 +844,9 @@ msgstr "Maiores gastos"
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "Maiores gastos"
+msgstr "Maiores %d gastos"
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -904,9 +904,8 @@ msgid "File error"
 msgstr "Erro no arquivo"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Instituição"
+msgstr "sem instituição"
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -991,19 +990,16 @@ msgid "Collapse all"
 msgstr "Recolher todos"
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Exibir _detalhes"
+msgstr "Mostrar tudo"
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(sem tipo)"
+msgstr "Por tipo"
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Instituição"
+msgstr "por instituição"
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1169,7 +1165,7 @@ msgstr "- dividir -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1372,7 +1368,7 @@ msgstr "Ver resultados num gráfico de rosca"
 
 #: ../src/rep_stats.c:69 ../src/ui-filter.c:1265
 msgid "Edit filter"
-msgstr ""
+msgstr "Editar filtro"
 
 #. is_active
 #. name, icon-name
@@ -1584,7 +1580,7 @@ msgstr "_Acumulado"
 msgid "_View by:"
 msgstr "E_xibir por:"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1593,10 +1589,10 @@ msgstr "E_xibir por:"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1604,7 +1600,7 @@ msgstr "E_xibir por:"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1816,7 +1812,7 @@ msgstr "Limites de saldo"
 
 #: ../src/ui-account.c:1386
 msgid "_Overdraft at:"
-msgstr ""
+msgstr "_Saldo negativo em:"
 
 #: ../src/ui-account.c:1398
 msgid "Report exclusion"
@@ -2499,7 +2495,7 @@ msgstr "_Símbolo:"
 
 #: ../src/ui-currency.c:858 ../src/ui-pref.c:1495
 msgid "Is pre_fix"
-msgstr ""
+msgstr "É pre_fixo"
 
 #: ../src/ui-currency.c:863 ../src/ui-pref.c:1500
 msgid "_Decimal char:"
@@ -2542,18 +2538,20 @@ msgid ""
 "If you proceed, rates of other currencies\n"
 "will be set to 0, don't forget to update it"
 msgstr ""
+"se você continuar, as taxas de outras moedas serão ajustadas para 0, não "
+"esqueça de atualizr."
 
 #: ../src/ui-currency.c:1470
 msgid "Currencies"
-msgstr ""
+msgstr "Moedas correntes"
 
 #: ../src/ui-currency.c:1520
 msgid "Update online"
-msgstr ""
+msgstr "Atualização Online"
 
 #: ../src/ui-currency.c:1553
 msgid "Set as base"
-msgstr ""
+msgstr "Usar como base"
 
 #: ../src/ui-dialogs.c:176
 msgid "File statistics"
@@ -2565,17 +2563,19 @@ msgstr "Atribuição"
 
 #: ../src/ui-dialogs.c:324
 msgid "Upgrade"
-msgstr ""
+msgstr "Atualizar"
 
 #: ../src/ui-dialogs.c:349
 msgid "Select a base currency"
-msgstr ""
+msgstr "Selecione a moeda corrente"
 
 #: ../src/ui-dialogs.c:358
 msgid ""
 "Starting v5.1, HomeBank can manage several currencies\n"
 "if the currency below is not correct, please change it:"
 msgstr ""
+"Iniciando na versão 5.1, Homebank pode gerenciar várias moedas\n"
+"se a moeda abaixo não está correta, mude-a por favor:"
 
 #: ../src/ui-dialogs.c:475
 msgid "Import from CSV"
@@ -2583,11 +2583,11 @@ msgstr "Importar do CSV"
 
 #: ../src/ui-dialogs.c:537
 msgid "Open HomeBank file"
-msgstr ""
+msgstr "Abrir arquivo HomeBank"
 
 #: ../src/ui-dialogs.c:542
 msgid "Save HomeBank file as"
-msgstr ""
+msgstr "Salvar arquivo HomeBank como"
 
 #: ../src/ui-dialogs.c:553
 msgid "HomeBank files"
@@ -2664,27 +2664,27 @@ msgstr "Qualquer Estado"
 
 #: ../src/ui-filter.c:68
 msgid "This month"
-msgstr ""
+msgstr "Este mês"
 
 #: ../src/ui-filter.c:69
 msgid "Last month"
-msgstr ""
+msgstr "Mês passado"
 
 #: ../src/ui-filter.c:70
 msgid "This quarter"
-msgstr ""
+msgstr "Este quartil"
 
 #: ../src/ui-filter.c:71
 msgid "Last quarter"
-msgstr ""
+msgstr "Último quartil"
 
 #: ../src/ui-filter.c:72
 msgid "This year"
-msgstr ""
+msgstr "Este ano"
 
 #: ../src/ui-filter.c:73
 msgid "Last year"
-msgstr ""
+msgstr "Ano passado"
 
 #: ../src/ui-filter.c:75
 msgid "Last 30 days"
@@ -2825,7 +2825,7 @@ msgstr "dia(s) a frente da data atual"
 
 #: ../src/ui-payee.c:708
 msgid "Default category"
-msgstr ""
+msgstr "Categoria padrão"
 
 #: ../src/ui-payee.c:746
 msgid "Delete unused payee"
@@ -2841,7 +2841,7 @@ msgstr ""
 
 #: ../src/ui-payee.c:919
 msgid "Default"
-msgstr ""
+msgstr "Padrão"
 
 #: ../src/ui-payee.c:976
 #, c-format
@@ -2926,15 +2926,15 @@ msgstr "Texto ao lado dos ícones"
 
 #: ../src/ui-pref.c:107
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontal"
 
 #: ../src/ui-pref.c:108
 msgid "Vertical"
-msgstr ""
+msgstr "Vertical"
 
 #: ../src/ui-pref.c:109
 msgid "Both"
-msgstr ""
+msgstr "Ambos"
 
 #: ../src/ui-pref.c:116
 msgid "Tango light"
@@ -2974,7 +2974,7 @@ msgstr "Anexar nas Observações"
 
 #: ../src/ui-pref.c:140
 msgid "Append to Payee"
-msgstr ""
+msgstr "Anexar aos Favorecidos"
 
 #: ../src/ui-pref.c:500
 msgid "System Language"
@@ -3006,7 +3006,7 @@ msgstr "opções de arquivos OFX/QFX"
 
 #: ../src/ui-pref.c:1177
 msgid "_Name field:"
-msgstr ""
+msgstr "_Nome campo:"
 
 #: ../src/ui-pref.c:1186
 msgid "_Memo field:"
@@ -3014,15 +3014,15 @@ msgstr "Ca_mpo observações:"
 
 #: ../src/ui-pref.c:1200
 msgid "QIF options"
-msgstr ""
+msgstr "Opções QIF"
 
 #: ../src/ui-pref.c:1204
 msgid "Memos:"
-msgstr ""
+msgstr "Memorandos:"
 
 #: ../src/ui-pref.c:1209
 msgid "_Swap with payees"
-msgstr ""
+msgstr "_Troca entre favorecidos"
 
 #: ../src/ui-pref.c:1220 ../src/ui-pref.c:1890
 msgid "Files folder"
@@ -3050,7 +3050,7 @@ msgstr "Opções dos gráficos"
 
 #: ../src/ui-pref.c:1336
 msgid "Color scheme:"
-msgstr ""
+msgstr "Esquema de cores:"
 
 #: ../src/ui-pref.c:1358
 msgid "Statistics options"
@@ -3083,7 +3083,7 @@ msgstr "_Pré-definido:"
 
 #: ../src/ui-pref.c:1558
 msgid "_Format:"
-msgstr ""
+msgstr "_Formato:"
 
 #: ../src/ui-pref.c:1571
 msgid ""
@@ -3177,7 +3177,7 @@ msgstr "_Barra de ferramentas:"
 #. data->CM_ruleshint = widget;
 #: ../src/ui-pref.c:1742
 msgid "_Grid line:"
-msgstr ""
+msgstr "_Linhas de grade:"
 
 #: ../src/ui-pref.c:1754
 msgid "Amount colors"
@@ -3213,7 +3213,7 @@ msgstr "Carregar último arquivo aberto"
 
 #: ../src/ui-pref.c:1841
 msgid "Update currencies online"
-msgstr ""
+msgstr "Atualizar moedas online"
 
 #: ../src/ui-pref.c:1851
 msgid "Fiscal year"
@@ -3343,7 +3343,7 @@ msgstr ""
 
 #: ../src/ui-transaction.c:1134
 msgid "_Add & keep"
-msgstr ""
+msgstr "_Adicionar e manter"
 
 #: ../src/ui-transaction.c:1142
 msgid "_Post"
@@ -3355,11 +3355,11 @@ msgstr "Usar um mode_lo"
 
 #: ../src/ui-transaction.c:1230
 msgid "Warning: amount and category sign don't match"
-msgstr ""
+msgstr "Aviso: quantia e categoria parecem não bater"
 
 #: ../src/ui-widgets.c:273
 msgid "Search..."
-msgstr ""
+msgstr "Pesquisar..."
 
 #: ../src/ui-widgets.c:796
 msgid "Check"
@@ -3409,12 +3409,3 @@ msgstr "incluir"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Excluir"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Editar Filtro"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Editar filtro"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Configurar _preferências"

@@ -11,12 +11,11 @@ msgstr ""
 "PO-Revision-Date: 2016-12-29 10:24+0000\n"
 "Last-Translator: salazar <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
-"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-01-22 16:08+0000\n"
-"X-Generator: Launchpad (build 18302)\n"
+"X-Launchpad-Export-Date: 2017-02-14 20:36+0000\n"
+"X-Generator: Launchpad (build 18326)\n"
 
 #: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:879
 msgid "HomeBank"
@@ -37,8 +36,8 @@ msgstr "финансы;учет;бюджет;личный;деньги;"
 
 #: ../data/homebank.appdata.xml.in.h:1
 msgid ""
-"HomeBank is a free software (as in \"free speech\" and also as in \"free beer"
-"\") that will assist you to manage your personal accounting."
+"HomeBank is a free software (as in \"free speech\" and also as in \"free "
+"beer\") that will assist you to manage your personal accounting."
 msgstr ""
 "HomeBank - это свободное программное обеспечение, которое поможет вам "
 "управлять вашими личными финансами"
@@ -739,7 +738,8 @@ msgstr "Перевести это приложение..."
 
 #: ../src/dsp_mainwindow.c:225
 msgid "Connect to the LaunchPad website to help translate this application"
-msgstr "Соединиться с сайтом LaunchPad для помощи в переводе этого приложения"
+msgstr ""
+"Соединиться с сайтом LaunchPad для помощи в переводе этого приложения"
 
 #: ../src/dsp_mainwindow.c:226
 msgid "Report a Problem..."
@@ -842,9 +842,9 @@ msgstr "Наибольшие расходы"
 
 #. future usage
 #: ../src/dsp_mainwindow.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Top %d spending"
-msgstr "Наибольшие расходы"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:1335 ../src/rep_stats.c:1025 ../src/rep_stats.c:1045
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:594
@@ -902,9 +902,8 @@ msgid "File error"
 msgstr "Ошибка файла"
 
 #: ../src/dsp_mainwindow.c:1929
-#, fuzzy
 msgid "(no institution)"
-msgstr "Организация"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2081
 msgid "Grand total"
@@ -989,19 +988,16 @@ msgid "Collapse all"
 msgstr "Свернуть все"
 
 #: ../src/dsp_mainwindow.c:2869
-#, fuzzy
 msgid "Show all"
-msgstr "Показать _детали"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2874
-#, fuzzy
 msgid "By type"
-msgstr "(нет типа)"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2875
-#, fuzzy
 msgid "By institition"
-msgstr "Организация"
+msgstr ""
 
 #: ../src/dsp_mainwindow.c:2926
 msgid "Where your money goes"
@@ -1167,7 +1163,7 @@ msgstr "- разделитель -"
 #. label = gtk_label_new(_("General"));
 #. page = ui_flt_manage_page_general(&data);
 #. gtk_notebook_append_page (GTK_NOTEBOOK (notebook), page, label);
-#.
+#. 
 #: ../src/list_operation.c:1044 ../src/list_operation.c:1362
 #: ../src/rep_balance.c:1240 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1097
 #: ../src/ui-filter.c:1302 ../src/ui-pref.c:1540
@@ -1582,7 +1578,7 @@ msgstr "Накопительный"
 msgid "_View by:"
 msgstr "_Просмотреть за"
 
-#.
+#. 
 #. LST_CAR_DATE,
 #. LST_CAR_WORDING,
 #. LST_CAR_METER,
@@ -1591,10 +1587,10 @@ msgstr "_Просмотреть за"
 #. LST_CAR_AMOUNT,
 #. LST_CAR_DIST,
 #. LST_CAR_100KM
-#.
-#.
+#. 
+#. 
 #. column: Wording
-#.
+#. 
 #. column = gtk_tree_view_column_new();
 #. gtk_tree_view_column_set_title(column, _("Wording"));
 #. gtk_tree_view_append_column (GTK_TREE_VIEW(view), column);
@@ -1602,7 +1598,7 @@ msgstr "_Просмотреть за"
 #. gtk_tree_view_column_pack_start(column, renderer, TRUE);
 #. gtk_tree_view_column_add_attribute(column, renderer, "text", LST_CAR_WORDING);
 #. //gtk_tree_view_column_set_cell_data_func(column, renderer, repvehicle_text_cell_data_function, NULL, NULL);
-#.
+#. 
 #. column: Meter
 #: ../src/rep_vehicle.c:219 ../src/rep_vehicle.c:1130
 msgid "Meter"
@@ -1859,7 +1855,8 @@ msgstr "Шаблон %d"
 
 #: ../src/ui-archive.c:391
 msgid "If you delete a scheduled/template, it will be permanently lost."
-msgstr "Если вы удалите запланированное/шаблон, он будет безвозвратно утерян."
+msgstr ""
+"Если вы удалите запланированное/шаблон, он будет безвозвратно утерян."
 
 #: ../src/ui-archive.c:983 ../src/ui-transaction.c:968
 msgid "_Amount:"
@@ -2047,7 +2044,8 @@ msgstr "Создать счет"
 
 #: ../src/ui-assist-start.c:425
 msgid "This is a confirmation page, press 'Apply' to apply changes"
-msgstr "Это страница подтверждения, нажмите \"Принять\" для принятия изменений"
+msgstr ""
+"Это страница подтверждения, нажмите \"Принять\" для принятия изменений"
 
 #: ../src/ui-assist-start.c:431 ../src/ui-assist-import.c:62
 msgid "Confirmation"
@@ -3401,12 +3399,3 @@ msgstr "Включить"
 #: ../src/ui-widgets.c:935
 msgid "Exclude"
 msgstr "Исключить"
-
-#~ msgid "Edit Filter"
-#~ msgstr "Редактировать фильтр"
-
-#~ msgid "Edit the filter"
-#~ msgstr "Редактировать фильтр"
-
-#~ msgid "Configure _Preferences"
-#~ msgstr "Сконфигурировать настройки"
