@@ -1151,6 +1151,10 @@ struct register_panel_data *data;
 	if(PREFS->hidereconciled)
 		filter_preset_status_set (data->filter, 1);
 
+	// add eventual x days into future display
+	if( PREFS->date_future_nbdays > 0 )
+		filter_preset_daterange_add_futuregap(data->filter, PREFS->date_future_nbdays);
+
 	register_panel_collect_filtered_txn(data->LV_ope);
 	register_panel_listview_populate(data->LV_ope);
 	
@@ -1197,6 +1201,7 @@ gushort lpos = 1;
 	while (list != NULL)
 	{
 	Transaction *ope = list->data;
+	gdouble value;
 
 		//#1267344
 		if(!(ope->status == TXN_STATUS_REMIND))
@@ -1204,8 +1209,12 @@ gushort lpos = 1;
 
 		ope->balance = balance;
 
-		//#1661806
-		ope->overdraft = (ope->balance < data->acc->minimum) ? TRUE : FALSE;
+		//#1661806 add show overdraft
+		//#1672209 added round like for #400483
+		ope->overdraft = FALSE;
+		value = hb_amount_round(balance, 2);
+		if( value != 0.0 && value < data->acc->minimum )
+			ope->overdraft = TRUE;
 
 		if(ope->date == ldate)
 		{
@@ -1543,7 +1552,8 @@ gboolean result;
 					deftransaction_get(dialog, NULL);
 					transaction_add(data->cur_ope, data->LV_ope, data->accnum);
 					register_panel_update(widget, GINT_TO_POINTER(UF_BALANCE));
-					data->acc->flags |= AF_ADDED;
+					//#1667201 already done into transaction_add
+					//data->acc->flags |= AF_ADDED;
 					GLOBALS->changes_count++;
 					//store last date
 					src_txn->date = data->cur_ope->date;

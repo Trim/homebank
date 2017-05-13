@@ -1078,7 +1078,7 @@ gsize length;
 		group = "Filter";
 		g_key_file_set_integer (keyfile, group, "DateRangeWal", PREFS->date_range_wal);
 		g_key_file_set_integer (keyfile, group, "DateRangeTxn", PREFS->date_range_txn);
-		g_key_file_set_integer (keyfile, group, "DateFutureNbdays", PREFS->date_future_nbdays);
+		g_key_file_set_integer (keyfile, group, "DateFutureNbDays", PREFS->date_future_nbdays);
 		g_key_file_set_integer (keyfile, group, "DateRangeRep", PREFS->date_range_rep);
 
 		DB( g_print(" -> ** euro\n") );

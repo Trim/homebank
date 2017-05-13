@@ -205,6 +205,34 @@ Payee *pay;
 }
 
 
+//#1676162 update the nb digits of amount
+static void deftransaction_set_amount_nbdigits(GtkWidget *widget, guint32 kacc)
+{
+struct deftransaction_data *data;
+
+	DB( g_print("\n[ui-transaction] set_amount_nbdigits\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	Account *srcacc = da_acc_get(kacc);
+	if(srcacc != NULL)
+	{
+	Currency *cur = da_cur_get(srcacc->kcur);
+
+		DB( g_print("- acc is %d '%s', curr=%d\n", srcacc->key, srcacc->name, srcacc->kcur) );
+
+		if(cur != NULL)
+		{
+			DB( g_print("- set digits to '%s' %d\n", cur->name, cur->frac_digits) );
+			gtk_spin_button_set_digits (GTK_SPIN_BUTTON(data->ST_amount), cur->frac_digits);
+		}
+		else
+			gtk_spin_button_set_digits (GTK_SPIN_BUTTON(data->ST_amount), 2);
+		
+	}
+}
+
+
 static void deftransaction_update_accto(GtkWidget *widget, gpointer user_data)
 {
 struct deftransaction_data *data;
@@ -218,6 +246,7 @@ guint kacc;
 
 	DB( g_print(" acc is %d\n", kacc) );
 
+	deftransaction_set_amount_nbdigits(widget, kacc);
 	//g_signal_handlers_block_by_func (G_OBJECT (data->PO_accto), G_CALLBACK (deftransaction_update_transfer), NULL);
 	//ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_accto), 0);
 	//g_signal_handlers_unblock_by_func (G_OBJECT (data->PO_accto), G_CALLBACK (deftransaction_update_transfer), NULL);
@@ -413,18 +442,21 @@ gdouble amount;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	paymode    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
-
-	// for internal transfer add, amount must be expense by default
-	if( paymode == PAYMODE_INTXFER && data->type == TRANSACTION_EDIT_ADD )
+	//#1681532 not reproduced, so prevent
+	if( GTK_IS_COMBO_BOX(data->NU_mode) )
 	{
-		amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
-		if(amount > 0)
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount *= -1);
-	}
+		paymode    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
 
-	deftransaction_update_warnsign(widget, NULL);
-	
+		// for internal transfer add, amount must be expense by default
+		if( paymode == PAYMODE_INTXFER && data->type == TRANSACTION_EDIT_ADD )
+		{
+			amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+			if(amount > 0)
+				gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount *= -1);
+		}
+
+		deftransaction_update_warnsign(widget, NULL);
+	}
 	return FALSE;
 }
 

@@ -497,6 +497,7 @@ struct repbalance_data *data;
 static void repbalance_compute_full_datas(guint32 selkey, gboolean selectall, struct repbalance_data *data)
 {
 GList *list;
+GList *lst_acc, *lnk_acc;
 
 	DB( g_print("(repbalance) compute_full\n") );
 
@@ -521,13 +522,42 @@ GList *list;
 
 	if(data->tmp_income && data->tmp_expense)
 	{
+	gdouble trn_amount;
+
+		/* account initial amount */
+		lst_acc = g_hash_table_get_values(GLOBALS->h_acc);
+		lnk_acc = g_list_first(lst_acc);
+		while (lnk_acc != NULL)
+		{
+		Account *acc = lnk_acc->data;
+
+			if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+				goto next_acc;
+
+			trn_amount = 0.0;
+			if(selectall)
+				trn_amount = hb_amount_base(acc->initial, acc->kcur);
+			else
+				if( selkey == acc->key )
+					trn_amount = acc->initial;
+
+			if(trn_amount < 0)
+				data->tmp_expense[0] += trn_amount;
+			else
+				data->tmp_income[0] += trn_amount;
+
+			DB( g_print(" - stored initial %.2f for account %d:%s\n", trn_amount, acc->key, acc->name) );
+
+		next_acc:
+			lnk_acc = g_list_next(lnk_acc);
+		}
+		g_list_free(lst_acc);
 
 		/* compute the balance */
 		list = g_list_first(data->ope_list);
 		while (list != NULL)
 		{
 		gint pos;
-		gdouble trn_amount;
 		Transaction *ope = list->data;
 
 			if(selkey == ope->kacc || selectall == TRUE)
@@ -539,7 +569,7 @@ GList *list;
 					pos = ope->date - omin->date;
 
 					// deal with account initial balance
-					if(accounts[ope->kacc] == 0)
+					/*if(accounts[ope->kacc] == 0)
 					{
 						if(selectall)
 							trn_amount = hb_amount_base(acc->initial, acc->kcur);
@@ -554,7 +584,7 @@ GList *list;
 						DB( g_print(" - stored initial %.2f for account %d\n", trn_amount, ope->kacc) );
 
 						accounts[ope->kacc] = 1;
-					}
+					}*/
 
 					if(selectall)
 						trn_amount = hb_amount_base(ope->amount, acc->kcur);
@@ -652,7 +682,7 @@ Account *acc;
 
 		posdate = omin->date + i;
 		
-		DB( g_print("omin->date=%d posdate=%d\n", omin->date, posdate) );
+		//DB( g_print("omin->date=%d posdate=%d\n", omin->date, posdate) );
 		
 
 		balance += data->tmp_expense[i];

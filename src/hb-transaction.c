@@ -707,6 +707,8 @@ Account *dstacc;
 
 void transaction_xfer_child_sync(Transaction *s_txn, Transaction *child)
 {
+Account *acc;
+
 	DB( g_print("\n[transaction] xfer_child_sync\n") );
 
 	if( child == NULL )
@@ -716,6 +718,11 @@ void transaction_xfer_child_sync(Transaction *s_txn, Transaction *child)
 	}
 
 	DB( g_print(" - found do sync\n") );
+
+	/* update acc flags */
+	acc = da_acc_get( child->kacc);
+	if(acc != NULL)
+		acc->flags |= AF_CHANGED;
 
 	account_balances_sub (child);
 

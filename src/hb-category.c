@@ -664,6 +664,7 @@ GList *lcat;
 GList *lst_acc, *lnk_acc;
 GList *lnk_txn;
 GList *lpay, *lrul, *list;
+guint i, nbsplit;
 
 	lcat = list = g_hash_table_get_values(GLOBALS->h_cat);
 	while (list != NULL)
@@ -686,7 +687,20 @@ GList *lpay, *lrul, *list;
 		{
 		Transaction *txn = lnk_txn->data;
 
-			category_fill_usage_count(txn->kcat);		
+			//#1689308 count split as well
+			if( txn->flags & OF_SPLIT )
+			{
+				nbsplit = da_splits_count(txn->splits);
+				for(i=0;i<nbsplit;i++)
+				{
+				Split *split = txn->splits[i];
+					
+					category_fill_usage_count(split->kcat);
+				}
+			}
+			else
+				category_fill_usage_count(txn->kcat);		
+
 			lnk_txn = g_list_next(lnk_txn);
 		}
 		lnk_acc = g_list_next(lnk_acc);
@@ -709,7 +723,20 @@ GList *lpay, *lrul, *list;
 	{
 	Archive *entry = list->data;
 
-		category_fill_usage_count(entry->kcat);
+		//#1689308 count split as well
+		if( entry->flags & OF_SPLIT )
+		{
+			nbsplit = da_splits_count(entry->splits);
+			for(i=0;i<nbsplit;i++)
+			{
+			Split *split = entry->splits[i];
+				
+				category_fill_usage_count(split->kcat);
+			}
+		}
+		else
+			category_fill_usage_count(entry->kcat);
+
 		list = g_list_next(list);
 	}
 

@@ -74,13 +74,13 @@
 
 #define HB_VERSION_MAJOR	5
 #define HB_VERSION_MINOR	1
-#define HB_VERSION_MICRO	4
+#define HB_VERSION_MICRO	5
 
-#define HB_VERSION			"5.1.4"
+#define HB_VERSION			"5.1.5"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
 #define FILE_VERSION		1.2
-#define PREF_VERSION		514
+#define PREF_VERSION		515
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -155,6 +155,7 @@ typedef enum
  * GTK_ICON_SIZE_DND 32
  * GTK_ICON_SIZE_DIALOG 48
  */
+
 
 /* -------- named icons (Standard Icon Name) -------- */
 #define ICONNAME_NEW				"document-new"

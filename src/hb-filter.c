@@ -113,6 +113,8 @@ gint i;
 
 	filter_clear(flt);
 
+	flt->nbdaysfuture = 0;
+
 	flt->range  = FLT_RANGE_LAST12MONTHS;
 	flt->type   = FLT_TYPE_ALL;
 	flt->status = FLT_STATUS_ALL;
@@ -218,8 +220,11 @@ void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 {
 
 	if( nbdays <= 0 )
+	{
+		filter->nbdaysfuture = 0;
 		return;
-		
+	}
+	
 	switch( filter->range )
 	{
 		case FLT_RANGE_THISMONTH:
@@ -229,7 +234,7 @@ void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 		case FLT_RANGE_LAST60DAYS:
 		case FLT_RANGE_LAST90DAYS:
 		case FLT_RANGE_LAST12MONTHS:
-			filter->maxdate += nbdays;
+			filter->nbdaysfuture = nbdays;
 			break;
 	}
 
@@ -492,6 +497,13 @@ gchar *tags;
 
 	if(flags & FLT_QSEARCH_MEMO)
 	{
+		//#1668036 always try match on txn memo first
+		if(txn->wording)
+		{
+			retval |= filter_text_compare(txn->wording, needle, FALSE);
+		}
+		if(retval) goto end;
+		
 		//#1509485
 		if(txn->flags & OF_SPLIT)
 		{
@@ -508,13 +520,6 @@ gchar *tags;
 				retval |= tmpinsert;
 				if( tmpinsert )
 					break;
-			}
-		}
-		else
-		{
-			if(txn->wording)
-			{
-				retval |= filter_text_compare(txn->wording, needle, FALSE);
 			}
 		}
 		if(retval) goto end;
@@ -624,7 +629,7 @@ gint insert;
 
 /* date */
 	if(flt->option[FILTER_DATE]) {
-		insert = ( (txn->date >= flt->mindate) && (txn->date <= flt->maxdate) ) ? 1 : 0;
+		insert = ( (txn->date >= flt->mindate) && (txn->date <= (flt->maxdate + flt->nbdaysfuture) ) ) ? 1 : 0;
 		if(flt->option[FILTER_DATE] == 2) insert ^= 1;
 	}
 	if(!insert) goto end;
@@ -734,7 +739,13 @@ gint insert;
 
 		if(flt->wording)
 		{
-			if(txn->flags & OF_SPLIT)
+			//#1668036 always try match on txn memo first
+			if(txn->wording)
+			{
+				insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
+			}
+
+			if( (insert2 == 0) && (txn->flags & OF_SPLIT) )
 			{
 			guint count, i;
 			Split *split;
@@ -749,13 +760,6 @@ gint insert;
 					insert2 |= tmpinsert;
 					if( tmpinsert )
 						break;
-				}
-			}
-			else
-			{
-				if(txn->wording)
-				{
-					insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
 				}
 			}
 		}

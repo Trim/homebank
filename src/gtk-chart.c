@@ -17,8 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <math.h>
 #include <string.h>
+
 #include <gtk/gtk.h>
 
 #include "homebank.h"
@@ -44,7 +46,7 @@ static void gtk_chart_init (GtkChart *chart);
 static void gtk_chart_dispose (GObject * object);
 static void gtk_chart_finalize (GObject * object);
 
-static gboolean drawarea_configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data);
+static gboolean drawarea_configure_event_callback(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data);
 static void drawarea_realize_callback(GtkWidget *widget, gpointer user_data);
 static gboolean drawarea_draw_callback(GtkWidget *widget, cairo_t *wcr, gpointer user_data);
 static gboolean drawarea_motionnotifyevent_callback(GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
@@ -124,7 +126,7 @@ GObjectClass *gobject_class;
 static void
 gtk_chart_init (GtkChart * chart)
 {
-GtkWidget *widget, *vbox;
+GtkWidget *widget, *vbox, *frame;
 GtkWidget *scrollwin, *treeview;
 
 	DB( g_print("\n[gtkchart] init\n") );
@@ -157,19 +159,14 @@ GtkWidget *scrollwin, *treeview;
     gtk_box_pack_start (GTK_BOX (widget), vbox, TRUE, TRUE, 0);
 
 	/* drawing area */
-	scrollwin = gtk_frame_new(NULL);
-    gtk_frame_set_shadow_type (GTK_FRAME(scrollwin), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
-
-	//scrollwin = gtk_scrolled_window_new(NULL,NULL);
-    //gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
-	//gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-    //gtk_box_pack_start (GTK_BOX (vbox), scrollwin, TRUE, TRUE, 0);
+	frame = gtk_frame_new(NULL);
+    gtk_frame_set_shadow_type (GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
+    gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
 
 	chart->drawarea = gtk_drawing_area_new();
 	//gtk_widget_set_double_buffered (GTK_WIDGET(widget), FALSE);
 	
-	gtk_container_add( GTK_CONTAINER(scrollwin), chart->drawarea );
+	gtk_container_add( GTK_CONTAINER(frame), chart->drawarea );
 	gtk_widget_set_size_request(chart->drawarea, 100, 100 );
 	gtk_widget_set_has_tooltip(chart->drawarea, TRUE);
 	gtk_widget_show(chart->drawarea);
@@ -213,7 +210,7 @@ GtkWidget *scrollwin, *treeview;
 		//GDK_BUTTON_RELEASE_MASK
 		);
 
-	g_signal_connect( G_OBJECT(chart->drawarea), "configure-event", G_CALLBACK (drawarea_configure_event), chart);
+	g_signal_connect( G_OBJECT(chart->drawarea), "configure-event", G_CALLBACK (drawarea_configure_event_callback), chart);
 	g_signal_connect( G_OBJECT(chart->drawarea), "realize", G_CALLBACK(drawarea_realize_callback), chart ) ;
 	g_signal_connect( G_OBJECT(chart->drawarea), "draw", G_CALLBACK(drawarea_draw_callback), chart ) ;
 #if DYNAMICS == 1
@@ -270,8 +267,6 @@ gtk_chart_dispose (GObject *gobject)
    */
   G_OBJECT_CLASS (gtk_chart_parent_class)->dispose (gobject);
 }
-
-
 
 
 static void
@@ -473,12 +468,11 @@ gint color;
 	ChartItem *item = &g_array_index(chart->items, ChartItem, i);
 
 		item->rate = ABS(item->serie1*100/chart->total);
-		item->legend = g_markup_printf_escaped("%s (%.2f%%)", item->label, item->rate);
+		item->legend = g_markup_printf_escaped("%s %.2f (%.2f%%)", item->label, item->serie1, item->rate);
 	}
 
 	if( chart->type != CHART_TYPE_LINE )
 	{
-
 		valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(chart->legend), &iter);
 		while (valid)
 		{
@@ -1009,9 +1003,14 @@ gint i, first;
 	cr = gdk_cairo_create (gtk_widget_get_window(widget));
 	//cr = cairo_create (chart->surface);
 
+	DB( g_print(" x=%.2f first=%d, blkw=%.2f, barw=%.2f\n", x, first, chart->blkw, chart->barw ) );
+		
 	#if HELPDRAW == 1
 	x2 = x + 0.5;
 	cairo_set_line_width(cr, 1.0);
+	double dashlength;
+	dashlength = 4;
+	cairo_set_dash (cr, &dashlength, 1, 0);
 	cairo_set_source_rgb(cr, 1.0, 0.0, 1.0); // violet
 	for(i=first; i<=(first+chart->visible) ;i++)
 	{
@@ -1020,6 +1019,7 @@ gint i, first;
 		x2 += chart->blkw;
 	}
 	cairo_stroke(cr);
+	cairo_set_dash (cr, &dashlength, 0, 0);
 	#endif
 
 	for(i=first; i<(first+chart->visible) ;i++)
@@ -1208,6 +1208,8 @@ gint first, i;
 	#if HELPDRAW == 1
 	x2 = x + 0.5;
 	cairo_set_line_width(cr, 1.0);
+	double dashlength = 4;
+	cairo_set_dash (cr, &dashlength, 1, 0);
 	cairo_set_source_rgb(cr, 1.0, 0.0, 1.0); // violet
 	for(i=first; i<=(first+chart->visible) ;i++)
 	{
@@ -1217,6 +1219,7 @@ gint first, i;
 	}
 	cairo_stroke(cr);
 
+	cairo_set_dash (cr, &dashlength, 0, 0);
 	#endif
 
 	//todo: it should be possible to draw line & plot together using surface and composite fill, or sub path ??
@@ -1408,6 +1411,8 @@ cairo_t *cr;
 		cr = gdk_cairo_create (gtk_widget_get_window(widget));
 		//cr = cairo_create (chart->surface);
 
+		DB( g_print("rayon=%d\n", chart->rayon) );
+		
 		for(i=0; i< chart->nb_items ;i++)
 		{
 		ChartItem *item = &g_array_index(chart->items, ChartItem, i);
@@ -1430,7 +1435,7 @@ cairo_t *cr;
 				cairo_stroke_preserve(cr);
 			#endif
 
-			DB( g_print("%d: %.2f%% %.2f %.2f\n", i, sum / chart->total, a1, a2) );
+			DB( g_print("- s%2d: %.2f%% a1=%.2f a2=%.2f\n", i, sum / chart->total, a1, a2) );
 
 			//g_print("color : %f %f %f\n", COLTOCAIRO(colors[i].r), COLTOCAIRO(colors[i].g), COLTOCAIRO(colors[i].b));
 
@@ -1578,7 +1583,6 @@ int tw, th;
 	cairo_stroke(cr);
 #endif
 
-
 	// draw title
 	if(chart->title)
 	{
@@ -1629,9 +1633,8 @@ int tw, th;
 }
 
 
-
 static gboolean
-drawarea_configure_event (GtkWidget         *widget,
+drawarea_configure_event_callback (GtkWidget         *widget,
                           GdkEventConfigure *event,
                           gpointer           user_data)
 {
@@ -1647,7 +1650,6 @@ GdkRGBA color;
 	gtk_widget_get_allocation (widget, &allocation);
 
 	DB( g_print("w=%d h=%d\n", allocation.width, allocation.height) );
-
 
 	
 	if (chart->surface)
@@ -1690,6 +1692,8 @@ GdkRGBA color;
 		DB( g_print(" - theme text (bg) col: %x %x %x\n", tcol->r, tcol->g, tcol->b) );
 	}
 
+	//commented 5.1.5
+	//drawarea_full_redraw(widget, user_data);
 
 	/* get and copy the font */
 	gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL, "font", &desc, NULL);
@@ -1937,6 +1941,8 @@ void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gch
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
 
+	DB( g_print("\n[gtkchart] set datas\n") );
+
 	if( GTK_IS_TREE_MODEL(model) )
 	{
 		chart_setup_with_model(chart, model, column, column);
@@ -1962,6 +1968,8 @@ void gtk_chart_set_datas(GtkChart *chart, GtkTreeModel *model, guint column, gch
 void gtk_chart_set_dualdatas(GtkChart *chart, GtkTreeModel *model, guint column1, guint column2, gchar *title, gchar *subtitle)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set dualdatas\n") );
 
 	if( GTK_IS_TREE_MODEL(model) )
 	{
@@ -2014,6 +2022,8 @@ void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
 
+	DB( g_print("\n[gtkchart] set minor prefs\n") );
+
 	chart->minor_rate   = rate;
 	chart->minor_symbol = symbol;
 }
@@ -2022,6 +2032,8 @@ void gtk_chart_set_minor_prefs(GtkChart * chart, gdouble rate, gchar *symbol)
 void gtk_chart_set_absolute(GtkChart * chart, gboolean abs)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set absolute\n") );
 
 	chart->abs = abs;
 }
@@ -2042,6 +2054,8 @@ void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
 
+	DB( g_print("\n[gtkchart] set overdrawn\n") );
+
 	chart->minimum = minimum;
 
 	//if(chart->type == CHART_TYPE_LINE)
@@ -2054,6 +2068,8 @@ void gtk_chart_set_overdrawn(GtkChart * chart, gdouble minimum)
 void gtk_chart_set_every_xval(GtkChart * chart, gint gap)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set every_xval\n") );
 
 	chart->every_xval = gap;
 
@@ -2068,6 +2084,8 @@ void gtk_chart_set_every_xval(GtkChart * chart, gint gap)
 void gtk_chart_set_barw(GtkChart * chart, gdouble barw)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set barw\n") );
 
 	chart->barw = barw;
 
@@ -2121,6 +2139,8 @@ void gtk_chart_show_xval(GtkChart * chart, gboolean visible)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
 
+	DB( g_print("\n[gtkchart] set show xval\n") );
+
 	chart->show_xval = visible;
 
 	//if(chart->type != CHART_TYPE_PIE)
@@ -2133,6 +2153,8 @@ void gtk_chart_show_xval(GtkChart * chart, gboolean visible)
 void gtk_chart_show_overdrawn(GtkChart * chart, gboolean visible)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set show overdrawn\n") );
 
 	chart->show_over = visible;
 
@@ -2147,6 +2169,8 @@ void gtk_chart_show_overdrawn(GtkChart * chart, gboolean visible)
 void gtk_chart_show_minor(GtkChart * chart, gboolean minor)
 {
 	g_return_if_fail (GTK_IS_CHART (chart));
+
+	DB( g_print("\n[gtkchart] set show minor\n") );
 
 	chart->minor = minor;
 
@@ -2257,6 +2281,9 @@ GtkListStore *store;
 GtkWidget *view;
 GtkCellRenderer    *renderer;
 GtkTreeViewColumn  *column;
+
+	DB( g_print("\n[gtkchart] legend_list_new\n") );
+
 
 	store = gtk_list_store_new(NUM_LST_LEGEND,
 		G_TYPE_POINTER,

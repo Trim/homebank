@@ -1,7 +1,29 @@
 
+2017-05-10  Maxime Doyen
+
+ Made 5.1.5 release.
+ * change: win32: upgraded to gtk+ 3.22.7
+ * bugfix: updating currency rate was not updating file changes (and enable save)
+ * bugfix: #1689308 category usage count does not get updated for split transactions
+ * bugfix: #1687117 statistic report filter do not update date range
+ * bugfix: #1683646 only one changed icon is displayed in accounts window when an internal transfer is edited
+ * bugfix: #1681532 segfault when pressing escape while editing a new transaction
+ * bugfix: #1678476 french translation is missing in filter
+ * bugfix: #1678230 time report show all category may be wrong if split
+ * bugfix: #1676162 can't set transaction amount to 6 decimal points
+ * bugfix: #1674020 statistics Report: sorting by amount does not work with "Expenses and Income"
+ * bugfix: #1672209 account window "0.00" balance sometimes displayed in warning color
+ * bugfix: #1672205 "Show # days in advance the current date" preference doesn't work
+ * bugfix: #1672135 BYN - new Belorussian currency is not in the list
+ * bugfix: #1668036 cannot filter on memo if split transaction
+ * bugfix: #1667201 original account shows edits when inheriting transaction into another account
+ * bugfix: #1664916 balance report does not include accounts with no transactions 
+
+
 2017-02-16  Maxime Doyen
 
  Made 5.1.4 release.
+
  * change: filter, reworked the layout
  * change: filter, category select change now propagate to subcategories
  * wish  : #1661806 show overdraft amount in account window (balance column)
@@ -23,6 +45,7 @@
 2017-01-22  Maxime Doyen
 
  Made 5.1.3 release.
+
  * new   : your account, added expand/collapse button
  * wish  : #1653350 cvs import default category for payee
  * wish  : #1645126 remember the size of columns listview in the main window

@@ -548,6 +548,7 @@ Currency *cur;
 			DB( g_print(" found cur='%s'\n", cur->iso_code) );
 			cur->rate = ctx->rate;
 			cur->mdate = GLOBALS->today;
+			GLOBALS->changes_count++;
 		}
 		
 		//clean all
@@ -732,7 +733,8 @@ Currency4217 iso4217cur[] =
 	{ "BSD", 2, ".", ",", TRUE, "$", "Bahamian Dollar" },
 	{ "BTN", 2, ".", ",", TRUE, "Nu.", "Ngultrum" },
 	{ "BWP", 2, ".", " ", TRUE, "P", "Pula" },
-	{ "BYR", 0, ",", " ", FALSE, "Br", "Belarussian Ruble" },
+	{ "BYN", 0, ",", " ", FALSE, "Br", "Belarussian Ruble" },
+	{ "BYR", 0, ",", " ", FALSE, "Br", "Old Belarussian Ruble" },
 	{ "BZD", 2, ".", ",", TRUE, "$", "Belize Dollar" },
 	{ "CAD", 2, ",", " ", TRUE, "$", "Canadian Dollar" },
 	{ "CDF", 2, ",", " ", TRUE, "FC", "Congolese Franc" },

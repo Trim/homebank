@@ -132,6 +132,7 @@ static void ui_repdist_toggle_minor(GtkWidget *widget, gpointer user_data);
 static void ui_repdist_toggle_rate(GtkWidget *widget, gpointer user_data);
 static GtkWidget *ui_list_repdist_create(void);
 static void ui_repdist_update_daterange(GtkWidget *widget, gpointer user_data);
+static void ui_repdist_update_date_widget(GtkWidget *widget, gpointer user_data);
 
 static gint ui_list_repdist_compare_func (GtkTreeModel *model, GtkTreeIter  *a, GtkTreeIter  *b, gpointer      userdata);
 
@@ -247,7 +248,13 @@ struct ui_repdist_data *data = user_data;
 	if(ui_flt_manage_dialog_new(data->window, data->filter, TRUE) != GTK_RESPONSE_REJECT)
 	{
 		ui_repdist_compute(data->window, NULL);
+		ui_repdist_update_date_widget(data->window, NULL);
 		ui_repdist_update_daterange(data->window, NULL);
+
+		g_signal_handler_block(data->CY_range, data->handler_id[HID_REPDIST_RANGE]);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_range), FLT_RANGE_OTHER);
+		g_signal_handler_unblock(data->CY_range, data->handler_id[HID_REPDIST_RANGE]);
+
 	}
 }
 
@@ -365,24 +372,18 @@ gint range;
 	{
 		filter_preset_daterange_set(data->filter, range, 0);
 
-		g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
-		g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
-		
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-		gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
-		
-		g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
-		g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
+		ui_repdist_update_date_widget(data->window, NULL);
 
-		ui_repdist_compute(widget, NULL);
-		ui_repdist_update_daterange(widget, NULL);
+		ui_repdist_compute(data->window, NULL);
+		ui_repdist_update_daterange(data->window, NULL);
 	}
 	else
 	{
 		if(ui_flt_manage_dialog_new(data->window, data->filter, TRUE) != GTK_RESPONSE_REJECT)
 		{
+			ui_repdist_update_date_widget(data->window, NULL);
 			ui_repdist_compute(data->window, NULL);
-			ui_repdist_update_daterange(widget, NULL);
+			ui_repdist_update_daterange(data->window, NULL);
 		}
 	}
 }
@@ -569,8 +570,11 @@ gchar *title;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_report));
 	byamount = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_byamount));
-	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
 	tmpkind = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
+	tmpfor  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_by));
+
+	//debug option
+	DB( g_print(" option: byamount=%d tmpkind=%d '%s' tmpfor=%d '%s'\n\n", byamount, tmpkind, CYA_KIND2[tmpkind], tmpfor, CYA_STATSELECT[tmpfor]) );
 
 	// ensure not exp & inc for piechart
 	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(data->GR_result));
@@ -583,26 +587,32 @@ gchar *title;
 		tmpkind = 1;
 	}
 
+	// define view/sort column
+	column = LST_REPDIST_POS; 
 
-	DB( g_print(" tmpkind %d\n\n", tmpkind) );
+	if( byamount )
+	{
+		switch( tmpkind )
+		{
+			case 0: //Inc & Exp
+			case 3:
+				column = LST_REPDIST_BALANCE;
+				break;
+			case 1:
+				column = LST_REPDIST_EXPENSE;
+				break;
+			case 2:
+				column = LST_REPDIST_INCOME;
+				break;
+		}
+	}
 
-
-	column = byamount ? LST_REPDIST_EXPENSE+(tmpkind-1)*2 : LST_REPDIST_POS;
-	
-	//#833614 sort category/payee by name
-	//if(!byamount && tmpkind <= BY_REPDIST_PAYEE)
-	//	column = LST_REPDIST_NAME;
-		
 	DB( g_print(" sort on column %d\n\n", column) );
 
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(model), column, GTK_SORT_DESCENDING);
 
-	column = LST_REPDIST_EXPENSE+(tmpkind-1)*2;
-
-	/* set chart color scheme */
 	gtk_chart_set_color_scheme(GTK_CHART(data->RE_chart), PREFS->report_color_scheme);
 
-	/* set chart title */
 	////TRANSLATORS: example 'Expense by Category'
 	title = g_strdup_printf(_("%s by %s"), _(CYA_KIND2[tmpkind]), _(CYA_STATSELECT[tmpfor]) );
 
@@ -610,18 +620,21 @@ gchar *title;
 	gboolean abs = (tmpkind == 1 || tmpkind == 2) ? TRUE : FALSE;
 	gtk_chart_set_absolute(GTK_CHART(data->RE_chart), abs);
 
-	
 	/* update bar chart */
-	DB( g_print(" set bar to %d %s\n\n", column, _(CYA_KIND2[tmpkind])) );
-	if( tmpkind == 0 )
+	if( tmpkind == 0 ) //dual exp/inc
+	{
+		DB( g_print(" set bar to dual exp %d/inc %d\n\n", LST_REPDIST_EXPENSE, LST_REPDIST_INCOME) );
 		gtk_chart_set_dualdatas(GTK_CHART(data->RE_chart), model, LST_REPDIST_EXPENSE, LST_REPDIST_INCOME, title, NULL);
+	}
 	else
+	{
+		column = LST_REPDIST_EXPENSE+(tmpkind-1)*2;
+		DB( g_print(" set bar to %d\n\n", column) );
 		gtk_chart_set_datas(GTK_CHART(data->RE_chart), model, column, title, NULL);
-
+	}
 
 	/* show xval for month/year and no by amount display */
 	xval = FALSE;
-
 
 	if( !byamount && (tmpfor == BY_REPDIST_MONTH || tmpfor == BY_REPDIST_YEAR) )
 	{
@@ -642,6 +655,27 @@ gchar *title;
 	g_free(title);
 	
 }
+
+
+static void ui_repdist_update_date_widget(GtkWidget *widget, gpointer user_data)
+{
+struct ui_repdist_data *data;
+
+	DB( g_print("\n[repdist] update date widget\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
+	
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
+	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
+	
+	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
+	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
+
+}
+
 
 static void ui_repdist_update_daterange(GtkWidget *widget, gpointer user_data)
 {
@@ -1381,14 +1415,7 @@ static void ui_repdist_setup(struct ui_repdist_data *data)
 
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, 0);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
-
-	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
-
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPDIST_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPDIST_MAXDATE]);
+	ui_repdist_update_date_widget(data->window, NULL);
 
 }
 

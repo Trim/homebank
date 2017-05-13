@@ -223,13 +223,15 @@ gdouble monval;
 	}
 	else
 	{
+		monval = hb_amount_base(value, kcur);
+		monval = hb_amount_to_euro(monval);
 		cur = &PREFS->minor_cur;
-		monval = hb_amount_to_euro(value);
 		g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
 		hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
 	}
 
 }
+
 
 void hb_strfmon_int(gchar *outstr, gint outlen, gdouble value, guint32 kcur, gboolean minor)
 {
@@ -249,8 +251,9 @@ gdouble monval;
 	}
 	else
 	{
+		monval = hb_amount_base(value, kcur);
+		monval = hb_amount_to_euro(monval);
 		cur = &PREFS->minor_cur;
-		monval = hb_amount_to_euro(value);
 		g_ascii_formatd(formatd_buf, outlen, cur->format, monval);
 		hb_str_formatd(outstr, outlen, formatd_buf, cur, TRUE);
 	}
@@ -284,7 +287,6 @@ gdouble monval;
 
 	
 }
-
 
 
 gchar *get_normal_color_amount(gdouble value)

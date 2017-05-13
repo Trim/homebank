@@ -120,7 +120,7 @@ GtkWidgetClass *widget_class;
 static void
 ui_chart_stack_init (ChartStack * chart)
 {
-GtkWidget *widget, *hbox, *scrollwin;
+GtkWidget *widget, *hbox, *frame;
 
 
 	DB( g_print("\n[chartstack] init\n") );
@@ -145,24 +145,19 @@ GtkWidget *widget, *hbox, *scrollwin;
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start (GTK_BOX (widget), hbox, TRUE, TRUE, 0);
 
-	/* drawing area */
-	scrollwin = gtk_frame_new(NULL);
-    gtk_frame_set_shadow_type (GTK_FRAME(scrollwin), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start (GTK_BOX (hbox), scrollwin, TRUE, TRUE, 0);
-
-	//scrollwin = gtk_scrolled_window_new(NULL,NULL);
-    //gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
-	//gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-    //gtk_box_pack_start (GTK_BOX (hbox), scrollwin, TRUE, TRUE, 0);
+	/* frame & drawing area */
+	frame = gtk_frame_new(NULL);
+    gtk_frame_set_shadow_type (GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
+    gtk_box_pack_start (GTK_BOX (hbox), frame, TRUE, TRUE, 0);
 
 	chart->drawarea = gtk_drawing_area_new();
 	//gtk_widget_set_double_buffered (GTK_WIDGET(widget), FALSE);
 	
-	gtk_container_add( GTK_CONTAINER(scrollwin), chart->drawarea );
+	gtk_container_add( GTK_CONTAINER(frame), chart->drawarea );
 	gtk_widget_set_size_request(chart->drawarea, 150, 150 );
 	gtk_widget_set_has_tooltip(chart->drawarea, FALSE);
 	gtk_widget_show(chart->drawarea);
-	
+
 	/* scrollbar */
     chart->adjustment = GTK_ADJUSTMENT(gtk_adjustment_new (0.0, 0.0, 1.0, 1.0, 1.0, 1.0));
     chart->scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL,GTK_ADJUSTMENT (chart->adjustment));
@@ -1135,7 +1130,6 @@ gint x, y;
 
 	return TRUE;
 }
-
 
 
 static gboolean drawarea_scroll_event_callback( GtkWidget *widget, GdkEventScroll *event, gpointer user_data)

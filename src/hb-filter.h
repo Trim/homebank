@@ -94,6 +94,7 @@ typedef struct _filter	Filter;
 struct _filter
 {
 	guint32		mindate, maxdate;
+	gint		nbdaysfuture;
 	gint		range;
 	gint		type;
 	gint		status;

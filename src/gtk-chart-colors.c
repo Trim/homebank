@@ -46,7 +46,7 @@ struct rgbcol ynab_colors[] =
 	{ 167, 209, 195 },
 	{  51, 177, 191 },
 	{ 214, 227,  99 },
-	//{ 242, 219,  64 },	  // added color
+	//{ 246, 166, 209 },	  // added color
 	{ 131, 131, 131 },	  // others
 };
 int ynab_nbcolors = G_N_ELEMENTS(ynab_colors);

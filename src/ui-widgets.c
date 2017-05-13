@@ -392,10 +392,12 @@ static void hb_amount_insert_text_handler (GtkEntry *entry, const gchar *text, g
 GtkEditable *editable = GTK_EDITABLE(entry);
 int i, count=0, dcpos=-1;
 gchar *result = g_new0 (gchar, length+1);
+int digits = 2;
 const gchar *numtext;
 
 	//g_message("insert_text-handler: text:%s - pos:%d - length:%d", text, *position, length);
 
+	digits = gtk_spin_button_get_digits(GTK_SPIN_BUTTON(entry));
 	numtext = gtk_entry_get_text(entry);
 	for (i=0 ; numtext[i]!='\0' ; i++)
 	{
@@ -403,11 +405,10 @@ const gchar *numtext;
 			dcpos = i;
 	}
 
-
 	//g_message("previous text='%s' dcpos:'%d'", numtext, dcpos);
 	for (i=0 ; i < length ; i++)
 	{
-		if( isdigit(text[i]) && ( (*position <= dcpos+2) || dcpos < 0) )
+		if( isdigit(text[i]) && ( (*position <= dcpos + digits) || dcpos < 0) )
 			goto inserttext;
 
 		if( text[i]=='-' && *position==0 )	/* minus sign only at position 0 */
@@ -947,7 +948,7 @@ char *nainex_label_names[NUM_NAINEX_MAX] =
 {
 	N_("Inactive"),
 	N_("Include"),
-	N_("Exclude")
+	N_("Exclude"),
 };
 
 

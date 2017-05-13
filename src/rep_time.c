@@ -892,7 +892,7 @@ guint32 selkey;
 
 				trn_amount = 0.0;
 				
-				if( tmpfor == FOR_REPTIME_CATEGORY && ope->flags & OF_SPLIT )
+				if( (tmpfor == FOR_REPTIME_CATEGORY) && (ope->flags & OF_SPLIT) )
 				{
 				guint nbsplit = da_splits_count(ope->splits);
 				Split *split;
@@ -904,7 +904,8 @@ guint32 selkey;
 						catentry = da_cat_get(split->kcat);
 						if(catentry != NULL)	//#1340142
 						{
-							if( selkey == catentry->parent || selkey == catentry->key )
+							//#1678230 miss showall
+							if( showall == TRUE || selkey == catentry->parent || selkey == catentry->key )
 								trn_amount += split->amount;
 						}
 					}
@@ -914,7 +915,7 @@ guint32 selkey;
 
 				trn_amount = hb_amount_base(trn_amount, ope->kcur);
 
-				DB( g_print("** pos=%d will add %.2f to \n", pos, trn_amount) );
+				DB( g_print("** pos=%d : add of %.2f\n", pos, trn_amount) );
 
 				tmp_amount[pos] += trn_amount;
 
