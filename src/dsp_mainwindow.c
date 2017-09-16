@@ -388,9 +388,9 @@ gint result;
 	{
 		DB( g_print(" - should revert\n") );
 		
-		hbfile_change_filepath(hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~"));
+		hbfile_change_filepath(hb_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~"));
 		ui_mainwindow_open_internal(widget, NULL);
-		hbfile_change_filepath(hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb"));
+		hbfile_change_filepath(hb_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb"));
 	}
 
 }
@@ -497,9 +497,9 @@ GtkWidget *widget = GLOBALS->mainwindow;
 		ui_mainwindow_update(widget, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
 
 		ui_start_assistant();
-		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
-		ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
-		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
+		//ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
+		//ui_mainwindow_scheduled_populate(GLOBALS->mainwindow, NULL);
+		//ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);
 	}
 }
 
@@ -577,11 +577,14 @@ gchar *secondtext;
 			_("_Anonymize")
 		);
 
-	if( result == GTK_RESPONSE_CANCEL )
-		return;	
-	
-	hbfile_anonymize();
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
+	//#1707201
+	//if( result == GTK_RESPONSE_CANCEL )
+	//	return;	
+	if( result == GTK_RESPONSE_OK )
+	{
+		hbfile_anonymize();
+		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
+	}
 }
 
 
@@ -1095,7 +1098,7 @@ gint account, count;
 		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
 		{
 			deftransaction_get(window, NULL);
-			transaction_add(ope, NULL, ope->kacc);
+			transaction_add(ope);
 
 			DB( g_print(" - added 1 transaction to %d\n", ope->kacc) );
 
@@ -1447,7 +1450,7 @@ Transaction *txn;
 	if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
 	{
 		deftransaction_get(window, NULL);
-		transaction_add(txn, NULL, txn->kacc);
+		transaction_add(txn);
 		GLOBALS->changes_count++;
 
 		scheduled_date_advance(arc);
@@ -1493,7 +1496,7 @@ struct hbfile_data *data = user_data;
 
 			da_transaction_init_from_template(txn, arc);
 			txn->date = scheduled_get_postdate(arc, arc->nextdate);
-			transaction_add(txn, NULL, 0);
+			transaction_add(txn);
 
 			GLOBALS->changes_count++;
 			scheduled_date_advance(arc);
@@ -1729,6 +1732,31 @@ GDate *date;
 }
 
 
+gboolean ui_mainwindow_open_backup_check_confirm(gchar *filepath)
+{
+gboolean retval = FALSE;
+gchar *basename, *secondtext;
+gboolean result;
+
+	basename = g_path_get_basename(filepath);
+	secondtext = g_strdup_printf (
+	_("Your are about to open the backup file '%s'.\n\nAre you sure you want to do this ?"), basename);		
+
+	result = ui_dialog_msg_confirm_alert(
+		GTK_WINDOW(GLOBALS->mainwindow),
+		_("Open a backup file ?"),
+		secondtext,
+		_("_Open backup")
+	);	
+
+	g_free(secondtext);
+	g_free(basename);
+
+	if( result == GTK_RESPONSE_OK )
+		retval = TRUE;
+	
+	return retval;
+}
 
 
 /*
@@ -1745,16 +1773,28 @@ gchar *filename = NULL;
 
 	if( ui_dialog_msg_savechanges(widget,NULL) == TRUE )
 	{
-		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_OPEN, &filename) == TRUE)
+		if( ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_OPEN, &filename) == TRUE )
 		{
+			//#1710955 test for backup open
+			if( hbfile_file_isbackup(filename) )
+			{
+				if( ui_mainwindow_open_backup_check_confirm(filename) == TRUE )
+				{
+					GLOBALS->hbfile_is_bak = TRUE;
+				}
+				else
+				{
+					g_free(filename);
+					return;
+				}
+			}			
+
 			hbfile_change_filepath(filename);
-
 			ui_mainwindow_open_internal(widget, NULL);
-
-
 		}
 	}
 }
+
 
 /*
  *	open the file stored in GLOBALS->xhb_filepath
@@ -1768,10 +1808,10 @@ gint r;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print(" - filename: '%s'\n", GLOBALS->xhb_filepath) );
-
 	if( GLOBALS->xhb_filepath != NULL )
 	{
+		DB( g_print(" - filename: '%s'\n", GLOBALS->xhb_filepath) );
+
 		ui_mainwindow_clear(GLOBALS->mainwindow, GINT_TO_POINTER(FALSE));
 		GLOBALS->hbfile_is_new = FALSE;
 
@@ -1831,6 +1871,7 @@ gint r;
 
 }
 
+
 /*
 **
 */
@@ -1848,6 +1889,14 @@ gint r = XML_UNSET;
 	if( GLOBALS->hbfile_is_new == TRUE )
 		saveas = 1;
 
+	//#1710955 test for backup open
+	if( GLOBALS->hbfile_is_bak == TRUE )
+	{
+		//todo: later for backup, should also remove datetime and .bak
+		hbfile_change_filepath(hb_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb"));
+		saveas = 1;
+	}
+
 	if(saveas == 1)
 	{
 		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_SAVE, &filename) == TRUE)
@@ -1857,6 +1906,7 @@ gint r = XML_UNSET;
 			homebank_backup_current_file();
 			r = homebank_save_xml(GLOBALS->xhb_filepath);
 			GLOBALS->hbfile_is_new = FALSE;
+			GLOBALS->hbfile_is_bak = FALSE;
 		}
 		else
 			return;
@@ -1917,7 +1967,12 @@ GList *elt;
 gchar *groupname;
 gint nballoc;
 
+	DB( g_print("\n[ui-mainwindow] accounts_groups_get\n") );
+
 	nballoc = da_acc_length ();
+	
+	DB( g_print(" %d accounts\n", nballoc) );
+	
 	hash = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify)g_free, NULL);
 	elt = g_list_first(lacc);
 	while (elt != NULL)
@@ -1990,7 +2045,7 @@ gpointer key, value;
 
 	gtbank = gttoday = gtfuture = 0;
 
-	DB( g_print(" populate listview\n") );
+	DB( g_print(" - populate listview, %d group(s)\n", g_hash_table_size(h_group)) );
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_acc));
 	gtk_tree_store_clear (GTK_TREE_STORE(model));
@@ -2007,7 +2062,7 @@ gpointer key, value;
 		{
 			nbtype++;
 			//1: Header: Bank, Cash, ...
-			DB( g_print("\n - append type '%s'\n", (gchar *)key) );
+			DB( g_print(" - add group '%s'\n", (gchar *)key) );
 
 			//#1663399 keep type position like in dropdown
 			position = 0;
@@ -2046,7 +2101,7 @@ gpointer key, value;
 				ttoday += hb_amount_base(acc->bal_today, acc->kcur);
 				tfuture += hb_amount_base(acc->bal_future, acc->kcur);
 
-				DB( g_print(" - insert '%s' :: %.2f %.2f %.2f\n", acc->name, acc->bal_bank, acc->bal_today, acc->bal_future) );
+				DB( g_print(" - add account '%s' :: %.2f %.2f %.2f\n", acc->name, acc->bal_bank, acc->bal_today, acc->bal_future) );
 
 				gtk_tree_store_append (GTK_TREE_STORE(model), &child_iter, &iter1);
 				gtk_tree_store_set (GTK_TREE_STORE(model), &child_iter,
@@ -2060,7 +2115,7 @@ gpointer key, value;
 
 			if(gpa->len > 1)
 			{
-				DB( g_print(" - type totals :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
+				DB( g_print(" - group total :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
 
 				// insert the total line
 				gtk_tree_store_append (GTK_TREE_STORE(model), &child_iter, &iter1);
@@ -2074,7 +2129,7 @@ gpointer key, value;
 			}
 
 			/* set balance to header to display when collasped */
-			DB( g_print(" - enrich totals to header :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
+			DB( g_print(" - enrich group total header :: %.2f %.2f %.2f\n", tbank, ttoday, tfuture) );
 			gtk_tree_store_set (GTK_TREE_STORE(model), &iter1,
 					LST_DSPACC_BANK, tbank,
 					LST_DSPACC_TODAY, ttoday,
@@ -2090,7 +2145,7 @@ gpointer key, value;
 
 	}
 
-	DB( g_print(" - grand totals :: %.2f %.2f %.2f\n", gtbank, gttoday, gtfuture) );
+	DB( g_print(" - grand total :: %.2f %.2f %.2f\n", gtbank, gttoday, gtfuture) );
 
 	// Grand total
 	if( nbtype > 1 )
@@ -2125,7 +2180,7 @@ void ui_mainwindow_update(GtkWidget *widget, gpointer user_data)
 struct hbfile_data *data;
 gint flags;
 
-	DB( g_print("\n[ui-mainwindow] refresh_display\n") );
+	DB( g_print("\n[ui-mainwindow] update %p\n", user_data) );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 	//data = INST_DATA(widget);
@@ -2138,7 +2193,7 @@ gint flags;
 	gchar *basename;
 	gchar *changed;
 
-		DB( g_print(" +  1: wintitle %p\n", data->wintitle) );
+		DB( g_print(" 1: wintitle %p\n", data->wintitle) );
 
 		basename = g_path_get_basename(GLOBALS->xhb_filepath);
 
@@ -2164,7 +2219,7 @@ gint flags;
 	GtkTreePath		*path;
 	gboolean	active,sensitive;
 
-		DB( g_print(" +  2: disabled, opelist count\n") );
+		DB( g_print(" 2: disabled, opelist count\n") );
 
 		//#1656531
 		data->acc = NULL;
@@ -2251,7 +2306,7 @@ gint flags;
 	/* update toolbar, list */
 	if(flags & UF_VISUAL)
 	{
-		DB( g_print(" +  8: visual\n") );
+		DB( g_print(" 8: visual\n") );
 
 		if(PREFS->toolbar_style == 0)
 			gtk_toolbar_unset_style(GTK_TOOLBAR(data->toolbar));
@@ -2296,7 +2351,7 @@ gint flags;
 	if(flags & UF_BALANCE)
 	{
 
-		DB( g_print(" +  4: balances\n") );
+		DB( g_print(" 4: balances\n") );
 
 		gtk_tree_view_columns_autosize (GTK_TREE_VIEW(data->LV_acc));
 
@@ -2311,7 +2366,7 @@ gint flags;
 
 	if(flags & UF_REFRESHALL)
 	{
-		DB( g_print(" +  8: refreshall\n") );
+		DB( g_print(" 16: refreshall\n") );
 
 		ui_mainwindow_populate_accounts(GLOBALS->mainwindow, NULL);
 		ui_mainwindow_populate_topspending(GLOBALS->mainwindow, NULL);

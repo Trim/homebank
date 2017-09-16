@@ -82,6 +82,7 @@ struct hbfile_data
 
 GtkWidget *create_hbfile_window(GtkWidget *do_widget);
 void ui_mainwindow_populate_accounts(GtkWidget *widget, gpointer user_data);
+gboolean ui_mainwindow_open_backup_check_confirm(gchar *filepath);
 void ui_mainwindow_open_internal(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_update(GtkWidget *widget, gpointer user_data);
 void ui_mainwindow_action_help_welcome(void);

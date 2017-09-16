@@ -121,7 +121,7 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	ui-currency.$(OBJEXT) ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) \
 	ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) ui-pref.$(OBJEXT) \
 	ui-split.$(OBJEXT) ui-transaction.$(OBJEXT) \
-	ui-widgets.$(OBJEXT)
+	ui-txn-multi.$(OBJEXT) ui-widgets.$(OBJEXT)
 homebank_OBJECTS = $(am_homebank_OBJECTS)
 am__DEPENDENCIES_1 =
 homebank_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -418,6 +418,8 @@ homebank_SOURCES = \
 	ui-split.h \
 	ui-transaction.c \
 	ui-transaction.h \
+	ui-txn-multi.c \
+	ui-txn-multi.h \
 	ui-widgets.c \
 	ui-widgets.h
 
@@ -568,6 +570,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-pref.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-transaction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-txn-multi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-widgets.Po@am__quote@
 
 .c.o:

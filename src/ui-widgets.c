@@ -357,8 +357,11 @@ GList *lmem, *list;
 	{
 	GtkTreeIter  iter;
 
-		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
-		gtk_list_store_set (GTK_LIST_STORE(store), &iter, 0, list->data, -1);
+		//gtk_list_store_append (GTK_LIST_STORE(store), &iter);
+		//gtk_list_store_set (GTK_LIST_STORE(store), &iter, 0, list->data, -1);
+		gtk_list_store_insert_with_values(GTK_LIST_STORE(store), &iter, -1,
+			0, list->data, 
+			-1);
 
 		list = g_list_next(list);
 	}

@@ -235,16 +235,19 @@ GList *da_transaction_sort(GList *list)
 }
 
 
-static void da_transaction_insert_memo(Transaction *item)
+gboolean da_transaction_insert_memo(Transaction *item)
 {
+gboolean retval = FALSE;
+
 	// append the memo if new
 	if( item->wording != NULL )
 	{
 		if( g_hash_table_lookup(GLOBALS->h_memo, item->wording) == NULL )
 		{
-			g_hash_table_insert(GLOBALS->h_memo, g_strdup(item->wording), NULL);
+			retval = g_hash_table_insert(GLOBALS->h_memo, g_strdup(item->wording), NULL);
 		}
 	}
+	return retval;
 }
 
 
@@ -477,8 +480,9 @@ gchar swap;
 
 		child->amount = -child->amount;
 		child->flags ^= (OF_INCOME);	// invert flag
-		//#1268026
-		child->status = TXN_STATUS_NONE;
+		//#1268026 #1690555
+		if( child->status != TXN_STATUS_REMIND )
+			child->status = TXN_STATUS_NONE;
 		//child->flags &= ~(OF_VALID);	// delete reconcile state
 
 		swap = child->kacc;
@@ -782,7 +786,12 @@ Transaction *dst;
 			DB( g_print("deleting...") );
 			account_balances_sub(dst);
 			g_queue_remove(acc->txn_queue, dst);
-			da_transaction_free (dst);
+			//#1419304 we keep the deleted txn to a trash stack	
+			//da_transaction_free (dst);
+			g_trash_stack_push(&GLOBALS->txn_stk, dst);
+
+			//#1691992
+			acc->flags |= AF_CHANGED;
 		}
 	}
 	
@@ -838,7 +847,30 @@ GList *list;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 
-void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum)
+void transaction_remove(Transaction *ope)
+{
+Account *acc;
+
+	//controls accounts valid (archive scheduled maybe bad)
+	acc = da_acc_get(ope->kacc);
+	if(acc == NULL) return;
+
+	account_balances_sub(ope);
+
+	if( ope->paymode == PAYMODE_INTXFER )
+	{
+		transaction_xfer_remove_child( ope );
+	}
+	
+	g_queue_remove(acc->txn_queue, ope);
+	acc->flags |= AF_CHANGED;
+	//#1419304 we keep the deleted txn to a trash stack	
+	//da_transaction_free(entry);
+	g_trash_stack_push(&GLOBALS->txn_stk, ope);
+}
+
+
+Transaction *transaction_add(Transaction *ope)
 {
 Transaction *newope;
 Account *acc;
@@ -847,7 +879,7 @@ Account *acc;
 
 	//controls accounts valid (archive scheduled maybe bad)
 	acc = da_acc_get(ope->kacc);
-	if(acc == NULL) return;
+	if(acc == NULL) return NULL;
 
 	DB( g_print(" acc is '%s' %d\n", acc->name, acc->key) );
 
@@ -856,7 +888,7 @@ Account *acc;
 	if(ope->paymode == PAYMODE_INTXFER)
 	{
 		acc = da_acc_get(ope->kxferacc);
-		if(acc == NULL) return;
+		if(acc == NULL) return NULL;
 		
 		// delete any splits
 		da_splits_free(ope->splits);
@@ -909,9 +941,6 @@ Account *acc;
 		//da_transaction_append(newope);
 		da_transaction_insert_sorted(newope);
 
-		if(treeview != NULL)
-			transaction_add_treeview(newope, treeview, accnum);
-
 		account_balances_add(newope);
 
 		if(newope->paymode == PAYMODE_INTXFER)
@@ -919,37 +948,8 @@ Account *acc;
 			transaction_xfer_search_or_add_child(NULL, newope, FALSE);
 		}
 	}
-}
-
-
-void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum)
-{
-GtkTreeModel *model;
-GtkTreeIter  iter;
-//GtkTreePath *path;
-//GtkTreeSelection *sel;
-
-	DB( g_print("\n[transaction] add_treeview\n") );
-
-	if(ope->kacc == accnum)
-	{
-		model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
-		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-
-		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				LST_DSPOPE_DATAS, ope,
-				-1);
-
-		//activate that new line
-		//path = gtk_tree_model_get_path(model, &iter);
-		//gtk_tree_view_expand_to_path(GTK_TREE_VIEW(treeview), path);
-
-		//sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-		//gtk_tree_selection_select_iter(sel, &iter);
-
-		//gtk_tree_path_free(path);
-
-	}
+	
+	return newope;
 }
 
 

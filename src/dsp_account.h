@@ -21,25 +21,6 @@
 #define __HB_DSPACCOUNT_H__
 
 
-
-struct ui_multipleedit_dialog_data
-{
-	GtkWidget	*window;
-
-	GtkWidget	*CM_date, *PO_date;
-	GtkWidget	*LB_mode, *CM_mode, *NU_mode;
-	GtkWidget	*CM_info, *ST_info;
-	GtkWidget	*LB_acc, *CM_acc, *PO_acc;
-	GtkWidget	*CM_pay, *PO_pay;
-	GtkWidget	*CM_cat, *PO_cat;
-	GtkWidget	*CM_tags, *ST_tags;
-	GtkWidget	*CM_memo, *ST_memo;
-	
-	GtkTreeView	*treeview;
-	gboolean	has_xfer;
-};
-
-
 enum
 {
 	ACTION_ACCOUNT_ADD,

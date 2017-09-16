@@ -150,7 +150,7 @@ static void repbalance_date_change(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
 
-	DB( g_print("(repbalance) date change\n") );
+	DB( g_print(" \n[repbalance] date change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -176,7 +176,7 @@ static void repbalance_update_quickdate(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
 
-	DB( g_print("(repbalance) update quickdate\n") );
+	DB( g_print(" \n[repbalance] update quickdate\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -198,7 +198,7 @@ static void repbalance_range_change(GtkWidget *widget, gpointer user_data)
 struct repbalance_data *data;
 gint range;
 
-	DB( g_print("(repbalance) range change\n") );
+	DB( g_print(" \n[repbalance] range change\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -221,7 +221,7 @@ static void repbalance_update_daterange(GtkWidget *widget, gpointer user_data)
 struct repbalance_data *data;
 gchar *daterange;
 
-	DB( g_print("(repbalance) update daterange\n") );
+	DB( g_print(" \n[repbalance] update daterange\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -237,7 +237,7 @@ GtkTreeModel *model;
 GtkTreeIter iter;
 guint key = -1;
 
-	DB( g_print("(repbalance) selection\n") );
+	DB( g_print(" \n[repbalance] selection\n") );
 
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
@@ -262,7 +262,7 @@ gboolean active;
 gboolean sensitive;
 gint page;
 
-	DB( g_print("(repbalance) sensitive\n") );
+	DB( g_print(" \n[repbalance] sensitive\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -291,7 +291,7 @@ gchar *info;
 gchar   buf[128];
 Account *acc;
 
-	DB( g_print("(repbalance) update info\n") );
+	DB( g_print(" \n[repbalance] update info\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -329,7 +329,7 @@ guint32 acckey;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	DB( g_print("(repbalance) detail\n") );
+	DB( g_print(" \n[repbalance] detail\n") );
 
 	/* clear and detach our model */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_detail));
@@ -451,7 +451,7 @@ struct repbalance_data *data;
 
 	data->detail ^= 1;
 
-	DB( g_print("(repbalance) toggledetail to %d\n", (int)data->detail) );
+	DB( g_print(" \n[repbalance] toggledetail to %d\n", (int)data->detail) );
 
 	repbalance_update_detail(widget, user_data);
 
@@ -480,7 +480,7 @@ static void repbalance_toggle_minor(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
 
-	DB( g_print("(repbalance) toggle\n") );
+	DB( g_print(" \n[repbalance] toggle\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -499,7 +499,7 @@ static void repbalance_compute_full_datas(guint32 selkey, gboolean selectall, st
 GList *list;
 GList *lst_acc, *lnk_acc;
 
-	DB( g_print("(repbalance) compute_full\n") );
+	DB( g_print(" \n[repbalance] compute_full\n") );
 
 	g_list_free(data->ope_list);
 	data->ope_list = hbfile_transaction_get_all();
@@ -618,7 +618,7 @@ guint32 acckey, i;
 gboolean selectall, eachday;
 Account *acc;
 
-	DB( g_print("(repbalance) compute\n") );
+	DB( g_print(" \n[repbalance] compute\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -655,8 +655,9 @@ Account *acc;
 	}
 
 	//to remove > 5.0.2
-	//filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
-	//repbalance_update_quickdate(widget, NULL);
+	//#1715532 5.0.5: no...
+	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	repbalance_update_quickdate(widget, NULL);
 
 	repbalance_compute_full_datas(acckey, selectall, data);
 
@@ -754,7 +755,7 @@ static void repbalance_toggle_selectall(GtkWidget *widget, gpointer user_data)
 struct repbalance_data *data;
 gboolean selectall;
 
-	DB( g_print("(repbalance) toggle selectall\n") );
+	DB( g_print(" \n[repbalance] toggle selectall\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
@@ -769,7 +770,7 @@ gboolean selectall;
 
 static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 {
-	DB( g_print("(repbalance) setup\n") );
+	DB( g_print(" \n[repbalance] setup\n") );
 
 	data->ope_list = NULL;
 
@@ -778,16 +779,8 @@ static void repbalance_setup(struct repbalance_data *data, guint32 accnum)
 
 	data->accnum = accnum;
 	filter_preset_daterange_set(data->filter, PREFS->date_range_rep, data->accnum);
+	repbalance_update_quickdate(data->window, NULL);
 	
-	g_signal_handler_block(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
-	g_signal_handler_block(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
-
-	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_mindate), data->filter->mindate);
-	gtk_date_entry_set_date(GTK_DATE_ENTRY(data->PO_maxdate), data->filter->maxdate);
-
-	g_signal_handler_unblock(data->PO_mindate, data->handler_id[HID_REPBALANCE_MINDATE]);
-	g_signal_handler_unblock(data->PO_maxdate, data->handler_id[HID_REPBALANCE_MAXDATE]);
-
 	ui_acc_comboboxentry_populate(GTK_COMBO_BOX(data->PO_acc), GLOBALS->h_acc, ACC_LST_INSERT_REPORT);
 	if( accnum )
 		ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_acc), accnum);
@@ -802,7 +795,7 @@ static gboolean repbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gp
 struct repbalance_data *data = user_data;
 struct WinGeometry *wg;
 
-	DB( g_print("(repbalance) dispose\n") );
+	DB( g_print(" \n[repbalance] dispose\n") );
 
 	g_list_free (data->ope_list);
 
@@ -841,7 +834,7 @@ GError *error = NULL;
 	data = g_malloc0(sizeof(struct repbalance_data));
 	if(!data) return NULL;
 
-	DB( g_print("(repbalance) new\n") );
+	DB( g_print(" \n[repbalance] new\n") );
 
 	//disable define windows
 	GLOBALS->define_off++;

@@ -593,7 +593,7 @@ guint32 julian = 0;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
-gchar *hb_util_filename_new_with_extension(gchar *filename, const gchar *extension)
+gchar *hb_filename_new_with_extension(gchar *filename, const gchar *extension)
 {
 gchar *lastdot, *fwe;
 gchar *newfilename;

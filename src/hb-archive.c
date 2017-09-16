@@ -472,7 +472,7 @@ Transaction *txn;
 					txn->date = scheduled_get_postdate(arc, mydate);
 					/* todo: ? fill in cheque number */
 
-					transaction_add(txn, NULL, 0);
+					transaction_add(txn);
 					GLOBALS->changes_count++;
 					count++;
 

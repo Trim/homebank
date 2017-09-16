@@ -467,6 +467,9 @@ guint32 *new_key;
 				newcat->imported = imported;
 
 				newcat->flags |= GF_SUB;
+				//#1713413 take parent type into account
+				if(parent->flags & GF_INCOME)
+					newcat->flags |= GF_INCOME;
 
 				DB( g_print(" -> insert subcat '%s' id: %d\n", newcat->name, newcat->key) );
 

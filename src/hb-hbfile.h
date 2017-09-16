@@ -24,7 +24,9 @@ GList *hbfile_transaction_get_all(void);
 GQueue *hbfile_transaction_get_partial(guint32 minjulian, guint32 maxjulian);
 GQueue *hbfile_transaction_get_partial_budget(guint32 minjulian, guint32 maxjulian);
 
+gboolean hbfile_file_isbackup(gchar *filepath);
 gboolean hbfile_file_hasbackup(gchar *filepath);
+void hbfile_file_default(void);
 
 void hbfile_change_owner(gchar *owner);
 void hbfile_change_filepath(gchar *filepath);

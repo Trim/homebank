@@ -1,4 +1,25 @@
 
+2017-09-14  Maxime Doyen
+
+ Made 5.1.6 release.
+ * change: win32: upgraded to gtk+ 3.22.16
+ * wish  : #1710955 warn when opening a backup file
+ * bugfix: #1716182 New memo doesn't get added to quick list
+ * bugfix: #1716181 New/deleted transactions and search box show inconsistency
+ * bugfix: #1715532 "All date" range remains as is after "Select All" in Report
+ * bugfix: #1713413 Un-editable category
+ * bugfix: #1710800 Manage budget window do not expand properly
+ * bugfix: #1708956 Automatic check numbering issue
+ * bugfix: #1707201 Anonymize dialog change accounts if user close window
+ * bugfix: #1697174 Months in Manage Budget should allow tabbing from consecutive months
+ * bugfix: #1697171 'Notes' field in 'Manage Accounts' should wrap text
+ * bugfix: #1694520 Windows 10 x64 5.1.5 cannot start application
+ * bugfix: #1693998 Start Balance not shown after new file assistant
+ * bugfix: #1691992 The "other" side of an internal transfer is not marked as changed when an internal transfer is deleted
+ * bugfix: #1690555 Internal transfers with a status of "Remind" are not created correctly
+ * bugfix: #1664012 libofx: macos, cannot import newer OFX versions 
+
+
 2017-05-10  Maxime Doyen
 
  Made 5.1.5 release.

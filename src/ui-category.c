@@ -515,7 +515,7 @@ GtkCellRenderer    *renderer;
 	if(label)
 		gtk_label_set_mnemonic_widget (GTK_LABEL(label), comboboxentry);
 
-	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_LIST*2, -1);
+	gtk_widget_set_size_request(comboboxentry, HB_MINWIDTH_LIST, -1);
 
 	return comboboxentry;
 }

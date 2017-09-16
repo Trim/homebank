@@ -204,6 +204,47 @@ Payee *pay;
 	}
 }
 
+static void deftransaction_set_cheque(GtkWidget *widget, gpointer user_data)
+{
+struct deftransaction_data *data;
+gdouble amount;
+gint kacc;
+Account *acc;
+guint cheque;
+gchar *cheque_str;
+
+	DB( g_print("\n[ui-transaction] set_cheque\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
+	if( amount < 0 )
+	{
+		kacc = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
+		//#1410166
+		if( kacc > 0 )
+		{
+			acc = da_acc_get( kacc );
+			if(acc != NULL)
+			{
+				DB( g_print(" - should fill for acc %d '%s'\n", kacc, acc->name) );
+
+				cheque = ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque))==TRUE ? acc->cheque2 : acc->cheque1 );
+				cheque_str = g_strdup_printf("%d", cheque + 1);
+				gtk_entry_set_text(GTK_ENTRY(data->ST_info), cheque_str);
+				g_free(cheque_str);
+			}
+		}
+	}
+	else
+	if( amount > 0 )
+	{
+		gtk_entry_set_text(GTK_ENTRY(data->ST_info), "");
+	}
+	
+}
+
+
 
 //#1676162 update the nb digits of amount
 static void deftransaction_set_amount_nbdigits(GtkWidget *widget, guint32 kacc)
@@ -362,6 +403,21 @@ gint active;
 	if (txt && *txt)
 	{
 		entry->wording = g_strdup(txt);
+		
+		//#1716182 add into memo autocomplete
+		if( da_transaction_insert_memo(entry) )
+		{
+		GtkEntryCompletion *completion;
+		GtkTreeModel *model;
+		GtkTreeIter  iter;
+
+			completion = gtk_entry_get_completion (GTK_ENTRY(data->ST_word));
+			model = gtk_entry_completion_get_model (completion);
+			gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, -1,
+				0, txt, 
+				-1);
+		}
+
 	}
 
 	value = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
@@ -446,13 +502,18 @@ gdouble amount;
 	if( GTK_IS_COMBO_BOX(data->NU_mode) )
 	{
 		paymode    = gtk_combo_box_get_active(GTK_COMBO_BOX(data->NU_mode));
+		amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 
 		// for internal transfer add, amount must be expense by default
 		if( paymode == PAYMODE_INTXFER && data->type == TRANSACTION_EDIT_ADD )
 		{
-			amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 			if(amount > 0)
 				gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_amount), amount *= -1);
+		}
+
+		if( paymode == PAYMODE_CHECK )
+		{
+			deftransaction_set_cheque(widget, NULL);
 		}
 
 		deftransaction_update_warnsign(widget, NULL);
@@ -545,36 +606,9 @@ gboolean sensitive;
 	/* todo: prefill the cheque number ? */
 	if( data->type != TRANSACTION_EDIT_MODIFY )
 	{
-	gboolean expense = (gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount)) > 0 ? FALSE : TRUE);
-
-		DB( g_print(" - payment: %d\n", PAYMODE_CHECK) );
-		DB( g_print(" - expense: %d\n", expense) );
-		DB( g_print(" - acc is: %d\n", ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc)) ) );
-
 		if(payment == PAYMODE_CHECK)
 		{
-			if(expense == TRUE)
-			{
-			Account *acc;
-			gint active = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
-			guint cheque;
-			gchar *cheque_str;
-
-				DB( g_print(" - should fill cheque number for account %d\n", active) );
-
-				//#1410166
-				if( active > 0 )
-				{
-					acc = da_acc_get( active );
-					if(acc != NULL)
-					{
-						cheque = ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cheque))==TRUE ? acc->cheque2 : acc->cheque1 );
-						cheque_str = g_strdup_printf("%d", cheque + 1);
-						gtk_entry_set_text(GTK_ENTRY(data->ST_info), cheque_str);
-						g_free(cheque_str);
-					}
-				}
-			}
+			deftransaction_set_cheque(widget, user_data);
 		}
 	}
 
@@ -721,8 +755,6 @@ gboolean result;
 			//=> no pb for normal, and intxfer is restricted by ui (in theory)
 			transaction_acc_move(new_txn, old_txn->kacc, new_txn->kacc);
 		}
-
-
 	}
 	
 	deftransaction_dispose(dialog, NULL);

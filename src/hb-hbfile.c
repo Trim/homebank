@@ -22,6 +22,7 @@
 #include "hb-archive.h"
 #include "hb-transaction.h"
 
+
 /****************************************************************************/
 /* Debug macros                                                             */
 /****************************************************************************/
@@ -41,11 +42,20 @@ extern struct Preferences *PREFS;
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =*/
 
 
+gboolean hbfile_file_isbackup(gchar *filepath)
+{
+	return g_str_has_suffix(filepath, "xhb~");
+}
+
+
+
+
+
 gboolean hbfile_file_hasbackup(gchar *filepath)
 {
 gchar *bakfilepath;
 
-	bakfilepath = hb_util_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~");
+	bakfilepath = hb_filename_new_with_extension(GLOBALS->xhb_filepath, "xhb~");
 	GLOBALS->xhb_hasbak = g_file_test(bakfilepath, G_FILE_TEST_EXISTS);
 	g_free(bakfilepath);
 	//todo check here if need to return something
@@ -53,6 +63,16 @@ gchar *bakfilepath;
 }
 
 
+void hbfile_file_default(void)
+{
+	//todo: maybe translate this also
+	hbfile_change_filepath(g_build_filename(PREFS->path_hbfile, "untitled.xhb", NULL));
+	GLOBALS->hbfile_is_new = TRUE;
+	GLOBALS->hbfile_is_bak = FALSE;
+	
+	DB( g_print("- path_hbfile is '%s'\n", PREFS->path_hbfile) );
+	DB( g_print("- xhb_filepath is '%s'\n", GLOBALS->xhb_filepath) );
+}
 
 
 

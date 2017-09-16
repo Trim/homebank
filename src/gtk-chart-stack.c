@@ -444,9 +444,12 @@ PangoLayout *layout;
 	StackItem *item = &g_array_index(chart->items, StackItem, i);
 	
 		// category width
-		pango_layout_set_text (layout, item->label, -1);
-		pango_layout_get_size (layout, &tw, &th);
-		title_w = MAX(title_w, (tw / PANGO_SCALE));
+		if( item->label != NULL )
+		{
+			pango_layout_set_text (layout, item->label, -1);
+			pango_layout_get_size (layout, &tw, &th);
+			title_w = MAX(title_w, (tw / PANGO_SCALE));
+		}
 
 		DB( g_print(" - calc '%s' title_w=%f (w=%d)\n", item->label, title_w, tw) );
 
@@ -458,9 +461,12 @@ PangoLayout *layout;
 
 		DB( g_print(" - maxbudget maxbudget=%f (w=%d)\n", maxbudget, tw) );
 
-		pango_layout_set_text (layout, item->status, -1);
-		pango_layout_get_size (layout, &tw, &th);
-		chart->rel_col_w = MAX(chart->rel_col_w, (tw / PANGO_SCALE));
+		if( item->status != NULL )
+		{
+			pango_layout_set_text (layout, item->status, -1);
+			pango_layout_get_size (layout, &tw, &th);
+			chart->rel_col_w = MAX(chart->rel_col_w, (tw / PANGO_SCALE));
+		}
 	}
 	
 	chart->rel_col_w += CHART_SPACING;
@@ -781,10 +787,13 @@ int tw, th;
 			pango_cairo_show_layout (cr, layout);
 
 			// status
-			pango_layout_set_text (layout, item->status, -1);
-			pango_layout_get_size (layout, &tw, &th);
-			cairo_move_to(cr, chart->l + chart->cat_col_w + chart->graph_width + chart->bud_col_w + chart->res_col_w  + (CHART_SPACING*4), ytext);
-			pango_cairo_show_layout (cr, layout);
+			if( item->status )
+			{
+				pango_layout_set_text (layout, item->status, -1);
+				pango_layout_get_size (layout, &tw, &th);
+				cairo_move_to(cr, chart->l + chart->cat_col_w + chart->graph_width + chart->bud_col_w + chart->res_col_w  + (CHART_SPACING*4), ytext);
+				pango_cairo_show_layout (cr, layout);
+			}
 		}
 		
 		//y += blkw;

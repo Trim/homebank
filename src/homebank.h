@@ -74,13 +74,13 @@
 
 #define HB_VERSION_MAJOR	5
 #define HB_VERSION_MINOR	1
-#define HB_VERSION_MICRO	5
+#define HB_VERSION_MICRO	6
 
-#define HB_VERSION			"5.1.5"
+#define HB_VERSION			"5.1.6"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
 #define FILE_VERSION		1.2
-#define PREF_VERSION		515
+#define PREF_VERSION		516
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -276,6 +276,7 @@ struct HomeBank
 	// hbfile (unsaved properties)
 	guint			changes_count;
 	gboolean		hbfile_is_new;
+	gboolean		hbfile_is_bak;
 	gchar			*xhb_filepath;
 	gboolean		xhb_hasbak;		//file has backup (*.xhb~) used for revert menu sensitivity
 
@@ -298,7 +299,7 @@ gchar *homebank_filename_without_extention(gchar *path);
 void homebank_file_ensure_xhb(gchar *filename);
 void homebank_backup_current_file(void);
 gboolean homebank_util_url_show (const gchar *url);
-gboolean homebank_lastopenedfiles_load(void);
+gchar *homebank_lastopenedfiles_load(void);
 gboolean homebank_lastopenedfiles_save(void);
 
 

@@ -634,7 +634,6 @@ gint i;
 	chart->w = allocation.width - (CHART_MARGIN*2);
 	chart->h = allocation.height - (CHART_MARGIN*2);
 
-	
 	gdkwindow = gtk_widget_get_window(chart->drawarea);
 	if(!gdkwindow)
 	{

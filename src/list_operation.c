@@ -38,25 +38,6 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 
-
-gchar *list_txn_column_label[] = {
-	"----", //datas
-	"----", //status
-	"----", //date
-	N_("Info"    ),
-	N_("Payee"   ),
-	N_("Memo"    ),
-	N_("Amount"  ),
-	N_("Expense" ),
-	N_("Income"  ),
-	N_("Category"),
-	N_("Tags"    ),
-	N_("Balance" ),
-	N_("Status"),
-	NULL
-};
-
-
 //debug
 //extern gboolean minor_active;
 

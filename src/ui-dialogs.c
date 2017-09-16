@@ -445,7 +445,7 @@ gboolean retval;
 	{
 	gchar *tmpfilename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
 	
-		*storage_ptr = hb_util_filename_new_with_extension(tmpfilename, "qif");
+		*storage_ptr = hb_filename_new_with_extension(tmpfilename, "qif");
 		g_free(tmpfilename);
 		retval = TRUE;
 	}
@@ -505,7 +505,7 @@ gchar *path;
 	
 		if( action == GTK_FILE_CHOOSER_ACTION_SAVE )
 		{
-			*storage_ptr = hb_util_filename_new_with_extension(tmpfilename, "csv");
+			*storage_ptr = hb_filename_new_with_extension(tmpfilename, "csv");
 			g_free(tmpfilename);
 		}
 		else

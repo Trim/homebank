@@ -122,6 +122,30 @@ struct defpref_data
 };
 
 
+typedef struct 
+{
+	gchar   *locale;
+	gchar   *name;
+} LangName;
+
+
+typedef struct
+{
+	gshort		id;
+	gchar		*iso;
+	gchar		*name;
+	gdouble		value;
+	//gchar		*prefix_symbol;		/* max symbol is 3 digits in unicode */
+	//gchar		*suffix_symbol;		/* but mostly is 1 digit */
+	gchar		*symbol;
+	gboolean	sym_prefix;
+	gchar		*decimal_char;
+	gchar		*grouping_char;
+	gshort		frac_digits;
+} EuroParams;
+
+
+
 void free_pref_icons(void);
 void load_pref_icons(void);
 

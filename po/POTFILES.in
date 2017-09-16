@@ -10,6 +10,7 @@ src/hb-archive.c
 src/hb-category.c
 src/hb-filter.c
 src/hb-hbfile.c
+src/hb-payee.c
 src/hb-preferences.c
 src/homebank.c
 src/hb-import-csv.c
@@ -38,4 +39,5 @@ src/ui-payee.c
 src/ui-pref.c
 src/ui-split.c
 src/ui-transaction.c
+src/ui-txn-multi.c
 src/ui-widgets.c

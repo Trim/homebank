@@ -736,8 +736,9 @@ guint32 selkey;
 	DB( g_print(" for=%d, view by=%d :: key=%d\n", tmpfor, tmpslice, selkey) );
 
 	//to remove > 5.0.2
-	//filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
-	//ui_reptime_update_quickdate(widget, NULL);
+	//#1715532 5.0.5: no...
+	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+	ui_reptime_update_quickdate(widget, NULL);
 
 	//get our min max date
 	from = data->filter->mindate;

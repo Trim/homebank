@@ -40,10 +40,11 @@ GtkWidget *make_long(GtkWidget *label);
 GtkWidget *make_year(GtkWidget *label);
 GtkWidget *make_cycle(GtkWidget *label, gchar **items);
 GtkWidget *make_daterange(GtkWidget *label, gboolean custom);
-GtkWidget *make_radio(gchar **items, gboolean buttonstyle, GtkOrientation orientation);
+
 
 void ui_label_set_integer(GtkLabel *label, gint value);
 
+GtkWidget *make_radio(gchar **items, gboolean buttonstyle, GtkOrientation orientation);
 GtkWidget *radio_get_nth_widget (GtkContainer *container, gint nth);
 gint radio_get_active (GtkContainer *container);
 void radio_set_active (GtkContainer *container, gint active);

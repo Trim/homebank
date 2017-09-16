@@ -404,6 +404,7 @@ void colorscheme_init(GtkColorScheme *scheme, gint index)
 		case CHART_COLMAP_YNAB:
 			scheme->colors = ynab_colors;
 			scheme->nb_cols = ynab_nbcolors;
+			scheme->cs_blue = 3;
 			scheme->cs_green = 5;
 			scheme->cs_red = 0;
 			scheme->cs_orange = 1;

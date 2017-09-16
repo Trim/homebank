@@ -103,8 +103,10 @@ enum
 
 
 guint da_transaction_length(void);
-void transaction_add_treeview(Transaction *ope, GtkWidget *treeview, guint32 accnum);
-void transaction_add(Transaction *ope, GtkWidget *treeview, guint32 accnum);
+
+void transaction_remove(Transaction *ope);
+gboolean da_transaction_insert_memo(Transaction *item);
+Transaction *transaction_add(Transaction *ope);
 
 gboolean transaction_acc_move(Transaction *txn, guint32 okacc, guint32 nkacc);
 

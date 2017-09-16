@@ -32,6 +32,7 @@
 
 /* our global datas */
 extern struct HomeBank *GLOBALS;
+extern struct Preferences *PREFS;
 
 
 gchar *CYA_ACC_TYPE[] = 
@@ -514,6 +515,8 @@ GtkTreeViewColumn	*column;
 	// treeview
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	g_object_unref(store);
+
+	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
 
 	// column 1: toggle
 	if( withtoggle == TRUE )
@@ -1305,9 +1308,11 @@ gint w, h, row;
 	label = make_label_widget(_("Notes:"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
 	widget = gtk_text_view_new ();
-	scrollwin = gtk_scrolled_window_new (NULL, NULL);
+	//#1697171 add wrap
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(widget), GTK_WRAP_WORD);
+    scrollwin = gtk_scrolled_window_new (NULL, NULL);
 	gtk_widget_set_size_request (scrollwin, -1, 48);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrollwin), GTK_SHADOW_ETCHED_IN);
 	gtk_container_add (GTK_CONTAINER (scrollwin), widget);
 	gtk_widget_set_hexpand (scrollwin, TRUE);

@@ -786,7 +786,7 @@ GList *lxxx, *list;
 				}
 			}
 			
-			transaction_add(item, NULL, 0);
+			transaction_add(item);
 		}
 
 		/* Make iter point to the next row in the list store */
