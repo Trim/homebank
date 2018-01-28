@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,7 +50,7 @@ void da_filter_free(Filter *flt)
 {
 	if(flt != NULL)
 	{
-		g_free(flt->wording);
+		g_free(flt->memo);
 		g_free(flt->info);
 		g_free(flt->tag);
 		g_free(flt);
@@ -93,10 +93,10 @@ guint i;
 	}
 	
 	g_free(flt->info);
-	g_free(flt->wording);
+	g_free(flt->memo);
 	g_free(flt->tag);
 	flt->info = NULL;
-	flt->wording = NULL;
+	flt->memo = NULL;
 	flt->tag = NULL;
 
 	*flt->last_tab = '\0';
@@ -172,7 +172,8 @@ GList *lnk_txn;
 	{
 	Account *acc = lnk_acc->data;
 	
-		if( !(acc->flags & AF_CLOSED) )
+		//#1674045 ony rely on nosummary
+		//if( !(acc->flags & AF_CLOSED) )
 		{
 		Transaction *txn;
 		
@@ -498,9 +499,9 @@ gchar *tags;
 	if(flags & FLT_QSEARCH_MEMO)
 	{
 		//#1668036 always try match on txn memo first
-		if(txn->wording)
+		if(txn->memo)
 		{
-			retval |= filter_text_compare(txn->wording, needle, FALSE);
+			retval |= filter_text_compare(txn->memo, needle, FALSE);
 		}
 		if(retval) goto end;
 		
@@ -594,7 +595,16 @@ gchar *tags;
 			retval |= filter_text_compare(tags, needle, FALSE);
 		}
 		g_free(tags);
-		//if(retval) goto end;
+		if(retval) goto end;
+	}
+
+	//#1741339 add quicksearch for amount
+	if(flags & FLT_QSEARCH_AMOUNT)
+	{
+	gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
+	
+		hb_strfnum(formatd_buf, G_ASCII_DTOSTR_BUF_SIZE-1, txn->amount, txn->kcur, FALSE);
+		retval |= filter_text_compare(formatd_buf, needle, FALSE);
 	}
 
 	
@@ -720,7 +730,7 @@ gint insert;
 	}
 	if(!insert) goto end;
 
-/* info/wording/tag */
+/* info/memo/tag */
 	if(flt->option[FILTER_TEXT])
 	{
 	gchar *tags;
@@ -737,12 +747,12 @@ gint insert;
 		else
 			insert1 = 1;
 
-		if(flt->wording)
+		if(flt->memo)
 		{
 			//#1668036 always try match on txn memo first
-			if(txn->wording)
+			if(txn->memo)
 			{
-				insert2 = filter_text_compare(txn->wording, flt->wording, flt->exact);
+				insert2 = filter_text_compare(txn->memo, flt->memo, flt->exact);
 			}
 
 			if( (insert2 == 0) && (txn->flags & OF_SPLIT) )
@@ -756,7 +766,7 @@ gint insert;
 				gint tmpinsert = 0;
 			
 					split = txn->splits[i];
-					tmpinsert = filter_text_compare(split->memo, flt->wording, flt->exact);
+					tmpinsert = filter_text_compare(split->memo, flt->memo, flt->exact);
 					insert2 |= tmpinsert;
 					if( tmpinsert )
 						break;
@@ -787,7 +797,7 @@ gint insert;
 
 end:
 //	DB( g_print(" %d :: %d :: %d\n", flt->mindate, txn->date, flt->maxdate) );
-//	DB( g_print(" [%d] %s => %d (%d)\n", txn->account, txn->wording, insert, count) );
+//	DB( g_print(" [%d] %s => %d (%d)\n", txn->account, txn->memo, insert, count) );
 	return(insert);
 }
 

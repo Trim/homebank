@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -72,9 +72,14 @@ static void ui_repbalance_list_set_cur(GtkTreeView *treeview, guint32 kcur);
 //prev
 //next
 
+static GtkRadioActionEntry radio_entries[] = {
+  { "List"    , ICONNAME_HB_VIEW_LIST  , N_("List")   , NULL,    N_("View results as list")  , 0 },
+  { "Line"    , ICONNAME_HB_VIEW_LINE  , N_("Line")   , NULL,    N_("View results as lines") , 1 },
+//  { "Column"  , ICONNAME_HB_VIEW_COLUMN, N_("Column") , NULL,    N_("View results as column"), 2 },
+};
+static guint n_radio_entries = G_N_ELEMENTS (radio_entries);
+
 static GtkActionEntry entries[] = {
-  { "List"    , ICONNAME_HB_VIEW_LIST , N_("List")   , NULL,   N_("View results as list"), G_CALLBACK (repbalance_action_viewlist) },
-  { "Line"    , ICONNAME_HB_VIEW_LINE , N_("Line")   , NULL,   N_("View results as lines"), G_CALLBACK (repbalance_action_viewline) },
   { "Refresh" , ICONNAME_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbalance_action_refresh) },
 };
 
@@ -121,6 +126,23 @@ struct repbalance_data *data = user_data;
 
 	gtk_notebook_set_current_page(GTK_NOTEBOOK(data->GR_result), 1);
 	repbalance_sensitive(data->window, NULL);
+}
+
+
+static void ui_repbalance_action_mode (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
+{
+gint value;
+
+	value = gtk_radio_action_get_current_value(GTK_RADIO_ACTION(action));
+	switch( value )
+	{
+		case 0:
+			repbalance_action_viewlist(GTK_ACTION(action), user_data);
+			break;
+		case 1:
+			repbalance_action_viewline(GTK_ACTION(action), user_data);
+			break;
+	}
 }
 
 static void repbalance_action_detail(GtkAction *action, gpointer user_data)
@@ -242,12 +264,11 @@ guint key = -1;
 	if (gtk_tree_selection_get_selected(treeselection, &model, &iter))
 	{
 		gtk_tree_model_get(model, &iter, LST_OVER_DATE, &key, -1);
-
-		DB( g_print(" - active is %d\n", key) );
-
-		repbalance_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
 	}
 
+	DB( g_print(" - active is %d\n", key) );
+
+	repbalance_detail(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), GINT_TO_POINTER(key));
 	repbalance_sensitive(GTK_WIDGET(gtk_tree_selection_get_tree_view (treeselection)), NULL);
 }
 
@@ -258,30 +279,27 @@ guint key = -1;
 static void repbalance_sensitive(GtkWidget *widget, gpointer user_data)
 {
 struct repbalance_data *data;
-gboolean active;
-gboolean sensitive;
+GtkAction *action;
+gboolean visible;
 gint page;
 
 	DB( g_print(" \n[repbalance] sensitive\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	active = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), NULL, NULL);
-
 	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(data->GR_result));
 
-	sensitive = page == 0 ? active : FALSE;
-//	gtk_widget_set_sensitive(data->TB_buttons[ACTION_REPBUDGET_DETAIL], sensitive);
-	gtk_action_set_sensitive(gtk_ui_manager_get_action(data->ui, "/ToolBar/Detail"), sensitive);
+	action = gtk_ui_manager_get_action(data->ui, "/ToolBar/Detail");
+	visible = page == 0 ? TRUE : FALSE;
+	gtk_action_set_visible (action, visible);
+	//sensitive = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_report)), NULL, NULL);
+	//gtk_action_set_sensitive(action, sensitive);
 
-	sensitive = page == 0 ? FALSE : TRUE;
-	gtk_widget_set_sensitive(data->LB_zoomx, sensitive);
-	gtk_widget_set_sensitive(data->RG_zoomx, sensitive);
-
+	visible = page == 0 ? FALSE : TRUE;
+	hb_widget_visible(data->LB_zoomx, visible);
+	hb_widget_visible(data->RG_zoomx, visible);
 
 }
-
-
 
 
 static void repbalance_update_info(GtkWidget *widget, gpointer user_data)
@@ -531,7 +549,9 @@ GList *lst_acc, *lnk_acc;
 		{
 		Account *acc = lnk_acc->data;
 
-			if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+			//#1674045 ony rely on nosummary
+			//if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+			if( (acc->flags & (AF_NOREPORT)) )
 				goto next_acc;
 
 			trn_amount = 0.0;
@@ -655,9 +675,12 @@ Account *acc;
 	}
 
 	//to remove > 5.0.2
-	//#1715532 5.0.5: no...
-	filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
-	repbalance_update_quickdate(widget, NULL);
+	//#1715532 5.0.5: no... but only selectall
+	if(selectall == TRUE)
+	{
+		filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
+		repbalance_update_quickdate(widget, NULL);
+	}
 
 	repbalance_compute_full_datas(acckey, selectall, data);
 
@@ -828,7 +851,7 @@ GtkWidget *label, *widget, *table;
 gint row;
 GtkUIManager *ui;
 GtkActionGroup *actions;
-GtkAction *action;
+//GtkAction *action;
 GError *error = NULL;
 
 	data = g_malloc0(sizeof(struct repbalance_data));
@@ -846,6 +869,7 @@ GError *error = NULL;
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
+	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
 
 	gtk_window_set_title (GTK_WINDOW (window), _("Balance report"));
 
@@ -936,12 +960,14 @@ GError *error = NULL;
     gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
 
 	//ui manager
-	actions = gtk_action_group_new ("Account");
+	actions = gtk_action_group_new ("default");
 
 	//as we use gettext
    	gtk_action_group_set_translation_domain(actions, GETTEXT_PACKAGE);
 
 	// data to action callbacks is set here (data)
+	gtk_action_group_add_radio_actions (actions, radio_entries, n_radio_entries, 0, G_CALLBACK(ui_repbalance_action_mode), data);
+
 	gtk_action_group_add_actions (actions, entries, n_entries, data);
 
 	gtk_action_group_add_toggle_actions (actions,
@@ -950,17 +976,17 @@ GError *error = NULL;
 
 
 	/* set which action should have priority in the toolbar */
-	action = gtk_action_group_get_action(actions, "List");
-	g_object_set(action, "is_important", TRUE, NULL);
+	//action = gtk_action_group_get_action(actions, "List");
+	//g_object_set(action, "is_important", TRUE, NULL);
 
-	action = gtk_action_group_get_action(actions, "Line");
-	g_object_set(action, "is_important", TRUE, NULL);
+	//action = gtk_action_group_get_action(actions, "Line");
+	//g_object_set(action, "is_important", TRUE, NULL);
 
-	action = gtk_action_group_get_action(actions, "Detail");
-	g_object_set(action, "is_important", TRUE, NULL);
+	//action = gtk_action_group_get_action(actions, "Detail");
+	//g_object_set(action, "is_important", TRUE, NULL);
 
-	action = gtk_action_group_get_action(actions, "Refresh");
-	g_object_set(action, "is_important", TRUE, NULL);
+	//action = gtk_action_group_get_action(actions, "Refresh");
+	//g_object_set(action, "is_important", TRUE, NULL);
 
 
 
@@ -987,15 +1013,15 @@ GError *error = NULL;
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
 
+	label = gtk_label_new(NULL);
+	data->TX_info = label;
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+
 	widget = make_label(NULL, 0.5, 0.5);
 	gimp_label_set_attributes (GTK_LABEL (widget), PANGO_ATTR_SCALE,  PANGO_SCALE_SMALL, -1);
 	data->TX_daterange = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, TRUE, TRUE, 0);
 
-
-	label = gtk_label_new(NULL);
-	data->TX_info = label;
-	gtk_box_pack_end (GTK_BOX (hbox), label, FALSE, FALSE, 0);
 
 	notebook = gtk_notebook_new();
 	data->GR_result = notebook;
@@ -1145,6 +1171,9 @@ gint weight;
 		"foreground",  color,
 		"text", datestr,
 		NULL);
+
+	//leak
+	g_free(datestr);
 }
 
 

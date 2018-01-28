@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -46,10 +46,10 @@ da_transaction_clean(Transaction *item)
 {
 	if(item != NULL)
 	{
-		if(item->wording != NULL)
+		if(item->memo != NULL)
 		{
-			g_free(item->wording);
-			item->wording = NULL;
+			g_free(item->memo);
+			item->memo = NULL;
 		}
 		if(item->info != NULL)
 		{
@@ -73,7 +73,6 @@ da_transaction_clean(Transaction *item)
 		}
 	}
 }
-
 
 
 void
@@ -103,7 +102,7 @@ Transaction *da_transaction_copy(Transaction *src_txn, Transaction *dst_txn)
 	memmove(dst_txn, src_txn, sizeof(Transaction));
 	
 	//duplicate the string
-	dst_txn->wording = g_strdup(src_txn->wording);
+	dst_txn->memo = g_strdup(src_txn->memo);
 	dst_txn->info = g_strdup(src_txn->info);
 
 	//duplicate tags
@@ -129,7 +128,7 @@ Transaction *da_transaction_init_from_template(Transaction *txn, Archive *arc)
 	txn->kpay		= arc->kpay;
 	txn->kcat		= arc->kcat;
 	txn->kxferacc	= arc->kxferacc;
-	txn->wording	= g_strdup(arc->wording);
+	txn->memo       = g_strdup(arc->memo);
 	txn->info		= NULL;
 	if( da_splits_clone(arc->splits, txn->splits) > 0)
 		txn->flags |= OF_SPLIT; //Flag that Splits are active
@@ -147,7 +146,7 @@ Transaction *new_item = g_memdup(src_item, sizeof(Transaction));
 	if(new_item)
 	{
 		//duplicate the string
-		new_item->wording = g_strdup(src_item->wording);
+		new_item->memo = g_strdup(src_item->memo);
 		new_item->info = g_strdup(src_item->info);
 
 		//duplicate tags
@@ -240,11 +239,11 @@ gboolean da_transaction_insert_memo(Transaction *item)
 gboolean retval = FALSE;
 
 	// append the memo if new
-	if( item->wording != NULL )
+	if( item->memo != NULL )
 	{
-		if( g_hash_table_lookup(GLOBALS->h_memo, item->wording) == NULL )
+		if( g_hash_table_lookup(GLOBALS->h_memo, item->memo) == NULL )
 		{
-			retval = g_hash_table_insert(GLOBALS->h_memo, g_strdup(item->wording), NULL);
+			retval = g_hash_table_insert(GLOBALS->h_memo, g_strdup(item->memo), NULL);
 		}
 	}
 	return retval;
@@ -343,7 +342,7 @@ gboolean found;
 
 	DB( g_print("\n[transaction] goto orphan\n") );
 
-	g_warning("txn consistency: moving to orphan %d '%s' %.2f", txn->date, txn->wording, txn->amount);
+	g_warning("txn consistency: moving to orphan %d '%s' %.2f", txn->date, txn->memo, txn->amount);
 
 	acc = da_acc_get_by_name((gchar *)oatn);
 	if(acc == NULL)
@@ -580,7 +579,7 @@ GList *list, *matchlist = NULL;
 		
 				if( transaction_xfer_child_might(ope, item, 0) == TRUE )
 				{
-					//DB( g_print(" - match : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
+					//DB( g_print(" - match : %d %s %f %d=>%d\n", item->date, item->memo, item->amount, item->account, item->kxferacc) );
 					matchlist = g_list_append(matchlist, item);
 				}
 				list = g_list_previous(list);
@@ -651,7 +650,7 @@ GList *list;
 	if( !dstacc || src->kxfer <= 0 )
 		return NULL;
 
-	DB( g_print(" - search: %d %s %f %d=>%d - %d\n", src->date, src->wording, src->amount, src->kacc, src->kxferacc, src->kxfer) );
+	DB( g_print(" - search: %d %s %f %d=>%d - %d\n", src->date, src->memo, src->amount, src->kacc, src->kxferacc, src->kxfer) );
 
 	list = g_queue_peek_tail_link(dstacc->txn_queue);
 	while (list != NULL)
@@ -666,7 +665,7 @@ GList *list;
 		 && item->kxfer == src->kxfer 
 		 && item != src )
 		{
-			DB( g_print(" - found : %d %s %f %d=>%d - %d\n", item->date, item->wording, item->amount, item->kacc, item->kxferacc, src->kxfer) );
+			DB( g_print(" - found : %d %s %f %d=>%d - %d\n", item->date, item->memo, item->amount, item->kacc, item->kxferacc, src->kxfer) );
 			return item;
 		}
 		list = g_list_previous(list);
@@ -739,9 +738,9 @@ Account *acc;
 	  child->flags |= (OF_INCOME);
 	child->kpay		= s_txn->kpay;
 	child->kcat		= s_txn->kcat;
-	if(child->wording)
-		g_free(child->wording);
-	child->wording	= g_strdup(s_txn->wording);
+	if(child->memo)
+		g_free(child->memo);
+	child->memo	= g_strdup(s_txn->memo);
 	if(child->info)
 		g_free(child->info);
 	child->info		= g_strdup(s_txn->info);
@@ -808,7 +807,7 @@ GList *list;
 
 	DB( g_print("\n[transaction] get_child_transfer\n") );
 
-	//DB( g_print(" search: %d %s %f %d=>%d\n", src->date, src->wording, src->amount, src->account, src->kxferacc) );
+	//DB( g_print(" search: %d %s %f %d=>%d\n", src->date, src->memo, src->amount, src->account, src->kxferacc) );
 	acc = da_acc_get(src->kxferacc);
 
 	if( acc != NULL )
@@ -829,7 +828,7 @@ GList *list;
 					src->kxferacc == item->kacc &&
 					ABS(src->amount) == ABS(item->amount) )
 				{
-					//DB( g_print(" found : %d %s %f %d=>%d\n", item->date, item->wording, item->amount, item->account, item->kxferacc) );
+					//DB( g_print(" found : %d %s %f %d=>%d\n", item->date, item->memo, item->amount, item->account, item->kxferacc) );
 
 					return item;
 				}
@@ -997,7 +996,7 @@ gboolean match = FALSE;
 	if(text == NULL)
 		return FALSE;
 	
-	//DB( g_print("search %s in %s\n", rul->name, ope->wording) );
+	//DB( g_print("search %s in %s\n", rul->name, ope->memo) );
 	if( searchtext != NULL )
 	{
 		if( exact == TRUE )
@@ -1058,7 +1057,7 @@ GList *list;
 	Assign *rul = list->data;
 	gchar *text;
 
-		text = txn->wording;
+		text = txn->memo;
 		if(rul->field == 1) //payee
 		{
 		Payee *pay = da_pay_get(txn->kpay);
@@ -1134,7 +1133,7 @@ gint changes = 0;
 	Transaction *ope = l_ope->data;
 	gboolean changed = FALSE; 
 
-		DB( g_print("- eval ope '%s' : acc=%d, pay=%d, cat=%d\n", ope->wording, ope->kacc, ope->kpay, ope->kcat) );
+		DB( g_print("- eval ope '%s' : acc=%d, pay=%d, cat=%d\n", ope->memo, ope->kacc, ope->kpay, ope->kcat) );
 
 		//#1215521: added kacc == 0
 		if( (kacc == ope->kacc || kacc == 0) )

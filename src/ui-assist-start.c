@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2017 Maxime DOYEN
+ *	Copyright (C) 1995-2018 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -205,19 +205,21 @@ on_entry_changed (GtkWidget *widget, gpointer data)
 static void ui_start_assistant_property_change_action(GtkWidget *widget, gpointer user_data)
 {
 struct assist_start_data *data;
-Currency4217 *curfmt;
+struct curSelectContext selectCtx;
 	
 	DB( g_print("\n[ui-start] property_change_action\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
 	data->curfmt = NULL;
-
-	curfmt = ui_cur_select_dialog_new(GTK_WINDOW(data->window), CUR_SELECT_MODE_BASE);
-	if( curfmt != NULL )
+	ui_cur_select_dialog_new(GTK_WINDOW(data->window), CUR_SELECT_MODE_BASE, &selectCtx);
+	if( selectCtx.cur_4217 != NULL )
 	{
+	Currency4217 *curfmt;
 	gchar label[128];
 	gchar *name;
+		
+		curfmt = selectCtx.cur_4217;
 		
 		DB( g_printf("- user selected: '%s' '%s'\n", curfmt->curr_iso_code, curfmt->name) );
 

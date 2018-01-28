@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2017 Maxime DOYEN
+ *	Copyright (C) 1995-2018 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -72,8 +72,8 @@ gchar *tagstr;
 				ui_pay_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_pay), ope->kpay);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_pay), TRUE);
 				break;
-			case LST_DSPOPE_WORDING:
-				gtk_entry_set_text(GTK_ENTRY(data->ST_memo), (ope->wording != NULL) ? ope->wording : "");
+			case LST_DSPOPE_MEMO:
+				gtk_entry_set_text(GTK_ENTRY(data->ST_memo), (ope->memo != NULL) ? ope->memo : "");
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_memo), TRUE);
 				break;
 			case LST_DSPOPE_CATEGORY:
@@ -188,7 +188,7 @@ guint changes;
 		gtk_tree_model_get_iter(model, &iter, list->data);
 		gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &txn, -1);
 
-		DB( g_print(" modifying %s %.2f\n", txn->wording, txn->amount) );
+		DB( g_print(" modifying %s %.2f\n", txn->memo, txn->amount) );
 
 		if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_DATE) == TRUE )
 		{
@@ -278,21 +278,21 @@ guint changes;
 			}
 		}
 
-		if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_WORDING) == TRUE )
+		if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_MEMO) == TRUE )
 		{
 			if( gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(data->CM_memo)) )
 			{
-				if(txn->wording)
+				if(txn->memo)
 				{
-					g_free(txn->wording);
-					txn->wording = NULL;	
+					g_free(txn->memo);
+					txn->memo = NULL;	
 					change = TRUE;
 				}
 
 				txt = gtk_entry_get_text(GTK_ENTRY(data->ST_memo));
 				if (txt && *txt)
 				{
-					txn->wording = g_strdup(txt);
+					txn->memo = g_strdup(txt);
 					change = TRUE;
 				}
 			}
@@ -503,7 +503,7 @@ gint row;
 		g_signal_connect (data->CM_tags , "toggled", G_CALLBACK (ui_multipleedit_dialog_update), NULL);
 	}
 
-	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_WORDING) == TRUE )
+	if( list_txn_column_id_isvisible(GTK_TREE_VIEW(data->treeview), LST_DSPOPE_MEMO) == TRUE )
 	{
 		row++;
 		label = make_label_widget(_("M_emo:"));

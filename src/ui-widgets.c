@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -383,6 +383,7 @@ GtkWidget *make_string_maxlength(GtkWidget *label, guint max_length)
 GtkWidget *entry;
 
 	entry = make_string(label);
+	gtk_entry_set_width_chars(GTK_ENTRY(entry), max_length+2);
 	gtk_entry_set_max_length(GTK_ENTRY(entry), max_length);
 
 	return entry;
@@ -504,7 +505,7 @@ GtkWidget *make_scale(GtkWidget *label)
 {
 GtkWidget *scale;
 
-	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, GTK_CHART_MINBARW, GTK_CHART_MAXBARW, 1.0);
+	scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, GTK_CHART_MINBARW, GTK_CHART_SPANBARW, 1.0);
 	gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
 	gtk_range_set_value(GTK_RANGE(scale), GTK_CHART_BARW);
 
@@ -559,6 +560,10 @@ is_separator (GtkTreeModel *model,
   //path = gtk_tree_model_get_path (model, iter);
   //result = gtk_tree_path_get_indices (path)[0] == 4;
   //gtk_tree_path_free (path);
+
+	//leak
+	g_free(txt);
+
 
   return retval;
 }

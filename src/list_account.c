@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -65,6 +65,9 @@ gint dt;
 		{
 			case 1:
 				iconname = (acc->flags & AF_ADDED) ? ICONNAME_NEW : NULL;
+				// override if closed account
+				if( acc->flags & AF_CLOSED )
+					iconname = ICONNAME_CHANGES_PREVENT;
 				break;
 			case 2:
 				iconname = (acc->flags & AF_CHANGED) ? ICONNAME_HB_OPE_EDIT : NULL;
@@ -137,6 +140,9 @@ gchar *groupname;
 		    "weight", PANGO_WEIGHT_BOLD,
 		    "text", groupname, 
 		    NULL);
+
+	//leak
+	g_free(groupname);
 }
 
 
@@ -165,6 +171,9 @@ gchar *color;
 
 		tp = gtk_tree_model_get_path(model, iter);
 		expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(gtk_tree_view_column_get_tree_view(col)), tp);
+	
+		//leak
+		gtk_tree_path_free(tp);
 	
 		if(!expanded)
 		{

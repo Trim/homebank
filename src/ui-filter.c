@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -638,7 +638,7 @@ gboolean sensitive;
 	active = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_option[FILTER_TEXT]));
 	sensitive = active == 0 ? FALSE : TRUE;
 	gtk_widget_set_sensitive(data->CM_exact, sensitive);
-	gtk_widget_set_sensitive(data->ST_wording, sensitive);
+	gtk_widget_set_sensitive(data->ST_memo, sensitive);
 	gtk_widget_set_sensitive(data->ST_info, sensitive);
 	gtk_widget_set_sensitive(data->ST_tag, sensitive);
 
@@ -737,19 +737,19 @@ gchar *txt;
 		data->filter->minamount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_minamount));
 		data->filter->maxamount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_maxamount));
 
-	//text:wording
+	//text:memo
 		data->filter->exact  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_exact));
 		//free any previous string
-		if(	data->filter->wording )
+		if(	data->filter->memo )
 		{
-			g_free(data->filter->wording);
-			data->filter->wording = NULL;
+			g_free(data->filter->memo);
+			data->filter->memo = NULL;
 		}
-		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_wording));
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_memo));
 
 		if (txt && *txt)	// ignore if entry is empty
 		{
-			data->filter->wording = g_strdup(txt);
+			data->filter->memo = g_strdup(txt);
 		}
 
 	//text:info
@@ -902,7 +902,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 	//text
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_exact), data->filter->exact);
 	gtk_entry_set_text(GTK_ENTRY(data->ST_info), (data->filter->info != NULL) ? data->filter->info : "");
-	gtk_entry_set_text(GTK_ENTRY(data->ST_wording), (data->filter->wording != NULL) ? data->filter->wording : "");
+	gtk_entry_set_text(GTK_ENTRY(data->ST_memo), (data->filter->memo != NULL) ? data->filter->memo : "");
 	gtk_entry_set_text(GTK_ENTRY(data->ST_tag), (data->filter->tag != NULL) ? data->filter->tag : "");
 
 	//account
@@ -1212,9 +1212,9 @@ gint row;
 	row++;
 	label = make_label_widget(_("_Memo:"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 1, 1);
-	data->ST_wording = make_string(label);
-	gtk_widget_set_hexpand (data->ST_wording, TRUE);
-	gtk_grid_attach (GTK_GRID (table), data->ST_wording, 1, row, 2, 1);
+	data->ST_memo = make_string(label);
+	gtk_widget_set_hexpand (data->ST_memo, TRUE);
+	gtk_grid_attach (GTK_GRID (table), data->ST_memo, 1, row, 2, 1);
 
 	row++;
 	label = make_label_widget(_("_Info:"));

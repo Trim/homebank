@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -50,13 +50,6 @@ enum {
 	LST_PREF_MAX
 };
 
-enum
-{
-  COLUMN_VISIBLE,
-  COLUMN_NAME,
-  COLUMN_ID,
-  NUM_COLUMNS
-};
 
 enum
 {

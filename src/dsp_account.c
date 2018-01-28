@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2017 Maxime DOYEN
+ *	Copyright (C) 1995-2018 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -155,6 +155,33 @@ struct register_panel_data *data = user_data;
 }
 
 
+/* = = = = = = = = future version = = = = = = = = */
+
+static void register_panel_action_exportpdf(GtkAction *action, gpointer user_data)
+{
+struct register_panel_data *data = user_data;
+gchar *name, *filepath;
+
+
+
+		name = g_strdup_printf("%s.pdf", data->acc->name);
+		filepath = g_build_filename(PREFS->path_export, name, NULL);
+		g_free(name);
+
+		if( ui_dialog_export_pdf(GTK_WINDOW(data->window), &filepath) == GTK_RESPONSE_ACCEPT )
+		{
+			DB( g_printf(" filename is'%s'\n", filepath) );
+	
+			
+			hb_export_pdf_listview(GTK_TREE_VIEW(data->LV_ope), filepath, data->acc->name);
+		}
+
+		g_free(filepath);
+		
+
+}
+
+
 static void register_panel_action_check_internal_xfer(GtkAction *action, gpointer user_data)
 {
 struct register_panel_data *data = user_data;
@@ -181,7 +208,7 @@ gint count;
 		{
 			if( transaction_xfer_child_strong_get(txn) == NULL )
 			{
-				DB( g_print(" - invalid xfer: '%s'\n", txn->wording) );
+				DB( g_print(" - invalid xfer: '%s'\n", txn->memo) );
 				
 				//test unrecoverable (kxferacc = 0)
 				if( txn->kxferacc <= 0 )
@@ -352,9 +379,7 @@ static void register_panel_export_csv(GtkWidget *widget, gpointer user_data)
 {
 struct register_panel_data *data;
 gchar *filename = NULL;
-GtkTreeModel *model;
-GtkTreeIter	iter;
-gboolean valid;
+GString *node;
 GIOChannel *io;
 
 	DB( g_print("\n[account] export csv\n") );
@@ -363,87 +388,18 @@ GIOChannel *io;
 
 	if( ui_file_chooser_csv(GTK_WINDOW(data->window), GTK_FILE_CHOOSER_ACTION_SAVE, &filename, NULL) == TRUE )
 	{
-
 		DB( g_print(" + filename is %s\n", filename) );
-
 		io = g_io_channel_new_file(filename, "w", NULL);
 		if(io != NULL)
 		{
-			//title line
-			g_io_channel_write_chars(io, "date;paymode;info;payee;wording;amount;category;tags\n", -1, NULL, NULL);
-
-
-			model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
-
-			valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
-			while (valid)
-			{
-			Transaction *ope;
-			gchar *outstr;
-			
-			gchar datebuf[16];
-			gchar *info, *payeename, *categoryname;
-			Payee *payee;
-			Category *category;
-			gchar *tags;
-			char amountbuf[G_ASCII_DTOSTR_BUF_SIZE];
-
-				gtk_tree_model_get (model, &iter,
-						LST_DSPOPE_DATAS, &ope,
-						-1);
-
-				hb_sprint_date(datebuf, ope->date);
-
-				info = ope->info;
-				if(info == NULL) info = "";
-				payee = da_pay_get(ope->kpay);
-				payeename = (payee->name == NULL) ? "" : payee->name;
-				category = da_cat_get(ope->kcat);
-				categoryname = (category->name == NULL) ? "" : da_cat_get_fullname(category);
-				tags = transaction_tags_tostring(ope);
-
-				//#793719
-				//g_ascii_dtostr (amountbuf, sizeof (amountbuf), ope->amount);
-				g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", ope->amount);
-
-
-
-				DB( g_print("amount = %f '%s'\n", ope->amount, amountbuf) );
-
-
-				outstr = g_strdup_printf("%s;%d;%s;%s;%s;%s;%s;%s\n",
-						datebuf,
-						ope->paymode,
-						info,
-						payeename,
-						ope->wording,
-						amountbuf,
-						categoryname,
-						tags != NULL ? tags : ""
-						);
-
-				DB( g_print("%s", outstr) );
-
-				g_io_channel_write_chars(io, outstr, -1, NULL, NULL);
-
-				g_free(outstr);
-				g_free(tags);
-
-
-				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
-			}
-
+			node = list_txn_to_string(GTK_TREE_VIEW(data->LV_ope), FALSE);
+			g_io_channel_write_chars(io, node->str, -1, NULL, NULL);
 			g_io_channel_unref (io);
+			g_string_free(node, TRUE);
 		}
-
 		g_free( filename );
-
 	}
-
 }
-
-
-
 
 
 static void register_panel_edit_multiple(GtkWidget *widget, Transaction *txn, gint column_id, gpointer user_data)
@@ -538,7 +494,7 @@ gint result, count;
 				gtk_tree_model_get_iter(model, &iter, list->data);
 				gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
 
-				DB( g_print(" create archive %s %.2f\n", ope->wording, ope->amount) );
+				DB( g_print(" create archive %s %.2f\n", ope->memo, ope->amount) );
 
 				item = da_archive_malloc();
 
@@ -1203,7 +1159,7 @@ gboolean result;
 					gtk_tree_model_get_iter(model, &iter, list->data);
 					gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &entry, -1);
 
-					DB( g_print(" delete %s %.2f\n", entry->wording, entry->amount) );
+					DB( g_print(" delete %s %.2f\n", entry->memo, entry->amount) );
 
 					//#1716181 also remove from the ptr_array (quickfilter)
 					g_ptr_array_remove(data->gpatxn, (gpointer)entry);
@@ -1559,7 +1515,7 @@ gint count = 0;
 			else
 				opeexp += item->amount;
 
-			DB( g_print(" - %s, %.2f\n", item->wording, item->amount ) );
+			DB( g_print(" - %s, %.2f\n", item->memo, item->amount ) );
 
 			tmplist = g_list_next(tmplist);
 		}
@@ -1617,7 +1573,7 @@ Transaction *ope;
 	gtk_tree_model_get(model, &iter, LST_DSPOPE_DATAS, &ope, -1);
 
 
-	DB( g_print ("%d rows been double-clicked on column=%d! ope=%s\n", count, col_id, ope->wording) );
+	DB( g_print ("%d rows been double-clicked on column=%d! ope=%s\n", count, col_id, ope->memo) );
 
 	if( count == 1)
 	{
@@ -1685,7 +1641,10 @@ gchar *name;
 		g_free(name);
 	}
 	else
+	{
 		gtk_label_set_text (GTK_LABEL(data->LB_name), data->acc->name);
+		hb_widget_visible (data->IM_closed, (data->acc->flags & AF_CLOSED) ? TRUE : FALSE);
+	}
 
 	DB( g_print(" - sort transactions\n") );
 	da_transaction_queue_sort(data->acc->txn_queue);
@@ -1693,7 +1652,7 @@ gchar *name;
 	//DB( g_print(" mindate=%d, maxdate=%d %x\n", data->filter->mindate,data->filter->maxdate) );
 
 	DB( g_print(" - call update visual\n") );
-	register_panel_update(widget, GINT_TO_POINTER(UF_VISUAL));
+	register_panel_update(widget, GINT_TO_POINTER(UF_VISUAL|UF_SENSITIVE));
 
 	DB( g_print(" - set range or populate+update sensitive+balance\n") );
 	
@@ -1793,6 +1752,8 @@ static GtkActionEntry entries[] = {
 	{ "TxnMenu"      , NULL, N_("Transacti_on"), NULL, NULL, NULL },
 	{ "TxnStatusMenu", NULL, N_("_Status"), NULL, NULL, NULL },
 	{ "ToolsMenu"	 , NULL, N_("_Tools"), NULL, NULL, NULL },
+	/* = = = = = = = = future version = = = = = = = = */
+	{ "TestingMenu"	 , NULL, "Testing", NULL, NULL, NULL },
 
 	{ "Close" 	    , ICONNAME_CLOSE	        , N_("_Close")				, "<control>W", N_("Close the current account"),		G_CALLBACK (register_panel_action_close) },
 
@@ -1817,6 +1778,9 @@ static GtkActionEntry entries[] = {
 	{ "ExportCSV"	, NULL				   		, N_("Export CSV..."), NULL,		N_("Export as CSV"), G_CALLBACK (register_panel_action_exportcsv) },
 
 	{ "ChkIntXfer"  , NULL                      , N_("Check internal xfer..."), NULL,	NULL, G_CALLBACK (register_panel_action_check_internal_xfer) },
+
+/* = = = = = = = = future version = = = = = = = = */
+	{ "ExportPDF"		, ICONNAME_PRINT		, N_("Export PDF..."), NULL,		N_("Export as PDF"), G_CALLBACK (register_panel_action_exportpdf) },
 
 };
 static guint n_entries = G_N_ELEMENTS (entries);
@@ -1856,6 +1820,11 @@ static const gchar *ui_info =
 "	    	<separator/>"
 "		<menuitem action='ConvToEuro'/>"
 "	</menu>"
+
+"	<menu action='TestingMenu'>"
+"		<menuitem action='ExportPDF'/>"
+"	</menu>"
+
 "</menubar>"
 
 "<toolbar name='TxnBar'>"
@@ -1916,7 +1885,7 @@ GError *error = NULL;
 	gtk_window_set_title (GTK_WINDOW (window), data->wintitle);
 
 	// connect our dispose function
-		g_signal_connect (window, "delete_event",
+		g_signal_connect (window, "delete-event",
 		G_CALLBACK (register_panel_dispose), (gpointer)data);
 
 	// connect our dispose function
@@ -2000,21 +1969,23 @@ GError *error = NULL;
 	gtk_box_pack_start (GTK_BOX (mainbox), table, FALSE, FALSE, 0);	
 
 	// account name (+ balance)
+	widget = gtk_image_new_from_icon_name (ICONNAME_CHANGES_PREVENT, GTK_ICON_SIZE_BUTTON);
+	data->IM_closed = widget;
+	gtk_grid_attach (GTK_GRID(table), widget, 0, 0, 1, 1);
+
 	label = gtk_label_new(NULL);
 	data->LB_name = label;
 	gimp_label_set_attributes (GTK_LABEL (label), PANGO_ATTR_SCALE, PANGO_SCALE_LARGE, -1);
 	gtk_widget_set_halign (label, GTK_ALIGN_START);
 	gtk_widget_set_hexpand (label, TRUE);
-	gtk_grid_attach (GTK_GRID(table), label, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), label, 1, 0, 1, 1);
 
 	/* balances area */
-
-
 	label = gtk_label_new(_("Bank:"));
-	gtk_grid_attach (GTK_GRID(table), label, 2, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), label, 3, 0, 1, 1);
 	widget = gtk_label_new(NULL);
 	data->TX_balance[0] = widget;
-	gtk_grid_attach (GTK_GRID(table), widget, 3, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 4, 0, 1, 1);
 
 	label = gtk_label_new(_("Today:"));
 	gtk_grid_attach (GTK_GRID(table), label, 5, 0, 1, 1);
@@ -2023,20 +1994,21 @@ GError *error = NULL;
 	gtk_grid_attach (GTK_GRID(table), widget, 6, 0, 1, 1);
 
 	label = gtk_label_new(_("Future:"));
-	gtk_grid_attach (GTK_GRID(table), label, 8, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), label, 7, 0, 1, 1);
 
 	widget = gtk_label_new(NULL);
 	data->TX_balance[2] = widget;
-	gtk_grid_attach (GTK_GRID(table), widget, 9, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 8, 0, 1, 1);
 
 	//quick search
 	widget = make_search (NULL);
 	data->ST_search = widget;
 	gtk_widget_set_size_request(widget, HB_MINWIDTH_SEARCH, -1);
-	gtk_grid_attach (GTK_GRID(table), widget, 12, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 9, 0, 1, 1);
 
 	data->handler_id[HID_SEARCH] = g_signal_connect (data->ST_search, "search-changed", G_CALLBACK (quick_search_text_changed_cb), data);
-	
+
+
 	// windows interior
 	table = gtk_grid_new();
 	gtk_grid_set_row_spacing (GTK_GRID (table), SPACING_SMALL);

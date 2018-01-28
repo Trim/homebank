@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -35,7 +35,7 @@ struct _transaction
 	gushort		flags;
 	guint32		kpay;
 	guint32		kcat;
-	gchar		*wording;
+	gchar		*memo;
 
 	guint32		date;
 	gushort		pos;
@@ -44,14 +44,14 @@ struct _transaction
 	guint32		*tags;
 	guint32		kxfer;		//strong link xfer key
 	guint32		kxferacc;
-	
+
 	Split		*splits[TXN_MAX_SPLIT+1];
 
 	/* unsaved datas */
-	GList		*same;		//used for import todo: change this
 	guint32		kcur;
 	gdouble		balance;
 	gboolean	overdraft;
+	GList		*same;		//used for import todo: change this
 };
 
 #include "hb-archive.h"

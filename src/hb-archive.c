@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -36,13 +36,11 @@
 extern struct HomeBank *GLOBALS;
 
 
-/* = = = = = = = = = = = = = = = = = = = = */
-/* Archive */
-
 Archive *da_archive_malloc(void)
 {
 	return g_malloc0(sizeof(Archive));
 }
+
 
 Archive *da_archive_clone(Archive *src_item)
 {
@@ -51,20 +49,21 @@ Archive *new_item = g_memdup(src_item, sizeof(Archive));
 	if(new_item)
 	{
 		//duplicate the string
-		new_item->wording = g_strdup(src_item->wording);
-		
+		new_item->memo = g_strdup(src_item->memo);
+
 		if( da_splits_clone(src_item->splits, new_item->splits) > 0)
 			new_item->flags |= OF_SPLIT; //Flag that Splits are active
 	}
 	return new_item;
 }
 
+
 void da_archive_free(Archive *item)
 {
 	if(item != NULL)
 	{
-		if(item->wording != NULL)
-			g_free(item->wording);
+		if(item->memo != NULL)
+			g_free(item->memo);
 
 		da_splits_free(item->splits);
 		//item->flags &= ~(OF_SPLIT); //Flag that Splits are cleared		
@@ -72,6 +71,7 @@ void da_archive_free(Archive *item)
 		g_free(item);
 	}
 }
+
 
 void da_archive_destroy(GList *list)
 {
@@ -86,9 +86,13 @@ GList *tmplist = g_list_first(list);
 	g_list_free(list);
 }
 
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+
 static gint da_archive_glist_compare_func(Archive *a, Archive *b)
 {
-	return hb_string_utf8_compare(a->wording, b->wording);
+	return hb_string_utf8_compare(a->memo, b->memo);
 }
 
 
@@ -97,10 +101,12 @@ GList *da_archive_sort(GList *list)
 	return g_list_sort(list, (GCompareFunc)da_archive_glist_compare_func);
 }
 
+
 guint da_archive_length(void)
 {
 	return g_list_length(GLOBALS->arc_list);
 }
+
 
 void da_archive_consistency(Archive *item)
 {
@@ -154,23 +160,21 @@ Archive *da_archive_init_from_transaction(Archive *arc, Transaction *txn)
 	arc->amount		= txn->amount;
 	arc->kacc		= txn->kacc;
 	arc->kxferacc	= txn->kxferacc;
-	arc->paymode		= txn->paymode;
-	arc->flags			= txn->flags	& (OF_INCOME);
+	arc->paymode	= txn->paymode;
+	arc->flags		= txn->flags	& (OF_INCOME);
 	arc->status		= txn->status;
-	arc->kpay			= txn->kpay;
+	arc->kpay		= txn->kpay;
 	arc->kcat		= txn->kcat;
-	if(txn->wording != NULL)
-		arc->wording 		= g_strdup(txn->wording);
+	if(txn->memo != NULL)
+		arc->memo 	= g_strdup(txn->memo);
 	else
-		arc->wording 		= g_strdup(_("(new archive)"));
+		arc->memo 	= g_strdup(_("(new archive)"));
 
 	if( da_splits_clone(txn->splits, arc->splits) > 0)
 		arc->flags |= OF_SPLIT; //Flag that Splits are active
 	
 	return arc;
 }
-
-
 
 
 static guint32 _sched_date_get_next_post(GDate *tmpdate, Archive *arc, guint32 nextdate)
@@ -239,7 +243,7 @@ gint shift;
 	{
 		wday = g_date_get_weekday(tmpdate);
 
-		DB( g_print(" %s wday=%d\n", arc->wording, wday) );
+		DB( g_print(" %s wday=%d\n", arc->memo, wday) );
 
 		if( wday >= G_DATE_SATURDAY )
 		{
@@ -340,7 +344,7 @@ gushort lastday;
 
 	DB( g_print("\n[scheduled] date_advance\n") );
 
-	DB( g_print(" arc: '%s'\n", arc->wording ) );
+	DB( g_print(" arc: '%s'\n", arc->memo ) );
 
 	post_date = g_date_new();
 	g_date_set_julian(post_date, arc->nextdate);
@@ -453,7 +457,7 @@ Transaction *txn;
 	{
 	Archive *arc = list->data;
 
-		DB( g_print("\n eval %d for '%s'\n", scheduled_is_postable(arc), arc->wording) );
+		DB( g_print("\n eval %d for '%s'\n", scheduled_is_postable(arc), arc->memo) );
 
 		if(scheduled_is_postable(arc) == TRUE)
 		{
@@ -466,7 +470,7 @@ Transaction *txn;
 
 				while(mydate < maxpostdate)
 				{
-					DB( hb_print_date(mydate, arc->wording) );
+					DB( hb_print_date(mydate, arc->memo) );
 					
 					da_transaction_init_from_template(txn, arc);
 					txn->date = scheduled_get_postdate(arc, mydate);

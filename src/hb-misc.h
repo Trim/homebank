@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -48,6 +48,8 @@ gint hb_string_utf8_compare(gchar *s1, gchar *s2);
 
 void hb_string_strip_crlf(gchar *str);
 void hb_string_replace_char(gchar c, gchar *str);
+gchar *hb_string_copy_jsonpair(gchar *dst, gchar *str);
+void hb_string_inline(gchar *str);
 gchar* hb_strdup_nobrackets (const gchar *str);
 
 gchar *hb_sprint_date(gchar *outstr, guint32 julian);

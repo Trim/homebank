@@ -1,5 +1,5 @@
 /*	HomeBank -- Free, easy, personal accounting for everyone.
- *	Copyright (C) 1995-2017 Maxime DOYEN
+ *	Copyright (C) 1995-2018 Maxime DOYEN
  *
  *	This file is part of HomeBank.
  *
@@ -263,7 +263,7 @@ Transaction *newope;
 		{
 			case 1: //to memo
 				DB( g_print(" -> name to memo: '%s'\n", data.name) );
-				newope->wording = g_strdup(data.name);
+				newope->memo = g_strdup(data.name);
 
 				//test
 				//strip_extra_spaces(newope->wording);
@@ -336,12 +336,12 @@ Transaction *newope;
 				break;
 
 			case 2: //add to description
-				old = newope->wording;
+				old = newope->memo;
 				if(old == NULL)
-					newope->wording = g_strdup(data.memo);
+					newope->memo = g_strdup(data.memo);
 				else
 				{
-					newope->wording = g_strjoin(" ", old, data.memo, NULL);
+					newope->memo = g_strjoin(" ", old, data.memo, NULL);
 					g_free(old);
 				}
 

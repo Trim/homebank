@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -48,11 +48,17 @@
 
 #include "gtk-chart.h"
 
+//old url prior 2018
 //#define HOMEBANK_URL_HELP           "http://homebank.free.fr/help/"
+//#define HOMEBANK_URL_HELP_ONLINE    "https://launchpad.net/homebank/+addquestion"
+//#define HOMEBANK_URL_HELP_PROBLEM   "https://launchpad.net/homebank/+filebug"
+//#define HOMEBANK_URL_HELP_TRANSLATE "https://launchpad.net/homebank/+translations"
+
 #define HOMEBANK_URL_HELP           "index.html"
-#define HOMEBANK_URL_HELP_ONLINE    "https://launchpad.net/homebank/+addquestion"
-#define HOMEBANK_URL_HELP_TRANSLATE "https://launchpad.net/homebank/+translations"
-#define HOMEBANK_URL_HELP_PROBLEM   "https://launchpad.net/homebank/+filebug"
+#define HOMEBANK_URL_HELP_ONLINE    "http://homebank.free.fr/support.php"
+#define HOMEBANK_URL_HELP_UPDATES   "http://homebank.free.fr/downloads.php"
+#define HOMEBANK_URL_HELP_PROBLEM   "http://homebank.free.fr/development.php#bug"
+#define HOMEBANK_URL_HELP_TRANSLATE "http://homebank.free.fr/development.php#translate"
 
 
 /****************************************************************************/
@@ -114,6 +120,8 @@ static void ui_mainwindow_action_file_statistics(void);
 static void ui_mainwindow_action_help(void);
 void ui_mainwindow_action_help_welcome(void);
 static void ui_mainwindow_action_help_online(void);
+static void ui_mainwindow_action_help_updates(void);
+static void ui_mainwindow_action_help_releasenotes(void);
 static void ui_mainwindow_action_help_translate(void);
 static void ui_mainwindow_action_help_problem(void);
 static void ui_mainwindow_action_about(void);
@@ -224,8 +232,11 @@ static GtkActionEntry entries[] = {
   /* HelpMenu */
   { "Contents"    , ICONNAME_HELP     , N_("_Contents")                    , "F1", N_("Documentation about HomeBank"), G_CALLBACK (ui_mainwindow_action_help) },
   { "Online"      , "lpi-help"        , N_("Get Help Online...")           , NULL, N_("Connect to the LaunchPad website for online help"), G_CALLBACK (ui_mainwindow_action_help_online) },
-  { "Translate"   , "lpi-translate"   , N_("Translate this Application..."), NULL, N_("Connect to the LaunchPad website to help translate this application"), G_CALLBACK (ui_mainwindow_action_help_translate) },
+
+  { "Updates"     , NULL              , N_("Check for updates...")         , NULL, N_("Visit HomeBank website to check for update"), G_CALLBACK (ui_mainwindow_action_help_updates) },
+  { "ReleaseNotes", NULL              , N_("Release Notes")                , NULL, N_("Display the release notes"), G_CALLBACK (ui_mainwindow_action_help_releasenotes) },
   { "Problem"     , "lpi-bug"         , N_("Report a Problem...")          , NULL, N_("Connect to the LaunchPad website to help fix problems"), G_CALLBACK (ui_mainwindow_action_help_problem) },
+  { "Translate"   , "lpi-translate"   , N_("Translate this Application..."), NULL, N_("Connect to the LaunchPad website to help translate this application"), G_CALLBACK (ui_mainwindow_action_help_translate) },
 
   { "About"       , ICONNAME_ABOUT      , N_("_About")     , NULL, N_("About HomeBank")      ,G_CALLBACK (ui_mainwindow_action_about) },
 
@@ -312,10 +323,12 @@ static const gchar *ui_info =
 "    </menu>"
 "    <menu action='HelpMenu'>"
 "      <menuitem action='Contents'/>"
-"        <separator/>"
 "      <menuitem action='Online'/>"
-"      <menuitem action='Translate'/>"
+"        <separator/>"
+"      <menuitem action='Updates'/>"
+"      <menuitem action='ReleaseNotes'/>"
 "      <menuitem action='Problem'/>"
+"      <menuitem action='Translate'/>"
 "        <separator/>"
 "      <menuitem action='About'/>"
 "    </menu>"
@@ -433,7 +446,7 @@ gchar *version;
   };
 */
 
-	static const gchar *copyright = "Copyright \xc2\xa9 1995-2017 - Maxime DOYEN";
+	static const gchar *copyright = "Copyright \xc2\xa9 1995-2018 - Maxime DOYEN";
 
 
 
@@ -812,6 +825,7 @@ static void ui_mainwindow_action_about(void)
 
 }
 
+
 static void ui_mainwindow_action_export(void)
 {
 gchar *filename;
@@ -823,13 +837,27 @@ gchar *filename;
 	}
 }
 
+
 static void ui_mainwindow_action_help(void)
 {
 gchar *link;
 
     link = g_build_filename("file:///", homebank_app_get_help_dir(), HOMEBANK_URL_HELP, NULL );
 	homebank_util_url_show (link);
+    g_free(link);
+}
 
+
+static void ui_mainwindow_action_help_releasenotes(void)
+{
+gchar *link;
+
+	#ifdef G_OS_WIN32
+    	link = g_build_filename("file:///", homebank_app_get_datas_dir(), "ChangeLog.txt", NULL );
+	#else
+		link = g_build_filename("file:///", homebank_app_get_datas_dir(), "ChangeLog", NULL );
+	#endif
+	homebank_util_url_show (link);
     g_free(link);
 }
 
@@ -952,37 +980,39 @@ GtkWidget *mainvbox, *widget, *label;
 }
 
 
+static void ui_mainwindow_action_help_updates(void)
+{
+const gchar *link = HOMEBANK_URL_HELP_UPDATES;
+
+	homebank_util_url_show (link);
+}
+
 
 static void ui_mainwindow_action_help_online(void)
 {
 const gchar *link = HOMEBANK_URL_HELP_ONLINE;
 
 	homebank_util_url_show (link);
-
 }
+
 
 static void ui_mainwindow_action_help_translate(void)
 {
 const gchar *link = HOMEBANK_URL_HELP_TRANSLATE;
 
 	homebank_util_url_show (link);
-
 }
+
 
 static void ui_mainwindow_action_help_problem(void)
 {
 const gchar *link = HOMEBANK_URL_HELP_PROBLEM;
 
 	homebank_util_url_show (link);
-
 }
 
 
-
-
 /* hbfile functions -------------------- */
-
-
 
 
 /*
@@ -1080,7 +1110,7 @@ gint account, count;
 		if( result == GTK_RESPONSE_ADD )
 		{
 			ope = da_transaction_malloc();
-			ope->date    = date;
+			ope->date = date;
 			ope->kacc = account;
 
 			if( PREFS->heritdate == FALSE ) //fix: 318733
@@ -1136,7 +1166,7 @@ struct tmptop
 };
 
 
-#define MAX_TOPSPENDING 5
+#define MAX_TOPSPENDING 10
 
 
 static gint tmptop_compare_func(struct tmptop *tt1, struct tmptop *tt2)
@@ -1237,7 +1267,7 @@ Account *acc;
 		{
 		Transaction *ope = list->data;
 
-			//DB( g_print(" - eval txn: '%s', cat=%d ==> flt-test=%d\n", ope->wording, ope->kcat, filter_test(data->filter, ope)) );
+			//DB( g_print(" - eval txn: '%s', cat=%d ==> flt-test=%d\n", ope->memo, ope->kcat, filter_test(data->filter, ope)) );
 
 			if( !(ope->paymode == PAYMODE_INTXFER) )
 			{
@@ -1250,7 +1280,7 @@ Account *acc;
 				if(acc)
 					trn_amount = hb_amount_base(ope->amount, acc->kcur);
 
-				if(  ope->flags & OF_SPLIT )
+				if( ope->flags & OF_SPLIT )
 				{
 				guint nbsplit = da_splits_count(ope->splits);
 				Split *split;
@@ -1545,7 +1575,7 @@ struct hbfile_data *data;
 
 	if(arc)
 	{
-		DB( g_print("archive is %s\n", arc->wording) );
+		DB( g_print("archive is %s\n", arc->memo) );
 		
 		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_skip), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(data->BT_sched_post), TRUE);
@@ -1657,7 +1687,7 @@ GDate *date;
 			nbdays = arc->nextdate - maxpostdate;
 			nblate = scheduled_get_latepost_count(arc, GLOBALS->today);
 			
-			DB( g_print(" - append '%s' : %d\n", arc->wording, nbdays) );
+			DB( g_print(" - append '%s' : %d\n", arc->memo, nbdays) );
 
 			if(arc->flags & OF_INCOME)
 			{
@@ -1681,7 +1711,7 @@ GDate *date;
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				  LST_DSPUPC_DATAS, arc,
 				  LST_DSPUPC_ACCOUNT, acc,
-			      LST_DSPUPC_WORDING, arc->wording,
+			      LST_DSPUPC_MEMO, arc->memo,
 			      LST_DSPUPC_EXPENSE, exp,
 			      LST_DSPUPC_INCOME, inc,
 				  LST_DSPUPC_REMAINING, nbdays,
@@ -1701,7 +1731,7 @@ GDate *date;
 				gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					  LST_DSPUPC_DATAS, arc,
 					  LST_DSPUPC_ACCOUNT, acc,
-					  LST_DSPUPC_WORDING, arc->wording,
+					  LST_DSPUPC_MEMO, arc->memo,
 					  LST_DSPUPC_EXPENSE, -inc,
 					  LST_DSPUPC_INCOME, -exp,
 					  LST_DSPUPC_REMAINING, nbdays,
@@ -1720,12 +1750,11 @@ GDate *date;
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 			  LST_DSPUPC_DATAS, NULL,
 			  LST_DSPUPC_ACCOUNT, NULL,
-			  LST_DSPUPC_WORDING, _("Total"),
+			  LST_DSPUPC_MEMO, _("Total"),
 			  LST_DSPUPC_EXPENSE, totexp,
 		      LST_DSPUPC_INCOME, totinc,
 		  -1);
 	}
-
 
 	ui_mainwindow_scheduled_update(widget, NULL);
 	
@@ -1980,7 +2009,9 @@ gint nballoc;
 	Account *acc = elt->data;
 	GPtrArray *group;
 	
-		if( showall || !(acc->flags & (AF_CLOSED|AF_NOSUMMARY)) )
+		//#1674045 ony rely on nosummary
+		//if( showall || !(acc->flags & (AF_CLOSED|AF_NOSUMMARY)) )
+		if( showall || !(acc->flags & AF_NOSUMMARY) )
 		{
 			if( groupby == DSPACC_GROUP_BY_BANK )
 			{

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -454,7 +454,52 @@ gchar *d = str;
 }
 
 
-/*static void strip_extra_spaces(char* str) {
+gchar *hb_string_copy_jsonpair(gchar *dst, gchar *str)
+{
+
+	while( *str!='\0' )
+	{
+		if( *str=='}' )
+			break;
+
+		if( *str==',' )
+		{
+			*dst = '\0';
+			return str + 1;
+		}
+
+		if( *str!='{' && *str!='\"' )
+		{
+			*dst++ = *str;
+		}
+		str++;
+	}
+	*dst = '\0';
+	return NULL;
+}
+
+
+void hb_string_inline(gchar *str)
+{
+gchar *s = str;
+gchar *d = str;
+
+	if(str)
+	{
+		while( *s )
+		{
+			if( !(*s==' ' || *s=='\t' || *s=='\n' || *s=='\r') )
+			{
+				*d++ = *s;
+			}
+			s++;
+		}
+		*d = 0;
+	}
+}
+
+
+/*void strip_extra_spaces(char* str) {
   int i,x;
   for(i=x=1; str[i]; ++i)
     if(!isspace(str[i]) || (i>0 && !isspace(str[i-1])))
@@ -697,7 +742,8 @@ GDate date;
 				g_date_get_month(&date),
 				g_date_get_year(&date)
 				);
-		}	
+		}
+		break;
 		default:
 			g_sprintf(outstr, "%04d/%02d/%02d",
 				g_date_get_year(&date),

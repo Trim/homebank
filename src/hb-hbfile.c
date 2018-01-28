@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 1995-2017 Maxime DOYEN
+ *  Copyright (C) 1995-2018 Maxime DOYEN
  *
  *  This file is part of HomeBank.
  *
@@ -169,7 +169,9 @@ GList *list;
 	{
 	Account *acc = lnk_acc->data;
 
-		if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+		//#1674045 ony rely on nosummary
+		//if( (acc->flags & (AF_CLOSED|AF_NOREPORT)) )
+		if( (acc->flags & (AF_NOREPORT)) )
 			goto next_acc;
 
 		lnk_txn = g_queue_peek_head_link(acc->txn_queue);
@@ -235,13 +237,17 @@ GQueue *txn_queue;
 
 GQueue *hbfile_transaction_get_partial(guint32 minjulian, guint32 maxjulian)
 {
-	return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_CLOSED|AF_NOREPORT));
+	//#1674045 ony rely on nosummary
+	//return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_CLOSED|AF_NOREPORT));
+	return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_NOREPORT));
 }
 
 
 GQueue *hbfile_transaction_get_partial_budget(guint32 minjulian, guint32 maxjulian)
 {
-	return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_CLOSED|AF_NOREPORT|AF_NOBUDGET));
+	//#1674045 ony rely on nosummary
+	//return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_CLOSED|AF_NOREPORT|AF_NOBUDGET));
+	return hbfile_transaction_get_partial_internal(minjulian, maxjulian, (AF_NOREPORT|AF_NOBUDGET));
 }
 
 
@@ -427,8 +433,8 @@ guint cnt, i;
 	{
 	Archive *item = list->data;
 	
-		g_free(item->wording);
-		item->wording = g_strdup_printf("archive %d", cnt++);
+		g_free(item->memo);
+		item->memo = g_strdup_printf("archive %d", cnt++);
 		GLOBALS->changes_count++;
 		
 		//later split anonymize also
@@ -451,8 +457,8 @@ guint cnt, i;
 
 			g_free(item->info);
 			item->info = NULL;
-			g_free(item->wording);
-			item->wording = g_strdup_printf("memo %d", item->date);
+			g_free(item->memo);
+			item->memo = g_strdup_printf("memo %d", item->date);
 			GLOBALS->changes_count++;
 		
 			if(item->flags & OF_SPLIT)
