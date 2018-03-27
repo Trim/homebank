@@ -373,7 +373,7 @@ gint row;
 	gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
 	row = 0;
-	label = make_label_group(_("Informations"));
+	label = make_label_group(_("Information"));
 	gtk_grid_attach (GTK_GRID (table), label, 0, row, 3, 1);
 
 	row++;

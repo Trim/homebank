@@ -51,6 +51,7 @@ struct register_panel_data
 	GtkWidget   *TB_tools;
 
 	GtkWidget	*CY_range;
+	GtkWidget	*CM_future;
 	GtkWidget	*CY_type;
 	GtkWidget	*CY_status;
 //	GtkWidget	*CY_month, *NB_year;
@@ -73,10 +74,11 @@ struct register_panel_data
 	GtkActionGroup *actions;
 
 
+	Account		*acc;
+	guint32		accnum;
+
 	Transaction *cur_ope;
 
-	guint32		accnum;
-	Account		*acc;
 
 	gboolean	do_sort;
 	

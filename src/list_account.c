@@ -37,7 +37,6 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-extern gchar *CYA_ACC_TYPE[];	//in ui_account.c
 
 /*
 ** draw some icons according to the stored data structure
@@ -78,29 +77,6 @@ gint dt;
 	g_object_set(renderer, "icon-name", iconname, NULL);
 }
 
-/*
-** draw some text from the stored data structure
-*/
-/*
-static void
-acc_type_cell_data_function (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
-{
-Account *acc;
-gint dt;
-
-	gtk_tree_model_get(model, iter,
-		LST_DSPACC_DATATYPE, &dt,
-		LST_DSPACC_DATAS, &acc,
-		-1);
-
-	if( dt == DSPACC_TYPE_NORMAL && acc->type > 0 )
-	{
-		g_object_set(renderer, "text", _(CYA_ACC_TYPE[acc->type]), NULL);
-	}
-	else
-		g_object_set(renderer, "text", NULL, NULL);
-}
-*/
 
 /*
 ** draw some text from the stored data structure

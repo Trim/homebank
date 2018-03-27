@@ -37,11 +37,11 @@ extern struct Preferences *PREFS;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-static const double fac[7] = { 1, 10, 100, 1000, 10000, 100000, 1000000 };
+static const double fac[9] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000 };
 
 double hb_amount_round(const double x, unsigned int digits)
 {
-	digits = MAX(digits, 6);
+	digits = MAX(digits, 8);
     return floor((x * fac[digits]) + 0.5) / fac[digits];
 }
 

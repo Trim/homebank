@@ -516,19 +516,23 @@ gint result, count;
 static void register_panel_cb_filter_daterange(GtkWidget *widget, gpointer user_data)
 {
 struct register_panel_data *data;
+gboolean future;
 gint range;
 
 	DB( g_print("\n[account] filter_daterange\n") );
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	range = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
+	range  = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
+	future = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_future));
+
+	data->filter->nbdaysfuture = 0;
 
 	if(range != FLT_RANGE_OTHER)
 	{
 		filter_preset_daterange_set(data->filter, range, data->accnum);
 		// add eventual x days into future display
-		if( PREFS->date_future_nbdays > 0 )
+		if( future && (PREFS->date_future_nbdays > 0) )
 			filter_preset_daterange_add_futuregap(data->filter, PREFS->date_future_nbdays);
 		
 		register_panel_collect_filtered_txn(data->LV_ope);
@@ -543,9 +547,8 @@ gint range;
 			register_panel_update(data->LV_ope, GINT_TO_POINTER(UF_SENSITIVE+UF_BALANCE));
 		}
 	}
-	
-	
 }
+
 
 static void register_panel_cb_filter_type(GtkWidget *widget, gpointer user_data)
 {
@@ -805,6 +808,7 @@ guint i, qs_flag;
 		
 		daterange = filter_daterange_text_get(data->filter);
 		gtk_widget_set_tooltip_markup(GTK_WIDGET(data->CY_range), daterange);
+
 		g_free(daterange);
 	}
 	
@@ -1439,6 +1443,8 @@ gint count = 0;
 
 			// euro convert
 			sensitive = PREFS->euro_active;
+			if( (data->acc != NULL) && currency_is_euro(data->acc->kcur) )
+				sensitive = FALSE;
 			gtk_action_set_visible(gtk_ui_manager_get_action(data->ui, "/MenuBar/ToolsMenu/ConvToEuro"), sensitive);
 		}
 	}
@@ -1499,9 +1505,7 @@ gint count = 0;
 	GtkTreeIter iter;
 
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope));
-
 		list = gtk_tree_selection_get_selected_rows(selection, &model);
-
 		tmplist = g_list_first(list);
 		while (tmplist != NULL)
 		{
@@ -1851,7 +1855,7 @@ GtkWidget *register_panel_window_new(guint32 accnum, Account *acc)
 struct register_panel_data *data;
 struct WinGeometry *wg;
 GtkWidget *window, *mainbox, *table, *sw;
-GtkWidget *treeview, *label, *widget;
+GtkWidget *treeview, *label, *widget, *image;
 //GtkWidget *menu, *menu_items;
 GtkUIManager *ui;
 GtkActionGroup *actions;
@@ -1867,42 +1871,37 @@ GError *error = NULL;
 	GLOBALS->define_off++;
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
 
-		/* create window, etc */
-		window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	/* create window, etc */
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	data->window = window;
-
-	//debug
-	data->wintitle = NULL;
-	data->accnum = accnum;
-	data->acc = acc;
-
-	/* set transaction edit mutex */
-	if(data->acc)
-		data->acc->window = GTK_WINDOW(window);
-
-	//g_free(data->wintitle);
-	data->wintitle = g_strdup_printf("%s - HomeBank", data->acc->name);
-	gtk_window_set_title (GTK_WINDOW (window), data->wintitle);
-
-	// connect our dispose function
-		g_signal_connect (window, "delete-event",
-		G_CALLBACK (register_panel_dispose), (gpointer)data);
-
-	// connect our dispose function
-		g_signal_connect (window, "destroy",
-		G_CALLBACK (register_panel_destroy), (gpointer)data);
-
-	// connect our dispose function
-		g_signal_connect (window, "configure-event",
-		G_CALLBACK (register_panel_getgeometry), (gpointer)data);
 
 	//store our window private data
 	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
 	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
 
-	//set the window icon
+	data->acc = acc;
+	data->accnum = accnum;
+
+	/* set transaction edit mutex */
+	if(data->acc)
+		data->acc->window = GTK_WINDOW(window);
+
+	data->wintitle = g_strdup_printf("%s - HomeBank", data->acc->name);
+
+	gtk_window_set_title (GTK_WINDOW (window), data->wintitle);
 	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_OPE_SHOW );
 
+	// connect our dispose function
+	g_signal_connect (window, "delete-event",
+		G_CALLBACK (register_panel_dispose), (gpointer)data);
+
+	// connect our dispose function
+	g_signal_connect (window, "destroy",
+		G_CALLBACK (register_panel_destroy), (gpointer)data);
+
+	// connect our dispose function
+	g_signal_connect (window, "configure-event",
+		G_CALLBACK (register_panel_getgeometry), (gpointer)data);
 
 #if UI == 1
 	//start test uimanager
@@ -1956,6 +1955,7 @@ GError *error = NULL;
 #endif
 
 	mainbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	//gtk_container_set_border_width(GTK_CONTAINER(mainbox), SPACING_SMALL);
 	gtk_container_add (GTK_CONTAINER (window), mainbox);
 
 	widget = gtk_ui_manager_get_widget (ui, "/MenuBar");
@@ -2016,25 +2016,32 @@ GError *error = NULL;
 	gtk_container_set_border_width (GTK_CONTAINER(table), SPACING_SMALL);
 	gtk_box_pack_start (GTK_BOX (mainbox), table, FALSE, FALSE, 0);
 
-	
 	label = make_label_widget(_("_Range:"));
 	gtk_grid_attach (GTK_GRID(table), label, 0, 0, 1, 1);
 	data->CY_range = make_daterange(label, TRUE);
 	gtk_grid_attach (GTK_GRID(table), data->CY_range, 1, 0, 1, 1);
 
+	widget = gtk_toggle_button_new();
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_OPE_FUTURE, GTK_ICON_SIZE_MENU);
+	g_object_set (widget, "image", image,  NULL);
+	gtk_widget_set_tooltip_text (widget, _("Toggle show future transaction"));
+	data->CM_future = widget;
+	gtk_grid_attach (GTK_GRID(table), widget, 2, 0, 1, 1);
+
 	label = make_label_widget(_("_Type:"));
-	gtk_grid_attach (GTK_GRID(table), label, 2, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), label, 3, 0, 1, 1);
 	data->CY_type = make_cycle(label, CYA_FLT_TYPE);
-	gtk_grid_attach (GTK_GRID(table), data->CY_type, 3, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), data->CY_type, 4, 0, 1, 1);
 
 	label = make_label_widget(_("_Status:"));
-	gtk_grid_attach (GTK_GRID(table), label, 4, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), label, 5, 0, 1, 1);
 	data->CY_status = make_cycle(label, CYA_FLT_STATUS);
-	gtk_grid_attach (GTK_GRID(table), data->CY_status, 5, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), data->CY_status, 6, 0, 1, 1);
 
-	widget = gtk_button_new_with_mnemonic (_("Reset _filters"));
+	//widget = gtk_button_new_with_mnemonic (_("Reset _filters"));
+	widget = gtk_button_new_with_mnemonic (_("_Reset"));
 	data->BT_reset = widget;
-	gtk_grid_attach (GTK_GRID(table), widget, 6, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(table), widget, 7, 0, 1, 1);
 
 	//TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
 	widget = gtk_check_button_new_with_mnemonic (_("Euro _minor"));
@@ -2102,14 +2109,19 @@ GError *error = NULL;
     #endif
 
 	//todo: should move this
-	gtk_widget_grab_focus(GTK_WIDGET(data->LV_ope));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_minor),GLOBALS->minor);
+	//setup
 	g_object_set_data(G_OBJECT(gtk_tree_view_get_model(GTK_TREE_VIEW(data->LV_ope))), "minor", data->CM_minor);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_future), (PREFS->date_future_nbdays > 0) ? TRUE : FALSE );
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_minor), GLOBALS->minor);
+	gtk_widget_grab_focus(GTK_WIDGET(data->LV_ope));
 
 	// connect signals
-	data->handler_id[HID_RANGE]	= g_signal_connect (data->CY_range , "changed", G_CALLBACK (register_panel_cb_filter_daterange), NULL);
+
+	data->handler_id[HID_RANGE]	 = g_signal_connect (data->CY_range , "changed", G_CALLBACK (register_panel_cb_filter_daterange), NULL);
 	data->handler_id[HID_TYPE]	 = g_signal_connect (data->CY_type	, "changed", G_CALLBACK (register_panel_cb_filter_type), NULL);
 	data->handler_id[HID_STATUS] = g_signal_connect (data->CY_status, "changed", G_CALLBACK (register_panel_cb_filter_status), NULL);
+
+	g_signal_connect (data->CM_future, "toggled", G_CALLBACK (register_panel_cb_filter_daterange), NULL);
 
 	g_signal_connect (data->BT_reset , "clicked", G_CALLBACK (register_panel_cb_filter_reset), NULL);
 
@@ -2148,6 +2160,10 @@ GError *error = NULL;
 		gtk_window_maximize(GTK_WINDOW(window));
 	
 	gtk_widget_show_all (window);
+
+	/* hide showfuture */
+	hb_widget_visible (data->CM_future, PREFS->date_future_nbdays > 0 ? TRUE : FALSE);
+
 
 	/* make sure splash is up */
 	while (gtk_events_pending ())

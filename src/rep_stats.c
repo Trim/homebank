@@ -1585,9 +1585,6 @@ GError *error = NULL;
 	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
 
 	gtk_window_set_title (GTK_WINDOW (window), _("Statistics Report"));
-
-
-	//set the window icon
 	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_REP_STATS);
 
 

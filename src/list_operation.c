@@ -104,22 +104,33 @@ static   gint
 
 		case LST_DSPOPE_PAYEE:
 			{
-				if( ope1->paymode==PAYMODE_INTXFER && ope2->paymode==PAYMODE_INTXFER )
-				{
-				Account *a1, *a2;
+			//#1721980
+			gchar *name1 = NULL;
+			gchar *name2 = NULL;
 
-					a1 = da_acc_get(ope1->kxferacc);
-					a2 = da_acc_get(ope2->kxferacc);
-					retval = list_txn_sort_iter_compare_strings((a1 != NULL) ? a1->name : NULL, (a2 != NULL) ? a2->name : NULL);
-				}	
+				if( ope1->paymode == PAYMODE_INTXFER )
+				{
+				Account *acc = da_acc_get(ope1->kxferacc);
+					name1 = (acc != NULL) ? acc->name : NULL;
+				}
 				else
 				{
-				Payee *p1, *p2;
-
-					p1 = da_pay_get(ope1->kpay);
-					p2 = da_pay_get(ope2->kpay);
-					retval = list_txn_sort_iter_compare_strings((p1 != NULL) ? p1->name : NULL, (p2 != NULL) ? p2->name : NULL);
+				Payee *pay = da_pay_get(ope1->kpay);
+					name1 = (pay != NULL) ? pay->name : NULL;
 				}
+
+				if( ope2->paymode == PAYMODE_INTXFER )
+				{
+				Account *acc = da_acc_get(ope2->kxferacc);
+					name2 = (acc != NULL) ? acc->name : NULL;
+				}
+				else
+				{
+				Payee *pay = da_pay_get(ope2->kpay);
+					name2 = (pay != NULL) ? pay->name : NULL;
+				}
+
+				retval = list_txn_sort_iter_compare_strings(name1, name2);
 			}
 			break;
 
@@ -534,7 +545,9 @@ char amountbuf[G_ASCII_DTOSTR_BUF_SIZE];
 
 		//#793719
 		//g_ascii_dtostr (amountbuf, sizeof (amountbuf), ope->amount);
-		g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", ope->amount);
+		//#1750257 use locale numdigit
+		//g_ascii_formatd (amountbuf, sizeof (amountbuf), "%.2f", ope->amount);
+		g_snprintf(amountbuf, sizeof (amountbuf), "%.2f", ope->amount);
 
 		DB( g_print("amount = %f '%s'\n", ope->amount, amountbuf) );
 

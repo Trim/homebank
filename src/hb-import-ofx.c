@@ -266,7 +266,7 @@ Transaction *newope;
 				newope->memo = g_strdup(data.name);
 
 				//test
-				//strip_extra_spaces(newope->wording);
+				//strip_extra_spaces(newope->memo);
 
 				break;
 			case 2: //to payee
@@ -346,7 +346,7 @@ Transaction *newope;
 				}
 
 				DB( g_print(" -> should concatenate ='%s'\n", data.memo) );
-				DB( g_print(" -> old='%s', new ='%s'\n", old, newope->wording) );
+				DB( g_print(" -> old='%s', new ='%s'\n", old, newope->memo) );
 
 				break;
 			//case 3 add to payee is managed above
@@ -436,7 +436,7 @@ Transaction *newope;
 		DB( g_print(" ensure UTF-8\n") );
 
 		newope->info = homebank_utf8_ensure(newope->info);
-		newope->wording = homebank_utf8_ensure(newope->wording);
+		newope->memo = homebank_utf8_ensure(newope->memo);
 	#endif
 
 		ctx->trans_list = g_list_append(ctx->trans_list, newope);

@@ -7,21 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: homebank\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2018-01-06 18:30+0100\n"
+"POT-Creation-Date: 2018-03-17 10:10+0100\n"
 "PO-Revision-Date: 2013-10-27 19:02+0000\n"
 "Last-Translator: Dmytro Kyrychuk <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2018-01-06 18:08+0000\n"
-"X-Generator: Launchpad (build 18521)\n"
+"X-Launchpad-Export-Date: 2018-03-17 15:12+0000\n"
+"X-Generator: Launchpad (build 18571)\n"
 
-#: ../src/dsp_account.c:1761
+#: ../src/dsp_account.c:1765
 msgid "Open the list filter"
 msgstr "Відкрити фільтр переліку"
 
-#: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:910
+#: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:918
 msgid "HomeBank"
 msgstr "HomeBank"
 
@@ -29,8 +29,8 @@ msgstr "HomeBank"
 msgid "Personal finance"
 msgstr ""
 
-#: ../data/homebank.desktop.in.in.h:3 ../src/dsp_mainwindow.c:466
-#: ../src/dsp_mainwindow.c:914
+#: ../data/homebank.desktop.in.in.h:3 ../src/dsp_mainwindow.c:474
+#: ../src/dsp_mainwindow.c:922
 msgid "Free, easy, personal accounting for everyone"
 msgstr ""
 
@@ -107,7 +107,7 @@ msgstr ""
 "Ви хочете створити шаблон з\n"
 "усіх обраних транзакцій?"
 
-#: ../src/dsp_account.c:1142
+#: ../src/dsp_account.c:1146
 msgid ""
 "Do you want to delete\n"
 "each of the selected transaction ?"
@@ -115,209 +115,209 @@ msgstr ""
 "Ви хочете видалити \n"
 "кожну з вибраної транзакції?"
 
-#: ../src/dsp_account.c:1208
+#: ../src/dsp_account.c:1212
 msgid "Are you sure you want to change the status to None?"
 msgstr ""
 
-#: ../src/dsp_account.c:1209 ../src/dsp_account.c:1271
+#: ../src/dsp_account.c:1213 ../src/dsp_account.c:1275
 msgid "Some transaction in your selection are already Reconciled."
 msgstr ""
 
-#: ../src/dsp_account.c:1210 ../src/ui-assist-start.c:281
+#: ../src/dsp_account.c:1214 ../src/ui-assist-start.c:281
 #: ../src/ui-dialogs.c:374
 msgid "_Change"
 msgstr ""
 
-#: ../src/dsp_account.c:1270
+#: ../src/dsp_account.c:1274
 msgid "Are you sure you want to toggle the status Reconciled?"
 msgstr ""
 
-#: ../src/dsp_account.c:1272
+#: ../src/dsp_account.c:1276
 msgid "_Toggle"
 msgstr ""
 
-#: ../src/dsp_account.c:1537
+#: ../src/dsp_account.c:1541
 #, c-format
 msgid "%d items (%s)"
 msgstr "%d пунктів (%s)"
 
 #. TRANSLATORS: detail of the 3 %s which are some amount of selected transaction, 1=total 2=income, 3=expense
 #. msg = g_strdup_printf (_("transaction selected: %d, hidden: %d / %s ( %s - %s)"), count, data->hidden, buf3, buf1, buf2);
-#: ../src/dsp_account.c:1542
+#: ../src/dsp_account.c:1546
 #, c-format
 msgid "%d items (%d selected %s)"
 msgstr "%d пунктів (%d обрано %s)"
 
-#: ../src/dsp_account.c:1639
+#: ../src/dsp_account.c:1643
 #, c-format
 msgid "[closed account] %s"
 msgstr ""
 
 #. name, icon-name, label
-#: ../src/dsp_account.c:1751
+#: ../src/dsp_account.c:1755
 msgid "A_ccount"
 msgstr ""
 
-#: ../src/dsp_account.c:1752
+#: ../src/dsp_account.c:1756
 msgid "Transacti_on"
 msgstr "Транзак_ція"
 
-#: ../src/dsp_account.c:1753
+#: ../src/dsp_account.c:1757
 msgid "_Status"
 msgstr ""
 
-#: ../src/dsp_account.c:1754 ../src/dsp_mainwindow.c:177
+#: ../src/dsp_account.c:1758 ../src/dsp_mainwindow.c:178
 msgid "_Tools"
 msgstr "_Інструменти"
 
-#: ../src/dsp_account.c:1758 ../src/dsp_mainwindow.c:192
-#: ../src/dsp_mainwindow.c:900 ../src/ui-account.c:1257
-#: ../src/ui-archive.c:1152 ../src/ui-assign.c:723 ../src/ui-budget.c:999
+#: ../src/dsp_account.c:1762 ../src/dsp_mainwindow.c:195
+#: ../src/dsp_mainwindow.c:908 ../src/ui-account.c:1279
+#: ../src/ui-archive.c:1152 ../src/ui-assign.c:723 ../src/ui-budget.c:1007
 #: ../src/ui-category.c:1836 ../src/ui-currency.c:1658 ../src/ui-dialogs.c:179
 #: ../src/ui-payee.c:1235 ../src/ui-transaction.c:1203
 #: ../src/ui-transaction.c:1211
 msgid "_Close"
 msgstr "_Закрити"
 
-#: ../src/dsp_account.c:1758
+#: ../src/dsp_account.c:1762
 msgid "Close the current account"
 msgstr "Закрити цей рахунок"
 
 #. name, icon-name, label, accelerator, tooltip
-#: ../src/dsp_account.c:1761
+#: ../src/dsp_account.c:1765
 msgid "_Filter..."
 msgstr "_Фільтр..."
 
-#: ../src/dsp_account.c:1762
+#: ../src/dsp_account.c:1766
 msgid "Convert to Euro..."
 msgstr ""
 
-#: ../src/dsp_account.c:1762
+#: ../src/dsp_account.c:1766
 msgid "Convert this account to Euro currency"
 msgstr ""
 
-#: ../src/dsp_account.c:1764
+#: ../src/dsp_account.c:1768
 msgid "_Add..."
 msgstr "_Додати..."
 
-#: ../src/dsp_account.c:1764
+#: ../src/dsp_account.c:1768
 msgid "Add a new transaction"
 msgstr "Додати нову транзакцію"
 
-#: ../src/dsp_account.c:1765
+#: ../src/dsp_account.c:1769
 msgid "_Inherit..."
 msgstr "_Успадкувати"
 
-#: ../src/dsp_account.c:1765
+#: ../src/dsp_account.c:1769
 msgid "Inherit from the active transaction"
 msgstr "Наслідувати з активної транзакції"
 
-#: ../src/dsp_account.c:1766
+#: ../src/dsp_account.c:1770
 msgid "_Edit..."
 msgstr "_Редагування..."
 
-#: ../src/dsp_account.c:1766
+#: ../src/dsp_account.c:1770
 msgid "Edit the active transaction"
 msgstr "Редагувати активну транзакцію"
 
-#: ../src/dsp_account.c:1768
+#: ../src/dsp_account.c:1772
 msgid "_None"
 msgstr ""
 
-#: ../src/dsp_account.c:1768
+#: ../src/dsp_account.c:1772
 msgid "Toggle none for selected transaction(s)"
 msgstr ""
 
-#: ../src/dsp_account.c:1769
+#: ../src/dsp_account.c:1773
 msgid "_Cleared"
 msgstr ""
 
-#: ../src/dsp_account.c:1769
+#: ../src/dsp_account.c:1773
 msgid "Toggle cleared for selected transaction(s)"
 msgstr ""
 
-#: ../src/dsp_account.c:1770
+#: ../src/dsp_account.c:1774
 msgid "_Reconciled"
 msgstr "_Узгодити"
 
-#: ../src/dsp_account.c:1770
+#: ../src/dsp_account.c:1774
 msgid "Toggle reconciled for selected transaction(s)"
 msgstr ""
 
-#: ../src/dsp_account.c:1772
+#: ../src/dsp_account.c:1776
 msgid "_Multiple Edit..."
 msgstr ""
 
-#: ../src/dsp_account.c:1772
+#: ../src/dsp_account.c:1776
 msgid "Edit multiple transaction"
 msgstr ""
 
-#: ../src/dsp_account.c:1773
+#: ../src/dsp_account.c:1777
 msgid "Create template..."
 msgstr "Створити шаблон..."
 
-#: ../src/dsp_account.c:1773
+#: ../src/dsp_account.c:1777
 msgid "Create template"
 msgstr ""
 
-#: ../src/dsp_account.c:1774
+#: ../src/dsp_account.c:1778
 msgid "_Delete..."
 msgstr ""
 
-#: ../src/dsp_account.c:1774
+#: ../src/dsp_account.c:1778
 msgid "Delete selected transaction(s)"
 msgstr ""
 
-#: ../src/dsp_account.c:1776
+#: ../src/dsp_account.c:1780
 msgid "Auto. assignments"
 msgstr ""
 
-#: ../src/dsp_account.c:1776
+#: ../src/dsp_account.c:1780
 msgid "Run automatic assignments"
 msgstr ""
 
-#: ../src/dsp_account.c:1777
+#: ../src/dsp_account.c:1781
 msgid "Export QIF..."
 msgstr ""
 
-#: ../src/dsp_account.c:1777 ../src/ui-dialogs.c:437
+#: ../src/dsp_account.c:1781 ../src/ui-dialogs.c:437
 msgid "Export as QIF"
 msgstr "Експортувати у файл QIF"
 
-#: ../src/dsp_account.c:1778
+#: ../src/dsp_account.c:1782
 msgid "Export CSV..."
 msgstr "Експорт CSV..."
 
-#: ../src/dsp_account.c:1778 ../src/rep_vehicle.c:67 ../src/ui-dialogs.c:487
+#: ../src/dsp_account.c:1782 ../src/rep_vehicle.c:67 ../src/ui-dialogs.c:487
 msgid "Export as CSV"
 msgstr "Експортувати як CSV"
 
-#: ../src/dsp_account.c:1780
+#: ../src/dsp_account.c:1784
 msgid "Check internal xfer..."
 msgstr ""
 
 #. = = = = = = = = future version = = = = = = = =
-#: ../src/dsp_account.c:1783
+#: ../src/dsp_account.c:1787
 msgid "Export PDF..."
 msgstr ""
 
-#: ../src/dsp_account.c:1783
+#: ../src/dsp_account.c:1787 ../src/ui-dialogs.c:713
 msgid "Export as PDF"
 msgstr ""
 
-#: ../src/dsp_account.c:1921 ../src/dsp_mainwindow.c:2780
+#: ../src/dsp_account.c:1920 ../src/dsp_mainwindow.c:2773
 msgid "Add"
 msgstr "Додати"
 
-#: ../src/dsp_account.c:1924
+#: ../src/dsp_account.c:1923
 msgid "Inherit"
 msgstr "Успадкувати"
 
-#: ../src/dsp_account.c:1927
+#: ../src/dsp_account.c:1926
 msgid "Edit"
 msgstr "Редагувати"
 
-#: ../src/dsp_account.c:1930 ../src/rep_stats.c:72
+#: ../src/dsp_account.c:1929 ../src/rep_stats.c:72
 msgid "Filter"
 msgstr "Фільтр"
 
@@ -334,33 +334,39 @@ msgstr "Сьогодні:"
 msgid "Future:"
 msgstr "Майбутнє:"
 
-#: ../src/dsp_account.c:2020 ../src/rep_balance.c:940 ../src/rep_budget.c:1224
-#: ../src/rep_stats.c:1663 ../src/rep_time.c:1527 ../src/rep_vehicle.c:749
+#: ../src/dsp_account.c:2019 ../src/rep_balance.c:940 ../src/rep_budget.c:1224
+#: ../src/rep_stats.c:1660 ../src/rep_time.c:1529 ../src/rep_vehicle.c:749
 msgid "_Range:"
 msgstr "_Діапазон:"
 
-#: ../src/dsp_account.c:2025 ../src/ui-account.c:1345
+#: ../src/dsp_account.c:2027
+msgid "Toggle show future transaction"
+msgstr ""
+
+#: ../src/dsp_account.c:2031 ../src/ui-account.c:1367
 #: ../src/ui-assist-start.c:392
 msgid "_Type:"
 msgstr "_Тип:"
 
-#: ../src/dsp_account.c:2030 ../src/ui-archive.c:1041
+#: ../src/dsp_account.c:2036 ../src/ui-archive.c:1041
 #: ../src/ui-transaction.c:1113
 msgid "_Status:"
 msgstr "_Стан:"
 
-#: ../src/dsp_account.c:2035
-msgid "Reset _filters"
+#. widget = gtk_button_new_with_mnemonic (_("Reset _filters"));
+#. clear button
+#: ../src/dsp_account.c:2042 ../src/ui-filter.c:1406 ../src/ui-pref.c:2007
+msgid "_Reset"
 msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
-#: ../src/dsp_account.c:2040 ../src/rep_balance.c:919 ../src/rep_budget.c:1211
-#: ../src/rep_stats.c:1634 ../src/rep_time.c:1505 ../src/rep_vehicle.c:736
+#: ../src/dsp_account.c:2047 ../src/rep_balance.c:919 ../src/rep_budget.c:1211
+#: ../src/rep_stats.c:1631 ../src/rep_time.c:1507 ../src/rep_vehicle.c:736
 msgid "Euro _minor"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:160 ../src/dsp_mainwindow.c:2767
-#: ../src/list_operation.c:1188 ../src/list_operation.c:1444
+#: ../src/dsp_mainwindow.c:160 ../src/dsp_mainwindow.c:2760
+#: ../src/list_operation.c:1201 ../src/list_operation.c:1457
 #: ../src/rep_budget.c:70 ../src/rep_budget.c:1519 ../src/rep_budget.c:1704
 #: ../src/rep_stats.c:146 ../src/rep_time.c:123 ../src/ui-budget.c:245
 #: ../src/ui-dialogs.c:234 ../src/ui-split.c:406
@@ -380,28 +386,32 @@ msgstr "_Файл"
 msgid "_Import"
 msgstr "_Імпорт"
 
-#: ../src/dsp_mainwindow.c:172 ../src/ui-category.c:2005
+#: ../src/dsp_mainwindow.c:172
+msgid "Open _Recent"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:173 ../src/ui-category.c:2005
 #: ../src/ui-currency.c:1730 ../src/ui-payee.c:1326
 msgid "_Edit"
 msgstr "_Редагувати"
 
-#: ../src/dsp_mainwindow.c:173
+#: ../src/dsp_mainwindow.c:174
 msgid "_View"
 msgstr "_Перегляд"
 
-#: ../src/dsp_mainwindow.c:174
+#: ../src/dsp_mainwindow.c:175
 msgid "_Manage"
 msgstr "_Управління"
 
-#: ../src/dsp_mainwindow.c:175
+#: ../src/dsp_mainwindow.c:176
 msgid "_Transactions"
 msgstr "_Транзакції"
 
-#: ../src/dsp_mainwindow.c:176
+#: ../src/dsp_mainwindow.c:177
 msgid "_Reports"
 msgstr "_Звіти"
 
-#: ../src/dsp_mainwindow.c:178
+#: ../src/dsp_mainwindow.c:179
 msgid "_Help"
 msgstr "_Довідка"
 
@@ -409,418 +419,418 @@ msgstr "_Довідка"
 #. { "Export"       , NULL, N_("Export to") },
 #. name, icon-name, label, accelerator, tooltip
 #. FileMenu
-#: ../src/dsp_mainwindow.c:185
+#: ../src/dsp_mainwindow.c:186
 msgid "_New"
 msgstr "_Новий"
 
-#: ../src/dsp_mainwindow.c:185
+#: ../src/dsp_mainwindow.c:186
 msgid "Create a new file"
 msgstr "Створити новий файл"
 
-#: ../src/dsp_mainwindow.c:186
+#: ../src/dsp_mainwindow.c:187
 msgid "_Open..."
 msgstr "_Відкрити..."
 
-#: ../src/dsp_mainwindow.c:186 ../src/dsp_mainwindow.c:2840
+#: ../src/dsp_mainwindow.c:187 ../src/dsp_mainwindow.c:2828
 msgid "Open a file"
 msgstr "Відкрити файл"
 
-#: ../src/dsp_mainwindow.c:187 ../src/ui-dialogs.c:441 ../src/ui-dialogs.c:488
+#: ../src/dsp_mainwindow.c:188 ../src/ui-dialogs.c:441 ../src/ui-dialogs.c:488
 #: ../src/ui-dialogs.c:549 ../src/ui-dialogs.c:673
 msgid "_Save"
 msgstr "З_берегти"
 
-#: ../src/dsp_mainwindow.c:187
+#: ../src/dsp_mainwindow.c:188
 msgid "Save the current file"
 msgstr "Зберегти файл"
 
-#: ../src/dsp_mainwindow.c:188
+#: ../src/dsp_mainwindow.c:189
 msgid "Save _As..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:188
+#: ../src/dsp_mainwindow.c:189
 msgid "Save the current file with a different name"
 msgstr "Зберегти поточний файл з іншою назвою"
 
-#: ../src/dsp_mainwindow.c:189
+#: ../src/dsp_mainwindow.c:191
 msgid "Revert"
 msgstr "Повернути"
 
-#: ../src/dsp_mainwindow.c:189
+#: ../src/dsp_mainwindow.c:191
 msgid "Revert to a saved version of this file"
 msgstr "Повернутись до збереженої версії цього файлу"
 
-#: ../src/dsp_mainwindow.c:191
+#: ../src/dsp_mainwindow.c:194
 msgid "Properties..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:191
+#: ../src/dsp_mainwindow.c:194
 msgid "Configure the file"
 msgstr "Налаштування файлу"
 
-#: ../src/dsp_mainwindow.c:192
+#: ../src/dsp_mainwindow.c:195
 msgid "Close the current file"
 msgstr "Закрити файл"
 
-#: ../src/dsp_mainwindow.c:193
+#: ../src/dsp_mainwindow.c:196
 msgid "_Quit"
 msgstr "_Вийти"
 
-#: ../src/dsp_mainwindow.c:193
+#: ../src/dsp_mainwindow.c:196
 msgid "Quit HomeBank"
 msgstr ""
 
 #. Exchange
-#: ../src/dsp_mainwindow.c:196
+#: ../src/dsp_mainwindow.c:200
 msgid "QIF file..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:196 ../src/dsp_mainwindow.c:197
-#: ../src/dsp_mainwindow.c:198
+#: ../src/dsp_mainwindow.c:200 ../src/dsp_mainwindow.c:201
+#: ../src/dsp_mainwindow.c:202
 msgid "Open the import assistant"
 msgstr "Задіяти помічника імпорту"
 
-#: ../src/dsp_mainwindow.c:197
+#: ../src/dsp_mainwindow.c:201
 msgid "OFX/QFX file..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:198
+#: ../src/dsp_mainwindow.c:202
 msgid "CSV file..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:200
+#: ../src/dsp_mainwindow.c:204
 msgid "Export QIF file..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:200
+#: ../src/dsp_mainwindow.c:204
 msgid "Export all account in a QIF file"
 msgstr ""
 
 #. EditMenu
-#: ../src/dsp_mainwindow.c:203
+#: ../src/dsp_mainwindow.c:207
 msgid "Preferences..."
 msgstr "Налаштування..."
 
-#: ../src/dsp_mainwindow.c:203
+#: ../src/dsp_mainwindow.c:207
 msgid "Configure HomeBank"
 msgstr ""
 
 #. ManageMenu
-#: ../src/dsp_mainwindow.c:206
+#: ../src/dsp_mainwindow.c:210
 msgid "Currencies..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:206
+#: ../src/dsp_mainwindow.c:210
 msgid "Configure the currencies"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:207
+#: ../src/dsp_mainwindow.c:211
 msgid "Acc_ounts..."
 msgstr "Ра_хунки..."
 
-#: ../src/dsp_mainwindow.c:207
+#: ../src/dsp_mainwindow.c:211
 msgid "Configure the accounts"
 msgstr "Налаштувати записи"
 
-#: ../src/dsp_mainwindow.c:208
+#: ../src/dsp_mainwindow.c:212
 msgid "_Payees..."
 msgstr "_Отримувачі"
 
-#: ../src/dsp_mainwindow.c:208
+#: ../src/dsp_mainwindow.c:212
 msgid "Configure the payees"
 msgstr "Налаштувати отримувачів"
 
-#: ../src/dsp_mainwindow.c:209
+#: ../src/dsp_mainwindow.c:213
 msgid "Categories..."
 msgstr "Категорії..."
 
-#: ../src/dsp_mainwindow.c:209
+#: ../src/dsp_mainwindow.c:213
 msgid "Configure the categories"
 msgstr "Налаштувати категорії"
 
-#: ../src/dsp_mainwindow.c:210
+#: ../src/dsp_mainwindow.c:214
 msgid "Scheduled/Template..."
 msgstr "Заплановані/шаблони"
 
-#: ../src/dsp_mainwindow.c:210
+#: ../src/dsp_mainwindow.c:214
 msgid "Configure the scheduled/template transactions"
 msgstr "Опції запланованого / шаблонів"
 
-#: ../src/dsp_mainwindow.c:211
+#: ../src/dsp_mainwindow.c:215
 msgid "Budget..."
 msgstr "Бюджет..."
 
-#: ../src/dsp_mainwindow.c:211
+#: ../src/dsp_mainwindow.c:215
 msgid "Configure the budget"
 msgstr "Налаштувати бюджет"
 
-#: ../src/dsp_mainwindow.c:212
+#: ../src/dsp_mainwindow.c:216
 msgid "Assignments..."
 msgstr "Призначення"
 
-#: ../src/dsp_mainwindow.c:212
+#: ../src/dsp_mainwindow.c:216
 msgid "Configure the automatic assignments"
 msgstr "Налаштувати автоматичні призначення"
 
 #. TxnMenu
-#: ../src/dsp_mainwindow.c:215
-msgid "Show..."
-msgstr "Відобразити..."
-
-#: ../src/dsp_mainwindow.c:215
-msgid "Shows selected account transactions"
-msgstr "Відобразити транзакції по рахункам що виділені"
-
-#: ../src/dsp_mainwindow.c:216
+#: ../src/dsp_mainwindow.c:219
 msgid "Add..."
 msgstr "Додати..."
 
-#: ../src/dsp_mainwindow.c:216
+#: ../src/dsp_mainwindow.c:219
 msgid "Add transactions"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:217
+#: ../src/dsp_mainwindow.c:220
+msgid "Show..."
+msgstr "Відобразити..."
+
+#: ../src/dsp_mainwindow.c:220
+msgid "Shows selected account transactions"
+msgstr "Відобразити транзакції по рахункам що виділені"
+
+#: ../src/dsp_mainwindow.c:222
 msgid "Set scheduler..."
 msgstr "Інструменти планування"
 
-#: ../src/dsp_mainwindow.c:217
+#: ../src/dsp_mainwindow.c:222
 msgid "Configure the transaction scheduler"
 msgstr "Опції планування транзакцій"
 
-#: ../src/dsp_mainwindow.c:218
+#: ../src/dsp_mainwindow.c:223
 msgid "Post scheduled"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:218 ../src/ui-pref.c:1785
+#: ../src/dsp_mainwindow.c:223 ../src/ui-pref.c:1785
 msgid "Post pending scheduled transactions"
 msgstr ""
 
 #. ReportMenu
-#: ../src/dsp_mainwindow.c:221
+#: ../src/dsp_mainwindow.c:226
 msgid "_Statistics..."
 msgstr "_Статистика"
 
-#: ../src/dsp_mainwindow.c:221
+#: ../src/dsp_mainwindow.c:226
 msgid "Open the Statistics report"
 msgstr "Відкрити звіт статистики"
 
-#: ../src/dsp_mainwindow.c:222
+#: ../src/dsp_mainwindow.c:227
 msgid "_Trend Time..."
 msgstr "_Часова Тенденція..."
 
-#: ../src/dsp_mainwindow.c:222
+#: ../src/dsp_mainwindow.c:227
 msgid "Open the Trend Time report"
 msgstr "Відкрити звіт Часової Тенденції"
 
-#: ../src/dsp_mainwindow.c:223
+#: ../src/dsp_mainwindow.c:228
 msgid "B_udget..."
 msgstr "Б_юджет"
 
-#: ../src/dsp_mainwindow.c:223
+#: ../src/dsp_mainwindow.c:228
 msgid "Open the Budget report"
 msgstr "Відкрити звіт бюджету"
 
-#: ../src/dsp_mainwindow.c:224
+#: ../src/dsp_mainwindow.c:229
 msgid "Balance..."
 msgstr "Баланс..."
 
-#: ../src/dsp_mainwindow.c:224
+#: ../src/dsp_mainwindow.c:229
 msgid "Open the Balance report"
 msgstr "Відкрити звіт Балансу"
 
-#: ../src/dsp_mainwindow.c:225
+#: ../src/dsp_mainwindow.c:230
 msgid "_Vehicle cost..."
 msgstr "Вартість авто..."
 
-#: ../src/dsp_mainwindow.c:225
+#: ../src/dsp_mainwindow.c:230
 msgid "Open the Vehicle cost report"
 msgstr "Відкрити звіт вартості авто"
 
 #. Tools
-#: ../src/dsp_mainwindow.c:228
+#: ../src/dsp_mainwindow.c:233
 msgid "Show welcome dialog..."
 msgstr "Показувати діалог привітання..."
 
-#: ../src/dsp_mainwindow.c:229
+#: ../src/dsp_mainwindow.c:234
 msgid "File statistics..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:230
+#: ../src/dsp_mainwindow.c:235
 msgid "Anonymize..."
 msgstr "Анонімні..."
 
 #. HelpMenu
-#: ../src/dsp_mainwindow.c:233
+#: ../src/dsp_mainwindow.c:238
 msgid "_Contents"
 msgstr "_Зміст"
 
-#: ../src/dsp_mainwindow.c:233
+#: ../src/dsp_mainwindow.c:238
 msgid "Documentation about HomeBank"
 msgstr "Документація HomeBank"
 
-#: ../src/dsp_mainwindow.c:234
+#: ../src/dsp_mainwindow.c:239
 msgid "Get Help Online..."
 msgstr "Отримати довідку онлайн..."
 
-#: ../src/dsp_mainwindow.c:234
+#: ../src/dsp_mainwindow.c:239
 msgid "Connect to the LaunchPad website for online help"
 msgstr "Підключитись до сайту LaunchPad для онлайн допомоги"
 
-#: ../src/dsp_mainwindow.c:236
+#: ../src/dsp_mainwindow.c:241
 msgid "Check for updates..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:236
+#: ../src/dsp_mainwindow.c:241
 msgid "Visit HomeBank website to check for update"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:237
+#: ../src/dsp_mainwindow.c:242
 msgid "Release Notes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:237
+#: ../src/dsp_mainwindow.c:242
 msgid "Display the release notes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:238
+#: ../src/dsp_mainwindow.c:243
 msgid "Report a Problem..."
 msgstr "Звітувати про проблему..."
 
-#: ../src/dsp_mainwindow.c:238
+#: ../src/dsp_mainwindow.c:243
 msgid "Connect to the LaunchPad website to help fix problems"
 msgstr ""
 "Відкрити веб-сайт Launchpad, щоби допомогти у вирішенні цієї проблеми"
 
-#: ../src/dsp_mainwindow.c:239
+#: ../src/dsp_mainwindow.c:244
 msgid "Translate this Application..."
 msgstr "Перекласти цю програму"
 
-#: ../src/dsp_mainwindow.c:239
+#: ../src/dsp_mainwindow.c:244
 msgid "Connect to the LaunchPad website to help translate this application"
 msgstr ""
 "Підключитись до сайту LaunhPad для того щоб допомогти перекласти цю програму"
 
-#: ../src/dsp_mainwindow.c:241
+#: ../src/dsp_mainwindow.c:246
 msgid "_About"
 msgstr "_Про програму"
 
-#: ../src/dsp_mainwindow.c:241
+#: ../src/dsp_mainwindow.c:246
 msgid "About HomeBank"
 msgstr "Про HomeBank"
 
 #. name         , icon-name, label, accelerator, tooltip, callback, is_active
-#: ../src/dsp_mainwindow.c:249
+#: ../src/dsp_mainwindow.c:254
 msgid "_Toolbar"
 msgstr "Панель інструментів"
 
-#: ../src/dsp_mainwindow.c:250
+#: ../src/dsp_mainwindow.c:255
 msgid "_Top spending"
 msgstr "_Рейтинг витрат"
 
-#: ../src/dsp_mainwindow.c:251
+#: ../src/dsp_mainwindow.c:256
 msgid "_Scheduled list"
 msgstr "_Список запланованого"
 
-#: ../src/dsp_mainwindow.c:252 ../src/ui-pref.c:85
+#: ../src/dsp_mainwindow.c:257 ../src/ui-pref.c:85
 msgid "Euro minor"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:384
+#: ../src/dsp_mainwindow.c:392
 #, c-format
 msgid "Revert unsaved changes to file '%s'?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:387
+#: ../src/dsp_mainwindow.c:395
 msgid ""
 "- Changes made to the file will be permanently lost\n"
 "- File will be reloaded from the last save (.xhb~)"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:394
+#: ../src/dsp_mainwindow.c:402
 msgid "_Revert"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:580
+#: ../src/dsp_mainwindow.c:588
 msgid "Are you sure you want to anonymize the file?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:583
+#: ../src/dsp_mainwindow.c:591
 msgid ""
 "Proceeding will anonymize any text, \n"
 "like 'account x', 'payee y', 'memo z', ..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:590
+#: ../src/dsp_mainwindow.c:598
 msgid "_Anonymize"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:897
+#: ../src/dsp_mainwindow.c:905
 msgid "Welcome to HomeBank"
 msgstr "Ласкаво просимо в HomeBank"
 
-#: ../src/dsp_mainwindow.c:924
+#: ../src/dsp_mainwindow.c:932
 msgid "What do you want to do:"
 msgstr "Що ви хочете робити:"
 
-#: ../src/dsp_mainwindow.c:928
+#: ../src/dsp_mainwindow.c:936
 msgid "Read HomeBank _Manual"
 msgstr "Читати посібник Bank _Manual"
 
-#: ../src/dsp_mainwindow.c:932
+#: ../src/dsp_mainwindow.c:940
 msgid "Configure _preferences"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:936
+#: ../src/dsp_mainwindow.c:944
 msgid "Create a _new file"
 msgstr "Створити файл"
 
-#: ../src/dsp_mainwindow.c:940
+#: ../src/dsp_mainwindow.c:948
 msgid "_Open an existing file"
 msgstr "_Відкрити файл"
 
-#: ../src/dsp_mainwindow.c:944
+#: ../src/dsp_mainwindow.c:952
 msgid "Open the _example file"
 msgstr "Відкрити файл з прикладом"
 
 #. hb_label_set_amount(GTK_LABEL(data->TX_topamount), total, GLOBALS->kcur, GLOBALS->minor);
-#: ../src/dsp_mainwindow.c:1191
+#: ../src/dsp_mainwindow.c:1199
 msgid "Top spending"
 msgstr ""
 
 #. future usage
-#: ../src/dsp_mainwindow.c:1202
+#: ../src/dsp_mainwindow.c:1210
 #, c-format
 msgid "Top %d spending"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1369 ../src/rep_stats.c:1130 ../src/rep_stats.c:1150
+#: ../src/dsp_mainwindow.c:1377 ../src/rep_stats.c:1130 ../src/rep_stats.c:1150
 #: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:611
 msgid "(no category)"
 msgstr "(без категорії)"
 
-#: ../src/dsp_mainwindow.c:1390
+#: ../src/dsp_mainwindow.c:1398
 msgid "Other"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1631
+#: ../src/dsp_mainwindow.c:1639
 msgid "No transaction to add"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1633
+#: ../src/dsp_mainwindow.c:1641
 #, c-format
 msgid "transaction added: %d"
 msgstr "транзакції додані: %d"
 
-#: ../src/dsp_mainwindow.c:1636
+#: ../src/dsp_mainwindow.c:1644
 msgid "Check scheduled transactions result"
 msgstr "Перевірте заплановані транзакції"
 
-#: ../src/dsp_mainwindow.c:1753 ../src/dsp_mainwindow.c:2155
+#: ../src/dsp_mainwindow.c:1761 ../src/dsp_mainwindow.c:2180
 #: ../src/rep_vehicle.c:847
 msgid "Total"
 msgstr "Всього"
 
-#: ../src/dsp_mainwindow.c:1772
+#: ../src/dsp_mainwindow.c:1780
 #, c-format
 msgid ""
 "Your are about to open the backup file '%s'.\n"
@@ -828,29 +838,29 @@ msgid ""
 "Are you sure you want to do this ?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1776
+#: ../src/dsp_mainwindow.c:1784
 msgid "Open a backup file ?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1778
+#: ../src/dsp_mainwindow.c:1786
 msgid "_Open backup"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1869 ../src/ui-currency.c:1312
-msgid "Unknow error"
-msgstr "Невідома помилка"
+#: ../src/dsp_mainwindow.c:1878 ../src/ui-currency.c:1312
+msgid "Unknown error"
+msgstr ""
 
-#: ../src/dsp_mainwindow.c:1874 ../src/dsp_mainwindow.c:1959
+#: ../src/dsp_mainwindow.c:1883 ../src/dsp_mainwindow.c:1987
 #, c-format
 msgid "I/O error for file '%s'."
 msgstr "Помилка вводу/виводу для файлу '%s'."
 
-#: ../src/dsp_mainwindow.c:1877
+#: ../src/dsp_mainwindow.c:1886
 #, c-format
 msgid "The file '%s' is not a valid HomeBank file."
 msgstr "Не припустимий файл  '%s' для HomeBank."
 
-#: ../src/dsp_mainwindow.c:1880
+#: ../src/dsp_mainwindow.c:1889
 #, c-format
 msgid ""
 "The file '%s' was saved with a higher version of HomeBank\n"
@@ -859,16 +869,29 @@ msgstr ""
 "Файл  '%s' був збережений новішою версією HomeBank\n"
 "і не може бути завантажений поточною версією."
 
-#: ../src/dsp_mainwindow.c:1885 ../src/dsp_mainwindow.c:1962
+#: ../src/dsp_mainwindow.c:1894 ../src/dsp_mainwindow.c:1990
 #: ../src/dsp_mainwindow.c:2671
 msgid "File error"
 msgstr "Помилка файлу"
 
-#: ../src/dsp_mainwindow.c:2018
+#: ../src/dsp_mainwindow.c:1963
+msgid "The file has been modified since reading it."
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:1964
+msgid ""
+"If you save it, all the external changes could be lost. Save it anyway?"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:1965
+msgid "S_ave Anyway"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:2043
 msgid "(no institution)"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2187
+#: ../src/dsp_mainwindow.c:2212
 msgid "Grand total"
 msgstr "Загальний підсумок"
 
@@ -877,19 +900,19 @@ msgstr "Загальний підсумок"
 msgid "The file %s is not a valid HomeBank file."
 msgstr "Файл %s не є файлом HomeBank"
 
-#: ../src/dsp_mainwindow.c:2755 ../src/dsp_mainwindow.c:2844
+#: ../src/dsp_mainwindow.c:2748 ../src/dsp_mainwindow.c:2840
 msgid "Open"
 msgstr "Відкрити"
 
-#: ../src/dsp_mainwindow.c:2761 ../src/list_operation.c:1093
-#: ../src/list_operation.c:1412 ../src/list_upcoming.c:462
-#: ../src/rep_time.c:123 ../src/ui-account.c:1341 ../src/ui-assist-import.c:60
+#: ../src/dsp_mainwindow.c:2754 ../src/list_operation.c:1106
+#: ../src/list_operation.c:1425 ../src/list_upcoming.c:462
+#: ../src/rep_time.c:123 ../src/ui-account.c:1363 ../src/ui-assist-import.c:60
 #: ../src/ui-dialogs.c:207
 msgid "Account"
 msgstr "Рахунок"
 
-#: ../src/dsp_mainwindow.c:2764 ../src/hb-export.c:448
-#: ../src/list_operation.c:1128 ../src/list_operation.c:1441
+#: ../src/dsp_mainwindow.c:2757 ../src/hb-export.c:448
+#: ../src/list_operation.c:1141 ../src/list_operation.c:1454
 #: ../src/list_upcoming.c:400 ../src/rep_stats.c:148 ../src/rep_time.c:123
 #: ../src/ui-archive.c:289 ../src/ui-assign.c:41 ../src/ui-dialogs.c:225
 #: ../src/ui-pref.c:125
@@ -897,94 +920,94 @@ msgid "Payee"
 msgstr "Отримувач"
 
 #. TRANSLATORS: an archive is stored transaction buffers (kind of bookmark to prefill manual insertion)
-#: ../src/dsp_mainwindow.c:2771
+#: ../src/dsp_mainwindow.c:2764
 msgid "Archive"
 msgstr "Шаблон"
 
 #. column: Income
-#: ../src/dsp_mainwindow.c:2774 ../src/dsp_mainwindow.c:2786
+#: ../src/dsp_mainwindow.c:2767 ../src/dsp_mainwindow.c:2779
 #: ../src/rep_budget.c:74 ../src/rep_budget.c:966 ../src/rep_budget.c:1519
 #: ../src/rep_budget.c:1719
 msgid "Budget"
 msgstr "Бюджет"
 
-#: ../src/dsp_mainwindow.c:2777
+#: ../src/dsp_mainwindow.c:2770
 msgid "Show"
 msgstr "Показати"
 
-#: ../src/dsp_mainwindow.c:2783
+#: ../src/dsp_mainwindow.c:2776
 msgid "Statistics"
 msgstr "Статистика"
 
 #. column: Balance
-#: ../src/dsp_mainwindow.c:2789 ../src/hb-export.c:452
-#: ../src/list_operation.c:1206 ../src/rep_balance.c:1312
-#: ../src/rep_stats.c:159 ../src/rep_stats.c:1943 ../src/rep_stats.c:2126
+#: ../src/dsp_mainwindow.c:2782 ../src/hb-export.c:452
+#: ../src/list_operation.c:1219 ../src/rep_balance.c:1312
+#: ../src/rep_stats.c:159 ../src/rep_stats.c:1940 ../src/rep_stats.c:2123
 msgid "Balance"
 msgstr "Баланс"
 
-#: ../src/dsp_mainwindow.c:2792 ../src/ui-hbfile.c:275
+#: ../src/dsp_mainwindow.c:2785 ../src/ui-hbfile.c:275
 msgid "Vehicle cost"
 msgstr "Вартість авто"
 
-#: ../src/dsp_mainwindow.c:2837 ../src/ui-dialogs.c:482 ../src/ui-dialogs.c:544
+#: ../src/dsp_mainwindow.c:2827 ../src/ui-dialogs.c:482 ../src/ui-dialogs.c:544
 #: ../src/ui-dialogs.c:608
 msgid "_Open"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2841
+#: ../src/dsp_mainwindow.c:2832
 msgid "Open a recently used file"
 msgstr "Відкрити нещодавній файл"
 
-#: ../src/dsp_mainwindow.c:2962
+#: ../src/dsp_mainwindow.c:2959
 msgid "Your accounts"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2977 ../src/ui-budget.c:1104
+#: ../src/dsp_mainwindow.c:2974 ../src/ui-budget.c:1112
 #: ../src/ui-category.c:1990
 msgid "Expand all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2981 ../src/ui-budget.c:1108
+#: ../src/dsp_mainwindow.c:2978 ../src/ui-budget.c:1116
 #: ../src/ui-category.c:1994
 msgid "Collapse all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2998
+#: ../src/dsp_mainwindow.c:2995
 msgid "Show all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3003
+#: ../src/dsp_mainwindow.c:3000
 msgid "By type"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3004
+#: ../src/dsp_mainwindow.c:3001
 msgid "By institition"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3061
+#: ../src/dsp_mainwindow.c:3058
 msgid "Where your money goes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3120
+#: ../src/dsp_mainwindow.c:3117
 msgid "Scheduled transactions"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3136
+#: ../src/dsp_mainwindow.c:3133
 msgid "Skip"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3140
+#: ../src/dsp_mainwindow.c:3137
 msgid "Edit & Post"
 msgstr ""
 
 #. TRANSLATORS: Posting a scheduled transaction is the action to materialize it into its target account.
 #. TRANSLATORS: Before that action the automated transaction occurrence is pending and not yet really existing.
-#: ../src/dsp_mainwindow.c:3146
+#: ../src/dsp_mainwindow.c:3143
 msgid "Post"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3161
+#: ../src/dsp_mainwindow.c:3158
 msgid "maximum post date"
 msgstr ""
 
@@ -996,36 +1019,31 @@ msgstr "(новий архів)"
 msgid "invalid CSV format"
 msgstr ""
 
-#: ../src/hb-export.c:446 ../src/list_operation.c:1105
-#: ../src/list_operation.c:1423 ../src/rep_balance.c:1293
+#: ../src/hb-export.c:446 ../src/list_operation.c:1118
+#: ../src/list_operation.c:1436 ../src/rep_balance.c:1293
 #: ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1098 ../src/ui-pref.c:1487
 msgid "Date"
 msgstr "Дата"
 
-#: ../src/hb-export.c:447 ../src/list_operation.c:951 ../src/ui-pref.c:2189
+#: ../src/hb-export.c:447 ../src/list_operation.c:964 ../src/ui-pref.c:2189
 msgid "Info"
 msgstr "Інформація"
 
-#: ../src/hb-export.c:449 ../src/list_operation.c:1136
-#: ../src/list_operation.c:1432 ../src/list_upcoming.c:420
+#: ../src/hb-export.c:449 ../src/list_operation.c:1149
+#: ../src/list_operation.c:1445 ../src/list_upcoming.c:420
 #: ../src/ui-archive.c:273 ../src/ui-assign.c:40 ../src/ui-pref.c:124
 #: ../src/ui-split.c:410
 msgid "Memo"
 msgstr "Нотатка"
 
 #. column: Amount
-#: ../src/hb-export.c:450 ../src/list_operation.c:1164
-#: ../src/list_operation.c:1435 ../src/rep_time.c:1793 ../src/rep_time.c:1915
+#: ../src/hb-export.c:450 ../src/list_operation.c:1177
+#: ../src/list_operation.c:1448 ../src/rep_time.c:1795 ../src/rep_time.c:1917
 #: ../src/rep_vehicle.c:222 ../src/rep_vehicle.c:1143 ../src/ui-split.c:414
 msgid "Amount"
 msgstr "Сума"
 
-#: ../src/hb-filter.c:74
-#, c-format
-msgid "<i>from</i> %s <i>to</i> %s"
-msgstr "<i>з</i> %s <i>до</i> %s"
-
-#: ../src/hb-hbfile.c:569
+#: ../src/hb-hbfile.c:595
 msgid "Unknown"
 msgstr "Невідомо"
 
@@ -1077,51 +1095,51 @@ msgid "(account %d)"
 msgstr "(рахунок %d)"
 
 #. gtk_widget_show(GTK_WIDGET(page));
-#: ../src/list_account.c:382 ../src/ui-assist-import.c:2090
+#: ../src/list_account.c:358 ../src/ui-assist-import.c:2090
 #: ../src/ui-filter.c:558 ../src/ui-filter.c:1486
 msgid "Accounts"
 msgstr ""
 
 #. Bank
-#: ../src/list_account.c:394 ../src/ui-account.c:41
+#: ../src/list_account.c:370 ../src/ui-account.c:41
 msgid "Bank"
 msgstr "Банк"
 
 #. Today
-#: ../src/list_account.c:398
+#: ../src/list_account.c:374
 msgid "Today"
 msgstr "Сьогодні"
 
 #. Future
-#: ../src/list_account.c:402
+#: ../src/list_account.c:378
 msgid "Future"
 msgstr "Майбутнє"
 
-#: ../src/list_operation.c:472
+#: ../src/list_operation.c:483
 msgid "- split -"
 msgstr ""
 
-#: ../src/list_operation.c:1146
+#: ../src/list_operation.c:1159
 msgid "Status"
 msgstr ""
 
 #. column: Expense
-#: ../src/list_operation.c:1172 ../src/list_upcoming.c:434
+#: ../src/list_operation.c:1185 ../src/list_upcoming.c:434
 #: ../src/rep_balance.c:1304 ../src/rep_budget.c:72 ../src/rep_stats.c:157
-#: ../src/rep_stats.c:1943 ../src/rep_stats.c:2114 ../src/ui-category.c:39
+#: ../src/rep_stats.c:1940 ../src/rep_stats.c:2111 ../src/ui-category.c:39
 #: ../src/ui-filter.c:49
 msgid "Expense"
 msgstr "Витрати"
 
 #. column: Income
-#: ../src/list_operation.c:1180 ../src/list_upcoming.c:445
+#: ../src/list_operation.c:1193 ../src/list_upcoming.c:445
 #: ../src/rep_balance.c:1308 ../src/rep_budget.c:72 ../src/rep_stats.c:158
-#: ../src/rep_stats.c:1943 ../src/rep_stats.c:2120 ../src/ui-category.c:40
+#: ../src/rep_stats.c:1940 ../src/rep_stats.c:2117 ../src/ui-category.c:40
 #: ../src/ui-filter.c:50
 msgid "Income"
 msgstr "Прибуток"
 
-#: ../src/list_operation.c:1196
+#: ../src/list_operation.c:1209
 msgid "Tags"
 msgstr "Мітки"
 
@@ -1185,18 +1203,18 @@ msgstr "%d/%d за %s"
 msgid "Balance report"
 msgstr "Балансовий звіт"
 
-#: ../src/rep_balance.c:897 ../src/rep_budget.c:1187 ../src/rep_stats.c:1611
-#: ../src/rep_time.c:1453 ../src/rep_vehicle.c:724
+#: ../src/rep_balance.c:897 ../src/rep_budget.c:1187 ../src/rep_stats.c:1608
+#: ../src/rep_time.c:1455 ../src/rep_vehicle.c:724
 msgid "Display"
 msgstr ""
 
-#: ../src/rep_balance.c:901 ../src/rep_time.c:1464 ../src/ui-archive.c:1008
+#: ../src/rep_balance.c:901 ../src/rep_time.c:1466 ../src/ui-archive.c:1008
 #: ../src/ui-assist-import.c:985 ../src/ui-transaction.c:1078
 #: ../src/ui-txn-multi.c:445
 msgid "A_ccount:"
 msgstr "_Рахунок:"
 
-#: ../src/rep_balance.c:908 ../src/rep_time.c:1488
+#: ../src/rep_balance.c:908 ../src/rep_time.c:1490
 msgid "Select _all"
 msgstr "Виділ_ити все"
 
@@ -1204,23 +1222,23 @@ msgstr "Виділ_ити все"
 msgid "Each _day"
 msgstr "Кожен _день"
 
-#: ../src/rep_balance.c:924 ../src/rep_stats.c:1640 ../src/rep_time.c:1510
+#: ../src/rep_balance.c:924 ../src/rep_stats.c:1637 ../src/rep_time.c:1512
 msgid "_Zoom X:"
 msgstr "_Збільшення X"
 
-#: ../src/rep_balance.c:936 ../src/rep_budget.c:1220 ../src/rep_stats.c:1659
-#: ../src/rep_time.c:1523 ../src/rep_vehicle.c:745
+#: ../src/rep_balance.c:936 ../src/rep_budget.c:1220 ../src/rep_stats.c:1656
+#: ../src/rep_time.c:1525 ../src/rep_vehicle.c:745
 msgid "Date filter"
 msgstr ""
 
-#: ../src/rep_balance.c:946 ../src/rep_budget.c:1230 ../src/rep_stats.c:1669
-#: ../src/rep_time.c:1533 ../src/rep_vehicle.c:755 ../src/ui-filter.c:1163
+#: ../src/rep_balance.c:946 ../src/rep_budget.c:1230 ../src/rep_stats.c:1666
+#: ../src/rep_time.c:1535 ../src/rep_vehicle.c:755 ../src/ui-filter.c:1163
 #: ../src/ui-filter.c:1266
 msgid "_From:"
 msgstr "_Від:"
 
-#: ../src/rep_balance.c:952 ../src/rep_budget.c:1236 ../src/rep_stats.c:1675
-#: ../src/rep_time.c:1539 ../src/rep_vehicle.c:761 ../src/ui-filter.c:1169
+#: ../src/rep_balance.c:952 ../src/rep_budget.c:1236 ../src/rep_stats.c:1672
+#: ../src/rep_time.c:1541 ../src/rep_vehicle.c:761 ../src/ui-filter.c:1169
 #: ../src/ui-filter.c:1273
 msgid "_To:"
 msgstr "_До:"
@@ -1240,7 +1258,7 @@ msgstr "Витрачено"
 
 #. column: Result
 #: ../src/rep_budget.c:74 ../src/rep_budget.c:966 ../src/rep_budget.c:1519
-#: ../src/rep_budget.c:1723 ../src/rep_stats.c:1943 ../src/rep_stats.c:2103
+#: ../src/rep_budget.c:1723 ../src/rep_stats.c:1940 ../src/rep_stats.c:2100
 msgid "Result"
 msgstr "Результат"
 
@@ -1274,7 +1292,7 @@ msgstr ""
 msgid "Budget report"
 msgstr "Звіт по бюджету"
 
-#: ../src/rep_budget.c:1191 ../src/rep_time.c:1457
+#: ../src/rep_budget.c:1191 ../src/rep_time.c:1459
 msgid "_For:"
 msgstr "_Для:"
 
@@ -1287,19 +1305,19 @@ msgid "Only out of budget"
 msgstr ""
 
 #. gtk_widget_set_halign (menu, GTK_ALIGN_END);
-#: ../src/rep_budget.c:1300 ../src/rep_stats.c:1748 ../src/rep_time.c:1606
+#: ../src/rep_budget.c:1300 ../src/rep_stats.c:1745 ../src/rep_time.c:1608
 msgid "_Result to clipboard"
 msgstr ""
 
-#: ../src/rep_budget.c:1304 ../src/rep_stats.c:1752 ../src/rep_time.c:1610
+#: ../src/rep_budget.c:1304 ../src/rep_stats.c:1749 ../src/rep_time.c:1612
 msgid "_Result to CSV"
 msgstr ""
 
-#: ../src/rep_budget.c:1308 ../src/rep_stats.c:1756 ../src/rep_time.c:1614
+#: ../src/rep_budget.c:1308 ../src/rep_stats.c:1753 ../src/rep_time.c:1616
 msgid "_Detail to clipboard"
 msgstr ""
 
-#: ../src/rep_budget.c:1313 ../src/rep_stats.c:1761 ../src/rep_time.c:1619
+#: ../src/rep_budget.c:1313 ../src/rep_stats.c:1758 ../src/rep_time.c:1621
 msgid "_Detail to CSV"
 msgstr ""
 
@@ -1439,27 +1457,27 @@ msgstr ""
 msgid "Statistics Report"
 msgstr "Статистичний Звіт"
 
-#: ../src/rep_stats.c:1615
+#: ../src/rep_stats.c:1612
 msgid "_View:"
 msgstr "_Вигляд"
 
-#: ../src/rep_stats.c:1622
+#: ../src/rep_stats.c:1619
 msgid "_By:"
 msgstr ""
 
-#: ../src/rep_stats.c:1629
+#: ../src/rep_stats.c:1626
 msgid "By _amount"
 msgstr "По _кількості"
 
-#: ../src/rep_stats.c:1795
+#: ../src/rep_stats.c:1792
 msgid "Balance:"
 msgstr "Баланс:"
 
-#: ../src/rep_stats.c:1801
+#: ../src/rep_stats.c:1798
 msgid "Income:"
 msgstr "Прибуток:"
 
-#: ../src/rep_stats.c:1808
+#: ../src/rep_stats.c:1805
 msgid "Expense:"
 msgstr "Витрата"
 
@@ -1520,41 +1538,41 @@ msgid "Dec"
 msgstr "Груд."
 
 #. //TRANSLATORS: example 'Expense by Category'
-#: ../src/rep_time.c:588
+#: ../src/rep_time.c:589
 #, c-format
 msgid "%s Over Time"
 msgstr ""
 
 #. //TRANSLATORS: count of transaction in balancedrawn / count of total transaction under abalancedrawn amount threshold
-#: ../src/rep_time.c:1102
+#: ../src/rep_time.c:1104
 #, c-format
 msgid "Average: %s"
 msgstr ""
 
-#: ../src/rep_time.c:1430
+#: ../src/rep_time.c:1432
 msgid "Trend Time Report"
 msgstr "Звіт Trend Time"
 
-#: ../src/rep_time.c:1472 ../src/ui-archive.c:1033 ../src/ui-assign.c:875
+#: ../src/rep_time.c:1474 ../src/ui-archive.c:1033 ../src/ui-assign.c:875
 #: ../src/ui-hbfile.c:279 ../src/ui-payee.c:926 ../src/ui-transaction.c:1104
 #: ../src/ui-txn-multi.c:477
 msgid "_Category:"
 msgstr "_Категорія:"
 
-#: ../src/rep_time.c:1480 ../src/ui-archive.c:1025 ../src/ui-assign.c:846
+#: ../src/rep_time.c:1482 ../src/ui-archive.c:1025 ../src/ui-assign.c:846
 #: ../src/ui-transaction.c:1095 ../src/ui-txn-multi.c:461
 msgid "_Payee:"
 msgstr "_Отримувач:"
 
-#: ../src/rep_time.c:1493
+#: ../src/rep_time.c:1495
 msgid "_Cumulate"
 msgstr "_Акумулюючий"
 
-#: ../src/rep_time.c:1498
+#: ../src/rep_time.c:1500
 msgid "_View by:"
 msgstr "_Перегляд по"
 
-#: ../src/rep_time.c:1793 ../src/rep_time.c:1904
+#: ../src/rep_time.c:1795 ../src/rep_time.c:1906
 msgid "Time slice"
 msgstr "Часовий зріз"
 
@@ -1635,7 +1653,7 @@ msgstr "Загальна вартість:"
 msgid "(no type)"
 msgstr "(без типу)"
 
-#: ../src/ui-account.c:42 ../src/ui-widgets.c:821
+#: ../src/ui-account.c:42 ../src/ui-widgets.c:825
 msgid "Cash"
 msgstr "Готівка"
 
@@ -1643,7 +1661,7 @@ msgstr "Готівка"
 msgid "Asset"
 msgstr "Активи"
 
-#: ../src/ui-account.c:44 ../src/ui-widgets.c:819
+#: ../src/ui-account.c:44 ../src/ui-widgets.c:823
 msgid "Credit card"
 msgstr "Кредитна картка"
 
@@ -1652,7 +1670,7 @@ msgid "Liability"
 msgstr "Заборгованість"
 
 #: ../src/ui-account.c:385 ../src/ui-assign.c:101 ../src/ui-currency.c:245
-#: ../src/ui-widgets.c:818
+#: ../src/ui-widgets.c:822
 msgid "(none)"
 msgstr "(нічого)"
 
@@ -1667,7 +1685,7 @@ msgstr "Видимий"
 #: ../src/ui-currency.c:1145 ../src/ui-dialogs.c:69 ../src/ui-dialogs.c:330
 #: ../src/ui-dialogs.c:440 ../src/ui-dialogs.c:495 ../src/ui-dialogs.c:555
 #: ../src/ui-dialogs.c:607 ../src/ui-dialogs.c:672 ../src/ui-dialogs.c:716
-#: ../src/ui-dialogs.c:850 ../src/ui-filter.c:1408 ../src/ui-hbfile.c:194
+#: ../src/ui-dialogs.c:855 ../src/ui-filter.c:1408 ../src/ui-hbfile.c:194
 #: ../src/ui-payee.c:884 ../src/ui-payee.c:1045 ../src/ui-pref.c:1971
 #: ../src/ui-split.c:365 ../src/ui-transaction.c:1194 ../src/ui-txn-multi.c:367
 msgid "_Cancel"
@@ -1675,23 +1693,23 @@ msgstr ""
 
 #: ../src/ui-account.c:696 ../src/ui-assist-import.c:952
 #: ../src/ui-category.c:1326 ../src/ui-currency.c:779 ../src/ui-currency.c:1147
-#: ../src/ui-dialogs.c:331 ../src/ui-dialogs.c:852 ../src/ui-filter.c:1410
+#: ../src/ui-dialogs.c:331 ../src/ui-dialogs.c:857 ../src/ui-filter.c:1410
 #: ../src/ui-hbfile.c:196 ../src/ui-payee.c:886 ../src/ui-pref.c:1973
 #: ../src/ui-split.c:383 ../src/ui-transaction.c:1195 ../src/ui-txn-multi.c:369
 msgid "_OK"
 msgstr ""
 
-#: ../src/ui-account.c:982 ../src/ui-account.c:1089
+#: ../src/ui-account.c:1004 ../src/ui-account.c:1111
 msgid "Account name"
 msgstr "Назва рахунку"
 
-#: ../src/ui-account.c:988 ../src/ui-account.c:1095
+#: ../src/ui-account.c:1010 ../src/ui-account.c:1117
 #: ../src/ui-assist-import.c:1045 ../src/ui-category.c:1395
 #: ../src/ui-payee.c:978
 msgid "Error"
 msgstr "Помилка."
 
-#: ../src/ui-account.c:989
+#: ../src/ui-account.c:1011
 #, c-format
 msgid ""
 "Cannot add an account '%s',\n"
@@ -1700,27 +1718,27 @@ msgstr ""
 "Не можливо додати рахунок '%s',\n"
 "така назва вже зайнята."
 
-#: ../src/ui-account.c:1031
+#: ../src/ui-account.c:1053
 #, c-format
 msgid "Cannot delete account '%s'"
 msgstr ""
 
-#: ../src/ui-account.c:1035
+#: ../src/ui-account.c:1057
 msgid ""
 "This account contains transactions and/or is part of internal transfers."
 msgstr ""
 
-#: ../src/ui-account.c:1046 ../src/ui-archive.c:389 ../src/ui-assign.c:551
+#: ../src/ui-account.c:1068 ../src/ui-archive.c:389 ../src/ui-assign.c:551
 #: ../src/ui-category.c:1580 ../src/ui-currency.c:1539 ../src/ui-payee.c:1148
 #, c-format
 msgid "Are you sure you want to permanently delete '%s'?"
 msgstr ""
 
-#: ../src/ui-account.c:1048
+#: ../src/ui-account.c:1070
 msgid "If you delete an account, it will be permanently lost."
 msgstr ""
 
-#: ../src/ui-account.c:1054 ../src/ui-account.c:1315 ../src/ui-archive.c:397
+#: ../src/ui-account.c:1076 ../src/ui-account.c:1337 ../src/ui-archive.c:397
 #: ../src/ui-archive.c:1218 ../src/ui-assign.c:559 ../src/ui-assign.c:775
 #: ../src/ui-category.c:1144 ../src/ui-category.c:1592
 #: ../src/ui-category.c:2011 ../src/ui-currency.c:1547
@@ -1729,7 +1747,7 @@ msgstr ""
 msgid "_Delete"
 msgstr ""
 
-#: ../src/ui-account.c:1096 ../src/ui-assist-import.c:1046
+#: ../src/ui-account.c:1118 ../src/ui-assist-import.c:1046
 #, c-format
 msgid ""
 "Cannot rename this Account,\n"
@@ -1740,93 +1758,93 @@ msgstr ""
 "з '%s' на '%s',\n"
 "ця назва вже використовується."
 
-#: ../src/ui-account.c:1254
+#: ../src/ui-account.c:1276
 msgid "Manage Accounts"
 msgstr "Керування рахунками"
 
-#: ../src/ui-account.c:1305
+#: ../src/ui-account.c:1327
 msgid ""
 "Drag & drop to change the order\n"
 "Double-click to rename"
 msgstr ""
 
-#: ../src/ui-account.c:1311 ../src/ui-archive.c:1214 ../src/ui-assign.c:771
+#: ../src/ui-account.c:1333 ../src/ui-archive.c:1214 ../src/ui-assign.c:771
 #: ../src/ui-currency.c:1726 ../src/ui-transaction.c:1205
 msgid "_Add"
 msgstr ""
 
-#: ../src/ui-account.c:1332 ../src/ui-hbfile.c:222 ../src/ui-pref.c:79
+#: ../src/ui-account.c:1354 ../src/ui-hbfile.c:222 ../src/ui-pref.c:79
 #: ../src/ui-pref.c:1357 ../src/ui-pref.c:1670
 msgid "General"
 msgstr "Загальні"
 
-#: ../src/ui-account.c:1352
+#: ../src/ui-account.c:1374
 msgid "_Currency:"
 msgstr ""
 
-#: ../src/ui-account.c:1359
+#: ../src/ui-account.c:1381
 msgid "Start _balance:"
 msgstr ""
 
-#: ../src/ui-account.c:1367
+#: ../src/ui-account.c:1389
 msgid "Notes:"
 msgstr ""
 
-#: ../src/ui-account.c:1383
+#: ../src/ui-account.c:1405
 msgid "this account was _closed"
 msgstr ""
 
-#: ../src/ui-account.c:1394
+#: ../src/ui-account.c:1416
 msgid "Current check number"
 msgstr ""
 
-#: ../src/ui-account.c:1398
+#: ../src/ui-account.c:1420
 msgid "Checkbook _1:"
 msgstr ""
 
-#: ../src/ui-account.c:1405
+#: ../src/ui-account.c:1427
 msgid "Checkbook _2:"
 msgstr ""
 
-#: ../src/ui-account.c:1417 ../src/ui-budget.c:1204
+#: ../src/ui-account.c:1439 ../src/ui-budget.c:1212
 msgid "Options"
 msgstr ""
 
-#: ../src/ui-account.c:1426
+#: ../src/ui-account.c:1448
 msgid "Institution"
 msgstr ""
 
-#: ../src/ui-account.c:1430 ../src/ui-assist-start.c:380
+#: ../src/ui-account.c:1452 ../src/ui-assist-start.c:380
 #: ../src/ui-assist-import.c:973 ../src/ui-currency.c:1228
 #: ../src/ui-payee.c:909
 msgid "_Name:"
 msgstr "_Назва:"
 
-#: ../src/ui-account.c:1438 ../src/ui-assist-start.c:400
+#: ../src/ui-account.c:1460 ../src/ui-assist-start.c:400
 msgid "N_umber:"
 msgstr "_Число"
 
-#: ../src/ui-account.c:1451
+#: ../src/ui-account.c:1473
 msgid "Balance limits"
 msgstr ""
 
-#: ../src/ui-account.c:1457
+#: ../src/ui-account.c:1479
 msgid "_Overdraft at:"
 msgstr ""
 
-#: ../src/ui-account.c:1469
+#: ../src/ui-account.c:1491
 msgid "Report exclusion"
 msgstr ""
 
-#: ../src/ui-account.c:1473
+#: ../src/ui-account.c:1495
 msgid "exclude from account _summary"
 msgstr ""
 
-#: ../src/ui-account.c:1478
+#: ../src/ui-account.c:1500
 msgid "exclude from the _budget"
 msgstr ""
 
-#: ../src/ui-account.c:1483
+#: ../src/ui-account.c:1505
 msgid "exclude from any _reports"
 msgstr ""
 
@@ -2024,7 +2042,7 @@ msgid "Preset categories"
 msgstr "Задані категорії"
 
 #: ../src/ui-assist-start.c:376
-msgid "Informations"
+msgid "Information"
 msgstr ""
 
 #: ../src/ui-assist-start.c:411
@@ -2145,7 +2163,7 @@ msgid "account: %d - transaction: %d - payee: %d - categorie: %d"
 msgstr "рахунок: %d - транзакції: %d - отримувачі: %d - категорії: %d"
 
 #: ../src/ui-assist-import.c:1358
-msgid "Some date convertion failed"
+msgid "Some date conversion failed"
 msgstr ""
 
 #: ../src/ui-assist-import.c:1359
@@ -2162,12 +2180,12 @@ msgstr ""
 msgid ""
 "Welcome to the HomeBank Import Assistant.\n"
 "\n"
-"With this assistant you will be guided throught the process\n"
+"With this assistant you will be guided through the process\n"
 "of importing an external file into HomeBank.\n"
 "\n"
 "No changes will be made until you click \"Apply\" at the end\n"
 "of this assistant."
-msgstr "Ласкаво просимо до помічника імпорту HomeBank!"
+msgstr ""
 
 #: ../src/ui-assist-import.c:1640
 msgid ""
@@ -2204,7 +2222,7 @@ msgid "All files"
 msgstr "Усі файли"
 
 #: ../src/ui-assist-import.c:1779
-msgid "A general error occured, and this file cannot be loaded."
+msgid "A general error occurred, and this file cannot be loaded."
 msgstr ""
 
 #: ../src/ui-assist-import.c:1816
@@ -2296,57 +2314,57 @@ msgstr "для відхилення"
 msgid "auto-assigned"
 msgstr "автопідтвердження"
 
-#: ../src/ui-budget.c:510 ../src/ui-category.c:1184 ../src/ui-payee.c:790
+#: ../src/ui-budget.c:518 ../src/ui-category.c:1184 ../src/ui-payee.c:790
 msgid "File format error"
 msgstr "Помилка формату файлу"
 
-#: ../src/ui-budget.c:511 ../src/ui-category.c:1185 ../src/ui-payee.c:791
+#: ../src/ui-budget.c:519 ../src/ui-category.c:1185 ../src/ui-payee.c:791
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
 
-#: ../src/ui-budget.c:695
+#: ../src/ui-budget.c:703
 msgid "Are you sure you want to clear input?"
 msgstr ""
 
-#: ../src/ui-budget.c:697
+#: ../src/ui-budget.c:705
 msgid "If you proceed, every amount will be set to 0."
 msgstr ""
 
-#: ../src/ui-budget.c:703
+#: ../src/ui-budget.c:711
 msgid "_Clear"
 msgstr ""
 
-#: ../src/ui-budget.c:996
+#: ../src/ui-budget.c:1004
 msgid "Manage Budget"
 msgstr "Управління бюджетом"
 
-#: ../src/ui-budget.c:1039 ../src/ui-category.c:1882 ../src/ui-payee.c:1272
+#: ../src/ui-budget.c:1047 ../src/ui-category.c:1882 ../src/ui-payee.c:1272
 msgid "_Import CSV"
 msgstr ""
 
-#: ../src/ui-budget.c:1043 ../src/ui-category.c:1886 ../src/ui-payee.c:1276
+#: ../src/ui-budget.c:1051 ../src/ui-category.c:1886 ../src/ui-payee.c:1276
 msgid "E_xport CSV"
 msgstr ""
 
-#: ../src/ui-budget.c:1130
+#: ../src/ui-budget.c:1138
 msgid "Budget for each month"
 msgstr ""
 
-#: ../src/ui-budget.c:1137
+#: ../src/ui-budget.c:1145
 msgid "is the same"
 msgstr "однаковий"
 
-#: ../src/ui-budget.c:1151
+#: ../src/ui-budget.c:1159
 msgid "_Clear input"
 msgstr ""
 
-#: ../src/ui-budget.c:1166
+#: ../src/ui-budget.c:1174
 msgid "is different"
 msgstr "інший"
 
-#: ../src/ui-budget.c:1209
+#: ../src/ui-budget.c:1217
 msgid "_Force monitoring this category"
 msgstr "_Примусово слідкувати за цією категорією"
 
@@ -2447,7 +2465,7 @@ msgid "Exchange rate"
 msgstr ""
 
 #: ../src/ui-currency.c:652
-msgid "Last modfied"
+msgid "Last modified"
 msgstr ""
 
 #: ../src/ui-currency.c:774
@@ -2500,6 +2518,10 @@ msgstr ""
 
 #: ../src/ui-currency.c:1222
 msgid "Add a custom _currency"
+msgstr ""
+
+#: ../src/ui-currency.c:1235
+msgid "_ISO:"
 msgstr ""
 
 #: ../src/ui-currency.c:1320
@@ -2585,12 +2607,8 @@ msgstr ""
 msgid "Close _without saving"
 msgstr ""
 
-#: ../src/ui-dialogs.c:713
-msgid "Export PDF"
-msgstr ""
-
 #: ../src/ui-dialogs.c:717
-msgid "_Export"
+msgid "Export as _PDF"
 msgstr ""
 
 #: ../src/ui-dialogs.c:744
@@ -2605,23 +2623,23 @@ msgstr ""
 msgid "Filename:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:847
+#: ../src/ui-dialogs.c:852
 msgid "Select among possible transactions..."
 msgstr ""
 
-#: ../src/ui-dialogs.c:883
+#: ../src/ui-dialogs.c:888
 msgid "Select an action:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:887
+#: ../src/ui-dialogs.c:892
 msgid "create a new transaction"
 msgstr ""
 
-#: ../src/ui-dialogs.c:890
+#: ../src/ui-dialogs.c:895
 msgid "select an existing transaction"
 msgstr ""
 
-#: ../src/ui-dialogs.c:895
+#: ../src/ui-dialogs.c:900
 msgid ""
 "HomeBank has found some transaction that may be the associated transaction "
 "for the internal transfer."
@@ -2808,11 +2826,6 @@ msgstr ""
 #. gtk_widget_show(GTK_WIDGET(page));
 #: ../src/ui-filter.c:1358 ../src/ui-filter.c:1463
 msgid "Payments"
-msgstr ""
-
-#. clear button
-#: ../src/ui-filter.c:1406 ../src/ui-pref.c:2007
-msgid "_Reset"
 msgstr ""
 
 #: ../src/ui-hbfile.c:239
@@ -3351,58 +3364,72 @@ msgstr ""
 msgid "Multiple edit transactions"
 msgstr ""
 
-#: ../src/ui-widgets.c:288
+#: ../src/ui-widgets.c:290
 msgid "Search..."
 msgstr ""
 
-#: ../src/ui-widgets.c:820
+#: ../src/ui-widgets.c:824
 msgid "Check"
 msgstr "Перевірити"
 
-#: ../src/ui-widgets.c:822
+#: ../src/ui-widgets.c:826
 msgid "Transfer"
 msgstr "Перенесення"
 
-#: ../src/ui-widgets.c:823
+#: ../src/ui-widgets.c:827
 msgid "Internal transfer"
 msgstr "Внутрішній переказ"
 
-#: ../src/ui-widgets.c:824
+#: ../src/ui-widgets.c:828
 msgid "Debit card"
 msgstr "Дебет катртка"
 
-#: ../src/ui-widgets.c:825
+#: ../src/ui-widgets.c:829
 msgid "Standing order"
 msgstr "Платіжне доручення"
 
-#: ../src/ui-widgets.c:826
+#: ../src/ui-widgets.c:830
 msgid "Electronic payment"
 msgstr "Електронний платіж"
 
-#: ../src/ui-widgets.c:827
+#: ../src/ui-widgets.c:831
 msgid "Deposit"
 msgstr "Депозит"
 
 #. TRANSLATORS: Financial institution fee
-#: ../src/ui-widgets.c:829
+#: ../src/ui-widgets.c:833
 msgid "FI fee"
 msgstr "FI гонорар"
 
-#: ../src/ui-widgets.c:830
+#: ../src/ui-widgets.c:834
 msgid "Direct Debit"
 msgstr ""
 
-#: ../src/ui-widgets.c:957
+#: ../src/ui-widgets.c:961
 msgid "Inactive"
 msgstr "Неактивний"
 
-#: ../src/ui-widgets.c:958
+#: ../src/ui-widgets.c:962
 msgid "Include"
 msgstr "Включити"
 
-#: ../src/ui-widgets.c:959
+#: ../src/ui-widgets.c:963
 msgid "Exclude"
 msgstr "Виключити"
 
-#~ msgid "expense"
-#~ msgstr "витрата"
+#, c-format
+#~ msgid "<i>from</i> %s <i>to</i> %s"
+#~ msgstr "<i>з</i> %s <i>до</i> %s"
+
+#~ msgid "Unknow error"
+#~ msgstr "Невідома помилка"
+
+#~ msgid ""
+#~ "Welcome to the HomeBank Import Assistant.\n"
+#~ "\n"
+#~ "With this assistant you will be guided throught the process\n"
+#~ "of importing an external file into HomeBank.\n"
+#~ "\n"
+#~ "No changes will be made until you click \"Apply\" at the end\n"
+#~ "of this assistant."
+#~ msgstr "Ласкаво просимо до помічника імпорту HomeBank!"

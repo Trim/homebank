@@ -583,6 +583,7 @@ gchar *title;
 
 	gtk_chart_show_legend(GTK_CHART(data->RE_line), FALSE, FALSE);
 	gtk_chart_show_xval(GTK_CHART(data->RE_line), TRUE);
+	gtk_chart_show_average(GTK_CHART(data->RE_line), data->average, TRUE);
 
 	////TRANSLATORS: example 'Expense by Category'
 	title = g_strdup_printf(_("%s Over Time"), _(CYA_TIMESELECT[tmpfor]) );
@@ -1095,6 +1096,7 @@ guint32 selkey;
 		gchar   buf[128];
 
 			average = cumulation / n_result;
+			data->average = average;
 
 			hb_strfmon(buf, 127, average, kcur, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_minor)) );
 

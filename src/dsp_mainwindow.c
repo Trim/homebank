@@ -169,6 +169,7 @@ static GtkActionEntry entries[] = {
 
   { "FileMenu"   , NULL, N_("_File"), NULL, NULL, NULL },
   { "ImportMenu" , NULL, N_("_Import"), NULL, NULL, NULL },
+  { "RecentMenu" , NULL, N_("Open _Recent"), NULL, NULL, NULL },
   { "EditMenu"   , NULL, N_("_Edit"), NULL, NULL, NULL },
   { "ViewMenu"   , NULL, N_("_View"), NULL, NULL, NULL },
   { "ManageMenu" , NULL, N_("_Manage"), NULL, NULL, NULL },
@@ -186,13 +187,16 @@ static GtkActionEntry entries[] = {
   { "Open"       , ICONNAME_OPEN           , N_("_Open...")      , "<control>O", N_("Open a file"),    G_CALLBACK (ui_mainwindow_action_open) },
   { "Save"       , ICONNAME_SAVE           , N_("_Save")         , "<control>S", N_("Save the current file"),    G_CALLBACK (ui_mainwindow_action_save) },
   { "SaveAs"     , ICONNAME_SAVE_AS        , N_("Save _As...")    , "<shift><control>S", N_("Save the current file with a different name"),    G_CALLBACK (ui_mainwindow_action_saveas) },
+
   { "Revert"     , ICONNAME_REVERT         , N_("Revert")        , NULL, N_("Revert to a saved version of this file"),    G_CALLBACK (ui_mainwindow_action_revert) },
+
 
   { "Properties" , ICONNAME_PROPERTIES     , N_("Properties..."), NULL, N_("Configure the file"),    G_CALLBACK (ui_mainwindow_action_properties) },
   { "Close"      , ICONNAME_CLOSE          , N_("_Close")        , "<control>W", N_("Close the current file"),    G_CALLBACK (ui_mainwindow_action_close) },
   { "Quit"       , ICONNAME_QUIT           , N_("_Quit")         , "<control>Q", N_("Quit HomeBank"),    G_CALLBACK (ui_mainwindow_action_quit) },
 
   /* Exchange */
+
   { "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
   { "ImportOFX" , ICONNAME_HB_FILE_IMPORT  , N_("OFX/QFX file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
   { "ImportCSV" , ICONNAME_HB_FILE_IMPORT  , N_("CSV file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
@@ -212,8 +216,9 @@ static GtkActionEntry entries[] = {
   { "Assign"     , ICONNAME_HB_ASSIGN      , N_("Assignments..."), NULL,    N_("Configure the automatic assignments"),    G_CALLBACK (ui_mainwindow_action_defassign) },
 
   /* TxnMenu */
-  { "ShowOpe"     , ICONNAME_HB_OPE_SHOW   , N_("Show...")             , NULL, N_("Shows selected account transactions"),    G_CALLBACK (ui_mainwindow_action_showtransactions) },
-  { "AddOpe"      , ICONNAME_HB_OPE_ADD    , N_("Add...")              , NULL, N_("Add transactions"),    G_CALLBACK (ui_mainwindow_action_addtransactions) },
+  { "AddTxn"      , ICONNAME_HB_OPE_ADD    , N_("Add...")              , NULL, N_("Add transactions"),    G_CALLBACK (ui_mainwindow_action_addtransactions) },
+  { "ShowTxn"     , ICONNAME_HB_OPE_SHOW   , N_("Show...")             , NULL, N_("Shows selected account transactions"),    G_CALLBACK (ui_mainwindow_action_showtransactions) },
+
   { "Scheduler"   , NULL                   , N_("Set scheduler...")    , NULL, N_("Configure the transaction scheduler"),    G_CALLBACK (ui_mainwindow_action_properties) },
   { "AddScheduled", NULL                   , N_("Post scheduled"), NULL, N_("Post pending scheduled transactions"),    G_CALLBACK (ui_mainwindow_action_checkscheduled) },
 
@@ -262,12 +267,10 @@ static const gchar *ui_info =
 "    <menu action='FileMenu'>"
 "      <menuitem action='New'/>"
 "      <menuitem action='Open'/>"
+"      <menuitem action='RecentMenu'/>"
 "        <separator/>"
 "      <menuitem action='Save'/>"
 "      <menuitem action='SaveAs'/>"
-"      <menuitem action='Revert'/>"
-"        <separator/>"
-"      <menuitem action='Properties'/>"
 "        <separator/>"
 "        <menu action='ImportMenu'>"
 "          <menuitem action='ImportQIF'/>"
@@ -277,6 +280,10 @@ static const gchar *ui_info =
 "      <menuitem action='ExportQIF'/>"
 //"        <separator/>"
 // print to come here
+"      <menuitem action='Revert'/>"
+
+"        <separator/>"
+"      <menuitem action='Properties'/>"
 "        <separator/>"
 "      <menuitem action='Close'/>"
 "      <menuitem action='Quit'/>"
@@ -302,8 +309,9 @@ static const gchar *ui_info =
 "      <menuitem action='Currency'/>"
 "    </menu>"
 "    <menu action='TxnMenu'>"
-"      <menuitem action='ShowOpe'/>"
-"      <menuitem action='AddOpe'/>"
+"      <menuitem action='AddTxn'/>"
+"      <menuitem action='ShowTxn'/>"
+
 "        <separator/>"
 "      <menuitem action='Scheduler'/>"
 "      <menuitem action='AddScheduled'/>"
@@ -347,8 +355,8 @@ static const gchar *ui_info =
 "    <toolitem action='Assign'/>"
 "    <toolitem action='Currency'/>"
 "      <separator/>"
-"    <toolitem action='ShowOpe'/>"
-"    <toolitem action='AddOpe'/>"
+"    <toolitem action='ShowTxn'/>"
+"    <toolitem action='AddTxn'/>"
 "      <separator/>"
 "    <toolitem action='RStatistics'/>"
 "    <toolitem action='RTrendTime'/>"
@@ -749,7 +757,7 @@ GtkWidget *window;
 		else
 		{
 			if(GTK_IS_WINDOW(data->acc->window))
-				gtk_window_present(data->acc->window);
+				gtk_window_present(GTK_WINDOW(data->acc->window));
 
 		}
 	}
@@ -1848,8 +1856,9 @@ gint r;
 		if( r == XML_OK )
 		{
 			DB( g_print(" - file loaded ok : rcode=%d\n", r) );
-			
-			hbfile_file_hasbackup(GLOBALS->xhb_filepath);
+
+			GLOBALS->xhb_timemodified = hbfile_file_get_time_modified(GLOBALS->xhb_filepath);
+			hbfile_file_hasrevert(GLOBALS->xhb_filepath);
 			
 			if(PREFS->appendscheduled)
 				scheduled_post_all_pending();
@@ -1866,7 +1875,7 @@ gint r;
 		}
 		else
 		{
-		gchar *msg = _("Unknow error");
+		gchar *msg = _("Unknown error");
 
 			switch(r)
 			{
@@ -1942,16 +1951,35 @@ gint r = XML_UNSET;
 	}
 	else
 	{
-		DB( g_print(" + should quick save %s\n", GLOBALS->xhb_filepath) );
+	guint64 time_modified = hbfile_file_get_time_modified (GLOBALS->xhb_filepath);
+	gint result = GTK_RESPONSE_OK;
+
+		DB( g_print(" + should quick save '%s'\n + time: open=%lu :: now=%lu\n", GLOBALS->xhb_filepath, GLOBALS->xhb_timemodified, time_modified) );
+
+		if( GLOBALS->xhb_timemodified != time_modified )
+		{
+			result = ui_dialog_msg_confirm_alert(
+					GTK_WINDOW(GLOBALS->mainwindow),
+					_("The file has been modified since reading it."),
+					_("If you save it, all the external changes could be lost. Save it anyway?"),
+					_("S_ave Anyway")
+				);
+				
+			if( result != GTK_RESPONSE_OK )
+				return;
+		}
+
+		DB( g_print(" + saving...\n") );
 		homebank_file_ensure_xhb(NULL);
 		homebank_backup_current_file();
 		r = homebank_save_xml(GLOBALS->xhb_filepath);
 	}
 
-
 	if(r == XML_OK)
 	{
+		DB( g_print(" + OK...\n") );
 		GLOBALS->changes_count = 0;
+		GLOBALS->xhb_timemodified = hbfile_file_get_time_modified (GLOBALS->xhb_filepath);
 		ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_VISUAL));
 	}
 	else
@@ -1963,10 +1991,7 @@ gint r = XML_UNSET;
 			msg,
 			GLOBALS->xhb_filepath
 			);
-
 	}
-
-
 }
 
 
@@ -2285,7 +2310,7 @@ gint flags;
 		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/SaveAs"), sensitive);
 		//if(sensitive == TRUE && GLOBALS->hbfile_is_new == TRUE) sensitive = FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Save"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Revert"), GLOBALS->xhb_hasbak);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Revert"), GLOBALS->xhb_hasrevert);
 
 
 	// define off ?
@@ -2304,8 +2329,8 @@ gint flags;
 
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Close"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Archive"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddOpe"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowOpe"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddTxn"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowTxn"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RStatistics"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RTrendTime"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBudget"), sensitive);
@@ -2330,7 +2355,7 @@ gint flags;
 		if(data->acc && data->acc->window != NULL)
 			sensitive = FALSE;
 
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowOpe"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowTxn"), sensitive);
 
 	}
 
@@ -2534,31 +2559,6 @@ static void ui_mainwindow_recent_chooser_item_activated_cb (GtkRecentChooser *ch
 }
 
 
-static void ui_mainwindow_window_screen_changed_cb (GtkWidget *widget,
-			      GdkScreen *old_screen,
-			      struct hbfile_data *data)
-{
-
-	DB( g_print("\n[ui-mainwindow] screen_changed_cb\n") );
-
-
-	data->recent_manager = gtk_recent_manager_get_default ();
-
-	gtk_menu_detach (GTK_MENU (data->recent_menu));
-	g_object_unref (G_OBJECT (data->recent_menu));
-
-	data->recent_menu = ui_mainwindow_create_recent_chooser_menu (data->recent_manager);
-
-	g_signal_connect (data->recent_menu,
-			  "item-activated",
-			  G_CALLBACK (ui_mainwindow_recent_chooser_item_activated_cb),
-			  data);
-
-	//menu_item = gtk_ui_manager_get_widget (data->manager, "/MenuBar/FileMenu/OpenRecent");
-	//gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), data->recent_menu);
-}
-
-
 void ui_mainwindow_recent_add (struct hbfile_data *data, const gchar *path)
 {
 	GtkRecentData *recent_data;
@@ -2693,30 +2693,23 @@ gint filetype, slen;
 
 static GtkWidget *ui_mainwindow_create_recent_chooser_menu (GtkRecentManager *manager)
 {
-GtkWidget *toolbar_recent_menu;
+GtkWidget *recent_menu;
 GtkRecentFilter *filter;
 
-	toolbar_recent_menu = gtk_recent_chooser_menu_new_for_manager (manager);
-
-	gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (toolbar_recent_menu),
-					FALSE);
-	gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (toolbar_recent_menu),
-					GTK_RECENT_SORT_MRU);
+	recent_menu = gtk_recent_chooser_menu_new_for_manager (manager);
+	gtk_recent_chooser_set_local_only (GTK_RECENT_CHOOSER (recent_menu), FALSE);
+	gtk_recent_chooser_set_sort_type (GTK_RECENT_CHOOSER (recent_menu), GTK_RECENT_SORT_MRU);
 	//todo: add a user pref for this
-	gtk_recent_chooser_set_limit(GTK_RECENT_CHOOSER (toolbar_recent_menu),
-					10);
-
-
-	//gtk_recent_chooser_set_show_icons (GTK_RECENT_CHOOSER (toolbar_recent_menu), FALSE);
-
-	//gtk_recent_chooser_menu_set_show_numbers (GTK_RECENT_CHOOSER_MENU (toolbar_recent_menu), TRUE);
+	gtk_recent_chooser_set_limit(GTK_RECENT_CHOOSER (recent_menu), 10);
+	gtk_recent_chooser_set_show_icons (GTK_RECENT_CHOOSER (recent_menu), FALSE);
+	//gtk_recent_chooser_menu_set_show_numbers (GTK_RECENT_CHOOSER_MENU (recent_menu), TRUE);
 
 	filter = gtk_recent_filter_new ();
 	//gtk_recent_filter_add_application (filter, g_get_application_name());
 	gtk_recent_filter_add_pattern (filter, "*.[Xx][Hh][Bb]");
-	gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER (toolbar_recent_menu), filter);
+	gtk_recent_chooser_set_filter (GTK_RECENT_CHOOSER (recent_menu), filter);
 
-	return toolbar_recent_menu;
+	return recent_menu;
 }
 
 
@@ -2773,10 +2766,10 @@ GError *error = NULL;
 	action = gtk_action_group_get_action(actions, "Budget");
 	g_object_set(action, "short_label", _("Budget"), NULL);
 
-	action = gtk_action_group_get_action(actions, "ShowOpe");
+	action = gtk_action_group_get_action(actions, "ShowTxn");
 	g_object_set(action, "short_label", _("Show"), NULL);
 
-	action = gtk_action_group_get_action(actions, "AddOpe");
+	action = gtk_action_group_get_action(actions, "AddTxn");
 	g_object_set(action, "is_important", TRUE, "short_label", _("Add"), NULL);
 
 	action = gtk_action_group_get_action(actions, "RStatistics");
@@ -2799,6 +2792,9 @@ GError *error = NULL;
 		g_error_free (error);
 	}
 
+
+	data->recent_manager = gtk_recent_manager_get_default ();
+
 	//todo: this generate a warning
 	data->menubar = gtk_ui_manager_get_widget (manager, "/MenuBar");
 	gtk_box_pack_start (GTK_BOX (mainvbox),
@@ -2807,17 +2803,7 @@ GError *error = NULL;
 			    FALSE,
 			    0);
 
-	data->toolbar = gtk_ui_manager_get_widget (manager, "/ToolBar");
-	gtk_box_pack_start (GTK_BOX (mainvbox),
-			    data->toolbar,
-			    FALSE,
-			    FALSE,
-			    0);
-
 	/* recent files menu */
-
-	data->recent_manager = gtk_recent_manager_get_default ();
-
 	data->recent_menu = ui_mainwindow_create_recent_chooser_menu (data->recent_manager);
 
 	g_signal_connect (data->recent_menu,
@@ -2825,20 +2811,30 @@ GError *error = NULL;
 			  G_CALLBACK (ui_mainwindow_recent_chooser_item_activated_cb),
 			  data);
 
-/*
-	widget = gtk_ui_manager_get_widget (data->manager, "/MenuBar/FileMenu/OpenRecent");
+	GtkWidget *widget = gtk_ui_manager_get_widget (data->manager, "/MenuBar/FileMenu/RecentMenu");
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (widget), data->recent_menu);
-*/
 
-	/* test */
+
+	data->toolbar = gtk_ui_manager_get_widget (manager, "/ToolBar");
+	gtk_box_pack_start (GTK_BOX (mainvbox),
+			    data->toolbar,
+			    FALSE,
+			    FALSE,
+			    0);
+
 	/* add the custom Open button to the toolbar */
 	GtkWidget *image = gtk_image_new_from_icon_name (ICONNAME_OPEN, GTK_ICON_SIZE_BUTTON);
-
 	GtkToolItem *open_button = gtk_menu_tool_button_new(image, _("_Open"));
-	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (open_button), data->recent_menu);
-
 	gtk_tool_item_set_tooltip_text (open_button, _("Open a file"));
+
+	GtkWidget *recent_menu = ui_mainwindow_create_recent_chooser_menu (data->recent_manager);
+	gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (open_button), recent_menu);
 	gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (open_button), _("Open a recently used file"));
+
+	g_signal_connect (recent_menu,
+			  "item-activated",
+			  G_CALLBACK (ui_mainwindow_recent_chooser_item_activated_cb),
+			  data);
 
 	action = gtk_action_group_get_action (data->actions, "Open");
 	g_object_set (action, "short_label", _("Open"), NULL);
@@ -2846,9 +2842,9 @@ GError *error = NULL;
 	gtk_activatable_set_related_action (GTK_ACTIVATABLE (open_button), action);
 
 	gtk_toolbar_insert (GTK_TOOLBAR (data->toolbar), open_button, 1);
-	/* end test */
 
 }
+
 
 /* Callback function for the undo action */
 /*static void
@@ -2904,6 +2900,7 @@ GVariant *old_state, *new_state;
 
 
 static const GActionEntry actions[] = {
+//	name, function(), type, state, 
 //  { "paste", activate_action, NULL, NULL,      NULL, {0,0,0} },
 	{ "showall", activate_toggle, NULL, "false" , NULL, {0,0,0} },
 	{ "groupby", activate_radio ,  "s", "'type'", NULL, {0,0,0} }
@@ -3316,15 +3313,8 @@ GtkWidget *bar, *label;
     g_signal_connect (window, "delete-event", G_CALLBACK (ui_mainwindow_dispose), (gpointer)data);
 	g_signal_connect (window, "destroy", G_CALLBACK (ui_mainwindow_destroy), NULL);
 
-
-	g_signal_connect (window, "screen-changed",
-			  G_CALLBACK (ui_mainwindow_window_screen_changed_cb),
-			  data);
-
-
 	//gtk_action_group_set_sensitive(data->actions, FALSE);
 
-	
 	return window;
 }
 

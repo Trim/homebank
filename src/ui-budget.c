@@ -285,7 +285,9 @@ char buf[G_ASCII_DTOSTR_BUF_SIZE];
 	{
 		if( item->budget[0] )
 		{
-			g_ascii_dtostr (buf, sizeof (buf), item->budget[0]);
+			//g_ascii_dtostr (buf, sizeof (buf), item->budget[0]);
+			//#1750257 use locale numdigit
+			g_snprintf(buf, sizeof (buf), "%.2f", item->budget[0]);
 			retval = g_strdup(buf);
 
 			//DB( g_print(" => %d: %s\n", 0, retval) );
@@ -301,7 +303,9 @@ char buf[G_ASCII_DTOSTR_BUF_SIZE];
 			//{
 			gchar *tmp = retval;
 
-				g_ascii_dtostr (buf, sizeof (buf), item->budget[i]);
+				//g_ascii_dtostr (buf, sizeof (buf), item->budget[i]);
+				//#1750257 use locale numdigit
+				g_snprintf(buf, sizeof (buf), "%.2f", item->budget[i]);
 
 				if(retval != NULL)
 				{
@@ -460,7 +464,9 @@ const gchar *encoding;
 							tmpitem->flags &= ~(GF_CUSTOM);		//delete flag
 							if( *str_array[1] == '*' )
 							{
-								tmpitem->budget[0] = g_ascii_strtod(str_array[3], NULL);
+								//tmpitem->budget[0] = g_ascii_strtod(str_array[3], NULL);
+								//#1750257 use locale numdigit
+								tmpitem->budget[0] = g_strtod(str_array[3], NULL);
 
 								DB( g_print(" monthly '%.2f'\n", tmpitem->budget[0]) );
 							}
@@ -470,7 +476,9 @@ const gchar *encoding;
 
 								for(i=1;i<=12;i++)
 								{
-									tmpitem->budget[i] = g_ascii_strtod(str_array[2+i], NULL);
+									//tmpitem->budget[i] = g_ascii_strtod(str_array[2+i], NULL);
+									//#1750257 use locale numdigit
+									tmpitem->budget[i] = g_strtod(str_array[2+i], NULL);
 									DB( g_print(" month %d '%.2f'\n", i, tmpitem->budget[i]) );
 								}
 							}

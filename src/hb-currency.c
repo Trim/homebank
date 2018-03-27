@@ -266,6 +266,23 @@ da_cur_get(guint32 key)
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+
+gboolean
+currency_is_euro(guint32 key)
+{
+Currency *item;
+gboolean retval = FALSE;
+
+	item = da_cur_get(key);
+	if( item )
+	{
+		if(!strcasecmp("EUR", item->iso_code))
+			retval = TRUE;
+	}
+	return retval;
+}
+
+
 /**
  * currency_is_used:
  * 
@@ -586,6 +603,7 @@ gint i;
 	base = da_cur_get (GLOBALS->kcur);
 
 	node = g_string_sized_new(512);
+	//todo: let the user choose http / https
 	g_string_append_printf(node, "https://api.fixer.io/latest?base=%s&symbols=", base->iso_code);
 
 	list = g_hash_table_get_values(GLOBALS->h_cur);
@@ -636,20 +654,23 @@ gboolean retval = TRUE;
 	if(msg != NULL)
 	{
 		soup_session_send_message (session, msg);
+
 		DB( g_print("status_code: %d %d\n", msg->status_code, SOUP_STATUS_IS_SUCCESSFUL(msg->status_code) ) );
 		DB( g_print("reason: %s\n", msg->reason_phrase) );
 		DB( g_print("datas: %s\n", msg->response_body->data) );
 		
 		if( SOUP_STATUS_IS_SUCCESSFUL(msg->status_code) == TRUE )
 		{
-			retval = api_fixerio_parse(msg->response_body->data, error);
-			//retval = api_yahoo_parse(msg->response_body->data, error);
+			//#1750426 ignore the retval here (false when no rate was found, as we don't care)
+			api_fixerio_parse(msg->response_body->data, error);
 		}
 		else
 		{
 			*error = g_error_new_literal(1, msg->status_code, msg->reason_phrase);
 			retval = FALSE;
 		}
+
+		g_object_unref(msg);
 	}
 	else
 	{
@@ -658,6 +679,10 @@ gboolean retval = TRUE;
 	}
 
 	g_free(query);
+	
+	soup_session_abort (session);
+
+	g_object_unref(session);
 	
 	return retval;
 }

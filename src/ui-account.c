@@ -813,6 +813,28 @@ Account *item;
 }
 
 
+//#1743254 set frac digits as well
+static void ui_acc_manage_changed_curr_cb(GtkWidget *widget, gpointer user_data)
+{
+struct ui_acc_manage_data *data;
+guint32 key;
+Currency *cur;
+
+	DB( g_print("\n(ui_acc_manage changed_curr_cb)\n") );
+
+	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
+
+	key = ui_cur_combobox_get_key(GTK_COMBO_BOX(data->CY_curr));
+	cur = da_cur_get (key);
+	if( cur != NULL )
+	{
+		DB( g_print("- set digits to '%s' %d\n", cur->name, cur->frac_digits) );
+		gtk_spin_button_set_digits (GTK_SPIN_BUTTON(data->ST_initial), cur->frac_digits);
+		gtk_spin_button_set_digits (GTK_SPIN_BUTTON(data->ST_overdraft), cur->frac_digits);
+	}
+
+}
+
 
 /*
 ** set widgets contents from the selected account
@@ -1489,7 +1511,8 @@ gint w, h, row;
 	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 	g_signal_connect (gtk_tree_view_get_selection(GTK_TREE_VIEW(data.LV_acc)), "changed", G_CALLBACK (ui_acc_manage_selection), NULL);
 	g_signal_connect (GTK_TREE_VIEW(data.LV_acc), "row-activated", G_CALLBACK (ui_acc_manage_rowactivated), GINT_TO_POINTER(2));
-	
+
+	g_signal_connect (data.CY_curr  , "changed", G_CALLBACK (ui_acc_manage_changed_curr_cb), NULL);
 	g_signal_connect (data.CM_closed, "toggled", G_CALLBACK (ui_acc_manage_toggled_closed), NULL);	
 	
 	g_signal_connect (G_OBJECT (data.BT_add), "clicked", G_CALLBACK (ui_acc_manage_add), NULL);

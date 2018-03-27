@@ -74,13 +74,13 @@
 
 #define HB_VERSION_MAJOR	5
 #define HB_VERSION_MINOR	1
-#define HB_VERSION_MICRO	7
+#define HB_VERSION_MICRO	8
 
-#define HB_VERSION			"5.1.7"
+#define HB_VERSION			"5.1.8"
 #define HB_VERSION_NUM	(HB_VERSION_MAJOR*10000) + (HB_VERSION_MINOR*100) + HB_VERSION_MICRO
 
 #define FILE_VERSION		1.2
-#define PREF_VERSION		517
+#define PREF_VERSION		518
 
 #if HB_UNSTABLE == FALSE
 	#define	PROGNAME		"HomeBank"
@@ -241,6 +241,7 @@ typedef enum
 #define ICONNAME_HB_OPE_RECONCILED  "hb-ope-reconciled"
 #define ICONNAME_HB_OPE_REMIND      "hb-ope-remind"
 
+#define ICONNAME_HB_OPE_FUTURE      "hb-ope-future"
 
 
 /*
@@ -277,7 +278,8 @@ struct HomeBank
 	gboolean		hbfile_is_new;
 	gboolean		hbfile_is_bak;
 	gchar			*xhb_filepath;
-	gboolean		xhb_hasbak;		//file has backup (*.xhb~) used for revert menu sensitivity
+	gboolean		xhb_hasrevert;		//file has backup (*.xhb~) used for revert menu sensitivity
+	guint64			xhb_timemodified;
 
 	// really global stuffs
 	gboolean		first_run;

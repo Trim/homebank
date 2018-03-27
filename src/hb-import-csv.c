@@ -305,6 +305,9 @@ static gint csvtype[7] = {
 						}
 						
 						newope->paymode		 = atoi(str_array[1]);
+						//added 5.1.8 forbid to import 5=internal xfer
+						if(newope->paymode == PAYMODE_INTXFER)
+							newope->paymode = PAYMODE_XFER;
 						newope->info		 = g_strdup(str_array[2]);
 
 						/* payee */

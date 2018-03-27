@@ -710,11 +710,11 @@ GtkWidget *label, *widget, *BT_folder, *ST_name;
 gchar *tmpstr;
 gint crow, row;
 
-	dialog = gtk_dialog_new_with_buttons (_("Export PDF"),
+	dialog = gtk_dialog_new_with_buttons (_("Export as PDF"),
 		GTK_WINDOW (parent),
 		0,
 		_("_Cancel"), GTK_RESPONSE_CANCEL,
-		_("_Export"), GTK_RESPONSE_ACCEPT,
+		_("Export as _PDF"), GTK_RESPONSE_ACCEPT,
 		NULL);
 
 	gtk_window_set_default_size (GTK_WINDOW(dialog), HB_MINWIDTH_LIST, -1);
@@ -770,14 +770,19 @@ gint crow, row;
 
 	if(result == GTK_RESPONSE_ACCEPT)
 	{
-	gchar *nufolder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(BT_folder));
-	gchar *nufilename = hb_filename_new_with_extension((gchar *)gtk_entry_get_text (GTK_ENTRY(ST_name)), "pdf");
-		
+	gchar *hostname;
+	//#300380 fixed export path problem (was always the export of preference)
+	//not to be used -- gchar *nufolder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(BT_folder));
+	gchar *urifolder  = gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(BT_folder));
+	gchar *nufolder   = g_filename_from_uri(urifolder, &hostname, NULL);
+	gchar *nufilename = hb_filename_new_with_extension((gchar *)gtk_entry_get_text (GTK_ENTRY(ST_name)), "pdf");	
+
 		g_free(*storage_ptr);
 		*storage_ptr = g_build_filename(nufolder, nufilename, NULL);
 
 		g_free(nufilename);
 		g_free(nufolder);
+		g_free(urifolder);
 	}
 
 	// cleanup and destroy

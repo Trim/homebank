@@ -63,15 +63,29 @@ gchar *filter_daterange_text_get(Filter *flt)
 {
 gchar buffer1[128];
 gchar buffer2[128];
+gchar buffer3[128];
 GDate *date;
+gchar *retval = NULL;
 
 	date = g_date_new_julian(flt->mindate);
 	g_date_strftime (buffer1, 128-1, PREFS->date_format, date);
+	
 	g_date_set_julian(date, flt->maxdate);
 	g_date_strftime (buffer2, 128-1, PREFS->date_format, date);
+	
+	if( flt->nbdaysfuture > 0 )
+	{
+		g_date_set_julian(date, flt->maxdate + flt->nbdaysfuture);
+		g_date_strftime (buffer3, 128-1, PREFS->date_format, date);
+		retval = g_strdup_printf("%s — <s>%s</s> %s", buffer1, buffer2, buffer3);
+	}
+	else
+		retval = g_strdup_printf("%s — %s", buffer1, buffer2);
+	
 	g_date_free(date);
 
-	return g_strdup_printf(_("<i>from</i> %s <i>to</i> %s"), buffer1, buffer2);
+	//return g_strdup_printf(_("<i>from</i> %s <i>to</i> %s — "), buffer1, buffer2);
+	return retval;
 }
 
 
@@ -220,11 +234,14 @@ GList *lnk_txn;
 void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 {
 
-	if( nbdays <= 0 )
+	//fixed > 5.1.7
+	/*if( nbdays <= 0 )
 	{
 		filter->nbdaysfuture = 0;
 		return;
-	}
+	}*/
+
+	filter->nbdaysfuture = 0;
 	
 	switch( filter->range )
 	{
@@ -238,7 +255,6 @@ void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 			filter->nbdaysfuture = nbdays;
 			break;
 	}
-
 }
 
 

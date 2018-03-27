@@ -258,10 +258,12 @@ GtkWidget *make_label(char *str, gfloat xalign, gfloat yalign)
 {
 GtkWidget *label = gtk_label_new_with_mnemonic (str);
 
-	//todo: deprecated in 3.14
+	#if GTK_MINOR_VERSION >= 16
+	gtk_label_set_xalign(GTK_LABEL(label), xalign);
+	gtk_label_set_yalign(GTK_LABEL(label), yalign);
+	#else
 	gtk_misc_set_alignment (GTK_MISC (label), xalign, yalign);
-	//gtk_label_set_xalign(GTK_LABEL(label), xalign);
-	//gtk_label_set_yalign(GTK_LABEL(label), yalign);
+	#endif
 	return label;
 }
 
@@ -467,7 +469,7 @@ GtkWidget *spinner;
 GtkAdjustment *adj;
 
 	adj = (GtkAdjustment *) gtk_adjustment_new (0.0, 0.0, 99999, 0.01, 1.0, 0.0);
-	spinner = gtk_spin_button_new (adj, 1.0, 6);
+	spinner = gtk_spin_button_new (adj, 1.0, 8);
 	//gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (spinner), TRUE);
 	gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (spinner), TRUE);
 	g_object_set(spinner, "xalign", 1.0, NULL);
@@ -654,7 +656,9 @@ guint i;
 	return combobox;
 }
 
+
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
 
 /*
 **

@@ -1355,7 +1355,7 @@ ImportContext *ictx = &data->ictx;
 			{
 				do_fix = ui_dialog_msg_question(
 					GTK_WINDOW(data->assistant),
-					_("Some date convertion failed"),
+					_("Some date conversion failed"),
 					_("Reload using date order: '%s' ?"),
 					CYA_IMPORT_DATEORDER[i]
 					);
@@ -1626,7 +1626,7 @@ GtkWidget *vbox, *label, *align;
 
 	label = make_label(
 	    _("Welcome to the HomeBank Import Assistant.\n\n" \
-		"With this assistant you will be guided throught the process\n" \
+		"With this assistant you will be guided through the process\n" \
 		"of importing an external file into HomeBank.\n\n" \
 	    "No changes will be made until you click \"Apply\" at the end\n" \
 	    "of this assistant.")
@@ -1776,7 +1776,7 @@ gchar *txt;
 	widget = gtk_image_new_from_icon_name(ICONNAME_ERROR, GTK_ICON_SIZE_DIALOG );
 	gtk_grid_attach (GTK_GRID (content_grid), widget, 0, 0, 1, 1);
 	
-	txt = _("A general error occured, and this file cannot be loaded.");
+	txt = _("A general error occurred, and this file cannot be loaded.");
 	label = gtk_label_new(txt);
 	gtk_widget_set_valign (label, GTK_ALIGN_CENTER);
 	gtk_grid_attach (GTK_GRID (content_grid), label, 1, 0, 1, 1);
