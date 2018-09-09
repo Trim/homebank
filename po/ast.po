@@ -3,17 +3,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HomeBank 3.2 alpha2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 10:10+0100\n"
+"POT-Creation-Date: 2018-09-08 16:29+0200\n"
 "PO-Revision-Date: 2009-06-07 20:31+0000\n"
 "Last-Translator: costales <Unknown>\n"
 "Language-Team: Asturian <ast@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2018-03-17 15:13+0000\n"
-"X-Generator: Launchpad (build 18571)\n"
+"X-Launchpad-Export-Date: 2018-09-08 15:28+0000\n"
+"X-Generator: Launchpad (build 18767)\n"
 
-#: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:918
+#: ../data/homebank.desktop.in.in.h:1 ../src/dsp_mainwindow.c:945
 msgid "HomeBank"
 msgstr "HomeBank"
 
@@ -21,8 +21,8 @@ msgstr "HomeBank"
 msgid "Personal finance"
 msgstr ""
 
-#: ../data/homebank.desktop.in.in.h:3 ../src/dsp_mainwindow.c:474
-#: ../src/dsp_mainwindow.c:922
+#: ../data/homebank.desktop.in.in.h:3 ../src/dsp_mainwindow.c:478
+#: ../src/dsp_mainwindow.c:949
 msgid "Free, easy, personal accounting for everyone"
 msgstr ""
 
@@ -48,56 +48,65 @@ msgid ""
 "personal accounting then HomeBank should be the software of choice."
 msgstr ""
 
-#: ../src/dsp_account.c:238 ../src/dsp_account.c:248
+#: ../src/dsp_account.c:205
+#, c-format
+msgid "There is %d group of similar transactions"
+msgstr ""
+
+#: ../src/dsp_account.c:210
+msgid "No similar transaction were found !"
+msgstr ""
+
+#: ../src/dsp_account.c:292 ../src/dsp_account.c:302
 msgid "Check internal transfert result"
 msgstr ""
 
-#: ../src/dsp_account.c:239
+#: ../src/dsp_account.c:293
 msgid "No inconsistency found !"
 msgstr ""
 
-#: ../src/dsp_account.c:249
+#: ../src/dsp_account.c:303
 #, c-format
 msgid ""
 "Inconsistency were found: %d\n"
 "do you want to review and fix ?"
 msgstr ""
 
-#: ../src/dsp_account.c:305
+#: ../src/dsp_account.c:360
 #, c-format
 msgid "Every transaction amount will be divided by %.6f."
 msgstr ""
 
-#: ../src/dsp_account.c:309
+#: ../src/dsp_account.c:364
 msgid ""
 "Are you sure you want to convert this account\n"
 "to Euro as Major currency?"
 msgstr ""
 
-#: ../src/dsp_account.c:311
+#: ../src/dsp_account.c:366
 msgid "_Convert"
 msgstr ""
 
-#: ../src/dsp_account.c:342
+#: ../src/dsp_account.c:401
 msgid "No transaction changed"
 msgstr ""
 
-#: ../src/dsp_account.c:344
+#: ../src/dsp_account.c:403
 #, c-format
 msgid "transaction changed: %d"
 msgstr ""
 
-#: ../src/dsp_account.c:347
+#: ../src/dsp_account.c:406
 msgid "Automatic assignment result"
 msgstr ""
 
-#: ../src/dsp_account.c:467
+#: ../src/dsp_account.c:532
 msgid ""
 "Do you want to create a template with\n"
 "each of the selected transaction ?"
 msgstr ""
 
-#: ../src/dsp_account.c:1146
+#: ../src/dsp_account.c:1326
 msgid ""
 "Do you want to delete\n"
 "each of the selected transaction ?"
@@ -105,307 +114,334 @@ msgstr ""
 "¿Quies desaniciar cada una de les\n"
 "transacciones seleicionaes?"
 
-#: ../src/dsp_account.c:1212
+#: ../src/dsp_account.c:1392
 msgid "Are you sure you want to change the status to None?"
 msgstr ""
 
-#: ../src/dsp_account.c:1213 ../src/dsp_account.c:1275
+#: ../src/dsp_account.c:1393 ../src/dsp_account.c:1456
 msgid "Some transaction in your selection are already Reconciled."
 msgstr ""
 
-#: ../src/dsp_account.c:1214 ../src/ui-assist-start.c:281
+#: ../src/dsp_account.c:1394 ../src/ui-assist-start.c:280
 #: ../src/ui-dialogs.c:374
 msgid "_Change"
 msgstr ""
 
-#: ../src/dsp_account.c:1274
+#: ../src/dsp_account.c:1455
 msgid "Are you sure you want to toggle the status Reconciled?"
 msgstr ""
 
-#: ../src/dsp_account.c:1276
+#: ../src/dsp_account.c:1457
 msgid "_Toggle"
 msgstr ""
 
-#: ../src/dsp_account.c:1541
+#: ../src/dsp_account.c:1692
 #, c-format
-msgid "%d items (%s)"
+msgid ""
+"This account is part of the budget and has %d uncategorised transaction"
 msgstr ""
 
-#. TRANSLATORS: detail of the 3 %s which are some amount of selected transaction, 1=total 2=income, 3=expense
-#. msg = g_strdup_printf (_("transaction selected: %d, hidden: %d / %s ( %s - %s)"), count, data->hidden, buf3, buf1, buf2);
-#: ../src/dsp_account.c:1546
+#. label = g_strdup_printf(_("Account %d of %d"), acckey+1, nbacc);
+#. gtk_label_set_markup (GTK_LABEL(txndata->LB_acc_count), label);
+#. g_free(label);
+#: ../src/dsp_account.c:1772 ../src/ui-assist-import.c:1192
 #, c-format
-msgid "%d items (%d selected %s)"
+msgid "%d transactions"
 msgstr ""
 
-#: ../src/dsp_account.c:1643
+#: ../src/dsp_account.c:1775
 #, c-format
-msgid "[closed account] %s"
+msgid "%d transactions, %d selected, avg: %s, sum: %s (%s - %s)"
 msgstr ""
 
 #. name, icon-name, label
-#: ../src/dsp_account.c:1755
+#: ../src/dsp_account.c:1989
 msgid "A_ccount"
 msgstr ""
 
-#: ../src/dsp_account.c:1756
+#: ../src/dsp_account.c:1990
 msgid "Transacti_on"
 msgstr "Transacci_on"
 
-#: ../src/dsp_account.c:1757
+#: ../src/dsp_account.c:1991
 msgid "_Status"
 msgstr ""
 
-#: ../src/dsp_account.c:1758 ../src/dsp_mainwindow.c:178
+#: ../src/dsp_account.c:1992 ../src/dsp_mainwindow.c:181
 msgid "_Tools"
 msgstr "_Ferramientes"
 
-#: ../src/dsp_account.c:1762 ../src/dsp_mainwindow.c:195
-#: ../src/dsp_mainwindow.c:908 ../src/ui-account.c:1279
-#: ../src/ui-archive.c:1152 ../src/ui-assign.c:723 ../src/ui-budget.c:1007
-#: ../src/ui-category.c:1836 ../src/ui-currency.c:1658 ../src/ui-dialogs.c:179
-#: ../src/ui-payee.c:1235 ../src/ui-transaction.c:1203
-#: ../src/ui-transaction.c:1211
-msgid "_Close"
-msgstr "_Zarrar"
-
-#: ../src/dsp_account.c:1762
-msgid "Close the current account"
-msgstr "Zarrar la cuenta actual"
-
 #. name, icon-name, label, accelerator, tooltip
-#: ../src/dsp_account.c:1765
-msgid "_Filter..."
-msgstr "_Filtru..."
-
-#: ../src/dsp_account.c:1765
-msgid "Open the list filter"
-msgstr "Abrir el filtru de llistáu"
-
-#: ../src/dsp_account.c:1766
-msgid "Convert to Euro..."
+#: ../src/dsp_account.c:1996
+msgid "Export as PDF..."
 msgstr ""
 
-#: ../src/dsp_account.c:1766
-msgid "Convert this account to Euro currency"
+#: ../src/dsp_account.c:1996
+msgid "Export to a PDF file"
 msgstr ""
 
-#: ../src/dsp_account.c:1768
-msgid "_Add..."
-msgstr "_Amestar..."
-
-#: ../src/dsp_account.c:1768
-msgid "Add a new transaction"
-msgstr "Amestar una transacción nueva"
-
-#: ../src/dsp_account.c:1769
-msgid "_Inherit..."
-msgstr "_Heredar..."
-
-#: ../src/dsp_account.c:1769
-msgid "Inherit from the active transaction"
-msgstr "Heredar dende la transacción activa"
-
-#: ../src/dsp_account.c:1770
-msgid "_Edit..."
-msgstr "_Editar..."
-
-#: ../src/dsp_account.c:1770
-msgid "Edit the active transaction"
-msgstr "Editar la transacción activa"
-
-#: ../src/dsp_account.c:1772
-msgid "_None"
-msgstr ""
-
-#: ../src/dsp_account.c:1772
-msgid "Toggle none for selected transaction(s)"
-msgstr ""
-
-#: ../src/dsp_account.c:1773
-msgid "_Cleared"
-msgstr ""
-
-#: ../src/dsp_account.c:1773
-msgid "Toggle cleared for selected transaction(s)"
-msgstr ""
-
-#: ../src/dsp_account.c:1774
-msgid "_Reconciled"
-msgstr ""
-
-#: ../src/dsp_account.c:1774
-msgid "Toggle reconciled for selected transaction(s)"
-msgstr ""
-
-#: ../src/dsp_account.c:1776
-msgid "_Multiple Edit..."
-msgstr ""
-
-#: ../src/dsp_account.c:1776
-msgid "Edit multiple transaction"
-msgstr ""
-
-#: ../src/dsp_account.c:1777
-msgid "Create template..."
-msgstr ""
-
-#: ../src/dsp_account.c:1777
-msgid "Create template"
-msgstr ""
-
-#: ../src/dsp_account.c:1778
-msgid "_Delete..."
-msgstr ""
-
-#: ../src/dsp_account.c:1778
-msgid "Delete selected transaction(s)"
-msgstr ""
-
-#: ../src/dsp_account.c:1780
-msgid "Auto. assignments"
-msgstr ""
-
-#: ../src/dsp_account.c:1780
-msgid "Run automatic assignments"
-msgstr ""
-
-#: ../src/dsp_account.c:1781
+#: ../src/dsp_account.c:1997
 msgid "Export QIF..."
 msgstr ""
 
-#: ../src/dsp_account.c:1781 ../src/ui-dialogs.c:437
+#: ../src/dsp_account.c:1997 ../src/ui-dialogs.c:439
 msgid "Export as QIF"
 msgstr "Esportar a QIF"
 
-#: ../src/dsp_account.c:1782
+#: ../src/dsp_account.c:1998
 msgid "Export CSV..."
 msgstr "Esportar CSV..."
 
-#: ../src/dsp_account.c:1782 ../src/rep_vehicle.c:67 ../src/ui-dialogs.c:487
+#: ../src/dsp_account.c:1998 ../src/rep_vehicle.c:67 ../src/ui-dialogs.c:489
 msgid "Export as CSV"
 msgstr "Esportar como CSV"
 
-#: ../src/dsp_account.c:1784
-msgid "Check internal xfer..."
+#: ../src/dsp_account.c:1999 ../src/dsp_mainwindow.c:198
+#: ../src/dsp_mainwindow.c:935 ../src/ui-account.c:1272
+#: ../src/ui-archive.c:1180 ../src/ui-assign.c:723 ../src/ui-budget.c:1008
+#: ../src/ui-category.c:1803 ../src/ui-currency.c:1658 ../src/ui-dialogs.c:179
+#: ../src/ui-payee.c:1252 ../src/ui-transaction.c:1219
+#: ../src/ui-transaction.c:1227
+msgid "_Close"
+msgstr "_Zarrar"
+
+#: ../src/dsp_account.c:1999
+msgid "Close the current account"
+msgstr "Zarrar la cuenta actual"
+
+#: ../src/dsp_account.c:2001
+msgid "_Add..."
+msgstr "_Amestar..."
+
+#: ../src/dsp_account.c:2001
+msgid "Add a new transaction"
+msgstr "Amestar una transacción nueva"
+
+#: ../src/dsp_account.c:2002
+msgid "_Inherit..."
+msgstr "_Heredar..."
+
+#: ../src/dsp_account.c:2002
+msgid "Inherit from the active transaction"
+msgstr "Heredar dende la transacción activa"
+
+#: ../src/dsp_account.c:2003
+msgid "_Edit..."
+msgstr "_Editar..."
+
+#: ../src/dsp_account.c:2003
+msgid "Edit the active transaction"
+msgstr "Editar la transacción activa"
+
+#: ../src/dsp_account.c:2005
+msgid "_None"
 msgstr ""
 
-#. = = = = = = = = future version = = = = = = = =
-#: ../src/dsp_account.c:1787
-msgid "Export PDF..."
+#: ../src/dsp_account.c:2005
+msgid "Toggle none for selected transaction(s)"
 msgstr ""
 
-#: ../src/dsp_account.c:1787 ../src/ui-dialogs.c:713
-msgid "Export as PDF"
+#: ../src/dsp_account.c:2006
+msgid "_Cleared"
 msgstr ""
 
-#: ../src/dsp_account.c:1920 ../src/dsp_mainwindow.c:2773
+#: ../src/dsp_account.c:2006
+msgid "Toggle cleared for selected transaction(s)"
+msgstr ""
+
+#: ../src/dsp_account.c:2007
+msgid "_Reconciled"
+msgstr ""
+
+#: ../src/dsp_account.c:2007
+msgid "Toggle reconciled for selected transaction(s)"
+msgstr ""
+
+#: ../src/dsp_account.c:2009
+msgid "_Multiple Edit..."
+msgstr ""
+
+#: ../src/dsp_account.c:2009
+msgid "Edit multiple transaction"
+msgstr ""
+
+#: ../src/dsp_account.c:2010
+msgid "Create template..."
+msgstr ""
+
+#: ../src/dsp_account.c:2010
+msgid "Create template"
+msgstr ""
+
+#: ../src/dsp_account.c:2011
+msgid "_Delete..."
+msgstr ""
+
+#: ../src/dsp_account.c:2011
+msgid "Delete selected transaction(s)"
+msgstr ""
+
+#: ../src/dsp_account.c:2013
+msgid "Mark duplicate..."
+msgstr ""
+
+#. { "DuplicateClear", NULL                      , N_("Unmark duplicate"), NULL,	NULL, G_CALLBACK (register_panel_action_duplicate_unmark) },
+#: ../src/dsp_account.c:2016
+msgid "Check internal xfer"
+msgstr ""
+
+#: ../src/dsp_account.c:2017
+msgid "Auto. assignments"
+msgstr ""
+
+#: ../src/dsp_account.c:2017
+msgid "Run automatic assignments"
+msgstr ""
+
+#: ../src/dsp_account.c:2019
+msgid "_Filter..."
+msgstr "_Filtru..."
+
+#: ../src/dsp_account.c:2019
+msgid "Open the list filter"
+msgstr "Abrir el filtru de llistáu"
+
+#: ../src/dsp_account.c:2020
+msgid "Convert to Euro..."
+msgstr ""
+
+#: ../src/dsp_account.c:2020
+msgid "Convert this account to Euro currency"
+msgstr ""
+
+#: ../src/dsp_account.c:2123
+msgid "(closed)"
+msgstr ""
+
+#: ../src/dsp_account.c:2130
+#, c-format
+msgid "%s - HomeBank"
+msgstr ""
+
+#: ../src/dsp_account.c:2130
+msgid "All transactions"
+msgstr ""
+
+#: ../src/dsp_account.c:2162 ../src/dsp_mainwindow.c:2836 ../src/ui-split.c:797
 msgid "Add"
 msgstr "Amestar"
 
-#: ../src/dsp_account.c:1923
+#: ../src/dsp_account.c:2165
 msgid "Inherit"
 msgstr "Heredar"
 
-#: ../src/dsp_account.c:1926
+#: ../src/dsp_account.c:2168 ../src/ui-split.c:759
 msgid "Edit"
 msgstr "Editar"
 
-#: ../src/dsp_account.c:1929 ../src/rep_stats.c:72
+#: ../src/dsp_account.c:2171 ../src/rep_stats.c:72
 msgid "Filter"
 msgstr "Filtru"
 
+#. info bar for uncategorised
+#: ../src/dsp_account.c:2209
+msgid "_Filter"
+msgstr ""
+
+#. info bar for duplicate
+#: ../src/dsp_account.c:2224
+msgid "_Refresh"
+msgstr ""
+
 #. balances area
-#: ../src/dsp_account.c:1984
+#: ../src/dsp_account.c:2259
 msgid "Bank:"
 msgstr "Bancu:"
 
-#: ../src/dsp_account.c:1990
+#: ../src/dsp_account.c:2265
 msgid "Today:"
 msgstr "Güei:"
 
-#: ../src/dsp_account.c:1996
+#: ../src/dsp_account.c:2271
 msgid "Future:"
 msgstr "Futuru:"
 
-#: ../src/dsp_account.c:2019 ../src/rep_balance.c:940 ../src/rep_budget.c:1224
-#: ../src/rep_stats.c:1660 ../src/rep_time.c:1529 ../src/rep_vehicle.c:749
+#: ../src/dsp_account.c:2294 ../src/rep_balance.c:942 ../src/rep_budget.c:1179
+#: ../src/rep_stats.c:1660 ../src/rep_time.c:1545 ../src/rep_vehicle.c:749
 msgid "_Range:"
 msgstr "_Intervalu:"
 
-#: ../src/dsp_account.c:2027
+#: ../src/dsp_account.c:2302
 msgid "Toggle show future transaction"
 msgstr ""
 
-#: ../src/dsp_account.c:2031 ../src/ui-account.c:1367
-#: ../src/ui-assist-start.c:392
+#: ../src/dsp_account.c:2306 ../src/ui-account.c:1360
+#: ../src/ui-assist-start.c:391
 msgid "_Type:"
 msgstr ""
 
-#: ../src/dsp_account.c:2036 ../src/ui-archive.c:1041
-#: ../src/ui-transaction.c:1113
+#: ../src/dsp_account.c:2311 ../src/ui-archive.c:1064
+#: ../src/ui-transaction.c:1128
 msgid "_Status:"
 msgstr ""
 
 #. widget = gtk_button_new_with_mnemonic (_("Reset _filters"));
-#. clear button
-#: ../src/dsp_account.c:2042 ../src/ui-filter.c:1406 ../src/ui-pref.c:2007
+#: ../src/dsp_account.c:2317 ../src/ui-filter.c:1406 ../src/ui-pref.c:2098
+#: ../src/ui-pref.c:2119
 msgid "_Reset"
 msgstr ""
 
 #. TRANSLATORS: this is for Euro specific users, a toggle to display in 'Minor' currency
-#: ../src/dsp_account.c:2047 ../src/rep_balance.c:919 ../src/rep_budget.c:1211
-#: ../src/rep_stats.c:1631 ../src/rep_time.c:1507 ../src/rep_vehicle.c:736
+#: ../src/dsp_account.c:2322 ../src/rep_balance.c:921 ../src/rep_budget.c:1166
+#: ../src/rep_stats.c:1631 ../src/rep_time.c:1523 ../src/rep_vehicle.c:736
 msgid "Euro _minor"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:160 ../src/dsp_mainwindow.c:2760
-#: ../src/list_operation.c:1201 ../src/list_operation.c:1457
-#: ../src/rep_budget.c:70 ../src/rep_budget.c:1519 ../src/rep_budget.c:1704
-#: ../src/rep_stats.c:146 ../src/rep_time.c:123 ../src/ui-budget.c:245
-#: ../src/ui-dialogs.c:234 ../src/ui-split.c:406
+#: ../src/dsp_mainwindow.c:163 ../src/dsp_mainwindow.c:2823
+#: ../src/list_operation.c:1239 ../src/rep_budget.c:70 ../src/rep_budget.c:1474
+#: ../src/rep_budget.c:1659 ../src/rep_stats.c:146 ../src/rep_time.c:123
+#: ../src/ui-assist-import.c:335 ../src/ui-budget.c:246 ../src/ui-dialogs.c:234
+#: ../src/ui-split.c:202 ../src/ui-split.c:764
 msgid "Category"
 msgstr "Categoría"
 
-#: ../src/dsp_mainwindow.c:161 ../src/rep_budget.c:70 ../src/rep_stats.c:147
+#: ../src/dsp_mainwindow.c:164 ../src/rep_budget.c:70 ../src/rep_stats.c:147
 msgid "Subcategory"
 msgstr "Subcategoría"
 
 #. name, icon-name, label
-#: ../src/dsp_mainwindow.c:170
+#: ../src/dsp_mainwindow.c:173
 msgid "_File"
 msgstr "_Ficheru"
 
-#: ../src/dsp_mainwindow.c:171 ../src/ui-pref.c:1153
-msgid "_Import"
-msgstr "_Importar"
-
-#: ../src/dsp_mainwindow.c:172
+#. { "ImportMenu" , NULL, N_("_Import"), NULL, NULL, NULL },
+#: ../src/dsp_mainwindow.c:175
 msgid "Open _Recent"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:173 ../src/ui-category.c:2005
-#: ../src/ui-currency.c:1730 ../src/ui-payee.c:1326
+#. todo: useless ?
+#: ../src/dsp_mainwindow.c:176 ../src/ui-category.c:1981
+#: ../src/ui-currency.c:1730 ../src/ui-payee.c:1373
 msgid "_Edit"
 msgstr "_Editar"
 
-#: ../src/dsp_mainwindow.c:174
+#: ../src/dsp_mainwindow.c:177
 msgid "_View"
 msgstr "_Vista"
 
-#: ../src/dsp_mainwindow.c:175
+#: ../src/dsp_mainwindow.c:178
 msgid "_Manage"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:176
+#: ../src/dsp_mainwindow.c:179
 msgid "_Transactions"
 msgstr "_Transacciones"
 
-#: ../src/dsp_mainwindow.c:177
+#: ../src/dsp_mainwindow.c:180
 msgid "_Reports"
 msgstr "_Informes"
 
-#: ../src/dsp_mainwindow.c:179
+#: ../src/dsp_mainwindow.c:182
 msgid "_Help"
 msgstr "A_ida"
 
@@ -413,416 +449,426 @@ msgstr "A_ida"
 #. { "Export"       , NULL, N_("Export to") },
 #. name, icon-name, label, accelerator, tooltip
 #. FileMenu
-#: ../src/dsp_mainwindow.c:186
+#: ../src/dsp_mainwindow.c:189
 msgid "_New"
 msgstr "_Nuevu"
 
-#: ../src/dsp_mainwindow.c:186
+#: ../src/dsp_mainwindow.c:189
 msgid "Create a new file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:187
+#: ../src/dsp_mainwindow.c:190
 msgid "_Open..."
 msgstr "_Abrir..."
 
-#: ../src/dsp_mainwindow.c:187 ../src/dsp_mainwindow.c:2828
+#: ../src/dsp_mainwindow.c:190 ../src/dsp_mainwindow.c:2890
 msgid "Open a file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:188 ../src/ui-dialogs.c:441 ../src/ui-dialogs.c:488
-#: ../src/ui-dialogs.c:549 ../src/ui-dialogs.c:673
+#: ../src/dsp_mainwindow.c:191 ../src/ui-dialogs.c:443 ../src/ui-dialogs.c:490
+#: ../src/ui-dialogs.c:551 ../src/ui-dialogs.c:692
 msgid "_Save"
 msgstr "_Guardar"
 
-#: ../src/dsp_mainwindow.c:188
+#: ../src/dsp_mainwindow.c:191
 msgid "Save the current file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:189
+#: ../src/dsp_mainwindow.c:192
 msgid "Save _As..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:189
+#: ../src/dsp_mainwindow.c:192
 msgid "Save the current file with a different name"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:191
+#: ../src/dsp_mainwindow.c:194
 msgid "Revert"
 msgstr "Desfacer"
 
-#: ../src/dsp_mainwindow.c:191
+#: ../src/dsp_mainwindow.c:194
 msgid "Revert to a saved version of this file"
 msgstr "Volver a una versión guardada d'esti ficheru"
 
-#: ../src/dsp_mainwindow.c:194
-msgid "Properties..."
-msgstr ""
-
-#: ../src/dsp_mainwindow.c:194
-msgid "Configure the file"
+#: ../src/dsp_mainwindow.c:195
+msgid "Restore backup"
 msgstr ""
 
 #: ../src/dsp_mainwindow.c:195
+msgid "Restore from a backup file"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:197
+msgid "Properties..."
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:197
+msgid "Configure the file"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:198
 msgid "Close the current file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:196
+#: ../src/dsp_mainwindow.c:199
 msgid "_Quit"
 msgstr "_Colar"
 
-#: ../src/dsp_mainwindow.c:196
+#: ../src/dsp_mainwindow.c:199
 msgid "Quit HomeBank"
 msgstr ""
 
 #. Exchange
-#: ../src/dsp_mainwindow.c:200
-msgid "QIF file..."
+#: ../src/dsp_mainwindow.c:202
+msgid "Import..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:200 ../src/dsp_mainwindow.c:201
 #: ../src/dsp_mainwindow.c:202
 msgid "Open the import assistant"
 msgstr "Abrir l'asistente d'importación"
 
-#: ../src/dsp_mainwindow.c:201
-msgid "OFX/QFX file..."
+#. { "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+#. { "ImportOFX" , ICONNAME_HB_FILE_IMPORT  , N_("OFX/QFX file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+#. { "ImportCSV" , ICONNAME_HB_FILE_IMPORT  , N_("CSV file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+#: ../src/dsp_mainwindow.c:207
+msgid "Export as QIF..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:202
-msgid "CSV file..."
-msgstr ""
-
-#: ../src/dsp_mainwindow.c:204
-msgid "Export QIF file..."
-msgstr ""
-
-#: ../src/dsp_mainwindow.c:204
+#: ../src/dsp_mainwindow.c:207
 msgid "Export all account in a QIF file"
 msgstr ""
 
 #. EditMenu
-#: ../src/dsp_mainwindow.c:207
+#: ../src/dsp_mainwindow.c:210
 msgid "Preferences..."
 msgstr "Preferencies..."
 
-#: ../src/dsp_mainwindow.c:207
+#: ../src/dsp_mainwindow.c:210
 msgid "Configure HomeBank"
 msgstr ""
 
 #. ManageMenu
-#: ../src/dsp_mainwindow.c:210
+#: ../src/dsp_mainwindow.c:213
 msgid "Currencies..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:210
+#: ../src/dsp_mainwindow.c:213
 msgid "Configure the currencies"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:211
+#: ../src/dsp_mainwindow.c:214
 msgid "Acc_ounts..."
 msgstr "_Cuentes..."
 
-#: ../src/dsp_mainwindow.c:211
+#: ../src/dsp_mainwindow.c:214
 msgid "Configure the accounts"
 msgstr "Editar les cuentes"
 
-#: ../src/dsp_mainwindow.c:212
+#: ../src/dsp_mainwindow.c:215
 msgid "_Payees..."
 msgstr "_Beneficiarios..."
 
-#: ../src/dsp_mainwindow.c:212
+#: ../src/dsp_mainwindow.c:215
 msgid "Configure the payees"
 msgstr "Configurar los beneficiarios"
 
-#: ../src/dsp_mainwindow.c:213
+#: ../src/dsp_mainwindow.c:216
 msgid "Categories..."
 msgstr "Ca_tegoríes..."
 
-#: ../src/dsp_mainwindow.c:213
+#: ../src/dsp_mainwindow.c:216
 msgid "Configure the categories"
 msgstr "Configurar les categoríes"
 
-#: ../src/dsp_mainwindow.c:214
+#: ../src/dsp_mainwindow.c:217
 msgid "Scheduled/Template..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:214
+#: ../src/dsp_mainwindow.c:217
 msgid "Configure the scheduled/template transactions"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:215
+#: ../src/dsp_mainwindow.c:218
 msgid "Budget..."
 msgstr "Presupuestu..."
 
-#: ../src/dsp_mainwindow.c:215
+#: ../src/dsp_mainwindow.c:218
 msgid "Configure the budget"
 msgstr "Configurar el presupuestu"
 
-#: ../src/dsp_mainwindow.c:216
+#: ../src/dsp_mainwindow.c:219
 msgid "Assignments..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:216
+#: ../src/dsp_mainwindow.c:219
 msgid "Configure the automatic assignments"
 msgstr ""
 
 #. TxnMenu
-#: ../src/dsp_mainwindow.c:219
+#: ../src/dsp_mainwindow.c:222
 msgid "Add..."
 msgstr "Amestar..."
 
-#: ../src/dsp_mainwindow.c:219
+#: ../src/dsp_mainwindow.c:222
 msgid "Add transactions"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:220
+#: ../src/dsp_mainwindow.c:223
 msgid "Show..."
 msgstr "Amosar..."
 
-#: ../src/dsp_mainwindow.c:220
+#: ../src/dsp_mainwindow.c:223
 msgid "Shows selected account transactions"
 msgstr "Amosar les transacciones de la cuenta seleicionada"
 
-#: ../src/dsp_mainwindow.c:222
+#: ../src/dsp_mainwindow.c:224
+msgid "Show all..."
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:224
+msgid "Shows all account transactions"
+msgstr ""
+
+#: ../src/dsp_mainwindow.c:225
 msgid "Set scheduler..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:222
+#: ../src/dsp_mainwindow.c:225
 msgid "Configure the transaction scheduler"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:223
+#: ../src/dsp_mainwindow.c:226
 msgid "Post scheduled"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:223 ../src/ui-pref.c:1785
+#: ../src/dsp_mainwindow.c:226 ../src/ui-pref.c:1981
 msgid "Post pending scheduled transactions"
 msgstr ""
 
 #. ReportMenu
-#: ../src/dsp_mainwindow.c:226
+#: ../src/dsp_mainwindow.c:229
 msgid "_Statistics..."
 msgstr "_Estadístiques..."
 
-#: ../src/dsp_mainwindow.c:226
+#: ../src/dsp_mainwindow.c:229
 msgid "Open the Statistics report"
 msgstr "Abrir l'informe estadísticu"
 
-#: ../src/dsp_mainwindow.c:227
+#: ../src/dsp_mainwindow.c:230
 msgid "_Trend Time..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:227
+#: ../src/dsp_mainwindow.c:230
 msgid "Open the Trend Time report"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:228
+#: ../src/dsp_mainwindow.c:231
 msgid "B_udget..."
 msgstr "_Presupuestu..."
 
-#: ../src/dsp_mainwindow.c:228
+#: ../src/dsp_mainwindow.c:231
 msgid "Open the Budget report"
 msgstr "Abrir l'informe de presupuestu"
 
-#: ../src/dsp_mainwindow.c:229
+#: ../src/dsp_mainwindow.c:232
 msgid "Balance..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:229
+#: ../src/dsp_mainwindow.c:232
 msgid "Open the Balance report"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:230
+#: ../src/dsp_mainwindow.c:233
 msgid "_Vehicle cost..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:230
+#: ../src/dsp_mainwindow.c:233
 msgid "Open the Vehicle cost report"
 msgstr ""
 
 #. Tools
-#: ../src/dsp_mainwindow.c:233
+#: ../src/dsp_mainwindow.c:236
 msgid "Show welcome dialog..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:234
+#: ../src/dsp_mainwindow.c:237
 msgid "File statistics..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:235
+#: ../src/dsp_mainwindow.c:238
 msgid "Anonymize..."
 msgstr ""
 
 #. HelpMenu
-#: ../src/dsp_mainwindow.c:238
+#: ../src/dsp_mainwindow.c:241
 msgid "_Contents"
 msgstr "_Conteníos..."
 
-#: ../src/dsp_mainwindow.c:238
+#: ../src/dsp_mainwindow.c:241
 msgid "Documentation about HomeBank"
 msgstr "Documentación sobro HomeBack"
 
-#: ../src/dsp_mainwindow.c:239
+#: ../src/dsp_mainwindow.c:242
 msgid "Get Help Online..."
 msgstr "Obtener aida en llinia..."
 
-#: ../src/dsp_mainwindow.c:239
+#: ../src/dsp_mainwindow.c:242
 msgid "Connect to the LaunchPad website for online help"
 msgstr "Coneutar a la web de LaunchPad pa obtener aida online"
 
-#: ../src/dsp_mainwindow.c:241
+#: ../src/dsp_mainwindow.c:244
 msgid "Check for updates..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:241
+#: ../src/dsp_mainwindow.c:244
 msgid "Visit HomeBank website to check for update"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:242
+#: ../src/dsp_mainwindow.c:245
 msgid "Release Notes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:242
+#: ../src/dsp_mainwindow.c:245
 msgid "Display the release notes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:243
+#: ../src/dsp_mainwindow.c:246
 msgid "Report a Problem..."
 msgstr "Informar d'un problema..."
 
-#: ../src/dsp_mainwindow.c:243
+#: ../src/dsp_mainwindow.c:246
 msgid "Connect to the LaunchPad website to help fix problems"
 msgstr "Coneutar cola web de Launchpad p'aidar a correxir problemes"
 
-#: ../src/dsp_mainwindow.c:244
+#: ../src/dsp_mainwindow.c:247
 msgid "Translate this Application..."
 msgstr "Tornar esta aplicación"
 
-#: ../src/dsp_mainwindow.c:244
+#: ../src/dsp_mainwindow.c:247
 msgid "Connect to the LaunchPad website to help translate this application"
 msgstr "Coneutar cola web de LaunchPad p'aidar a tornar esta aplicación"
 
-#: ../src/dsp_mainwindow.c:246
+#: ../src/dsp_mainwindow.c:249
 msgid "_About"
 msgstr "_Tocante a"
 
-#: ../src/dsp_mainwindow.c:246
+#: ../src/dsp_mainwindow.c:249
 msgid "About HomeBank"
 msgstr "Tocante a HomeBank"
 
 #. name         , icon-name, label, accelerator, tooltip, callback, is_active
-#: ../src/dsp_mainwindow.c:254
+#: ../src/dsp_mainwindow.c:257
 msgid "_Toolbar"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:255
+#: ../src/dsp_mainwindow.c:258
 msgid "_Top spending"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:256
+#: ../src/dsp_mainwindow.c:259
 msgid "_Scheduled list"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:257 ../src/ui-pref.c:85
+#: ../src/dsp_mainwindow.c:260 ../src/ui-pref.c:92
 msgid "Euro minor"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:392
+#: ../src/dsp_mainwindow.c:396
 #, c-format
 msgid "Revert unsaved changes to file '%s'?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:395
+#: ../src/dsp_mainwindow.c:399
 msgid ""
 "- Changes made to the file will be permanently lost\n"
 "- File will be reloaded from the last save (.xhb~)"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:402
+#: ../src/dsp_mainwindow.c:406
 msgid "_Revert"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:588
+#: ../src/dsp_mainwindow.c:597
 msgid "Are you sure you want to anonymize the file?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:591
+#: ../src/dsp_mainwindow.c:600
 msgid ""
 "Proceeding will anonymize any text, \n"
 "like 'account x', 'payee y', 'memo z', ..."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:598
+#: ../src/dsp_mainwindow.c:607
 msgid "_Anonymize"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:905
+#: ../src/dsp_mainwindow.c:932
 msgid "Welcome to HomeBank"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:932
+#: ../src/dsp_mainwindow.c:959
 msgid "What do you want to do:"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:936
+#: ../src/dsp_mainwindow.c:963
 msgid "Read HomeBank _Manual"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:940
+#: ../src/dsp_mainwindow.c:967
 msgid "Configure _preferences"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:944
+#: ../src/dsp_mainwindow.c:971
 msgid "Create a _new file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:948
+#: ../src/dsp_mainwindow.c:975
 msgid "_Open an existing file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:952
+#: ../src/dsp_mainwindow.c:979
 msgid "Open the _example file"
 msgstr ""
 
 #. hb_label_set_amount(GTK_LABEL(data->TX_topamount), total, GLOBALS->kcur, GLOBALS->minor);
-#: ../src/dsp_mainwindow.c:1199
+#: ../src/dsp_mainwindow.c:1228
 msgid "Top spending"
 msgstr ""
 
 #. future usage
-#: ../src/dsp_mainwindow.c:1210
+#: ../src/dsp_mainwindow.c:1239
 #, c-format
 msgid "Top %d spending"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1377 ../src/rep_stats.c:1130 ../src/rep_stats.c:1150
-#: ../src/ui-budget.c:131 ../src/ui-category.c:393 ../src/ui-category.c:611
+#: ../src/dsp_mainwindow.c:1411 ../src/rep_stats.c:1130 ../src/rep_stats.c:1150
+#: ../src/ui-budget.c:131 ../src/ui-category.c:351 ../src/ui-category.c:569
 msgid "(no category)"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1398
+#: ../src/dsp_mainwindow.c:1432
 msgid "Other"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1639
+#: ../src/dsp_mainwindow.c:1673
 msgid "No transaction to add"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1641
+#: ../src/dsp_mainwindow.c:1675
 #, c-format
 msgid "transaction added: %d"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1644
+#: ../src/dsp_mainwindow.c:1678
 msgid "Check scheduled transactions result"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1761 ../src/dsp_mainwindow.c:2180
+#: ../src/dsp_mainwindow.c:1795 ../src/dsp_mainwindow.c:2217
 #: ../src/rep_vehicle.c:847
 msgid "Total"
 msgstr "Total"
 
-#: ../src/dsp_mainwindow.c:1780
+#: ../src/dsp_mainwindow.c:1814
 #, c-format
 msgid ""
 "Your are about to open the backup file '%s'.\n"
@@ -830,210 +876,207 @@ msgid ""
 "Are you sure you want to do this ?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1784
-msgid "Open a backup file ?"
+#: ../src/dsp_mainwindow.c:1818
+msgid "Open the backup file ?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1786
+#: ../src/dsp_mainwindow.c:1820
 msgid "_Open backup"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1878 ../src/ui-currency.c:1312
+#: ../src/dsp_mainwindow.c:1913 ../src/ui-currency.c:1312
 msgid "Unknown error"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1883 ../src/dsp_mainwindow.c:1987
+#: ../src/dsp_mainwindow.c:1918 ../src/dsp_mainwindow.c:2022
 #, c-format
 msgid "I/O error for file '%s'."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1886
+#: ../src/dsp_mainwindow.c:1921
 #, c-format
 msgid "The file '%s' is not a valid HomeBank file."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1889
+#: ../src/dsp_mainwindow.c:1924
 #, c-format
 msgid ""
 "The file '%s' was saved with a higher version of HomeBank\n"
 "and cannot be loaded by the current version."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1894 ../src/dsp_mainwindow.c:1990
-#: ../src/dsp_mainwindow.c:2671
+#: ../src/dsp_mainwindow.c:1929 ../src/dsp_mainwindow.c:2025
 msgid "File error"
 msgstr "Fallu de ficheru"
 
-#: ../src/dsp_mainwindow.c:1963
+#: ../src/dsp_mainwindow.c:1998
 msgid "The file has been modified since reading it."
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1964
+#: ../src/dsp_mainwindow.c:1999
 msgid ""
 "If you save it, all the external changes could be lost. Save it anyway?"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:1965
+#: ../src/dsp_mainwindow.c:2000
 msgid "S_ave Anyway"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2043
+#: ../src/dsp_mainwindow.c:2078
 msgid "(no institution)"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2212
+#: ../src/dsp_mainwindow.c:2249
 msgid "Grand total"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2672
-#, c-format
-msgid "The file %s is not a valid HomeBank file."
-msgstr "El ficheru %s nun ye un ficheru HomeBank validu."
-
-#: ../src/dsp_mainwindow.c:2748 ../src/dsp_mainwindow.c:2840
+#: ../src/dsp_mainwindow.c:2811 ../src/dsp_mainwindow.c:2902
 msgid "Open"
 msgstr "Abrir"
 
-#: ../src/dsp_mainwindow.c:2754 ../src/list_operation.c:1106
-#: ../src/list_operation.c:1425 ../src/list_upcoming.c:462
-#: ../src/rep_time.c:123 ../src/ui-account.c:1363 ../src/ui-assist-import.c:60
-#: ../src/ui-dialogs.c:207
+#. 5.2 we always create the column and set it not visible
+#. gtk_assistant_set_page_title (GTK_ASSISTANT (data->assistant), page, _("Transaction"));
+#. gtk_assistant_set_page_title (GTK_ASSISTANT (data->assistant), page, genacc->name);
+#: ../src/dsp_mainwindow.c:2817 ../src/list_operation.c:1144
+#: ../src/list_upcoming.c:462 ../src/rep_time.c:123 ../src/ui-account.c:1356
+#: ../src/ui-assist-import.c:1902 ../src/ui-dialogs.c:207
 msgid "Account"
 msgstr "Cuenta"
 
-#: ../src/dsp_mainwindow.c:2757 ../src/hb-export.c:448
-#: ../src/list_operation.c:1141 ../src/list_operation.c:1454
-#: ../src/list_upcoming.c:400 ../src/rep_stats.c:148 ../src/rep_time.c:123
-#: ../src/ui-archive.c:289 ../src/ui-assign.c:41 ../src/ui-dialogs.c:225
-#: ../src/ui-pref.c:125
+#: ../src/dsp_mainwindow.c:2820 ../src/hb-export.c:443
+#: ../src/list_operation.c:1178 ../src/list_upcoming.c:400
+#: ../src/rep_stats.c:148 ../src/rep_time.c:123 ../src/ui-archive.c:298
+#: ../src/ui-assign.c:41 ../src/ui-assist-import.c:330 ../src/ui-dialogs.c:225
+#: ../src/ui-pref.c:132
 msgid "Payee"
 msgstr "Beneficiariu"
 
 #. TRANSLATORS: an archive is stored transaction buffers (kind of bookmark to prefill manual insertion)
-#: ../src/dsp_mainwindow.c:2764
+#: ../src/dsp_mainwindow.c:2827
 msgid "Archive"
 msgstr "Ficheru"
 
 #. column: Income
-#: ../src/dsp_mainwindow.c:2767 ../src/dsp_mainwindow.c:2779
-#: ../src/rep_budget.c:74 ../src/rep_budget.c:966 ../src/rep_budget.c:1519
-#: ../src/rep_budget.c:1719
+#: ../src/dsp_mainwindow.c:2830 ../src/dsp_mainwindow.c:2842
+#: ../src/rep_budget.c:74 ../src/rep_budget.c:920 ../src/rep_budget.c:1474
+#: ../src/rep_budget.c:1674
 msgid "Budget"
 msgstr "Presupuestu"
 
-#: ../src/dsp_mainwindow.c:2770
+#: ../src/dsp_mainwindow.c:2833
 msgid "Show"
 msgstr "Amosar"
 
-#: ../src/dsp_mainwindow.c:2776
+#: ../src/dsp_mainwindow.c:2839
 msgid "Statistics"
 msgstr "Estadístiques"
 
 #. column: Balance
-#: ../src/dsp_mainwindow.c:2782 ../src/hb-export.c:452
-#: ../src/list_operation.c:1219 ../src/rep_balance.c:1312
+#: ../src/dsp_mainwindow.c:2845 ../src/hb-export.c:447
+#: ../src/list_operation.c:1257 ../src/rep_balance.c:1314
 #: ../src/rep_stats.c:159 ../src/rep_stats.c:1940 ../src/rep_stats.c:2123
 msgid "Balance"
 msgstr "Balance"
 
-#: ../src/dsp_mainwindow.c:2785 ../src/ui-hbfile.c:275
+#: ../src/dsp_mainwindow.c:2848 ../src/ui-hbfile.c:275
 msgid "Vehicle cost"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2827 ../src/ui-dialogs.c:482 ../src/ui-dialogs.c:544
-#: ../src/ui-dialogs.c:608
+#: ../src/dsp_mainwindow.c:2889 ../src/ui-assist-import.c:670
+#: ../src/ui-dialogs.c:484 ../src/ui-dialogs.c:546 ../src/ui-dialogs.c:627
 msgid "_Open"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2832
+#: ../src/dsp_mainwindow.c:2894
 msgid "Open a recently used file"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2959
+#: ../src/dsp_mainwindow.c:3021
 msgid "Your accounts"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2974 ../src/ui-budget.c:1112
-#: ../src/ui-category.c:1990
+#: ../src/dsp_mainwindow.c:3036 ../src/ui-budget.c:1113
+#: ../src/ui-category.c:1938
 msgid "Expand all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2978 ../src/ui-budget.c:1116
-#: ../src/ui-category.c:1994
+#: ../src/dsp_mainwindow.c:3040 ../src/ui-budget.c:1117
+#: ../src/ui-category.c:1942
 msgid "Collapse all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:2995
+#: ../src/dsp_mainwindow.c:3057
 msgid "Show all"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3000
+#: ../src/dsp_mainwindow.c:3062
 msgid "By type"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3001
+#: ../src/dsp_mainwindow.c:3063
 msgid "By institition"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3058
+#: ../src/dsp_mainwindow.c:3120
 msgid "Where your money goes"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3117
+#: ../src/dsp_mainwindow.c:3179
 msgid "Scheduled transactions"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3133
+#: ../src/dsp_mainwindow.c:3195
 msgid "Skip"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3137
+#: ../src/dsp_mainwindow.c:3199
 msgid "Edit & Post"
 msgstr ""
 
 #. TRANSLATORS: Posting a scheduled transaction is the action to materialize it into its target account.
 #. TRANSLATORS: Before that action the automated transaction occurrence is pending and not yet really existing.
-#: ../src/dsp_mainwindow.c:3143
+#: ../src/dsp_mainwindow.c:3205
 msgid "Post"
 msgstr ""
 
-#: ../src/dsp_mainwindow.c:3158
+#: ../src/dsp_mainwindow.c:3220
 msgid "maximum post date"
 msgstr ""
 
-#: ../src/hb-archive.c:171
+#: ../src/hb-archive.c:250
 msgid "(new archive)"
 msgstr "(ficheru nuevu)"
 
-#: ../src/hb-category.c:1007 ../src/hb-payee.c:579
+#: ../src/hb-category.c:934 ../src/hb-payee.c:559
 msgid "invalid CSV format"
 msgstr ""
 
-#: ../src/hb-export.c:446 ../src/list_operation.c:1118
-#: ../src/list_operation.c:1436 ../src/rep_balance.c:1293
-#: ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1098 ../src/ui-pref.c:1487
+#: ../src/hb-export.c:441 ../src/list_operation.c:1155
+#: ../src/rep_balance.c:1295 ../src/rep_vehicle.c:218 ../src/rep_vehicle.c:1098
+#: ../src/ui-assist-import.c:298
 msgid "Date"
 msgstr "Fecha"
 
-#: ../src/hb-export.c:447 ../src/list_operation.c:964 ../src/ui-pref.c:2189
+#: ../src/hb-export.c:442 ../src/list_operation.c:1003
+#: ../src/ui-assist-import.c:314 ../src/ui-pref.c:2348
 msgid "Info"
 msgstr "Información"
 
-#: ../src/hb-export.c:449 ../src/list_operation.c:1149
-#: ../src/list_operation.c:1445 ../src/list_upcoming.c:420
-#: ../src/ui-archive.c:273 ../src/ui-assign.c:40 ../src/ui-pref.c:124
-#: ../src/ui-split.c:410
+#: ../src/hb-export.c:444 ../src/list_operation.c:1186
+#: ../src/list_upcoming.c:420 ../src/ui-archive.c:282 ../src/ui-assign.c:40
+#: ../src/ui-assist-import.c:304 ../src/ui-pref.c:131 ../src/ui-split.c:220
+#: ../src/ui-split.c:768
 msgid "Memo"
 msgstr ""
 
 #. column: Amount
-#: ../src/hb-export.c:450 ../src/list_operation.c:1177
-#: ../src/list_operation.c:1448 ../src/rep_time.c:1795 ../src/rep_time.c:1917
-#: ../src/rep_vehicle.c:222 ../src/rep_vehicle.c:1143 ../src/ui-split.c:414
+#: ../src/hb-export.c:445 ../src/list_operation.c:1215 ../src/rep_time.c:1811
+#: ../src/rep_time.c:1933 ../src/rep_vehicle.c:222 ../src/rep_vehicle.c:1143
+#: ../src/ui-assist-import.c:310 ../src/ui-split.c:236 ../src/ui-split.c:772
 msgid "Amount"
 msgstr "Importe"
 
-#: ../src/hb-hbfile.c:595
+#: ../src/hb-hbfile.c:596 ../src/ui-assist-import.c:1902
 msgid "Unknown"
 msgstr ""
 
@@ -1061,32 +1104,30 @@ msgstr "Amosa la información de la versión y sal"
 msgid "[FILE]"
 msgstr "[FICHERU]"
 
-#: ../src/homebank.c:314
+#: ../src/homebank.c:345
 msgid "Browser error."
 msgstr ""
 
-#: ../src/homebank.c:315
+#: ../src/homebank.c:346
 #, c-format
 msgid "Could not display the URL '%s'"
 msgstr "Nun pudó estenderexase la URL '%s'"
 
-#: ../src/homebank.c:904 ../src/homebank.c:905
+#: ../src/homebank.c:939 ../src/homebank.c:940
 msgid "HomeBank options"
 msgstr "Opciones d'HomeBank"
 
-#: ../src/homebank.c:1034
+#: ../src/homebank.c:1069
 #, c-format
 msgid "Unable to open '%s', the file does not exist.\n"
 msgstr "Imposible abrir el «%s», el ficheru nun esiste.\n"
 
-#: ../src/hb-import-csv.c:251 ../src/hb-import.c:66
-#, c-format
-msgid "(account %d)"
-msgstr "(cuenta %d)"
+#: ../src/hb-import.c:1220
+msgid "imported account"
+msgstr ""
 
 #. gtk_widget_show(GTK_WIDGET(page));
-#: ../src/list_account.c:358 ../src/ui-assist-import.c:2090
-#: ../src/ui-filter.c:558 ../src/ui-filter.c:1486
+#: ../src/list_account.c:358 ../src/ui-filter.c:558 ../src/ui-filter.c:1486
 msgid "Accounts"
 msgstr ""
 
@@ -1105,31 +1146,31 @@ msgstr "Güei"
 msgid "Future"
 msgstr "Futuru"
 
-#: ../src/list_operation.c:483
+#: ../src/list_operation.c:498
 msgid "- split -"
 msgstr ""
 
-#: ../src/list_operation.c:1159
+#: ../src/list_operation.c:1196
 msgid "Status"
 msgstr ""
 
 #. column: Expense
-#: ../src/list_operation.c:1185 ../src/list_upcoming.c:434
-#: ../src/rep_balance.c:1304 ../src/rep_budget.c:72 ../src/rep_stats.c:157
+#: ../src/list_operation.c:1223 ../src/list_upcoming.c:434
+#: ../src/rep_balance.c:1306 ../src/rep_budget.c:72 ../src/rep_stats.c:157
 #: ../src/rep_stats.c:1940 ../src/rep_stats.c:2111 ../src/ui-category.c:39
 #: ../src/ui-filter.c:49
 msgid "Expense"
 msgstr "Gastu"
 
 #. column: Income
-#: ../src/list_operation.c:1193 ../src/list_upcoming.c:445
-#: ../src/rep_balance.c:1308 ../src/rep_budget.c:72 ../src/rep_stats.c:158
+#: ../src/list_operation.c:1231 ../src/list_upcoming.c:445
+#: ../src/rep_balance.c:1310 ../src/rep_budget.c:72 ../src/rep_stats.c:158
 #: ../src/rep_stats.c:1940 ../src/rep_stats.c:2117 ../src/ui-category.c:40
 #: ../src/ui-filter.c:50
 msgid "Income"
 msgstr "Ingresu"
 
-#: ../src/list_operation.c:1209
+#: ../src/list_operation.c:1247
 msgid "Tags"
 msgstr "Etiquetes"
 
@@ -1189,46 +1230,45 @@ msgstr "Amosar _detalles"
 msgid "%d/%d under %s"
 msgstr "%d/%d baxo %s"
 
-#: ../src/rep_balance.c:874
+#: ../src/rep_balance.c:876
 msgid "Balance report"
 msgstr ""
 
-#: ../src/rep_balance.c:897 ../src/rep_budget.c:1187 ../src/rep_stats.c:1608
-#: ../src/rep_time.c:1455 ../src/rep_vehicle.c:724
+#: ../src/rep_balance.c:899 ../src/rep_budget.c:1142 ../src/rep_stats.c:1608
+#: ../src/rep_time.c:1471 ../src/rep_vehicle.c:724
 msgid "Display"
 msgstr ""
 
-#: ../src/rep_balance.c:901 ../src/rep_time.c:1466 ../src/ui-archive.c:1008
-#: ../src/ui-assist-import.c:985 ../src/ui-transaction.c:1078
-#: ../src/ui-txn-multi.c:445
+#: ../src/rep_balance.c:903 ../src/rep_time.c:1482 ../src/ui-archive.c:1031
+#: ../src/ui-transaction.c:1093 ../src/ui-txn-multi.c:446
 msgid "A_ccount:"
 msgstr "_Cuenta:"
 
-#: ../src/rep_balance.c:908 ../src/rep_time.c:1490
+#: ../src/rep_balance.c:910 ../src/rep_time.c:1506
 msgid "Select _all"
 msgstr ""
 
-#: ../src/rep_balance.c:913
+#: ../src/rep_balance.c:915
 msgid "Each _day"
 msgstr ""
 
-#: ../src/rep_balance.c:924 ../src/rep_stats.c:1637 ../src/rep_time.c:1512
+#: ../src/rep_balance.c:926 ../src/rep_stats.c:1637 ../src/rep_time.c:1528
 msgid "_Zoom X:"
 msgstr ""
 
-#: ../src/rep_balance.c:936 ../src/rep_budget.c:1220 ../src/rep_stats.c:1656
-#: ../src/rep_time.c:1525 ../src/rep_vehicle.c:745
+#: ../src/rep_balance.c:938 ../src/rep_budget.c:1175 ../src/rep_stats.c:1656
+#: ../src/rep_time.c:1541 ../src/rep_vehicle.c:745
 msgid "Date filter"
 msgstr ""
 
-#: ../src/rep_balance.c:946 ../src/rep_budget.c:1230 ../src/rep_stats.c:1666
-#: ../src/rep_time.c:1535 ../src/rep_vehicle.c:755 ../src/ui-filter.c:1163
+#: ../src/rep_balance.c:948 ../src/rep_budget.c:1185 ../src/rep_stats.c:1666
+#: ../src/rep_time.c:1551 ../src/rep_vehicle.c:755 ../src/ui-filter.c:1163
 #: ../src/ui-filter.c:1266
 msgid "_From:"
 msgstr "_Dende:"
 
-#: ../src/rep_balance.c:952 ../src/rep_budget.c:1236 ../src/rep_stats.c:1672
-#: ../src/rep_time.c:1541 ../src/rep_vehicle.c:761 ../src/ui-filter.c:1169
+#: ../src/rep_balance.c:954 ../src/rep_budget.c:1191 ../src/rep_stats.c:1672
+#: ../src/rep_time.c:1557 ../src/rep_vehicle.c:761 ../src/ui-filter.c:1169
 #: ../src/ui-filter.c:1273
 msgid "_To:"
 msgstr "_Fasta:"
@@ -1242,13 +1282,13 @@ msgid "Spent & Budget"
 msgstr "Gastáu y Presupuestáu"
 
 #. column: Expense
-#: ../src/rep_budget.c:74 ../src/rep_budget.c:1519 ../src/rep_budget.c:1715
+#: ../src/rep_budget.c:74 ../src/rep_budget.c:1474 ../src/rep_budget.c:1670
 msgid "Spent"
 msgstr "Gastáu"
 
 #. column: Result
-#: ../src/rep_budget.c:74 ../src/rep_budget.c:966 ../src/rep_budget.c:1519
-#: ../src/rep_budget.c:1723 ../src/rep_stats.c:1940 ../src/rep_stats.c:2100
+#: ../src/rep_budget.c:74 ../src/rep_budget.c:920 ../src/rep_budget.c:1474
+#: ../src/rep_budget.c:1678 ../src/rep_stats.c:1940 ../src/rep_stats.c:2100
 msgid "Result"
 msgstr "Resultáu"
 
@@ -1260,82 +1300,82 @@ msgstr ""
 msgid "View results as stack bars"
 msgstr ""
 
-#: ../src/rep_budget.c:906
+#: ../src/rep_budget.c:862
 msgid " over"
 msgstr ""
 
-#: ../src/rep_budget.c:912
+#: ../src/rep_budget.c:868
 msgid " left"
 msgstr ""
 
-#: ../src/rep_budget.c:915
+#: ../src/rep_budget.c:871
 msgid " under"
 msgstr ""
 
 #. update stack chart
-#: ../src/rep_budget.c:960
+#: ../src/rep_budget.c:914
 #, c-format
 msgid "Budget for %s"
 msgstr ""
 
-#: ../src/rep_budget.c:1162
+#: ../src/rep_budget.c:1117
 msgid "Budget report"
 msgstr "Informe de presupuestu"
 
-#: ../src/rep_budget.c:1191 ../src/rep_time.c:1459
+#: ../src/rep_budget.c:1146 ../src/rep_time.c:1475
 msgid "_For:"
 msgstr "_Pa:"
 
-#: ../src/rep_budget.c:1199
+#: ../src/rep_budget.c:1154
 msgid "_Kind:"
 msgstr "_Triba:"
 
-#: ../src/rep_budget.c:1206
+#: ../src/rep_budget.c:1161
 msgid "Only out of budget"
 msgstr ""
 
 #. gtk_widget_set_halign (menu, GTK_ALIGN_END);
-#: ../src/rep_budget.c:1300 ../src/rep_stats.c:1745 ../src/rep_time.c:1608
+#: ../src/rep_budget.c:1255 ../src/rep_stats.c:1745 ../src/rep_time.c:1624
 msgid "_Result to clipboard"
 msgstr ""
 
-#: ../src/rep_budget.c:1304 ../src/rep_stats.c:1749 ../src/rep_time.c:1612
+#: ../src/rep_budget.c:1259 ../src/rep_stats.c:1749 ../src/rep_time.c:1628
 msgid "_Result to CSV"
 msgstr ""
 
-#: ../src/rep_budget.c:1308 ../src/rep_stats.c:1753 ../src/rep_time.c:1616
+#: ../src/rep_budget.c:1263 ../src/rep_stats.c:1753 ../src/rep_time.c:1632
 msgid "_Detail to clipboard"
 msgstr ""
 
-#: ../src/rep_budget.c:1313 ../src/rep_stats.c:1758 ../src/rep_time.c:1621
+#: ../src/rep_budget.c:1268 ../src/rep_stats.c:1758 ../src/rep_time.c:1637
 msgid "_Detail to CSV"
 msgstr ""
 
-#: ../src/rep_budget.c:1347
+#: ../src/rep_budget.c:1302
 msgid "Result:"
 msgstr ""
 
-#: ../src/rep_budget.c:1353
+#: ../src/rep_budget.c:1308
 msgid "Budget:"
 msgstr "Presupuestu:"
 
-#: ../src/rep_budget.c:1359
+#: ../src/rep_budget.c:1314
 msgid "Spent:"
 msgstr "Gastáu:"
 
-#: ../src/rep_budget.c:1480
+#: ../src/rep_budget.c:1435
 msgid "No account is defined to be part of the budget."
 msgstr ""
 
-#: ../src/rep_budget.c:1481
+#: ../src/rep_budget.c:1436
 msgid "You should include some accounts from the account dialog."
 msgstr ""
 
-#: ../src/rep_stats.c:65
+#: ../src/rep_stats.c:65 ../src/rep_time.c:67
 msgid "Column"
 msgstr "Columna"
 
-#: ../src/rep_stats.c:65
+#: ../src/rep_stats.c:65 ../src/rep_time.c:67
 msgid "View results as column"
 msgstr ""
 
@@ -1439,7 +1479,7 @@ msgstr "Avientu"
 msgid "%s by %s"
 msgstr ""
 
-#: ../src/rep_stats.c:1162 ../src/ui-payee.c:280 ../src/ui-payee.c:488
+#: ../src/rep_stats.c:1162 ../src/ui-payee.c:260 ../src/ui-payee.c:460
 msgid "(no payee)"
 msgstr ""
 
@@ -1528,41 +1568,41 @@ msgid "Dec"
 msgstr ""
 
 #. //TRANSLATORS: example 'Expense by Category'
-#: ../src/rep_time.c:589
+#: ../src/rep_time.c:603
 #, c-format
 msgid "%s Over Time"
 msgstr ""
 
 #. //TRANSLATORS: count of transaction in balancedrawn / count of total transaction under abalancedrawn amount threshold
-#: ../src/rep_time.c:1104
+#: ../src/rep_time.c:1120
 #, c-format
 msgid "Average: %s"
 msgstr ""
 
-#: ../src/rep_time.c:1432
+#: ../src/rep_time.c:1448
 msgid "Trend Time Report"
 msgstr ""
 
-#: ../src/rep_time.c:1474 ../src/ui-archive.c:1033 ../src/ui-assign.c:875
-#: ../src/ui-hbfile.c:279 ../src/ui-payee.c:926 ../src/ui-transaction.c:1104
-#: ../src/ui-txn-multi.c:477
+#: ../src/rep_time.c:1490 ../src/ui-archive.c:1056 ../src/ui-assign.c:875
+#: ../src/ui-hbfile.c:279 ../src/ui-payee.c:926 ../src/ui-transaction.c:1119
+#: ../src/ui-txn-multi.c:478
 msgid "_Category:"
 msgstr "Ca_tegoría:"
 
-#: ../src/rep_time.c:1482 ../src/ui-archive.c:1025 ../src/ui-assign.c:846
-#: ../src/ui-transaction.c:1095 ../src/ui-txn-multi.c:461
+#: ../src/rep_time.c:1498 ../src/ui-archive.c:1048 ../src/ui-assign.c:846
+#: ../src/ui-transaction.c:1110 ../src/ui-txn-multi.c:462
 msgid "_Payee:"
 msgstr "_Beneficiariu:"
 
-#: ../src/rep_time.c:1495
+#: ../src/rep_time.c:1511
 msgid "_Cumulate"
 msgstr ""
 
-#: ../src/rep_time.c:1500
+#: ../src/rep_time.c:1516
 msgid "_View by:"
 msgstr ""
 
-#: ../src/rep_time.c:1795 ../src/rep_time.c:1906
+#: ../src/rep_time.c:1811 ../src/rep_time.c:1922
 msgid "Time slice"
 msgstr ""
 
@@ -1643,7 +1683,7 @@ msgstr "Coste total:"
 msgid "(no type)"
 msgstr ""
 
-#: ../src/ui-account.c:42 ../src/ui-widgets.c:825
+#: ../src/ui-account.c:42 ../src/ui-widgets.c:839
 msgid "Cash"
 msgstr "Efectivu"
 
@@ -1651,7 +1691,7 @@ msgstr "Efectivu"
 msgid "Asset"
 msgstr ""
 
-#: ../src/ui-account.c:44 ../src/ui-widgets.c:823
+#: ../src/ui-account.c:44 ../src/ui-widgets.c:837
 msgid "Credit card"
 msgstr "Tarxeta de créitu"
 
@@ -1659,83 +1699,85 @@ msgstr "Tarxeta de créitu"
 msgid "Liability"
 msgstr ""
 
-#: ../src/ui-account.c:385 ../src/ui-assign.c:101 ../src/ui-currency.c:245
-#: ../src/ui-widgets.c:822
+#. populate_view_acc(data->LV_acc, GLOBALS->acc_list, TRUE);
+#. populate template
+#: ../src/ui-account.c:347 ../src/ui-account.c:1241 ../src/ui-assign.c:101
+#: ../src/ui-currency.c:245 ../src/ui-widgets.c:836
 msgid "(none)"
 msgstr "(nengún)"
 
-#: ../src/ui-account.c:544 ../src/ui-assign.c:252 ../src/ui-category.c:1035
-#: ../src/ui-currency.c:599 ../src/ui-payee.c:660
+#: ../src/ui-account.c:506 ../src/ui-assign.c:252 ../src/ui-category.c:994
+#: ../src/ui-currency.c:599 ../src/ui-payee.c:652
 msgid "Visible"
 msgstr "Visible"
 
 #. GTK_FILE_CHOOSER_ACTION_OPEN,
-#: ../src/ui-account.c:694 ../src/ui-assist-import.c:950
-#: ../src/ui-category.c:1324 ../src/ui-category.c:1472 ../src/ui-currency.c:777
+#: ../src/ui-account.c:656 ../src/ui-assist-import.c:668
+#: ../src/ui-category.c:1288 ../src/ui-category.c:1435 ../src/ui-currency.c:777
 #: ../src/ui-currency.c:1145 ../src/ui-dialogs.c:69 ../src/ui-dialogs.c:330
-#: ../src/ui-dialogs.c:440 ../src/ui-dialogs.c:495 ../src/ui-dialogs.c:555
-#: ../src/ui-dialogs.c:607 ../src/ui-dialogs.c:672 ../src/ui-dialogs.c:716
-#: ../src/ui-dialogs.c:855 ../src/ui-filter.c:1408 ../src/ui-hbfile.c:194
-#: ../src/ui-payee.c:884 ../src/ui-payee.c:1045 ../src/ui-pref.c:1971
-#: ../src/ui-split.c:365 ../src/ui-transaction.c:1194 ../src/ui-txn-multi.c:367
+#: ../src/ui-dialogs.c:442 ../src/ui-dialogs.c:497 ../src/ui-dialogs.c:557
+#: ../src/ui-dialogs.c:626 ../src/ui-dialogs.c:691 ../src/ui-dialogs.c:735
+#: ../src/ui-dialogs.c:874 ../src/ui-filter.c:1408 ../src/ui-hbfile.c:194
+#: ../src/ui-payee.c:884 ../src/ui-payee.c:1045 ../src/ui-pref.c:2121
+#: ../src/ui-split.c:699 ../src/ui-transaction.c:1210 ../src/ui-txn-multi.c:368
 msgid "_Cancel"
 msgstr ""
 
-#: ../src/ui-account.c:696 ../src/ui-assist-import.c:952
-#: ../src/ui-category.c:1326 ../src/ui-currency.c:779 ../src/ui-currency.c:1147
-#: ../src/ui-dialogs.c:331 ../src/ui-dialogs.c:857 ../src/ui-filter.c:1410
-#: ../src/ui-hbfile.c:196 ../src/ui-payee.c:886 ../src/ui-pref.c:1973
-#: ../src/ui-split.c:383 ../src/ui-transaction.c:1195 ../src/ui-txn-multi.c:369
+#. gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Remove"), GTK_RESPONSE_SPLIT_REM);
+#: ../src/ui-account.c:658 ../src/ui-category.c:1290 ../src/ui-currency.c:779
+#: ../src/ui-currency.c:1147 ../src/ui-dialogs.c:331 ../src/ui-dialogs.c:876
+#: ../src/ui-filter.c:1410 ../src/ui-hbfile.c:196 ../src/ui-payee.c:886
+#: ../src/ui-pref.c:2123 ../src/ui-split.c:713 ../src/ui-transaction.c:1211
+#: ../src/ui-txn-multi.c:370
 msgid "_OK"
 msgstr ""
 
-#: ../src/ui-account.c:1004 ../src/ui-account.c:1111
+#: ../src/ui-account.c:972 ../src/ui-account.c:1085
 msgid "Account name"
 msgstr ""
 
-#: ../src/ui-account.c:1010 ../src/ui-account.c:1117
-#: ../src/ui-assist-import.c:1045 ../src/ui-category.c:1395
+#: ../src/ui-account.c:978 ../src/ui-account.c:1091 ../src/ui-category.c:1359
 #: ../src/ui-payee.c:978
 msgid "Error"
 msgstr "Fallu"
 
-#: ../src/ui-account.c:1011
+#: ../src/ui-account.c:979
 #, c-format
 msgid ""
 "Cannot add an account '%s',\n"
 "this name already exists."
 msgstr ""
 
-#: ../src/ui-account.c:1053
+#: ../src/ui-account.c:1027
 #, c-format
 msgid "Cannot delete account '%s'"
 msgstr ""
 
-#: ../src/ui-account.c:1057
+#: ../src/ui-account.c:1031
 msgid ""
 "This account contains transactions and/or is part of internal transfers."
 msgstr ""
 
-#: ../src/ui-account.c:1068 ../src/ui-archive.c:389 ../src/ui-assign.c:551
-#: ../src/ui-category.c:1580 ../src/ui-currency.c:1539 ../src/ui-payee.c:1148
+#: ../src/ui-account.c:1042 ../src/ui-archive.c:399 ../src/ui-assign.c:551
+#: ../src/ui-category.c:1547 ../src/ui-currency.c:1539 ../src/ui-payee.c:1152
 #, c-format
 msgid "Are you sure you want to permanently delete '%s'?"
 msgstr ""
 
-#: ../src/ui-account.c:1070
+#: ../src/ui-account.c:1044
 msgid "If you delete an account, it will be permanently lost."
 msgstr ""
 
-#: ../src/ui-account.c:1076 ../src/ui-account.c:1337 ../src/ui-archive.c:397
-#: ../src/ui-archive.c:1218 ../src/ui-assign.c:559 ../src/ui-assign.c:775
-#: ../src/ui-category.c:1144 ../src/ui-category.c:1592
-#: ../src/ui-category.c:2011 ../src/ui-currency.c:1547
-#: ../src/ui-currency.c:1734 ../src/ui-payee.c:751 ../src/ui-payee.c:1160
-#: ../src/ui-payee.c:1332
+#: ../src/ui-account.c:1050 ../src/ui-account.c:1330 ../src/ui-archive.c:407
+#: ../src/ui-archive.c:1246 ../src/ui-assign.c:559 ../src/ui-assign.c:775
+#: ../src/ui-category.c:1103 ../src/ui-category.c:1559
+#: ../src/ui-category.c:1987 ../src/ui-currency.c:1547
+#: ../src/ui-currency.c:1734 ../src/ui-payee.c:743 ../src/ui-payee.c:1164
+#: ../src/ui-payee.c:1379
 msgid "_Delete"
 msgstr ""
 
-#: ../src/ui-account.c:1118 ../src/ui-assist-import.c:1046
+#: ../src/ui-account.c:1092
 #, c-format
 msgid ""
 "Cannot rename this Account,\n"
@@ -1746,93 +1788,101 @@ msgstr ""
 "«%s» como «%s» porque ya esiste\n"
 "otra cuenta con esi nome."
 
-#: ../src/ui-account.c:1276
+#: ../src/ui-account.c:1269
 msgid "Manage Accounts"
 msgstr "Xestionar cuentes"
 
-#: ../src/ui-account.c:1327
+#: ../src/ui-account.c:1320
 msgid ""
 "Drag & drop to change the order\n"
 "Double-click to rename"
 msgstr ""
 
-#: ../src/ui-account.c:1333 ../src/ui-archive.c:1214 ../src/ui-assign.c:771
-#: ../src/ui-currency.c:1726 ../src/ui-transaction.c:1205
+#: ../src/ui-account.c:1326 ../src/ui-archive.c:1242 ../src/ui-assign.c:771
+#: ../src/ui-category.c:1977 ../src/ui-currency.c:1726 ../src/ui-payee.c:1369
+#: ../src/ui-transaction.c:1221
 msgid "_Add"
 msgstr ""
 
-#: ../src/ui-account.c:1354 ../src/ui-hbfile.c:222 ../src/ui-pref.c:79
-#: ../src/ui-pref.c:1357 ../src/ui-pref.c:1670
+#: ../src/ui-account.c:1347 ../src/ui-hbfile.c:222 ../src/ui-pref.c:84
+#: ../src/ui-pref.c:1353 ../src/ui-pref.c:1725
 msgid "General"
 msgstr "Xeneral"
 
-#: ../src/ui-account.c:1374
+#: ../src/ui-account.c:1367
 msgid "_Currency:"
 msgstr ""
 
-#: ../src/ui-account.c:1381
+#: ../src/ui-account.c:1374
 msgid "Start _balance:"
 msgstr ""
 
-#: ../src/ui-account.c:1389
+#: ../src/ui-account.c:1382
 msgid "Notes:"
 msgstr ""
 
-#: ../src/ui-account.c:1405
+#: ../src/ui-account.c:1398
 msgid "this account was _closed"
 msgstr ""
 
-#: ../src/ui-account.c:1416
+#: ../src/ui-account.c:1409
 msgid "Current check number"
 msgstr ""
 
-#: ../src/ui-account.c:1420
+#: ../src/ui-account.c:1413
 msgid "Checkbook _1:"
 msgstr ""
 
-#: ../src/ui-account.c:1427
+#: ../src/ui-account.c:1420
 msgid "Checkbook _2:"
 msgstr ""
 
-#: ../src/ui-account.c:1439 ../src/ui-budget.c:1212
+#: ../src/ui-account.c:1432 ../src/ui-budget.c:1213
 msgid "Options"
 msgstr ""
 
-#: ../src/ui-account.c:1448
+#: ../src/ui-account.c:1441
 msgid "Institution"
 msgstr ""
 
-#: ../src/ui-account.c:1452 ../src/ui-assist-start.c:380
-#: ../src/ui-assist-import.c:973 ../src/ui-currency.c:1228
-#: ../src/ui-payee.c:909
+#: ../src/ui-account.c:1445 ../src/ui-assist-start.c:379
+#: ../src/ui-currency.c:1228 ../src/ui-payee.c:909
 msgid "_Name:"
 msgstr "_Nome:"
 
-#: ../src/ui-account.c:1460 ../src/ui-assist-start.c:400
+#: ../src/ui-account.c:1453 ../src/ui-assist-start.c:399
 msgid "N_umber:"
 msgstr ""
 
-#: ../src/ui-account.c:1473
+#: ../src/ui-account.c:1466
 msgid "Balance limits"
 msgstr ""
 
-#: ../src/ui-account.c:1479
+#: ../src/ui-account.c:1472
 msgid "_Overdraft at:"
 msgstr ""
 
-#: ../src/ui-account.c:1491
+#: ../src/ui-account.c:1484
+msgid "Miscellaneous"
+msgstr ""
+
+#: ../src/ui-account.c:1488
+msgid "Default _Template:"
+msgstr ""
+
+#: ../src/ui-account.c:1502
 msgid "Report exclusion"
 msgstr ""
 
-#: ../src/ui-account.c:1495
+#: ../src/ui-account.c:1506
 msgid "exclude from account _summary"
 msgstr ""
 
-#: ../src/ui-account.c:1500
+#: ../src/ui-account.c:1511
 msgid "exclude from the _budget"
 msgstr ""
 
-#: ../src/ui-account.c:1505
+#: ../src/ui-account.c:1516
 msgid "exclude from any _reports"
 msgstr ""
 
@@ -1856,72 +1906,77 @@ msgstr ""
 msgid "After"
 msgstr ""
 
-#: ../src/ui-archive.c:344
+#: ../src/ui-archive.c:353
 #, c-format
 msgid "(template %d)"
 msgstr ""
 
-#: ../src/ui-archive.c:391
+#: ../src/ui-archive.c:401
 msgid "If you delete a scheduled/template, it will be permanently lost."
 msgstr ""
 
-#: ../src/ui-archive.c:974 ../src/ui-transaction.c:1038
+#: ../src/ui-archive.c:997 ../src/ui-transaction.c:1053
 msgid "_Amount:"
 msgstr "_Importe:"
 
-#: ../src/ui-archive.c:982 ../src/ui-transaction.c:1046
+#: ../src/ui-archive.c:1005 ../src/ui-transaction.c:1061
 msgid "Toggle amount sign"
 msgstr ""
 
-#: ../src/ui-archive.c:990 ../src/ui-split.c:362 ../src/ui-transaction.c:1054
+#: ../src/ui-archive.c:1013 ../src/ui-split.c:696 ../src/ui-transaction.c:1069
 msgid "Transaction splits"
 msgstr ""
 
-#: ../src/ui-archive.c:993 ../src/ui-assign.c:903
+#: ../src/ui-archive.c:1016 ../src/ui-assign.c:903
 msgid "Pay_ment:"
 msgstr "_Pagu:"
 
-#: ../src/ui-archive.c:1001 ../src/ui-transaction.c:1065
+#: ../src/ui-archive.c:1024 ../src/ui-transaction.c:1080
 msgid "Of notebook _2"
 msgstr "Del talonariu _2"
 
-#: ../src/ui-archive.c:1016
+#: ../src/ui-archive.c:1039
 msgid "_To account:"
 msgstr "A la cue_nta:"
 
-#: ../src/ui-archive.c:1049 ../src/ui-filter.c:1213
+#: ../src/ui-archive.c:1072 ../src/ui-filter.c:1213
 msgid "_Memo:"
 msgstr ""
 
-#: ../src/ui-archive.c:1073
+#: ../src/ui-archive.c:1080 ../src/ui-transaction.c:1144
+#: ../src/ui-txn-multi.c:494
+msgid "Ta_gs:"
+msgstr ""
+
+#: ../src/ui-archive.c:1101
 msgid "Scheduled insertion"
 msgstr ""
 
-#: ../src/ui-archive.c:1078
+#: ../src/ui-archive.c:1106
 msgid "_Activate"
 msgstr "Activa_r"
 
-#: ../src/ui-archive.c:1083
+#: ../src/ui-archive.c:1111
 msgid "Next _date:"
 msgstr ""
 
-#: ../src/ui-archive.c:1091
+#: ../src/ui-archive.c:1119
 msgid "Ever_y:"
 msgstr "Ca_da:"
 
-#: ../src/ui-archive.c:1107
+#: ../src/ui-archive.c:1135
 msgid "Week end:"
 msgstr ""
 
-#: ../src/ui-archive.c:1119
+#: ../src/ui-archive.c:1147
 msgid "_Stop after:"
 msgstr ""
 
-#: ../src/ui-archive.c:1127
+#: ../src/ui-archive.c:1155
 msgid "posts"
 msgstr ""
 
-#: ../src/ui-archive.c:1149
+#: ../src/ui-archive.c:1177
 msgid "Manage scheduled/template transactions"
 msgstr ""
 
@@ -1987,282 +2042,269 @@ msgstr ""
 msgid "Assign payment"
 msgstr ""
 
-#: ../src/ui-assist-start.c:140
+#: ../src/ui-assist-start.c:139
 #, c-format
 msgid "New HomeBank file (%d of %d)"
 msgstr ""
 
-#: ../src/ui-assist-start.c:171
+#: ../src/ui-assist-start.c:170
 msgid "Not found"
 msgstr ""
 
-#: ../src/ui-assist-start.c:268 ../src/ui-hbfile.c:226
+#: ../src/ui-assist-start.c:267 ../src/ui-hbfile.c:226
 msgid "_Owner:"
 msgstr "_Propietariu:"
 
-#: ../src/ui-assist-start.c:276 ../src/ui-dialogs.c:369
+#: ../src/ui-assist-start.c:275 ../src/ui-dialogs.c:369
 msgid "Currency:"
 msgstr ""
 
-#: ../src/ui-assist-start.c:292 ../src/ui-assist-import.c:1812
-#: ../src/ui-hbfile.c:191
+#: ../src/ui-assist-start.c:291 ../src/ui-hbfile.c:191
 msgid "File properties"
 msgstr ""
 
-#: ../src/ui-assist-start.c:314
+#: ../src/ui-assist-start.c:313
 msgid "System detection"
 msgstr ""
 
-#: ../src/ui-assist-start.c:318
+#: ../src/ui-assist-start.c:317
 msgid "Languages:"
 msgstr ""
 
-#: ../src/ui-assist-start.c:325
+#: ../src/ui-assist-start.c:324
 msgid "Preset file:"
 msgstr ""
 
-#: ../src/ui-assist-start.c:343
+#: ../src/ui-assist-start.c:342
 msgid "Initialize my categories with this file"
 msgstr ""
 
-#: ../src/ui-assist-start.c:355
+#: ../src/ui-assist-start.c:354
 msgid "Preset categories"
 msgstr ""
 
-#: ../src/ui-assist-start.c:376
+#: ../src/ui-assist-start.c:375
 msgid "Information"
 msgstr ""
 
-#: ../src/ui-assist-start.c:411
+#: ../src/ui-assist-start.c:410
 msgid "Balances"
 msgstr ""
 
-#: ../src/ui-assist-start.c:415
+#: ../src/ui-assist-start.c:414
 msgid "_Initial:"
 msgstr "_Inicial:"
 
-#: ../src/ui-assist-start.c:422
+#: ../src/ui-assist-start.c:421
 msgid "_Overdrawn at:"
 msgstr "Númberos _coloraos en:"
 
-#: ../src/ui-assist-start.c:431
+#: ../src/ui-assist-start.c:430
 msgid "Create an account"
 msgstr ""
 
-#: ../src/ui-assist-start.c:441
+#: ../src/ui-assist-start.c:440
 msgid "This is a confirmation page, press 'Apply' to apply changes"
 msgstr ""
 
-#: ../src/ui-assist-start.c:447 ../src/ui-assist-import.c:62
+#: ../src/ui-assist-start.c:446 ../src/ui-assist-import.c:2070
 msgid "Confirmation"
 msgstr ""
 
-#: ../src/ui-assist-import.c:56
-msgid "Welcome"
+#: ../src/ui-assist-import.c:408
+msgid "<New account (global)>"
 msgstr ""
 
-#: ../src/ui-assist-import.c:57
-msgid "Select file"
+#: ../src/ui-assist-import.c:413
+msgid "<New account>"
 msgstr ""
 
-#: ../src/ui-assist-import.c:58
-msgid "Import"
+#: ../src/ui-assist-import.c:434
+msgid "<Skip this account>"
 msgstr ""
 
-#: ../src/ui-assist-import.c:59
-msgid "Properties"
+#: ../src/ui-assist-import.c:577
+msgid "Valid"
 msgstr ""
 
-#: ../src/ui-assist-import.c:61 ../src/ui-dialogs.c:216
-msgid "Transaction"
+#: ../src/ui-assist-import.c:588 ../src/ui-category.c:1011
+#: ../src/ui-currency.c:616 ../src/ui-currency.c:1209 ../src/ui-payee.c:669
+msgid "Name"
 msgstr ""
 
-#: ../src/ui-assist-import.c:132 ../src/ui-assist-import.c:969
-msgid "create new"
-msgstr ""
-
-#: ../src/ui-assist-import.c:134 ../src/ui-assist-import.c:981
-msgid "use existing"
-msgstr ""
-
-#: ../src/ui-assist-import.c:216
-msgid "Name in the file"
-msgstr ""
-
-#: ../src/ui-assist-import.c:224
-msgid "Action"
-msgstr "Aición"
-
-#: ../src/ui-assist-import.c:232
-msgid "Name in HomeBank"
-msgstr ""
-
-#: ../src/ui-assist-import.c:597 ../src/ui-assist-import.c:854
-msgid "All seems all right here, your validation is optional!"
-msgstr ""
-
-#: ../src/ui-assist-import.c:610
-#, c-format
-msgid ""
-"No account information has been found into the file '%s'.\n"
-"Please select the appropriate action for account below."
-msgstr ""
-
-#: ../src/ui-assist-import.c:860
-msgid ""
-"Possible duplicate of existing transaction have been found, and disabled for "
-"import.\n"
-"Please check and choose the ones that have to be imported."
-msgstr ""
-
-#: ../src/ui-assist-import.c:947
-msgid "Change account action"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1094
-msgid "Please select a file..."
-msgstr "Seleiciona un ficheru..."
-
-#: ../src/ui-assist-import.c:1111
-msgid "QIF file recognised !"
-msgstr "¡ Ficheru QIF reconocíu !"
-
-#: ../src/ui-assist-import.c:1117
-msgid "OFX file recognised !"
-msgstr "¡ Ficheru OFX reconocíu !"
-
-#: ../src/ui-assist-import.c:1120
-msgid "** OFX support is disabled **"
-msgstr "** El sofitu OFX foi dehabilitáu **"
-
-#: ../src/ui-assist-import.c:1125
-msgid "CSV transaction file recognised !"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1131
-msgid "Unknown/Invalid file..."
-msgstr "Ficheru Desconocíu/Non válidu"
-
-#. file content detail
-#. TODO: difficult translation here
-#: ../src/ui-assist-import.c:1237
-#, c-format
-msgid "account: %d - transaction: %d - payee: %d - categorie: %d"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1358
-msgid "Some date conversion failed"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1359
-#, c-format
-msgid "Reload using date order: '%s' ?"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1574
-#, c-format
-msgid "Import assistant (%d of %d)"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1628
-msgid ""
-"Welcome to the HomeBank Import Assistant.\n"
-"\n"
-"With this assistant you will be guided through the process\n"
-"of importing an external file into HomeBank.\n"
-"\n"
-"No changes will be made until you click \"Apply\" at the end\n"
-"of this assistant."
-msgstr ""
-
-#: ../src/ui-assist-import.c:1640
-msgid ""
-"HomeBank can import files in the following formats:\n"
-"- QIF\n"
-"- OFX/QFX (optional at compilation time)\n"
-"- CSV (format is specific to HomeBank, see the documentation)\n"
-msgstr ""
-
-#: ../src/ui-assist-import.c:1680
+#: ../src/ui-assist-import.c:682
 msgid "Known files"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1691 ../src/ui-dialogs.c:446
+#: ../src/ui-assist-import.c:693 ../src/ui-dialogs.c:448
 msgid "QIF files"
 msgstr "Ficheros QIF"
 
-#: ../src/ui-assist-import.c:1699
+#: ../src/ui-assist-import.c:701
 msgid "OFX/QFX files"
 msgstr "Ficheros OFX/QFX"
 
-#: ../src/ui-assist-import.c:1707 ../src/ui-dialogs.c:504
+#: ../src/ui-assist-import.c:709 ../src/ui-dialogs.c:506
 msgid "CSV files"
 msgstr "Ficheros CSV"
 
-#. ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("Backup files"), "*.[Bb][Aa][Kk]");
-#: ../src/ui-assist-import.c:1715 ../src/ui-dialogs.c:447
-#: ../src/ui-dialogs.c:505 ../src/ui-dialogs.c:561
+#: ../src/ui-assist-import.c:716 ../src/ui-dialogs.c:449
+#: ../src/ui-dialogs.c:507 ../src/ui-dialogs.c:564
 msgid "All files"
 msgstr "Tolos ficheros"
 
-#: ../src/ui-assist-import.c:1779
-msgid "A general error occurred, and this file cannot be loaded."
+#: ../src/ui-assist-import.c:775
+msgid "new global account"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1816
-msgid "Name:"
+#: ../src/ui-assist-import.c:778
+msgid "new account"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1823
-msgid "Path:"
+#: ../src/ui-assist-import.c:781
+msgid "skipped"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1830
-msgid "Encoding:"
+#: ../src/ui-assist-import.c:800
+#, c-format
+msgid ", %d of %d transactions"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1837
-msgid "Date format:"
+#: ../src/ui-assist-import.c:1022
+msgid ""
+"Some date cannot be converted. Please try to change the date order to "
+"continue."
 msgstr ""
 
-#: ../src/ui-assist-import.c:1849
-msgid "File content"
+#. label = g_strdup_printf(_("'%s' - %s"), genacc->name, hb_import_filetype_char_get(genacc));
+#: ../src/ui-assist-import.c:1177
+#, c-format
+msgid "Import <b>%s</b> in_to:"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1853
-msgid "Content:"
+#: ../src/ui-assist-import.c:1177
+msgid "this file"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1919
-msgid "Choose the action for accounts"
+#: ../src/ui-assist-import.c:1177
+msgid "this account"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1935
-msgid "Change _action"
+#: ../src/ui-assist-import.c:1184
+#, c-format
+msgid ""
+"Name: %s\n"
+"Number: %s\n"
+"File: %s\n"
+"Encoding: %s"
 msgstr ""
 
-#: ../src/ui-assist-import.c:1989
-msgid "Choose transactions to import"
+#: ../src/ui-assist-import.c:1234
+msgid "Import transactions from bank or credit card"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2003
-msgid "Detail of existing transaction (possible duplicate)"
+#: ../src/ui-assist-import.c:1242
+msgid ""
+"With this assistant you will be guided through the process of importing one "
+"or several\n"
+"downloaded statements from your bank or credit card, in the following "
+"formats:"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2025
-msgid "Date _tolerance:"
-msgstr "_Tolerancia de fecha"
+#: ../src/ui-assist-import.c:1248
+msgid ""
+"<b>Recommended:</b> .OFX or .QFX\n"
+"<i>(Sometimes named Money™ or Quicken™)</i>\n"
+"<b>Supported:</b> .QIF\n"
+"<i>(Common Quicken™ file)</i>\n"
+"<b>Advanced users only:</b> .CSV\n"
+"<i>(format is specific to HomeBank, see the documentation)</i>"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1268
+msgid ""
+"No changes will be made until you click \"Apply\" at the end of this "
+"assistant."
+msgstr ""
+
+#: ../src/ui-assist-import.c:1272
+msgid "Don't show this again"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1331
+msgid ""
+"Drag&Drop one or several files to import.\n"
+"You can also use the add/remove buttons of the list."
+msgstr ""
+
+#: ../src/ui-assist-import.c:1407
+msgid ""
+"There is too much account in the files you choosed,\n"
+"please use the back button to select less files."
+msgstr ""
+
+#: ../src/ui-assist-import.c:1516
+msgid "Target account identification by name or number failed."
+msgstr ""
+
+#: ../src/ui-assist-import.c:1529 ../src/ui-pref.c:1136
+msgid "Date order:"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1545 ../src/ui-pref.c:1182
+msgid "_Import memos"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1549 ../src/ui-pref.c:1185
+msgid "_Swap memos with payees"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1559 ../src/ui-pref.c:1155
+msgid "OFX _Name:"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1565 ../src/ui-pref.c:1164
+msgid "OFX _Memo:"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1581 ../src/ui-filter.c:337 ../src/ui-filter.c:451
+#: ../src/ui-filter.c:565
+msgid "Select:"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1584 ../src/ui-filter.c:340 ../src/ui-filter.c:454
+#: ../src/ui-filter.c:568
+msgid "All"
+msgstr "Toos"
+
+#: ../src/ui-assist-import.c:1588 ../src/ui-filter.c:345 ../src/ui-filter.c:459
+#: ../src/ui-filter.c:573 ../src/ui-pref.c:106 ../src/ui-transaction.c:57
+msgid "None"
+msgstr "Dengún"
+
+#: ../src/ui-assist-import.c:1592 ../src/ui-filter.c:350 ../src/ui-filter.c:464
+#: ../src/ui-filter.c:578
+msgid "Invert"
+msgstr "Invertir"
+
+#: ../src/ui-assist-import.c:1609 ../src/ui-pref.c:1199
+msgid "Sentence _case memo/payee"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1643
+msgid "Similar transaction in target account (possible duplicate)"
+msgstr ""
+
+#: ../src/ui-assist-import.c:1667
+msgid "Date _gap:"
+msgstr ""
 
 #. TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days of date tolerance
-#: ../src/ui-assist-import.c:2033
+#: ../src/ui-assist-import.c:1675
 msgid "days"
 msgstr "díes"
 
-#: ../src/ui-assist-import.c:2036
-msgid "_Refresh"
-msgstr ""
-
-#: ../src/ui-assist-import.c:2046
+#: ../src/ui-assist-import.c:1683
 msgid ""
 "The match is done in order: by account, amount and date.\n"
 "A date tolerance of 0 day means an exact match"
@@ -2270,116 +2312,100 @@ msgstr ""
 "La concordancia faese nel siguiente orde: cuenta, importe, fecha.\n"
 "Una tolerancia de fecha de 0 díes implica una concordancia exacta."
 
-#: ../src/ui-assist-import.c:2079
+#: ../src/ui-assist-import.c:1746
 msgid "Click \"Apply\" to update your accounts.\n"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2102
-msgid "to update"
+#: ../src/ui-assist-import.c:2047
+msgid "Welcome"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2110
-msgid "to create"
+#: ../src/ui-assist-import.c:2052
+msgid "Select file(s)"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2114 ../src/ui-pref.c:81
-msgid "Transactions"
+#. gtk_assistant_set_page_type (GTK_ASSISTANT (assistant), page, GTK_ASSISTANT_PAGE_PROGRESS);
+#: ../src/ui-assist-import.c:2057
+msgid "Import"
 msgstr ""
 
-#: ../src/ui-assist-import.c:2123
-msgid "to import"
-msgstr ""
-
-#: ../src/ui-assist-import.c:2131
-msgid "to reject"
-msgstr ""
-
-#: ../src/ui-assist-import.c:2139
-msgid "auto-assigned"
-msgstr ""
-
-#: ../src/ui-budget.c:518 ../src/ui-category.c:1184 ../src/ui-payee.c:790
+#: ../src/ui-budget.c:519 ../src/ui-category.c:1143 ../src/ui-payee.c:782
 msgid "File format error"
 msgstr "Fallu nel formatu del ficheru"
 
-#: ../src/ui-budget.c:519 ../src/ui-category.c:1185 ../src/ui-payee.c:791
+#: ../src/ui-budget.c:520 ../src/ui-category.c:1144 ../src/ui-payee.c:783
 msgid ""
 "The CSV file must contains the exact numbers of column,\n"
 "separated by a semi-colon, please see the help for more details."
 msgstr ""
 
-#: ../src/ui-budget.c:703
+#: ../src/ui-budget.c:704
 msgid "Are you sure you want to clear input?"
 msgstr ""
 
-#: ../src/ui-budget.c:705
+#: ../src/ui-budget.c:706
 msgid "If you proceed, every amount will be set to 0."
 msgstr ""
 
-#: ../src/ui-budget.c:711
+#: ../src/ui-budget.c:712
 msgid "_Clear"
 msgstr ""
 
-#: ../src/ui-budget.c:1004
+#: ../src/ui-budget.c:1005
 msgid "Manage Budget"
 msgstr "Xestionar presupuestu"
 
-#: ../src/ui-budget.c:1047 ../src/ui-category.c:1882 ../src/ui-payee.c:1272
+#: ../src/ui-budget.c:1048 ../src/ui-category.c:1849 ../src/ui-payee.c:1300
 msgid "_Import CSV"
 msgstr ""
 
-#: ../src/ui-budget.c:1051 ../src/ui-category.c:1886 ../src/ui-payee.c:1276
+#: ../src/ui-budget.c:1052 ../src/ui-category.c:1853 ../src/ui-payee.c:1304
 msgid "E_xport CSV"
 msgstr ""
 
-#: ../src/ui-budget.c:1138
+#: ../src/ui-budget.c:1139
 msgid "Budget for each month"
 msgstr ""
 
-#: ../src/ui-budget.c:1145
+#: ../src/ui-budget.c:1146
 msgid "is the same"
 msgstr "ye'l mesmu"
 
-#: ../src/ui-budget.c:1159
+#: ../src/ui-budget.c:1160
 msgid "_Clear input"
 msgstr ""
 
-#: ../src/ui-budget.c:1174
+#: ../src/ui-budget.c:1175
 msgid "is different"
 msgstr "ye distintu"
 
-#: ../src/ui-budget.c:1217
+#: ../src/ui-budget.c:1218
 msgid "_Force monitoring this category"
 msgstr ""
 
-#: ../src/ui-category.c:1052 ../src/ui-currency.c:616 ../src/ui-currency.c:1209
-#: ../src/ui-payee.c:677
-msgid "Name"
-msgstr ""
-
-#: ../src/ui-category.c:1064 ../src/ui-payee.c:693
+#: ../src/ui-category.c:1023 ../src/ui-payee.c:685
 msgid "Usage"
 msgstr ""
 
-#: ../src/ui-category.c:1142
+#: ../src/ui-category.c:1101
 msgid "Delete unused categories"
 msgstr ""
 
-#: ../src/ui-category.c:1143
+#: ../src/ui-category.c:1102
 msgid ""
 "Are you sure you want to permanently\n"
 "delete unused categories?"
 msgstr ""
 
-#: ../src/ui-category.c:1321 ../src/ui-payee.c:881
+#: ../src/ui-category.c:1285 ../src/ui-payee.c:881
 msgid "Edit..."
 msgstr ""
 
-#: ../src/ui-category.c:1345
+#: ../src/ui-category.c:1309
 msgid "_Income"
 msgstr "_Ingresu"
 
-#: ../src/ui-category.c:1396
+#: ../src/ui-category.c:1360
 #, c-format
 msgid ""
 "Cannot rename this Category,\n"
@@ -2390,49 +2416,49 @@ msgstr ""
 "de «%s» a «%s» porque\n"
 "esi nome ya esiste."
 
-#: ../src/ui-category.c:1461
+#: ../src/ui-category.c:1424
 #, c-format
 msgid "Merge category '%s'"
 msgstr ""
 
-#: ../src/ui-category.c:1473 ../src/ui-payee.c:1046
+#: ../src/ui-category.c:1436 ../src/ui-payee.c:1046
 msgid "Merge"
 msgstr ""
 
-#: ../src/ui-category.c:1482
+#: ../src/ui-category.c:1445
 msgid ""
 "Transactions assigned to this category,\n"
 "will be moved to the category selected below."
 msgstr ""
 
-#: ../src/ui-category.c:1492
+#: ../src/ui-category.c:1455
 #, c-format
 msgid "_Delete the category '%s'"
 msgstr ""
 
-#: ../src/ui-category.c:1584
+#: ../src/ui-category.c:1551
 msgid ""
 "This category is used.\n"
 "Any transaction using that category will be set to (no category)"
 msgstr ""
 
-#: ../src/ui-category.c:1833
+#: ../src/ui-category.c:1800
 msgid "Manage Categories"
 msgstr "Xestionar categoríes"
 
-#: ../src/ui-category.c:1893 ../src/ui-payee.c:1283
+#: ../src/ui-category.c:1860 ../src/ui-payee.c:1311
 msgid "_Delete unused"
 msgstr ""
 
-#: ../src/ui-category.c:1913
+#: ../src/ui-category.c:1955
 msgid "new category"
 msgstr ""
 
-#: ../src/ui-category.c:1926
+#: ../src/ui-category.c:1967
 msgid "new subcategory"
 msgstr ""
 
-#: ../src/ui-category.c:2008 ../src/ui-payee.c:1329
+#: ../src/ui-category.c:1984 ../src/ui-payee.c:1376
 msgid "_Merge"
 msgstr ""
 
@@ -2444,7 +2470,7 @@ msgstr ""
 msgid "Symbol"
 msgstr ""
 
-#: ../src/ui-currency.c:639 ../src/ui-currency.c:819 ../src/ui-pref.c:1399
+#: ../src/ui-currency.c:639 ../src/ui-currency.c:819 ../src/ui-pref.c:1395
 msgid "Exchange rate"
 msgstr ""
 
@@ -2456,35 +2482,35 @@ msgstr ""
 msgid "Edit currency"
 msgstr ""
 
-#: ../src/ui-currency.c:805 ../src/ui-pref.c:1372
+#: ../src/ui-currency.c:805 ../src/ui-pref.c:1368
 msgid "Currency"
 msgstr ""
 
-#: ../src/ui-currency.c:838 ../src/ui-pref.c:1417
+#: ../src/ui-currency.c:838 ../src/ui-pref.c:1413
 msgid "Format"
 msgstr ""
 
-#: ../src/ui-currency.c:847 ../src/ui-pref.c:1426 ../src/ui-pref.c:1496
+#: ../src/ui-currency.c:847 ../src/ui-pref.c:1422 ../src/ui-pref.c:1502
 msgid "_Customize"
 msgstr ""
 
-#: ../src/ui-currency.c:856 ../src/ui-pref.c:1435
+#: ../src/ui-currency.c:856 ../src/ui-pref.c:1431
 msgid "_Symbol:"
 msgstr ""
 
-#: ../src/ui-currency.c:863 ../src/ui-pref.c:1442
+#: ../src/ui-currency.c:863 ../src/ui-pref.c:1438
 msgid "Is pre_fix"
 msgstr ""
 
-#: ../src/ui-currency.c:868 ../src/ui-pref.c:1447
+#: ../src/ui-currency.c:868 ../src/ui-pref.c:1443
 msgid "_Decimal char:"
 msgstr ""
 
-#: ../src/ui-currency.c:875 ../src/ui-pref.c:1454
+#: ../src/ui-currency.c:875 ../src/ui-pref.c:1450
 msgid "_Frac digits:"
 msgstr "_Númberu de decimales:"
 
-#: ../src/ui-currency.c:882 ../src/ui-pref.c:1461
+#: ../src/ui-currency.c:882 ../src/ui-pref.c:1457
 msgid "_Grouping char:"
 msgstr ""
 
@@ -2542,6 +2568,10 @@ msgstr ""
 msgid "File statistics"
 msgstr ""
 
+#: ../src/ui-dialogs.c:216
+msgid "Transaction"
+msgstr ""
+
 #: ../src/ui-dialogs.c:243
 msgid "Assignment"
 msgstr ""
@@ -2560,70 +2590,86 @@ msgid ""
 "if the currency below is not correct, please change it:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:481
+#: ../src/ui-dialogs.c:483
 msgid "Import from CSV"
 msgstr "Importar dende CSV"
 
-#: ../src/ui-dialogs.c:543
+#: ../src/ui-dialogs.c:545
 msgid "Open HomeBank file"
 msgstr ""
 
-#: ../src/ui-dialogs.c:548
+#: ../src/ui-dialogs.c:545
+msgid "Open HomeBank backup file"
+msgstr ""
+
+#: ../src/ui-dialogs.c:550
 msgid "Save HomeBank file as"
 msgstr ""
 
-#: ../src/ui-dialogs.c:559
+#: ../src/ui-dialogs.c:563 ../src/ui-pref.c:1876
 msgid "HomeBank files"
 msgstr "Ficheros HomeBank"
 
-#: ../src/ui-dialogs.c:662
+#: ../src/ui-dialogs.c:574
+msgid "File backup"
+msgstr ""
+
+#: ../src/ui-dialogs.c:578
+msgid "All backups"
+msgstr ""
+
+#: ../src/ui-dialogs.c:681
 msgid "Save changes to the file before closing?"
 msgstr ""
 
-#: ../src/ui-dialogs.c:666
+#: ../src/ui-dialogs.c:685
 #, c-format
 msgid ""
 "If you don't save, changes will be permanently lost.\n"
 "Number of changes: %d."
 msgstr ""
 
-#: ../src/ui-dialogs.c:671
+#: ../src/ui-dialogs.c:690
 msgid "Close _without saving"
 msgstr ""
 
-#: ../src/ui-dialogs.c:717
+#: ../src/ui-dialogs.c:732
+msgid "Export as PDF"
+msgstr ""
+
+#: ../src/ui-dialogs.c:736
 msgid "Export as _PDF"
 msgstr ""
 
-#: ../src/ui-dialogs.c:744
+#: ../src/ui-dialogs.c:763
 msgid "Folder:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:746
+#: ../src/ui-dialogs.c:765
 msgid "Pick a Folder"
 msgstr ""
 
-#: ../src/ui-dialogs.c:750
+#: ../src/ui-dialogs.c:769
 msgid "Filename:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:852
+#: ../src/ui-dialogs.c:871
 msgid "Select among possible transactions..."
 msgstr ""
 
-#: ../src/ui-dialogs.c:888
+#: ../src/ui-dialogs.c:907
 msgid "Select an action:"
 msgstr ""
 
-#: ../src/ui-dialogs.c:892
+#: ../src/ui-dialogs.c:911
 msgid "create a new transaction"
 msgstr ""
 
-#: ../src/ui-dialogs.c:895
+#: ../src/ui-dialogs.c:914
 msgid "select an existing transaction"
 msgstr ""
 
-#: ../src/ui-dialogs.c:900
+#: ../src/ui-dialogs.c:919
 msgid ""
 "HomeBank has found some transaction that may be the associated transaction "
 "for the internal transfer."
@@ -2714,23 +2760,6 @@ msgstr "Tol mes"
 msgid "Categories"
 msgstr ""
 
-#: ../src/ui-filter.c:337 ../src/ui-filter.c:451 ../src/ui-filter.c:565
-msgid "Select:"
-msgstr ""
-
-#: ../src/ui-filter.c:340 ../src/ui-filter.c:454 ../src/ui-filter.c:568
-msgid "All"
-msgstr "Toos"
-
-#: ../src/ui-filter.c:345 ../src/ui-filter.c:459 ../src/ui-filter.c:573
-#: ../src/ui-pref.c:99 ../src/ui-transaction.c:57
-msgid "None"
-msgstr "Dengún"
-
-#: ../src/ui-filter.c:350 ../src/ui-filter.c:464 ../src/ui-filter.c:578
-msgid "Invert"
-msgstr "Invertir"
-
 #. gtk_widget_show(GTK_WIDGET(page));
 #: ../src/ui-filter.c:444 ../src/ui-filter.c:1479
 msgid "Payees"
@@ -2760,8 +2789,8 @@ msgstr "Añ_u:"
 msgid "Texts"
 msgstr ""
 
-#: ../src/ui-filter.c:1220 ../src/ui-transaction.c:1070
-#: ../src/ui-txn-multi.c:431
+#: ../src/ui-filter.c:1220 ../src/ui-transaction.c:1085
+#: ../src/ui-txn-multi.c:432
 msgid "_Info:"
 msgstr "_Info.:"
 
@@ -2829,19 +2858,19 @@ msgid "add"
 msgstr ""
 
 #. TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
-#: ../src/ui-hbfile.c:265 ../src/ui-pref.c:1599
+#: ../src/ui-hbfile.c:265
 msgid "days in advance the current date"
 msgstr ""
 
-#: ../src/ui-payee.c:711
+#: ../src/ui-payee.c:703
 msgid "Default category"
 msgstr ""
 
-#: ../src/ui-payee.c:749
+#: ../src/ui-payee.c:741
 msgid "Delete unused payee"
 msgstr ""
 
-#: ../src/ui-payee.c:750
+#: ../src/ui-payee.c:742
 msgid ""
 "Are you sure you want to\n"
 "permanently delete unused payee?"
@@ -2851,7 +2880,7 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: ../src/ui-payee.c:934 ../src/ui-transaction.c:1057 ../src/ui-txn-multi.c:417
+#: ../src/ui-payee.c:934 ../src/ui-transaction.c:1072 ../src/ui-txn-multi.c:418
 msgid "Pa_yment:"
 msgstr ""
 
@@ -2882,218 +2911,214 @@ msgstr ""
 msgid "_Delete the payee '%s'"
 msgstr ""
 
-#: ../src/ui-payee.c:1152
+#: ../src/ui-payee.c:1156
 msgid ""
 "This payee is used.\n"
 "Any transaction using that payee will be set to (no payee)"
 msgstr ""
 
-#: ../src/ui-payee.c:1232
+#: ../src/ui-payee.c:1249
 msgid "Manage Payees"
 msgstr "Xestionar beneficiarios"
 
-#: ../src/ui-payee.c:1302
+#: ../src/ui-payee.c:1359
 msgid "new payee"
 msgstr ""
 
-#: ../src/ui-pref.c:80
+#: ../src/ui-pref.c:85
 msgid "Interface"
 msgstr "Interface"
 
-#: ../src/ui-pref.c:82
-msgid "Display format"
-msgstr "Formatu"
+#: ../src/ui-pref.c:86
+msgid "Locale"
+msgstr ""
 
-#: ../src/ui-pref.c:83
+#: ../src/ui-pref.c:87
+msgid "Transactions"
+msgstr ""
+
+#: ../src/ui-pref.c:88
 msgid "Import/Export"
 msgstr ""
 
-#: ../src/ui-pref.c:84
+#: ../src/ui-pref.c:89
 msgid "Report"
 msgstr ""
 
-#: ../src/ui-pref.c:90
+#: ../src/ui-pref.c:90 ../src/ui-pref.c:1828
+msgid "Backup"
+msgstr ""
+
+#: ../src/ui-pref.c:91
+msgid "Folders"
+msgstr ""
+
+#: ../src/ui-pref.c:97
 msgid "System defaults"
 msgstr "Predetermináu del sistema"
 
-#: ../src/ui-pref.c:91
+#: ../src/ui-pref.c:98
 msgid "Icons only"
 msgstr "Sólo iconos"
 
-#: ../src/ui-pref.c:92
+#: ../src/ui-pref.c:99
 msgid "Text only"
 msgstr "Sólo testu"
 
-#: ../src/ui-pref.c:93
+#: ../src/ui-pref.c:100
 msgid "Text under icons"
 msgstr "Testu baxo los iconos"
 
-#: ../src/ui-pref.c:94
+#: ../src/ui-pref.c:101
 msgid "Text beside icons"
 msgstr "Testu xunto a los iconos"
 
-#: ../src/ui-pref.c:100
+#: ../src/ui-pref.c:107
 msgid "Horizontal"
 msgstr ""
 
-#: ../src/ui-pref.c:101
+#: ../src/ui-pref.c:108
 msgid "Vertical"
 msgstr ""
 
-#: ../src/ui-pref.c:102
+#: ../src/ui-pref.c:109
 msgid "Both"
 msgstr ""
 
-#: ../src/ui-pref.c:109
+#: ../src/ui-pref.c:116
 msgid "Tango light"
 msgstr ""
 
-#: ../src/ui-pref.c:110
+#: ../src/ui-pref.c:117
 msgid "Tango medium"
 msgstr ""
 
-#: ../src/ui-pref.c:111
+#: ../src/ui-pref.c:118
 msgid "Tango dark"
 msgstr ""
 
-#: ../src/ui-pref.c:116
+#: ../src/ui-pref.c:123
 msgid "m-d-y"
 msgstr ""
 
-#: ../src/ui-pref.c:117
+#: ../src/ui-pref.c:124
 msgid "d-m-y"
 msgstr ""
 
-#: ../src/ui-pref.c:118
+#: ../src/ui-pref.c:125
 msgid "y-m-d"
 msgstr ""
 
-#: ../src/ui-pref.c:123 ../src/ui-pref.c:130
+#: ../src/ui-pref.c:130 ../src/ui-pref.c:137
 msgid "Ignore"
 msgstr ""
 
-#: ../src/ui-pref.c:131
+#: ../src/ui-pref.c:138
 msgid "Append to Info"
 msgstr ""
 
-#: ../src/ui-pref.c:132
+#: ../src/ui-pref.c:139
 msgid "Append to Memo"
 msgstr ""
 
-#: ../src/ui-pref.c:133
+#: ../src/ui-pref.c:140
 msgid "Append to Payee"
 msgstr ""
 
-#: ../src/ui-pref.c:469
+#: ../src/ui-pref.c:476
 msgid "System Language"
 msgstr ""
 
-#: ../src/ui-pref.c:630
+#: ../src/ui-pref.c:637
 msgid "Choose a default HomeBank files folder"
 msgstr ""
 
-#: ../src/ui-pref.c:635
+#: ../src/ui-pref.c:642
 msgid "Choose a default import folder"
 msgstr ""
 
-#: ../src/ui-pref.c:640
+#: ../src/ui-pref.c:647
 msgid "Choose a default export folder"
 msgstr ""
 
-#: ../src/ui-pref.c:1101
+#: ../src/ui-pref.c:1132
 msgid "Date options"
 msgstr ""
 
-#: ../src/ui-pref.c:1105
-msgid "Date order:"
-msgstr ""
-
-#: ../src/ui-pref.c:1120
+#: ../src/ui-pref.c:1151
 msgid "OFX/QFX options"
 msgstr ""
 
-#: ../src/ui-pref.c:1124
-msgid "_Name field:"
-msgstr ""
-
-#: ../src/ui-pref.c:1133
-msgid "_Memo field:"
-msgstr ""
-
-#: ../src/ui-pref.c:1147
+#: ../src/ui-pref.c:1178
 msgid "QIF options"
 msgstr ""
 
-#: ../src/ui-pref.c:1151
-msgid "Memos:"
+#: ../src/ui-pref.c:1195
+msgid "Other options"
 msgstr ""
 
-#: ../src/ui-pref.c:1156
-msgid "_Swap with payees"
-msgstr ""
-
-#: ../src/ui-pref.c:1167 ../src/ui-pref.c:1839
-msgid "Files folder"
-msgstr ""
-
-#: ../src/ui-pref.c:1171
-msgid "_Import:"
-msgstr "_Importar:"
-
-#: ../src/ui-pref.c:1190
-msgid "_Export:"
-msgstr "_Esportar:"
-
-#: ../src/ui-pref.c:1261
+#: ../src/ui-pref.c:1257
 msgid "Initial filter"
 msgstr ""
 
-#: ../src/ui-pref.c:1265 ../src/ui-pref.c:1582 ../src/ui-pref.c:1827
+#: ../src/ui-pref.c:1261 ../src/ui-pref.c:1616 ../src/ui-pref.c:2001
 msgid "Date _range:"
 msgstr ""
 
-#: ../src/ui-pref.c:1279
+#: ../src/ui-pref.c:1275
 msgid "Charts options"
 msgstr ""
 
-#: ../src/ui-pref.c:1283
+#: ../src/ui-pref.c:1279
 msgid "Color scheme:"
 msgstr ""
 
-#: ../src/ui-pref.c:1305
+#: ../src/ui-pref.c:1301
 msgid "Statistics options"
 msgstr ""
 
-#: ../src/ui-pref.c:1309
+#: ../src/ui-pref.c:1305
 msgid "Show by _amount"
 msgstr "Amosar por _importe"
 
-#: ../src/ui-pref.c:1314
+#: ../src/ui-pref.c:1310
 msgid "Show _rate column"
 msgstr "Amosar _columna de porcentaxe"
 
-#: ../src/ui-pref.c:1319 ../src/ui-pref.c:1333
+#: ../src/ui-pref.c:1315 ../src/ui-pref.c:1329
 msgid "Show _details"
 msgstr "Amosar _detalles"
 
-#: ../src/ui-pref.c:1329
+#: ../src/ui-pref.c:1325
 msgid "Budget options"
 msgstr ""
 
-#: ../src/ui-pref.c:1361
+#: ../src/ui-pref.c:1357
 msgid "_Enable"
 msgstr ""
 
 #. row++;
-#: ../src/ui-pref.c:1382 ../src/ui-pref.c:1718
+#: ../src/ui-pref.c:1378 ../src/ui-pref.c:1772
 msgid "_Preset:"
 msgstr ""
 
-#: ../src/ui-pref.c:1505
+#: ../src/ui-pref.c:1483
+msgid "User interface"
+msgstr ""
+
+#: ../src/ui-pref.c:1487
+msgid "_Language:"
+msgstr ""
+
+#: ../src/ui-pref.c:1495
+msgid "_Date display:"
+msgstr ""
+
+#: ../src/ui-pref.c:1511
 msgid "_Format:"
 msgstr ""
 
-#: ../src/ui-pref.c:1518
+#: ../src/ui-pref.c:1524
 msgid ""
 "%a locale's abbreviated weekday name.\n"
 "%A locale's full weekday name. \n"
@@ -3110,157 +3135,196 @@ msgid ""
 "%m month as a decimal number [01,12]. \n"
 "%p locale's appropriate date representation. \n"
 "%y year without century as a decimal number [00,99]. \n"
-"%Y year with century as a decimal number. \n"
-msgstr ""
-
-#: ../src/ui-pref.c:1545
-msgid "Measurement units"
-msgstr ""
-
-#: ../src/ui-pref.c:1549
-msgid "Use _miles for meter"
+"%Y year with century as a decimal number."
 msgstr ""
 
 #: ../src/ui-pref.c:1554
+msgid "Fiscal year"
+msgstr ""
+
+#. TRANSLATORS: (fiscal year) starts on
+#: ../src/ui-pref.c:1559
+msgid "Starts _on:"
+msgstr ""
+
+#: ../src/ui-pref.c:1579
+msgid "Measurement units"
+msgstr ""
+
+#: ../src/ui-pref.c:1583
+msgid "Use _miles for meter"
+msgstr ""
+
+#: ../src/ui-pref.c:1588
 msgid "Use _gallon for fuel"
 msgstr ""
 
-#: ../src/ui-pref.c:1578
+#: ../src/ui-pref.c:1612
 msgid "Transaction window"
 msgstr ""
 
-#: ../src/ui-pref.c:1590
-msgid "_Show:"
+#: ../src/ui-pref.c:1624
+msgid "_Show future:"
 msgstr ""
 
-#: ../src/ui-pref.c:1603
+#. TRANSLATORS: there is a spinner on the left of this label, and so you have 0....x days in advance the current date
+#: ../src/ui-pref.c:1633
+msgid "days ahead"
+msgstr ""
+
+#: ../src/ui-pref.c:1637
 msgid "Hide reconciled transactions"
 msgstr ""
 
-#: ../src/ui-pref.c:1608
+#: ../src/ui-pref.c:1642
 msgid "Always show remind transactions"
 msgstr ""
 
-#: ../src/ui-pref.c:1618
+#: ../src/ui-pref.c:1652
 msgid "Multiple add"
 msgstr ""
 
-#: ../src/ui-pref.c:1622
+#: ../src/ui-pref.c:1656
 msgid "Keep the last date"
 msgstr ""
 
-#: ../src/ui-pref.c:1674
-msgid "_Language:"
+#: ../src/ui-pref.c:1666
+msgid "Memo autocomplete"
 msgstr ""
 
-#: ../src/ui-pref.c:1681
+#: ../src/ui-pref.c:1670
+msgid "Active"
+msgstr ""
+
+#: ../src/ui-pref.c:1678
+msgid "rolling days"
+msgstr ""
+
+#: ../src/ui-pref.c:1729
 msgid "_Toolbar:"
 msgstr "Barra de _ferramientes"
 
 #. widget = gtk_check_button_new_with_mnemonic (_("Enable rows in alternating colors"));
 #. data->CM_ruleshint = widget;
-#: ../src/ui-pref.c:1691
+#: ../src/ui-pref.c:1751
 msgid "_Grid line:"
 msgstr ""
 
-#: ../src/ui-pref.c:1703
+#: ../src/ui-pref.c:1763
 msgid "Amount colors"
 msgstr ""
 
-#: ../src/ui-pref.c:1707
+#: ../src/ui-pref.c:1767
 msgid "Uses custom colors"
 msgstr ""
 
-#: ../src/ui-pref.c:1727
+#: ../src/ui-pref.c:1782
 msgid "_Expense:"
 msgstr "_Gastu:"
 
-#: ../src/ui-pref.c:1737
+#: ../src/ui-pref.c:1794
 msgid "_Income:"
 msgstr "_Ingresu:"
 
-#: ../src/ui-pref.c:1744
+#: ../src/ui-pref.c:1801
 msgid "_Warning:"
 msgstr "_Alvertencia:"
 
-#: ../src/ui-pref.c:1771
+#: ../src/ui-pref.c:1832
+msgid "_Enable automatic backups"
+msgstr ""
+
+#: ../src/ui-pref.c:1837
+msgid "_Number of backups to keep:"
+msgstr ""
+
+#: ../src/ui-pref.c:1852
+msgid "Backup frequency is once a day"
+msgstr ""
+
+#: ../src/ui-pref.c:1880
+msgid "_Wallets:"
+msgstr ""
+
+#: ../src/ui-pref.c:1904
+msgid "Exchange files"
+msgstr ""
+
+#: ../src/ui-pref.c:1908
+msgid "_Import:"
+msgstr "_Importar:"
+
+#: ../src/ui-pref.c:1927
+msgid "_Export:"
+msgstr "_Esportar:"
+
+#: ../src/ui-pref.c:1967
 msgid "Program start"
 msgstr ""
 
-#: ../src/ui-pref.c:1775
+#: ../src/ui-pref.c:1971
 msgid "Show splash screen"
 msgstr ""
 
-#: ../src/ui-pref.c:1780
+#: ../src/ui-pref.c:1976
 msgid "Load last opened file"
 msgstr "Cargar el caberu ficheru abiertu"
 
-#: ../src/ui-pref.c:1790
+#: ../src/ui-pref.c:1986
 msgid "Update currencies online"
 msgstr ""
 
-#: ../src/ui-pref.c:1800
-msgid "Fiscal year"
-msgstr ""
-
-#. TRANSLATORS: (fiscal year) starts on
-#: ../src/ui-pref.c:1805
-msgid "Starts _on:"
-msgstr ""
-
-#: ../src/ui-pref.c:1823
+#: ../src/ui-pref.c:1997
 msgid "Main window reports"
 msgstr ""
 
-#: ../src/ui-pref.c:1843
-msgid "_Default:"
+#: ../src/ui-pref.c:2096
+msgid "Reset All Preferences"
 msgstr ""
 
-#: ../src/ui-pref.c:1948
-msgid "Reset all preferences"
-msgstr ""
-
-#: ../src/ui-pref.c:1949
+#: ../src/ui-pref.c:2097
 msgid ""
-"Do you really want to reset all\n"
-"preferences to default values?"
+"Do you really want to reset\n"
+"all preferences to default\n"
+"values?"
 msgstr ""
 
-#: ../src/ui-pref.c:1950
-msgid "Reset"
-msgstr ""
-
-#: ../src/ui-pref.c:1968
+#: ../src/ui-pref.c:2116
 msgid "Preferences"
 msgstr "Preferencies"
 
-#: ../src/ui-pref.c:2190
+#: ../src/ui-pref.c:2349
 msgid ""
 "You will have to restart HomeBank\n"
 "for the language change to take effect."
 msgstr ""
 
-#: ../src/ui-split.c:374
-msgid "_Remove"
+#: ../src/ui-split.c:751
+msgid "Remove all"
 msgstr ""
 
-#. sum button must appear only when new split add
-#. #1258821
-#. if(data.splittype == TXN_SPLIT_NEW)
-#: ../src/ui-split.c:379
-msgid "Sum"
+#: ../src/ui-split.c:755
+msgid "Remove"
 msgstr ""
 
-#: ../src/ui-split.c:464
-msgid "Sum of splits:"
+#: ../src/ui-split.c:801
+msgid "Apply"
 msgstr ""
 
-#: ../src/ui-split.c:475
+#: ../src/ui-split.c:805
+msgid "Cancel"
+msgstr ""
+
+#: ../src/ui-split.c:813
+msgid "Transaction amount:"
+msgstr ""
+
+#: ../src/ui-split.c:822
 msgid "Unassigned:"
 msgstr ""
 
-#: ../src/ui-split.c:490
-msgid "Transaction amount:"
+#: ../src/ui-split.c:837
+msgid "Sum of splits:"
 msgstr ""
 
 #: ../src/ui-transaction.c:50
@@ -3279,30 +3343,34 @@ msgstr "Camudar transacción"
 msgid "Remind"
 msgstr ""
 
-#: ../src/ui-transaction.c:638
+#: ../src/ui-transaction.c:642
 msgid "From acc_ount:"
 msgstr ""
 
-#: ../src/ui-transaction.c:642 ../src/ui-transaction.c:1086
+#: ../src/ui-transaction.c:646 ../src/ui-transaction.c:1101
 msgid "To acc_ount:"
 msgstr ""
 
-#: ../src/ui-transaction.c:730
+#: ../src/ui-transaction.c:734
 msgid ""
 "Do you want to break the internal transfer ?\n"
 "\n"
 "Proceeding will delete the target transaction."
 msgstr ""
 
-#: ../src/ui-transaction.c:1005
+#: ../src/ui-transaction.c:1014
 msgid "Show _scheduled"
 msgstr ""
 
-#: ../src/ui-transaction.c:1029 ../src/ui-txn-multi.c:401
+#: ../src/ui-transaction.c:1018
+msgid "Show _all accounts"
+msgstr ""
+
+#: ../src/ui-transaction.c:1044 ../src/ui-txn-multi.c:402
 msgid "_Date:"
 msgstr "_Fecha:"
 
-#: ../src/ui-transaction.c:1035
+#: ../src/ui-transaction.c:1050
 msgid ""
 "Date accepted here are:\n"
 "day,\n"
@@ -3314,37 +3382,33 @@ msgstr ""
 "día/mes o mes/día,\n"
 "y feches completes según la to configuración rexonal"
 
-#: ../src/ui-transaction.c:1101 ../src/ui-transaction.c:1110
+#: ../src/ui-transaction.c:1116 ../src/ui-transaction.c:1125
 msgid ""
 "Autocompletion and direct seizure\n"
 "is available"
 msgstr ""
 
-#: ../src/ui-transaction.c:1121 ../src/ui-txn-multi.c:509
+#: ../src/ui-transaction.c:1136 ../src/ui-txn-multi.c:510
 msgid "M_emo:"
 msgstr ""
 
-#: ../src/ui-transaction.c:1129 ../src/ui-txn-multi.c:493
-msgid "Ta_gs:"
-msgstr ""
-
-#: ../src/ui-transaction.c:1204
+#: ../src/ui-transaction.c:1220
 msgid "_Add & keep"
 msgstr ""
 
-#: ../src/ui-transaction.c:1212
+#: ../src/ui-transaction.c:1228
 msgid "_Post"
 msgstr ""
 
-#: ../src/ui-transaction.c:1256
+#: ../src/ui-transaction.c:1272
 msgid "Use a _template"
 msgstr ""
 
-#: ../src/ui-transaction.c:1301
+#: ../src/ui-transaction.c:1317
 msgid "Warning: amount and category sign don't match"
 msgstr ""
 
-#: ../src/ui-txn-multi.c:386
+#: ../src/ui-txn-multi.c:387
 msgid "Multiple edit transactions"
 msgstr ""
 
@@ -3352,51 +3416,51 @@ msgstr ""
 msgid "Search..."
 msgstr ""
 
-#: ../src/ui-widgets.c:824
+#: ../src/ui-widgets.c:838
 msgid "Check"
 msgstr ""
 
-#: ../src/ui-widgets.c:826
+#: ../src/ui-widgets.c:840
 msgid "Transfer"
 msgstr ""
 
-#: ../src/ui-widgets.c:827
+#: ../src/ui-widgets.c:841
 msgid "Internal transfer"
 msgstr "Tresferencia interna"
 
-#: ../src/ui-widgets.c:828
+#: ../src/ui-widgets.c:842
 msgid "Debit card"
 msgstr ""
 
-#: ../src/ui-widgets.c:829
+#: ../src/ui-widgets.c:843
 msgid "Standing order"
 msgstr ""
 
-#: ../src/ui-widgets.c:830
+#: ../src/ui-widgets.c:844
 msgid "Electronic payment"
 msgstr ""
 
-#: ../src/ui-widgets.c:831
+#: ../src/ui-widgets.c:845
 msgid "Deposit"
 msgstr ""
 
 #. TRANSLATORS: Financial institution fee
-#: ../src/ui-widgets.c:833
+#: ../src/ui-widgets.c:847
 msgid "FI fee"
 msgstr ""
 
-#: ../src/ui-widgets.c:834
+#: ../src/ui-widgets.c:848
 msgid "Direct Debit"
 msgstr ""
 
-#: ../src/ui-widgets.c:961
+#: ../src/ui-widgets.c:975
 msgid "Inactive"
 msgstr "Inactivu"
 
-#: ../src/ui-widgets.c:962
+#: ../src/ui-widgets.c:976
 msgid "Include"
 msgstr "Incluyir"
 
-#: ../src/ui-widgets.c:963
+#: ../src/ui-widgets.c:977
 msgid "Exclude"
 msgstr "Escluyir"

@@ -21,6 +21,10 @@
 #define __HB_DSPACCOUNT_H__
 
 
+/* official GTK_RESPONSE are negative */
+#define HB_RESPONSE_REFRESH	 1
+
+
 enum
 {
 	ACTION_ACCOUNT_ADD,
@@ -47,6 +51,11 @@ enum {
 struct register_panel_data
 {
 	GtkWidget	*window;
+
+	GtkWidget	*IB_duplicate;
+	GtkWidget	*LB_duplicate;
+	GtkWidget	*NB_txn_daygap;
+	
 	GtkWidget	*TB_bar;
 	GtkWidget   *TB_tools;
 
@@ -75,15 +84,14 @@ struct register_panel_data
 
 
 	Account		*acc;
-	guint32		accnum;
 
 	Transaction *cur_ope;
 
-
+	gboolean	showall;
 	gboolean	do_sort;
 	
 	/* status counters */
-	gint	hidden, total;
+	gint		hidden, total, similar;
 	gdouble		totalsum;
 
 	Filter		*filter;
@@ -98,7 +106,7 @@ struct register_panel_data
 
 #define DEFAULT_DELAY 750           /* Default delay in ms */
 
-GtkWidget *register_panel_window_new(guint32 accnum, Account *acc);
+GtkWidget *register_panel_window_new(Account *acc);
 void register_panel_window_init(GtkWidget *widget, gpointer user_data);
 
 

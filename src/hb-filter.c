@@ -123,7 +123,7 @@ GHashTableIter iter;
 gpointer key, value;
 gint i;
 
-	DB( g_print("(filter) reset %p\n", flt) );
+	DB( g_print("\n(filter) reset %p\n", flt) );
 
 	filter_clear(flt);
 
@@ -148,7 +148,7 @@ gint i;
 	while (g_hash_table_iter_next (&iter, &key, &value))
 	{
 	Account *item = value;
-		item->filter = TRUE;
+		item->flt_select = TRUE;
 	}
 
 	// set all payee
@@ -156,7 +156,7 @@ gint i;
 	while (g_hash_table_iter_next (&iter, &key, &value))
 	{
 	Payee *item = value;
-		item->filter = TRUE;
+		item->flt_select = TRUE;
 	}
 
 	// set all payee
@@ -164,7 +164,7 @@ gint i;
 	while (g_hash_table_iter_next (&iter, &key, &value))
 	{
 	Category *item = value;
-		item->filter = TRUE;
+		item->flt_select = TRUE;
 	}
 
 }
@@ -175,7 +175,7 @@ static void filter_set_date_bounds(Filter *flt, guint32 kacc)
 GList *lst_acc, *lnk_acc;
 GList *lnk_txn;
 
-	DB( g_print("(filter) set date bounds %p\n", flt) );
+	DB( g_print("\n(filter) set date bounds %p\n", flt) );
 
 	flt->mindate = 0;
 	flt->maxdate = 0;
@@ -260,131 +260,107 @@ void filter_preset_daterange_add_futuregap(Filter *filter, gint nbdays)
 
 void filter_preset_daterange_set(Filter *flt, gint range, guint32 kacc)
 {
-GDate *date;
-guint32 refjuliandate, month, year, qnum;
+GDate *tmpdate;
+guint32 jtoday, jfiscal;
+guint16 month, year, yfiscal, qnum;
 
-	DB( g_print("(filter) daterange set %p %d\n", flt, range) );
-
-	//filter_default_date_set(flt);
-	filter_set_date_bounds(flt, kacc);
+	DB( g_print("\n(filter) daterange set %p %d\n", flt, range) );
 
 	flt->range = range;
 	
-	// by default refjuliandate is today
-	// but we adjust if to max transaction date found
-	// removed for 5.0.4
-	refjuliandate = GLOBALS->today;
-	/*if(flt->maxdate < refjuliandate)
-		refjuliandate = flt->maxdate;*/
+	jtoday = GLOBALS->today;
 
-	date  = g_date_new_julian(refjuliandate);
-	month = g_date_get_month(date);
-	year  = g_date_get_year(date);
-	qnum  = ((month - 1) / 3) + 1;
+	tmpdate  = g_date_new_julian(jtoday);
 
-	DB( g_print("m=%d, y=%d, qnum=%d\n", month, year, qnum) );
+	month = g_date_get_month(tmpdate);
+	year  = g_date_get_year(tmpdate);
+	DB( hb_print_date(jtoday , "today ") );
 
+	g_date_set_dmy(tmpdate, PREFS->fisc_year_day, PREFS->fisc_year_month, year);
+	jfiscal = g_date_get_julian(tmpdate);
+	DB( hb_print_date(jfiscal, "fiscal") );
+
+	yfiscal = (jtoday >= jfiscal) ? year : year-1;
+	qnum = 0;
+
+	if( range == FLT_RANGE_THISQUARTER || range == FLT_RANGE_LASTQUARTER )
+	{
+		g_date_set_dmy(tmpdate, PREFS->fisc_year_day, PREFS->fisc_year_month, yfiscal);
+		while( (qnum < 5) && (g_date_get_julian(tmpdate) < jtoday) )
+		{
+			qnum++;
+			g_date_add_months (tmpdate, 3);
+		}
+		DB( g_print(" qnum: %d\n", qnum ) );
+	}
+		
 	switch( range )
 	{
 		case FLT_RANGE_THISMONTH:
-			g_date_set_day(date, 1);
-			flt->mindate = g_date_get_julian(date);
-			g_date_add_days(date, g_date_get_days_in_month(month, year)-1);
-			flt->maxdate = g_date_get_julian(date);
-			break;
-
 		case FLT_RANGE_LASTMONTH:
-			g_date_set_day(date, 1);
-			g_date_subtract_months(date, 1);
-			flt->mindate = g_date_get_julian(date);
-			month = g_date_get_month(date);
-			year = g_date_get_year(date);
-			g_date_add_days(date, g_date_get_days_in_month(month, year)-1);
-			flt->maxdate = g_date_get_julian(date);
+			g_date_set_dmy(tmpdate, 1, month, year);
+			if( range == FLT_RANGE_LASTMONTH )
+				g_date_subtract_months(tmpdate, 1);
+			flt->mindate = g_date_get_julian(tmpdate);
+			month = g_date_get_month(tmpdate);
+			year = g_date_get_year(tmpdate);
+			g_date_add_days(tmpdate, g_date_get_days_in_month(month, year));
+			flt->maxdate = g_date_get_julian(tmpdate) - 1;
 			break;
 
 		case FLT_RANGE_THISQUARTER:
-			g_date_set_day(date, 1);
-			g_date_set_month(date, (qnum-1)*3+1);
-			flt->mindate = g_date_get_julian(date);
-			g_date_add_months(date, 3);
-			g_date_subtract_days(date, 1);
-			flt->maxdate = g_date_get_julian(date);
-			break;
-
 		case FLT_RANGE_LASTQUARTER:
-			g_date_set_day(date, 1);
-			g_date_set_month(date, (qnum-1)*3+1);
-			g_date_subtract_months(date, 3);
-			flt->mindate = g_date_get_julian(date);
-			g_date_add_months(date, 3);
-			g_date_subtract_days(date, 1);
-			flt->maxdate = g_date_get_julian(date);
+			g_date_set_dmy(tmpdate, PREFS->fisc_year_day, PREFS->fisc_year_month, yfiscal);
+			if( range == FLT_RANGE_LASTQUARTER )
+				g_date_subtract_months(tmpdate, 3);
+			g_date_add_months(tmpdate, 3 * (qnum-1) );
+			flt->mindate = g_date_get_julian(tmpdate);
+			g_date_add_months(tmpdate, 3);
+			flt->maxdate = g_date_get_julian(tmpdate) - 1;
 			break;
 
 		case FLT_RANGE_THISYEAR:
-			g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year);
-			if( refjuliandate >= g_date_get_julian (date))
-			{
-				flt->mindate = g_date_get_julian(date);
-			}
-			else
-			{
-				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-1);
-				flt->mindate = g_date_get_julian(date);
-			}
-			g_date_add_years (date, 1);
-			g_date_subtract_days (date, 1);
-			flt->maxdate = g_date_get_julian(date);
-			break;
-
 		case FLT_RANGE_LASTYEAR:
-			g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year);
-			if( refjuliandate >= g_date_get_julian (date))
-			{
-				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-1);
-				flt->mindate = g_date_get_julian(date);
-			}
-			else
-			{
-				g_date_set_dmy(date, PREFS->fisc_year_day, PREFS->fisc_year_month, year-2);
-				flt->mindate = g_date_get_julian(date);
-			}
-			g_date_add_years (date, 1);
-			g_date_subtract_days (date, 1);
-			flt->maxdate = g_date_get_julian(date);
+			g_date_set_dmy(tmpdate, PREFS->fisc_year_day, PREFS->fisc_year_month, yfiscal);
+			if( range == FLT_RANGE_LASTYEAR )
+				g_date_subtract_years(tmpdate, 1);
+			flt->mindate = g_date_get_julian(tmpdate);
+			g_date_add_years (tmpdate, 1);
+			flt->maxdate = g_date_get_julian(tmpdate) - 1;
 			break;
 
 		case FLT_RANGE_LAST30DAYS:
-			flt->mindate = refjuliandate - 30;
-			flt->maxdate = refjuliandate;
+			flt->mindate = jtoday - 30;
+			flt->maxdate = jtoday;
 			break;
 
 		case FLT_RANGE_LAST60DAYS:
-			flt->mindate = refjuliandate - 60;
-			flt->maxdate = refjuliandate;
+			flt->mindate = jtoday - 60;
+			flt->maxdate = jtoday;
 			break;
 
 		case FLT_RANGE_LAST90DAYS:
-			flt->mindate = refjuliandate - 90;
-			flt->maxdate = refjuliandate;
+			flt->mindate = jtoday - 90;
+			flt->maxdate = jtoday;
 			break;
 
 		case FLT_RANGE_LAST12MONTHS:
-			g_date_subtract_months(date, 12);
-			flt->mindate = g_date_get_julian(date);
-			flt->maxdate = refjuliandate;
+			g_date_set_julian (tmpdate, jtoday);
+			g_date_subtract_months(tmpdate, 12);
+			flt->mindate = g_date_get_julian(tmpdate);
+			flt->maxdate = jtoday;
 			break;
 
 		// case FLT_RANGE_OTHER:
-
-		// case FLT_RANGE_ALLDATE:
-
-
+			//nothing to do
+			
+		case FLT_RANGE_ALLDATE:
+			filter_set_date_bounds(flt, kacc);
+			break;
 	}
-	g_date_free(date);
-
+	g_date_free(tmpdate);
 }
+
 
 void filter_preset_type_set(Filter *flt, gint type)
 {
@@ -432,7 +408,7 @@ GList *lcat, *list;
 	while (list != NULL)
 	{
 		catitem = list->data;
-		catitem->filter = FALSE;
+		catitem->flt_select = FALSE;
 		list = g_list_next(list);
 	}
 	g_list_free(lcat);
@@ -443,7 +419,7 @@ GList *lcat, *list;
 			flt->option[FILTER_CATEGORY] = 1;
 			catitem = da_cat_get(0);	// no category
 			if(catitem != NULL)
-				catitem->filter = TRUE;
+				catitem->flt_select = TRUE;
 			break;
 
 		case FLT_STATUS_UNRECONCILED:
@@ -474,36 +450,6 @@ GList *lcat, *list;
 }
 
 
-static gint filter_text_compare(gchar *txntext, gchar *searchtext, gboolean exact)
-{
-gint retval = 0;
-
-	if( exact )
-	{
-		if( g_strstr_len(txntext, -1, searchtext) != NULL )
-		{
-			DB( g_print(" found case '%s'\n", searchtext) );
-			retval = 1;
-		}
-	}
-	else
-	{
-	gchar *word   = g_utf8_casefold(txntext, -1);
-	gchar *needle = g_utf8_casefold(searchtext, -1);
-
-		if( g_strrstr(word, needle) != NULL )
-		{
-			DB( g_print(" found nocase '%s'\n", needle) );
-			retval = 1;
-		}
-
-		g_free(word);
-		g_free(needle);
-	}
-	return retval;
-}
-
-
 /* used for quicksearch text into transaction */
 gboolean filter_txn_search_match(gchar *needle, Transaction *txn, gint flags)
 {
@@ -517,7 +463,7 @@ gchar *tags;
 		//#1668036 always try match on txn memo first
 		if(txn->memo)
 		{
-			retval |= filter_text_compare(txn->memo, needle, FALSE);
+			retval |= hb_string_utf8_strstr(txn->memo, needle, FALSE);
 		}
 		if(retval) goto end;
 		
@@ -527,13 +473,13 @@ gchar *tags;
 		guint count, i;
 		Split *split;
 
-			count = da_splits_count(txn->splits);
+			count = da_splits_length(txn->splits);
 			for(i=0;i<count;i++)
 			{
 			gint tmpinsert = 0;
 		
-				split = txn->splits[i];
-				tmpinsert = filter_text_compare(split->memo, needle, FALSE);
+				split = da_splits_get(txn->splits, i);
+				tmpinsert = hb_string_utf8_strstr(split->memo, needle, FALSE);
 				retval |= tmpinsert;
 				if( tmpinsert )
 					break;
@@ -546,7 +492,7 @@ gchar *tags;
 	{
 		if(txn->info)
 		{
-			retval |= filter_text_compare(txn->info, needle, FALSE);
+			retval |= hb_string_utf8_strstr(txn->info, needle, FALSE);
 		}
 		if(retval) goto end;
 	}
@@ -556,7 +502,7 @@ gchar *tags;
 		payitem = da_pay_get(txn->kpay);
 		if(payitem)
 		{
-			retval |= filter_text_compare(payitem->name, needle, FALSE);
+			retval |= hb_string_utf8_strstr(payitem->name, needle, FALSE);
 		}
 		if(retval) goto end;
 	}
@@ -569,20 +515,17 @@ gchar *tags;
 		guint count, i;
 		Split *split;
 
-			count = da_splits_count(txn->splits);
+			count = da_splits_length(txn->splits);
 			for(i=0;i<count;i++)
 			{
 			gint tmpinsert = 0;
 				
-				split = txn->splits[i];
+				split = da_splits_get(txn->splits, i);
 				catitem = da_cat_get(split->kcat);
 				if(catitem)
 				{
-				gchar *fullname = da_cat_get_fullname (catitem);
-
-					tmpinsert = filter_text_compare(fullname, needle, FALSE);
+					tmpinsert = hb_string_utf8_strstr(catitem->fullname, needle, FALSE);
 					retval |= tmpinsert;
-					g_free(fullname);
 				}
 
 				if( tmpinsert )
@@ -594,10 +537,7 @@ gchar *tags;
 			catitem = da_cat_get(txn->kcat);
 			if(catitem)
 			{
-			gchar *fullname = da_cat_get_fullname (catitem);
-
-				retval |= filter_text_compare(fullname, needle, FALSE);
-				g_free(fullname);
+				retval |= hb_string_utf8_strstr(catitem->fullname, needle, FALSE);
 			}
 		}
 		if(retval) goto end;
@@ -605,10 +545,10 @@ gchar *tags;
 	
 	if(flags & FLT_QSEARCH_TAGS)
 	{
-		tags = transaction_tags_tostring(txn);
+		tags = tags_tostring(txn->tags);
 		if(tags)
 		{
-			retval |= filter_text_compare(tags, needle, FALSE);
+			retval |= hb_string_utf8_strstr(tags, needle, FALSE);
 		}
 		g_free(tags);
 		if(retval) goto end;
@@ -620,7 +560,7 @@ gchar *tags;
 	gchar formatd_buf[G_ASCII_DTOSTR_BUF_SIZE];
 	
 		hb_strfnum(formatd_buf, G_ASCII_DTOSTR_BUF_SIZE-1, txn->amount, txn->kcur, FALSE);
-		retval |= filter_text_compare(formatd_buf, needle, FALSE);
+		retval |= hb_string_utf8_strstr(formatd_buf, needle, FALSE);
 	}
 
 	
@@ -665,7 +605,7 @@ gint insert;
 		accitem = da_acc_get(txn->kacc);
 		if(accitem)
 		{
-			insert = ( accitem->filter == TRUE ) ? 1 : 0;
+			insert = ( accitem->flt_select == TRUE ) ? 1 : 0;
 			if(flt->option[FILTER_ACCOUNT] == 2) insert ^= 1;
 		}
 	}
@@ -676,7 +616,7 @@ gint insert;
 		payitem = da_pay_get(txn->kpay);
 		if(payitem)
 		{
-			insert = ( payitem->filter == TRUE ) ? 1 : 0;
+			insert = ( payitem->flt_select == TRUE ) ? 1 : 0;
 			if(flt->option[FILTER_PAYEE] == 2) insert ^= 1;
 		}
 	}
@@ -690,16 +630,16 @@ gint insert;
 		Split *split;
 
 			insert = 0;	 //fix: 1151259
-			count = da_splits_count(txn->splits);
+			count = da_splits_length(txn->splits);
 			for(i=0;i<count;i++)
 			{
 			gint tmpinsert = 0;
 				
-				split = txn->splits[i];
+				split = da_splits_get(txn->splits, i);
 				catitem = da_cat_get(split->kcat);
 				if(catitem)
 				{
-					tmpinsert = ( catitem->filter == TRUE ) ? 1 : 0;
+					tmpinsert = ( catitem->flt_select == TRUE ) ? 1 : 0;
 					if(flt->option[FILTER_CATEGORY] == 2) tmpinsert ^= 1;
 				}
 				insert |= tmpinsert;
@@ -710,7 +650,7 @@ gint insert;
 			catitem = da_cat_get(txn->kcat);
 			if(catitem)
 			{
-				insert = ( catitem->filter == TRUE ) ? 1 : 0;
+				insert = ( catitem->flt_select == TRUE ) ? 1 : 0;
 				if(flt->option[FILTER_CATEGORY] == 2) insert ^= 1;
 			}
 		}
@@ -757,7 +697,7 @@ gint insert;
 		{
 			if(txn->info)
 			{
-				insert1 = filter_text_compare(txn->info, flt->info, flt->exact);
+				insert1 = hb_string_utf8_strstr(txn->info, flt->info, flt->exact);
 			}
 		}
 		else
@@ -768,7 +708,7 @@ gint insert;
 			//#1668036 always try match on txn memo first
 			if(txn->memo)
 			{
-				insert2 = filter_text_compare(txn->memo, flt->memo, flt->exact);
+				insert2 = hb_string_utf8_strstr(txn->memo, flt->memo, flt->exact);
 			}
 
 			if( (insert2 == 0) && (txn->flags & OF_SPLIT) )
@@ -776,13 +716,13 @@ gint insert;
 			guint count, i;
 			Split *split;
 
-				count = da_splits_count(txn->splits);
+				count = da_splits_length(txn->splits);
 				for(i=0;i<count;i++)
 				{
 				gint tmpinsert = 0;
 			
-					split = txn->splits[i];
-					tmpinsert = filter_text_compare(split->memo, flt->memo, flt->exact);
+					split = da_splits_get(txn->splits, i);
+					tmpinsert = hb_string_utf8_strstr(split->memo, flt->memo, flt->exact);
 					insert2 |= tmpinsert;
 					if( tmpinsert )
 						break;
@@ -794,10 +734,10 @@ gint insert;
 
 		if(flt->tag)
 		{
-			tags = transaction_tags_tostring(txn);
+			tags = tags_tostring(txn->tags);
 			if(tags)
 			{
-				insert3 = filter_text_compare(tags, flt->tag, flt->exact);
+				insert3 = hb_string_utf8_strstr(tags, flt->tag, flt->exact);
 			}
 			g_free(tags);
 		}

@@ -84,7 +84,7 @@ static GOptionEntry option_entries[] =
 gint homebank_alienfile_recognize(gchar *filename)
 {
 GIOChannel *io;
-gint i, retval = FILETYPE_UNKNOW;
+gint i, retval = FILETYPE_UNKNOWN;
 gchar *tmpstr;
 gint io_stat;
 GError *err = NULL;
@@ -109,7 +109,7 @@ static gint csvtype[7] = {
 
 		for(i=0;i<25;i++)
 		{
-			if( retval != FILETYPE_UNKNOW )
+			if( retval != FILETYPE_UNKNOWN )
 				break;
 
 			io_stat = g_io_channel_read_line(io, &tmpstr, NULL, NULL, &err);
@@ -258,6 +258,8 @@ gboolean retval = FALSE;
 void homebank_backup_current_file(void)
 {
 gchar *bakfilename;
+GPtrArray *array;
+guint i;
 
 	DB( g_print("\n[homebank] backup_current_file\n") );
 
@@ -269,6 +271,35 @@ gchar *bakfilename;
 	//retval = g_rename(pathname, newname);
 	homebank_file_copy (GLOBALS->xhb_filepath, bakfilename);
 	g_free(bakfilename);
+
+	//do safe backup according to user preferences
+	DB( g_print(" user pref backup\n") );	
+	if( PREFS->bak_is_automatic == TRUE )
+	{
+		bakfilename = hb_filename_new_for_backup(GLOBALS->xhb_filepath);
+		if( g_file_test(bakfilename, G_FILE_TEST_EXISTS) == FALSE )
+		{
+			homebank_file_copy (GLOBALS->xhb_filepath, bakfilename);
+		}
+		g_free(bakfilename);
+
+		//delete any offscale backup
+		DB( g_print(" clean old backup\n") );
+		array = hb_filename_backup_list(GLOBALS->xhb_filepath);
+		for(i=0;i<array->len;i++)
+		{
+		gchar *offscalefilename = g_ptr_array_index(array, i);
+	
+			DB( g_print(" %d : '%s'\n", i, offscalefilename) );
+			if( i >= PREFS->bak_max_num_copies )
+			{
+				DB( g_print(" - should delete '%s'\n", offscalefilename) );
+				homebank_file_delete_existing(offscalefilename);
+			}
+		}
+		g_ptr_array_free(array, TRUE);
+	}
+
 }
 
 
@@ -398,24 +429,28 @@ gsize length;
 
 	if( GLOBALS->xhb_filepath != NULL )
 	{
-		keyfile = g_key_file_new();
-		if(keyfile )
+		//don't save bakup files
+		if( hbfile_file_isbackup(GLOBALS->xhb_filepath) == FALSE )
 		{
-			DB( g_print(" - saving '%s'\n", GLOBALS->xhb_filepath) );
+			keyfile = g_key_file_new();
+			if(keyfile )
+			{
+				DB( g_print(" - saving '%s'\n", GLOBALS->xhb_filepath) );
 
-			group = "HomeBank";
-			g_key_file_set_string  (keyfile, group, "LastOpenedFile", GLOBALS->xhb_filepath);
+				group = "HomeBank";
+				g_key_file_set_string  (keyfile, group, "LastOpenedFile", GLOBALS->xhb_filepath);
 
-			gchar *contents = g_key_file_to_data( keyfile, &length, NULL);
+				gchar *contents = g_key_file_to_data( keyfile, &length, NULL);
 
-			//DB( g_print(" keyfile:\n%s\nlen=%d\n", contents, length) );
+				//DB( g_print(" keyfile:\n%s\nlen=%d\n", contents, length) );
 
-			filename = g_build_filename(homebank_app_get_config_dir(), "lastopenedfiles", NULL );
-			g_file_set_contents(filename, contents, length, NULL);
-			g_free(filename);
+				filename = g_build_filename(homebank_app_get_config_dir(), "lastopenedfiles", NULL );
+				g_file_set_contents(filename, contents, length, NULL);
+				g_free(filename);
 
-			g_free(contents);
-			g_key_file_free (keyfile);
+				g_free(contents);
+				g_key_file_free (keyfile);
+			}
 		}
 	}
 

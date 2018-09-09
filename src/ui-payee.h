@@ -34,10 +34,13 @@ enum
 struct ui_pay_manage_dialog_data
 {
 	GtkWidget	*window;
-
+	
+	GtkWidget	*ST_search;
+	GtkWidget	*BT_search;
 	GtkWidget	*ST_name;
 	GtkWidget	*LV_pay;
 
+	GtkWidget	*BT_add;
 	GtkWidget	*BT_edit;
 	GtkWidget	*BT_merge;
 	GtkWidget	*BT_delete;
@@ -53,7 +56,6 @@ struct payPopContext
 
 /* = = = = = = = = = = */
 
-gchar *ui_pay_comboboxentry_get_name(GtkComboBox *entry_box);
 guint32 ui_pay_comboboxentry_get_key(GtkComboBox *entry_box);
 guint32 ui_pay_comboboxentry_get_key_add_new(GtkComboBox *entry_box);
 Payee *ui_pay_comboboxentry_get(GtkComboBox *entry_box);
@@ -68,7 +70,7 @@ GtkWidget *ui_pay_comboboxentry_new(GtkWidget *label);
 void ui_pay_listview_add(GtkTreeView *treeview, Payee *item);
 guint32 ui_pay_listview_get_selected_key(GtkTreeView *treeview);
 void ui_pay_listview_remove_selected(GtkTreeView *treeview);
-void ui_pay_listview_populate(GtkWidget *view);
+void ui_pay_listview_populate(GtkWidget *treeview, gchar *needle);
 GtkWidget *ui_pay_listview_new(gboolean withtoggle, gboolean withcount);
 GtkWidget *ui_pay_manage_dialog (void);
 

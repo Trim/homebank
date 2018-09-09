@@ -62,7 +62,7 @@ static GtkWidget *create_list_repvehicle(void);
 
 
 static GtkActionEntry entries[] = {
-  { "Refresh" , ICONNAME_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repvehicle_action_refresh) },
+  { "Refresh" , ICONNAME_HB_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repvehicle_action_refresh) },
 
   { "Export" , ICONNAME_HB_FILE_EXPORT, N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (repvehicle_action_export) },
 };
@@ -327,14 +327,14 @@ guint32 catkey;
 		// eval split transaction
 		else
 		{
-		guint i, nbsplit = da_splits_count(ope->splits);
+		guint i, nbsplit = da_splits_length(ope->splits);
 		Split *split;
 
 			DB( g_print(" -> nb split %d\n", nbsplit) );
 			
 			for(i=0;i<nbsplit;i++)
 			{
-				split = ope->splits[i];
+				split = da_splits_get(ope->splits, i);
 				cat = da_cat_get(split->kcat);
 
 				DB( g_print(" -> eval split '%s'\n", split->memo) );

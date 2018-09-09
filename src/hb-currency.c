@@ -274,7 +274,7 @@ Currency *item;
 gboolean retval = FALSE;
 
 	item = da_cur_get(key);
-	if( item )
+	if( item && item->iso_code )
 	{
 		if(!strcasecmp("EUR", item->iso_code))
 			retval = TRUE;
@@ -488,7 +488,7 @@ Currency *item;
 	}
 	else
 	{
-		item->name = g_strdup("unknow");
+		item->name = g_strdup("unknown");
 		//item->country = cur.country_name;
 		item->iso_code = g_strdup("XXX");
 		item->frac_digits = 2;
@@ -524,16 +524,26 @@ Currency *cur;
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+/* currency API
+ * discontinued see #1730527, #1785210
+ */
 
+/* real open source fixer API */
+/* DNS should be: https://frankfurter.app
+ * see https://github.com/fixerAPI/fixer/issues/107
+ */
 
-/* 
-//test API
-gchar fixeriojson[] = 
-"{    }";
-"	{	\r	\"base\"	:	\"EUR\", \
-\"date\":	\n\r		\"2017-12-04\", \
-\"rates\"	\n\n		:{\"AUD\":1.5585,\"CAD\":1.5034,\"CHF\":1.1665,\"CNY\":7.8532,\"GBP\":0.87725,\"JPY\":133.91,\"USD\":1.1865 \
-}  	}";
+/* old
+** api.fixer.io deprecated since 30/04/2018
+** QS: https://api.fixer.io/latest?base=EUR&symbols=USD,CHF,AUD,CAD,JPY,CNY,GBP
+** 
+** test API
+** gchar fixeriojson[] = 
+** "{    }";
+** "	{	\r	\"base\"	:	\"EUR\", \
+** \"date\":	\n\r		\"2017-12-04\", \
+** \"rates\"	\n\n		:{\"AUD\":1.5585,\"CAD\":1.5034,\"CHF\":1.1665,\"CNY\":7.8532,\"GBP\":0.87725,\"JPY\":133.91,\"USD\":1.1865 \
+** }  	}";
 */
 
 
@@ -603,8 +613,10 @@ gint i;
 	base = da_cur_get (GLOBALS->kcur);
 
 	node = g_string_sized_new(512);
+	//todo: think about encapsulate the API call ourself
 	//todo: let the user choose http / https
-	g_string_append_printf(node, "https://api.fixer.io/latest?base=%s&symbols=", base->iso_code);
+	g_string_append_printf(node, "https://frankfurter.app/latest?base=%s&symbols=", base->iso_code);
+	//g_string_append_printf(node, "https://api.fixer.io/latest?base=%s&symbols=", base->iso_code);
 
 	list = g_hash_table_get_values(GLOBALS->h_cur);
 	i = g_list_length (list);

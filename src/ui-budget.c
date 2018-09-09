@@ -233,7 +233,8 @@ GtkTreeViewColumn  *column;
 	g_object_unref(store);
 
 	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (treeview), PREFS->grid_lines);
-
+	gtk_tree_view_set_enable_tree_lines(GTK_TREE_VIEW (treeview), TRUE);
+	
 	/* column 1 */
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set(renderer, 

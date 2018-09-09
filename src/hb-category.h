@@ -34,9 +34,9 @@ struct _category
 	gdouble		budget[13];	//0:is same value, 1 ..12 are months
 
 	/* unsaved datas */
-	gboolean	filter;
+	gchar		*fullname;
+	gboolean	flt_select;
 	guint		usage_count;
-	gboolean	imported;
 };
 
 #define GF_SUB		(1<<0)
@@ -48,37 +48,38 @@ struct _category
 Category *da_cat_clone(Category *src_item);
 void da_cat_free(Category *item);
 Category *da_cat_malloc(void);
+
 void da_cat_destroy(void);
 void da_cat_new(void);
 
 guint da_cat_length(void);
+guint32 da_cat_get_max_key(void);
+
 guint32 da_cat_remove(guint32 key);
 gboolean da_cat_insert(Category *acc);
 gboolean da_cat_append(Category *cat);
-guint32 da_cat_get_max_key(void);
-gchar *da_cat_get_fullname(Category *cat);
+Category *da_cat_append_ifnew_by_fullname(gchar *rawfullname);
 
-guint32 da_cat_get_key_by_name(gchar *name);
-
-guint32 category_report_id(guint32 key, gboolean subcat);
-
-Category *da_cat_get_by_name(gchar *name);
 Category *da_cat_get(guint32 key);
-Category *da_cat_get_by_fullname(gchar *fullname);
-Category *da_cat_append_ifnew_by_fullname(gchar *fullname, gboolean imported);
+Category *da_cat_get_by_fullname(gchar *rawfullname);
+
 void da_cat_consistency(Category *item);
 
 GList *category_glist_sorted(gint column);
 
+guint32 category_report_id(guint32 key, gboolean subcat);
+
 void category_delete_unused(void);
 void category_fill_usage(void);
+
 void category_move(guint32 key1, guint32 key2);
 gboolean category_rename(Category *item, const gchar *newname);
+
+gchar *category_find_preset(gchar **lang);
+gint category_type_get(Category *item);
 gint category_change_type(Category *item, gboolean isIncome);
 
 gboolean category_load_csv(gchar *filename, gchar **error);
 gboolean category_save_csv(gchar *filename, gchar **error);
-gchar *category_find_preset(gchar **lang);
-gint category_type_get(Category *item);
 
 #endif

@@ -81,7 +81,7 @@ gchar *tagstr;
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_cat), TRUE);
 				break;
 			case LST_DSPOPE_TAGS:
-				tagstr = transaction_tags_tostring(ope);
+				tagstr = tags_tostring(ope->tags);
 				gtk_entry_set_text(GTK_ENTRY(data->ST_tags), (tagstr != NULL) ? tagstr : "");
 				g_free(tagstr);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(data->CM_tags), TRUE);
@@ -271,7 +271,8 @@ guint changes;
 				txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_tags));
 				if (txt && *txt)
 				{
-					transaction_tags_parse(txn, txt);
+					g_free(txn->tags);
+					txn->tags = tags_parse(txt);
 					DB( g_print(" -> tags: '%s'\n", txt) );
 					change = TRUE;
 				}

@@ -27,6 +27,7 @@
 #include "gtk-chart-colors.h"
 #include "gtk-chart.h"
 
+
 #define MYDEBUG 0
 
 
@@ -906,6 +907,28 @@ int tw, th;
 			}
 			x += chart->blkw;
 		}
+	}
+
+	/* average */
+	if( chart->show_average )
+	{
+		if( chart->average < 0 )
+		{
+			y  = 0.5 + chart->oy + (ABS(chart->average)/chart->range) * chart->graph.height;
+		}
+		else
+		{
+			y  = 0.5 + chart->oy - (ABS(chart->average)/chart->range) * chart->graph.height;
+		}
+
+		DB( g_print(" draw average: x%d, y%f, w%d\n", chart->l, y, chart->w) );
+
+		cairo_user_set_rgbacol(cr, &global_colors[THTEXT], 1.0);
+		cairo_set_line_width(cr, 1.0);
+		cairo_set_dash (cr, dashed3, 1, 0);
+		cairo_move_to(cr, chart->graph.x, y);
+		cairo_line_to (cr, chart->graph.x + chart->graph.width, y);
+		cairo_stroke(cr);
 	}
 
 	g_object_unref (layout);

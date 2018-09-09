@@ -1,8 +1,68 @@
 
 
+2018-09-08  Maxime Doyen
+
+ Made 5.2 release.
+
+ * change: win32: downgraded to gtk+ 3.22.16
+ * change: import, you can drop file to import on the main window
+ * change: xhb data file format (v1.3)
+ * change: optimized XML close tag
+ * change: preferences, reorganised the pages and elements
+ * change: improved the split dialog with a listview and new layout
+ * change: migrated split to GPtrArray
+ * change: improved the register selection informations
+ * change: relayouted payee and category dialog
+ * change: removed most theme icons to keep a consistent interface
+ * wish  : #1783826 show average of selection
+ * wish  : #1760145 column chart for trend time report
+ * wish  : #1759028 filter templates by current account 
+ * wish  : #1744612 add Select All/None feature when importing transactions from files
+ * wish  : #1738816 import remember last account
+ * wish  : #1720538 execute all the rules for assignments 
+ * wish  : #1673902 add a visual marker for uncategorized txn
+ * wish  : #1673048 option to control the autocomplete of memo
+ * wish  : #1667501 update account target window if open
+ * wish  : #1661980 show category in subcategory view of budget report
+ * wish  : #1623931 import option to case convert txn description
+ * wish  : #1610563 enhance the backup system
+ * wish  : #1586211 import to always shows date tolerance
+ * wish  : #1579494 prevent to import csv invalid date combinations
+ * wish  : #1500227 add quick filter for manage payees window
+ * wish  : #1225122 split the amount of a transaction into more than 10 categories
+ * wish  : #1008629 optional default transaction template for each account
+ * wish  :  #969218 include tags in scheduled/template transaction
+ * wish  :  #829418 option to help detect duplicated transaction
+ * wish  :  #668417 list of all transactions
+ * wish  :  #528739 implement import of multiple files
+ * bugfix: #1785210 currencies update fail due to fixer.io requires api key
+ * bugfix: #1772281 segmentation fault if you entered a category ending with :
+ * bugfix: #1787830 lost account focus after internal transfert
+ * bugfix: #1787829 filter for internal xfer target is wrong from txn
+ * bugfix: #1784862 budget report graph partially display last line
+ * bugfix: #1782926 Save unavailable after import of OFX
+ * bugfix: #1782749 when editing multiple transactions Homebank doesn't display the "account changed" icon
+ * bugfix: #1771720 merging a category doesn't update the count 
+ * bugfix: #1767659 top spending graphic treats income as expenses
+ * bugfix: #1765953 quick (partial) date entry doesn't work anymore
+ * bugfix: #1764547 cannot rename payee in case-sensitive way
+ * bugfix: #1764133 display of quarter shows calendar year not fiscal year
+ * bugfix: #1763952 date resets to 01/01/1900 while adding a new transaction
+ * bugfix: #1758532 trendtime report quarter bound date wrong
+ * bugfix: #1756601 report 'select all' prevent to pick some date
+
+
+2018-05-08  Maxime Doyen
+
+ Made 5.2 rc release.
+
+
 2018-03-18  Maxime Doyen
 
  Made 5.1.8 release.
+
+ * new   : added a recent file to the menu
+ * change: removed the convert to euro menu when the account is already in euro
  * wish  : #1743254 add more decimals for cryptocurrencies
  * wish  : #1743147 enable/disable show future txn in register window
  * wish  : #1446505 trendtime, average line, negative amounts 
@@ -18,6 +78,7 @@
 2018-01-06  Maxime Doyen
 
  Made 5.1.7 release.
+
  * new   : added an icon for closed accounts
  * new   : rewritten partially the charts and removed the treeview for legend
  * new   : chart line have now a vertical line on active item
@@ -33,6 +94,7 @@
  * wish  : #1741339 transaction quicksearch into amounts
  * wish  : #1709374 enable to export detail list from reports
  * wish  : #1697241 allow custom currencies for cryptocurrency and discontinued
+ * wish  : #1674045 only rely on report exclusion option for closed account
  * wish  : #1674018 usability and UX improvements for the reports dialog's toolbars
  * wish  : #1661986 separate view of out of budget categories in budget report
  * wish  : #1656589 add highlighting on legend text for report graph
@@ -54,6 +116,7 @@
 2017-09-14  Maxime Doyen
 
  Made 5.1.6 release.
+
  * change: win32: upgraded to gtk+ 3.22.16
  * wish  : #1710955 warn when opening a backup file
  * bugfix: #1716182 New memo doesn't get added to quick list
@@ -75,6 +138,7 @@
 2017-05-10  Maxime Doyen
 
  Made 5.1.5 release.
+
  * change: win32: upgraded to gtk+ 3.22.7
  * bugfix: updating currency rate was not updating file changes (and enable save)
  * bugfix: #1689308 category usage count does not get updated for split transactions

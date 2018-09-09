@@ -85,7 +85,7 @@ static guint n_radio_entries = G_N_ELEMENTS (radio_entries);
 
 
 static GtkActionEntry entries[] = {
-  { "Refresh" , ICONNAME_REFRESH, N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbudget_action_refresh) },
+  { "Refresh" , ICONNAME_HB_REFRESH, N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbudget_action_refresh) },
 
 //  { "Export"  , ICONNAME_HB_FILE_EXPORT , N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (repbudget_action_export) },
 };
@@ -554,13 +554,13 @@ GtkTreeIter  iter;
 			//filter here
 			if( ope->flags & OF_SPLIT )
 			{
-			guint nbsplit = da_splits_count(ope->splits);
+			guint nbsplit = da_splits_length(ope->splits);
 			Split *split;
 			guint i;
 			
 				for(i=0;i<nbsplit;i++)
 				{
-					split = ope->splits[i];
+					split = da_splits_get(ope->splits, i);
 					switch(tmpfor)
 					{
 						case BUDG_CATEGORY:
@@ -637,6 +637,7 @@ GtkTreeIter  iter;
 GList *list;
 guint n_result, id;
 gdouble *tmp_spent, *tmp_budget;
+gboolean *tmp_hassub;
 gint nbmonth = 1;
 gchar *title;
 
@@ -655,7 +656,6 @@ gchar *title;
 	g_queue_free (data->txn_queue);
 	data->txn_queue = hbfile_transaction_get_partial_budget(data->filter->mindate, data->filter->maxdate);
 
-
 	DB( g_print(" for=%d, kind=%d\n", tmpfor, tmpkind) );
 
 	nbmonth = countmonth(mindate, maxdate);
@@ -667,8 +667,9 @@ gchar *title;
 	/* allocate some memory */
 	tmp_spent  = g_malloc0((n_result+1) * sizeof(gdouble));
 	tmp_budget = g_malloc0((n_result+1) * sizeof(gdouble));
+	tmp_hassub = g_malloc0((n_result+1) * sizeof(gboolean));
 
-	if(tmp_spent && tmp_budget)
+	if(tmp_spent && tmp_budget && tmp_hassub)
 	{
 	guint i = 0;
 		/* compute the results */
@@ -682,8 +683,6 @@ gchar *title;
 		for(i=1; i<=n_result; i++)
 		{
 		Category *entry;
-		//gchar buffer[128];
-		gint pos;
 
 			entry = da_cat_get(i);
 			if( entry == NULL)
@@ -693,34 +692,24 @@ gchar *title;
 				entry->key, entry->name, (entry->flags & GF_SUB), (entry->flags & GF_BUDGET), (entry->flags & GF_CUSTOM)) );
 
 			//debug
-			#if MYDEBUG == 1
+			/*#if MYDEBUG == 1
 			gint k;
 			g_print("    budget vector: ");
 			for(k=0;k<13;k++)
 				g_print( " %d:[%.2f]", k, entry->budget[k]);
 			g_print("\n");
-			#endif
-
-			pos = 0;
-			switch(tmpfor)
-			{
-				case BUDG_CATEGORY:
-					{
-					Category *catentry = da_cat_get(i);
-						if(catentry)
-							pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-					}
-					break;
-				case BUDG_SUBCATEGORY:
-					pos = i;
-					break;
-			}
+			#endif*/
 
 			// same value each month ?
 			if(!(entry->flags & GF_CUSTOM))
 			{
 				DB( g_print("    - monthly %.2f\n", entry->budget[0]) );
-				tmp_budget[pos] += entry->budget[0]*nbmonth;
+				tmp_budget[entry->key] += entry->budget[0]*nbmonth;
+				if( entry->flags & GF_SUB )
+				{
+					tmp_budget[entry->parent] += entry->budget[0]*nbmonth;
+					tmp_hassub[entry->parent] = TRUE;
+				}
 			}
 			//otherwise	sum each month from mindate month
 			else
@@ -731,88 +720,67 @@ gchar *title;
 				DB( g_print("    - custom each month for %d months\n", nbmonth) );
 				for(j=0;j<nbmonth;j++) {
 					DB( g_print("      j=%d month=%d budg=%.2f\n", j, month, entry->budget[month]) );
-					tmp_budget[pos] += entry->budget[month];
-					month++;
-					if(month > 12) {
-						month = 1;
+					tmp_budget[entry->key] += entry->budget[month];
+					if( entry->flags & GF_SUB )
+					{
+						tmp_budget[entry->parent] += entry->budget[month];
+						tmp_hassub[entry->parent] = TRUE;
 					}
+					month++;
+					if(month > 12) { month = 1; }
 				}
 			}
-
-			//debug
-			#if MYDEBUG == 1
-			g_print("    final budget: %d:'%s' : budg[%d]=%.2f\n", entry->key, entry->name, pos, tmp_budget[pos] );
-			#endif
 		}
 
 
 		// compute spent for each transaction */
 		DB( g_print("\n+ compute spent from transactions\n") );
 
-
 		list = g_queue_peek_head_link(data->txn_queue);
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		gint pos = 0;
-		gdouble trn_amount;
+		Category *cat;
+		gdouble txn_amount;
 
 			//DB( g_print("%d, get ope: %s :: acc=%d, cat=%d, mnt=%.2f\n", i, ope->memo, ope->account, ope->category, ope->amount) );
 
 			if( ope->flags & OF_SPLIT )
 			{
-			guint nbsplit = da_splits_count(ope->splits);
+			guint nbsplit = da_splits_length(ope->splits);
 			Split *split;
 			
 				for(i=0;i<nbsplit;i++)
 				{
-					split = ope->splits[i];
-					switch(tmpfor)
+					split = da_splits_get(ope->splits, i);
+					cat = da_cat_get(split->kcat);
+					if(cat)
 					{
-						case BUDG_CATEGORY:
-							{
-							Category *catentry = da_cat_get(split->kcat);
-								if(catentry)
-									pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-							}
-							break;
-						case BUDG_SUBCATEGORY:
-							pos = split->kcat;
-							break;
-					}
-
-					//trn_amount = split->amount;
-					trn_amount = hb_amount_base(split->amount, ope->kcur);
-
-					DB( g_print(" -> affecting split %.2f to cat pos %d\n", trn_amount, pos) );
-
-					tmp_spent[pos] += trn_amount;
-				
+						//txn_amount = split->amount;
+						txn_amount = hb_amount_base(split->amount, ope->kcur);
+						tmp_spent[cat->key] += txn_amount;
+						if( cat->flags & GF_SUB )
+						{
+							tmp_spent[cat->parent] += txn_amount;
+						}
+						DB( g_print(" -> affecting split %.2f to cat %d\n", txn_amount, cat->key) );
+					}				
 				}
 			}
 			else
 			{
-				switch(tmpfor)
+				cat = da_cat_get(ope->kcat);
+				if(cat)
 				{
-					case BUDG_CATEGORY:
-						{
-						Category *catentry = da_cat_get(ope->kcat);
-							if(catentry)
-								pos = (catentry->flags & GF_SUB) ? catentry->parent : catentry->key;
-						}
-						break;
-					case BUDG_SUBCATEGORY:
-						pos = ope->kcat;
-						break;
+					//txn_amount = ope->amount;
+					txn_amount = hb_amount_base(ope->amount, ope->kcur);
+					tmp_spent[cat->key] += txn_amount;
+					if( cat->flags & GF_SUB )
+					{
+						tmp_spent[cat->parent] += txn_amount;
+					}
+					DB( g_print(" -> affecting %.2f to cat %d\n", txn_amount, cat->key) );
 				}
-
-				//trn_amount = ope->amount;
-				trn_amount = hb_amount_base(ope->amount, ope->kcur);
-
-				DB( g_print(" -> affecting %.2f to cat pos %d\n", trn_amount, pos) );
-
-				tmp_spent[pos] += trn_amount;
-
 			}
 
 			list = g_list_next(list);
@@ -827,36 +795,22 @@ gchar *title;
 		g_object_ref(model); /* Make sure the model stays with us after the tree view unrefs it */
 		gtk_tree_view_set_model(GTK_TREE_VIEW(data->LV_report), NULL); /* Detach model from view */
 
-		DB( g_print("\n+ insert into treeview\n") );
-
-		/* insert into the treeview */
 		for(i=1, id=0; i<=n_result; i++)
 		{
-		gchar *name, *fullcatname;
+		gchar *name;
 		gboolean outofbudget;
 		Category *entry;
-
-			fullcatname = NULL;
 
 			entry = da_cat_get(i);
 			if( entry == NULL)
 				continue;
 
-			if(entry->flags & GF_SUB)
-			{
-			Category *parent = da_cat_get( entry->parent);
-
-				fullcatname = g_strdup_printf("%s:%s", parent->name, entry->name);
-				name = fullcatname;
-			}
-			else
-				name = entry->name;
-
-			if(name == NULL) name  = "(None)";
+			name = entry->key == 0 ? "(None)" : entry->fullname;
 
 			//#1553862
 			//if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY) )
-			if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || (tmpfor == BUDG_SUBCATEGORY && (entry->flags & GF_SUB)) )
+			if( (tmpfor == BUDG_CATEGORY && !(entry->flags & GF_SUB)) || 
+			   (tmpfor == BUDG_SUBCATEGORY && ((entry->flags & GF_SUB) || !tmp_hassub[i]) ) )
 			{
 			guint pos;
 
@@ -901,26 +855,29 @@ gchar *title;
 
 					status = "";
 					outofbudget = FALSE;
-					if(rawrate > 1.0)
+					if( result )
 					{
-						status = _(" over");
-						outofbudget = TRUE;
-					}
-					else
-					{
-						if(tmp_budget[pos] < 0.0)
-							status = _(" left");
-						else if(tmp_budget[pos] > 0.0)
+						if(rawrate > 1.0)
 						{
-							status = _(" under");
+							status = _(" over");
 							outofbudget = TRUE;
+						}
+						else
+						{
+							if(tmp_budget[pos] < 0.0)
+								status = _(" left");
+							else if(tmp_budget[pos] > 0.0)
+							{
+								status = _(" under");
+								outofbudget = TRUE;
+							}
 						}
 					}
 
 					if(tmponlyout == TRUE && outofbudget == FALSE)
 						goto nextins;
 
-					DB( g_print(" => insert %.2f | %.2f = %.2f (%.2f) '%s'\n\n", tmp_spent[pos], tmp_budget[pos], result, rawrate, status ) );
+					DB( g_print(" => insert '%s' s:%.2f b:%.2f r:%.2f (%%%.2f) '%s' '%d'\n\n", name, tmp_spent[pos], tmp_budget[pos], result, rawrate, status, outofbudget ) );
 
 					gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 			 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -938,9 +895,6 @@ gchar *title;
 					data->total_budget += tmp_budget[pos];
 				}
 			}
-
-			g_free(fullcatname);
-
 		}
 
 		/* update column 0 title */
@@ -971,6 +925,7 @@ gchar *title;
 	//DB( g_print(" inserting %i, %f %f\n", i, total_expense, total_income) );
 
 	/* free our memory */
+	g_free(tmp_hassub);
 	g_free(tmp_spent);
 	g_free(tmp_budget);
 

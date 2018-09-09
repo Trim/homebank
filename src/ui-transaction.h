@@ -22,6 +22,12 @@
 
 #include "ui-split.h"
 
+
+/* official GTK_RESPONSE are negative */
+#define HB_RESPONSE_ADD		 1
+#define HB_RESPONSE_ADDKEEP	 2
+
+
 enum {
 	HID_AMOUNT,
 	MAX_HID_AMOUNT
@@ -38,6 +44,7 @@ struct deftransaction_data
 	GtkTreeModelFilter *modelfilter;
 	GtkWidget   *LV_arc;
 	GtkWidget   *CM_showsched;
+	GtkWidget   *CM_showallacc;
 	GtkWidget   *ST_search;
 
 	GtkWidget	*PO_date;
@@ -59,6 +66,7 @@ struct deftransaction_data
 	gint		action;
 	gint		accnum;
 	gint		type;
+	guint32		kacc;
 	gboolean	showtemplate;
 
 	Transaction *ope;
@@ -73,7 +81,7 @@ enum
 };
 
 
-GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode);
+GtkWidget *create_deftransaction_window (GtkWindow *parent, gint type, gboolean postmode, guint32 kacc);
 void deftransaction_set_amount(GtkWidget *widget, gdouble amount);
 gint deftransaction_external_edit(GtkWindow *parent, Transaction *old_txn, Transaction *new_txn);
 void deftransaction_set_transaction(GtkWidget *widget, Transaction *ope);

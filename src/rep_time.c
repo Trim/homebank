@@ -52,7 +52,7 @@ extern struct Preferences *PREFS;
 
 /* prototypes */
 static void ui_reptime_action_viewlist(GtkAction *action, gpointer user_data);
-//static void ui_reptime_action_viewcolumn(GtkAction *action, gpointer user_data);
+static void ui_reptime_action_viewcolumn(GtkAction *action, gpointer user_data);
 static void ui_reptime_action_viewline(GtkAction *action, gpointer user_data);
 static void ui_reptime_action_detail(GtkAction *action, gpointer user_data);
 //static void ui_reptime_action_filter(GtkAction *action, gpointer user_data);
@@ -64,13 +64,13 @@ static void ui_reptime_list_set_cur(GtkTreeView *treeview, guint32 kcur);
 static GtkRadioActionEntry radio_entries[] = {
   { "List"    , ICONNAME_HB_VIEW_LIST  , N_("List")   , NULL,    N_("View results as list")  , 0 },
   { "Line"    , ICONNAME_HB_VIEW_LINE  , N_("Line")   , NULL,    N_("View results as lines") , 1 },
-//  { "Column"  , ICONNAME_HB_VIEW_COLUMN, N_("Column") , NULL,    N_("View results as column"), 2 },
+  { "Column"  , ICONNAME_HB_VIEW_COLUMN, N_("Column") , NULL,    N_("View results as column"), 2 },
 };
 static guint n_radio_entries = G_N_ELEMENTS (radio_entries);
 
 static GtkActionEntry entries[] = {
 //  { "Filter"  , ICONNAME_HB_FILTER    , N_("Filter") , NULL,   N_("Edit the filter"), G_CALLBACK (ui_reptime_action_filter) },
-  { "Refresh" , ICONNAME_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_reptime_action_refresh) },
+  { "Refresh" , ICONNAME_HB_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_reptime_action_refresh) },
 
 //  { "Export" , ICONNAME_HB_FILE_EXPORT, N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_reptime_action_export) },
 };
@@ -92,7 +92,7 @@ static const gchar *ui_info =
 "  <toolbar name='ToolBar'>"
 "    <toolitem action='List'/>"
 "    <toolitem action='Line'/>"
-//"    <toolitem action='Column'/>"
+"    <toolitem action='Column'/>"
 "      <separator/>"
 "    <toolitem action='Detail'/>"
 "      <separator/>"
@@ -167,7 +167,7 @@ struct ui_reptime_data *data = user_data;
 }
 
 
-/*static void ui_reptime_action_viewcolumn(GtkAction *action, gpointer user_data)
+static void ui_reptime_action_viewcolumn(GtkAction *action, gpointer user_data)
 {
 struct ui_reptime_data *data = user_data;
 
@@ -176,7 +176,7 @@ struct ui_reptime_data *data = user_data;
 	ui_reptime_sensitive(data->window, NULL);
 	ui_reptime_update(data->window, NULL);
 
-}*/
+}
 
 
 static void ui_reptime_action_mode (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
@@ -191,6 +191,9 @@ gint value;
 			break;
 		case 1:
 			ui_reptime_action_viewline(GTK_ACTION(action), user_data);
+			break;
+		case 2:
+			ui_reptime_action_viewcolumn (GTK_ACTION(action), user_data);
 			break;
 	}
 }
@@ -246,10 +249,10 @@ struct ui_reptime_data *data = user_data;
 /*
 ** return the month list position correponding to the passed date
 */
-static gint DateInMonth(guint32 from, guint32 opedate)
+static guint DateInMonth(guint32 from, guint32 opedate)
 {
 GDate *date1, *date2;
-gint pos;
+guint pos;
 
 	//debug
 	// this return sometimes -1, -2 which is wrong
@@ -267,33 +270,44 @@ gint pos;
 	return(pos);
 }
 
-static gint DateInQuarter(guint32 from, guint32 opedate)
+//for fiscal sub gap between 1st fiscal and 1/1/year
+
+//int quarterNumber = (date.Month-1)/3+1;
+//DateTime firstDayOfQuarter = new DateTime(date.Year, (quarterNumber-1)*3+1,1);
+//DateTime lastDayOfQuarter = firstDayOfQuarter.AddMonths(3).AddDays(-1);
+
+static guint DateInQuarter(guint32 from, guint32 opedate)
 {
 GDate *date1, *date2;
-gint pos;
-
-	//debug
-	// this return sometimes -1, -2 which is wrong
+guint quarter, pos;
 
 	date1 = g_date_new_julian(from);
 	date2 = g_date_new_julian(opedate);
 
+	//#1758532 shift to first quarter day of 'from date' 
+	quarter = ((g_date_get_month(date1)-1)/3)+1;
+	DB( g_print("-- from=%02d/%d :: Q%d\n", g_date_get_month(date1), g_date_get_year(date1), quarter) );
+	g_date_set_day(date1, 1);
+	g_date_set_month(date1, ((quarter-1)*3)+1);
+
 	pos = (((g_date_get_year(date2) - g_date_get_year(date1)) * 12) + g_date_get_month(date2) - g_date_get_month(date1))/3;
 
-	DB( g_print(" from=%d-%d ope=%d-%d => %d\n", g_date_get_month(date1), g_date_get_year(date1), g_date_get_month(date2), g_date_get_year(date2), pos) );
+	DB( g_print("-- from=%02d/%d ope=%02d/%d => pos=%d\n", g_date_get_month(date1), g_date_get_year(date1), g_date_get_month(date2), g_date_get_year(date2), pos) );
 
 	g_date_free(date2);
 	g_date_free(date1);
 
 	return(pos);
 }
+
+
 /*
 ** return the year list position correponding to the passed date
 */
-static gint DateInYear(guint32 from, guint32 opedate)
+static guint DateInYear(guint32 from, guint32 opedate)
 {
 GDate *date;
-gint year_from, year_ope, pos;
+guint year_from, year_ope, pos;
 
 	date = g_date_new_julian(from);
 	year_from = g_date_get_year(date);
@@ -447,7 +461,7 @@ guint32 selkey;
 		while (list != NULL)
 		{
 		Transaction *ope = list->data;
-		guint32 pos = 0;
+		guint pos = 0;
 		gboolean include = FALSE;
 
 			//DB( g_print(" get %s\n", ope->ope_Word) );
@@ -464,12 +478,12 @@ guint32 selkey;
 				
 					if( ope->flags & OF_SPLIT )
 					{
-					guint nbsplit = da_splits_count(ope->splits);
+					guint nbsplit = da_splits_length(ope->splits);
 					Split *split;
 					
 						for(i=0;i<nbsplit;i++)
 						{
-							split = ope->splits[i];
+							split = da_splits_get(ope->splits, i);
 							catentry = da_cat_get(split->kcat);
 							if(catentry != NULL)	//#1340142
 							{
@@ -757,7 +771,7 @@ struct ui_reptime_data *data;
 static void ui_reptime_compute(GtkWidget *widget, gpointer user_data)
 {
 struct ui_reptime_data *data;
-gint tmpfor, tmpslice;
+gint tmpfor, tmpslice, range;
 guint32 from, to;
 gboolean cumul;
 gboolean showall;
@@ -781,6 +795,7 @@ guint32 selkey;
 	tmpslice = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_view));
 	cumul = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_cumul));
 	showall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_all));
+	range = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
 	selkey = 0;
 	
 	data->accnum = 0;
@@ -804,7 +819,7 @@ guint32 selkey;
 
 	//to remove > 5.0.2
 	//#1715532 5.0.5: no... but only showall
-	if(showall == TRUE)
+	if( (showall == TRUE) && (range == FLT_RANGE_ALLDATE) )
 	{
 		filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
 		ui_reptime_update_quickdate(widget, NULL);
@@ -886,7 +901,7 @@ guint32 selkey;
 		gboolean include = FALSE;
 
 			//debug
-			DB( g_print("** testing '%s', cat=%d==> %d\n", ope->memo, ope->kcat, filter_test(data->filter, ope)) );
+			DB( g_print("\n** testing '%s', cat=%d==> %d\n", ope->memo, ope->kcat, filter_test(data->filter, ope)) );
 
 			// add usage of payee or category
 			switch(tmpfor)
@@ -901,12 +916,12 @@ guint32 selkey;
 				
 					if( ope->flags & OF_SPLIT )
 					{
-					guint nbsplit = da_splits_count(ope->splits);
+					guint nbsplit = da_splits_length(ope->splits);
 					Split *split;
 					
 						for(i=0;i<nbsplit;i++)
 						{
-							split = ope->splits[i];
+							split = da_splits_get(ope->splits, i);
 							catentry = da_cat_get(split->kcat);
 							if(catentry != NULL)	//#1340142
 							{
@@ -935,7 +950,7 @@ guint32 selkey;
 
 			if( include == TRUE || showall == TRUE)
 			{
-			guint32 pos = 0;
+			guint pos = 0;
 			gdouble trn_amount;
 			
 				switch(tmpslice)
@@ -965,13 +980,13 @@ guint32 selkey;
 				
 				if( (tmpfor == FOR_REPTIME_CATEGORY) && (ope->flags & OF_SPLIT) )
 				{
-				guint nbsplit = da_splits_count(ope->splits);
+				guint nbsplit = da_splits_length(ope->splits);
 				Split *split;
 				Category *catentry;
 				
 					for(i=0;i<nbsplit;i++)
 					{
-						split = ope->splits[i];
+						split = da_splits_get(ope->splits, i);
 						catentry = da_cat_get(split->kcat);
 						if(catentry != NULL)	//#1340142
 						{
@@ -1049,6 +1064,7 @@ guint32 selkey;
 					date = g_date_new_julian(from);
 					g_date_add_months(date, i*3);
 					//g_snprintf(buffer, 63, "%d-%02d", g_date_get_year(date), g_date_get_month(date));
+					//todo: will be innacurrate here if fiscal year start not 1/jan
 					g_snprintf(buffer, 63, "%d-%d", g_date_get_year(date), ((g_date_get_month(date)-1)/3)+1);
 					g_date_free(date);
 					name = buffer;

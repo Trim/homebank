@@ -26,7 +26,7 @@ GtkWidget *make_clicklabel(gchar *id, gchar *str);
 GtkWidget *make_label_group(gchar *str);
 GtkWidget *make_label_widget(gchar *str);
 GtkWidget *make_text(gfloat xalign);
-GtkWidget *make_search(GtkWidget *label);
+GtkWidget *make_search(void);
 GtkWidget *make_string(GtkWidget *label);
 GtkWidget *make_image_button(gchar *icon_name, gchar *tooltip_text);
 
@@ -41,6 +41,9 @@ GtkWidget *make_year(GtkWidget *label);
 GtkWidget *make_cycle(GtkWidget *label, gchar **items);
 GtkWidget *make_daterange(GtkWidget *label, gboolean custom);
 
+guint32 hb_combo_box_get_active_id(GtkComboBox *combobox);
+void hb_combo_box_set_active_id(GtkComboBox *combobox, guint32 active_id);
+GtkWidget *make_acctype(GtkWidget *label);
 
 void ui_label_set_integer(GtkLabel *label, gint value);
 

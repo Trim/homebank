@@ -348,7 +348,6 @@ GtkTreeIter iter;
 		
 		g_array_append_vals(chart->items, &item, 1);
 
-
 		//don't g_free(label); here done into chart_clear
 		//don't g_free(status); here done into chart_clear
 
@@ -538,7 +537,8 @@ PangoLayout *layout;
 	blkw = chart->barw + floor(chart->barw * 0.2);
 	chart->blkw = blkw;
 	
-	chart->visible = MIN( 1 + (chart->graph_height / blkw), chart->nb_items);
+	chart->visible = (chart->graph_height - chart->t) / blkw;
+	chart->visible = MIN(chart->visible, chart->nb_items);
 
 	g_object_unref (layout);
 	
@@ -1049,6 +1049,9 @@ GdkRGBA color;
 	chart->pfd_size = pango_font_description_get_size (desc) / PANGO_SCALE;
 	chart->barw = (6 + chart->pfd_size) * PHI;
 
+	//leak: we should free desc here ?
+	//or no need to copy above ?
+	//pango_font_description_free(desc);
 
 	DB( g_print("family: %s\n", pango_font_description_get_family(chart->pfd) ) );
 	DB( g_print("size  : %d (%d)\n", chart->pfd_size, chart->pfd_size/PANGO_SCALE ) );

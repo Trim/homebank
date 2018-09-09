@@ -22,8 +22,7 @@
 
 enum {
 	LIST_TXN_TYPE_BOOK,
-	LIST_TXN_TYPE_DETAIL,
-	LIST_TXN_TYPE_IMPORT,
+	LIST_TXN_TYPE_DETAIL
 };
 
 struct list_txn_data
@@ -32,6 +31,7 @@ struct list_txn_data
 	GtkTreeViewColumn   *tvc_balance;
 	
 	gint				list_type;
+	gboolean			showall;
 	gboolean			tvc_is_visible;
 	gboolean			save_column_width;
 };
@@ -42,6 +42,7 @@ GtkWidget *create_list_transaction(gint type, gboolean *pref_columns);
 GtkWidget *create_list_import_transaction(gboolean enable_choose);
 
 gboolean list_txn_column_id_isvisible(GtkTreeView *treeview, gint sort_id);
+void list_txn_set_column_acc_visible(GtkTreeView *treeview, gboolean visible);
 
 Transaction *list_txn_get_active_transaction(GtkTreeView *treeview);
 

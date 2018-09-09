@@ -113,10 +113,6 @@ enum
 	NUM_LST_DSPOPE
 };
 
-/* list_import_transaction */
-#define LST_OPE_IMPTOGGLE 2
-
-
 
 /* list define archive (defarchive) */
 enum

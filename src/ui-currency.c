@@ -1171,7 +1171,7 @@ gint crow, row;
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, crow++, 1, 1);
 
 	row = 0;
-	widget = gtk_search_entry_new();
+	widget = make_search();
 	data.ST_search = widget;
 	gtk_widget_set_hexpand (widget, TRUE);
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 4, 1);
@@ -1697,7 +1697,7 @@ gint crow, row, w, h;
 	data.BB_update = bbox;
 	gtk_grid_attach (GTK_GRID(group_grid), bbox, 0, row, 1, 1);
 
-	widget = gtk_button_new_from_icon_name (ICONNAME_REFRESH, GTK_ICON_SIZE_BUTTON);
+	widget = gtk_button_new_from_icon_name (ICONNAME_HB_REFRESH, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add (GTK_CONTAINER (bbox), widget);
 	
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (ui_cur_manage_dialog_sync), NULL);

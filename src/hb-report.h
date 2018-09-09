@@ -21,7 +21,7 @@
 #define __HB_REPORT_H__
 
 
-typedef struct _carcost	CarCost;
+typedef struct _carcost CarCost;
 
 struct _carcost
 {

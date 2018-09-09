@@ -84,7 +84,6 @@ gdouble value;
 	}
 
 	item->kcur = GLOBALS->kcur;
-	
 	item->type = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_type));
 
 	item->number = g_strdup(gtk_entry_get_text(GTK_ENTRY(data->ST_number)));

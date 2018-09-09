@@ -82,7 +82,7 @@ GFileInfo *gfileinfo;
 	if( gfileinfo )
 	{
 		retval = g_file_info_get_attribute_uint64 (gfileinfo, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-		DB( g_print("- '%s' last access = %lu\n", filepath, xhb_time_modified) );	
+		DB( g_print("- '%s' last access = %lu\n", filepath, retval) );	
 		g_object_unref(gfileinfo);
 	}
 	g_object_unref(gfile);
@@ -494,9 +494,10 @@ guint cnt, i;
 		
 			if(item->flags & OF_SPLIT)
 			{
-				for(i=0;i<TXN_MAX_SPLIT;i++)
+				cnt = da_splits_length (item->splits);
+				for(i=0;i<cnt;i++)
 				{
-					split = item->splits[i];
+					split = da_splits_get(item->splits, i);
 					if( split == NULL ) break;
 
 					if(split->memo != NULL)

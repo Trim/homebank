@@ -21,7 +21,7 @@
 #define __HB_SPLIT_H__
 
 
-#define TXN_MAX_SPLIT 10
+#define TXN_MAX_SPLIT 60
 
 typedef struct _split Split;
 
@@ -34,16 +34,22 @@ struct _split
 };
 
 
-void da_splits_append(Split *txn_splits[], Split *new_split);
-void da_splits_free(Split *txn_splits[]);
-guint da_splits_count(Split *txn_splits[]);
-guint da_splits_clone(Split *stxn_splits[], Split *dtxn_splits[]);
+void da_split_free(Split *item);
+Split *da_split_malloc(void);
+void da_split_destroy(GPtrArray *splits);
+GPtrArray *da_split_new(void);
 
-Split *da_split_new(guint32 kcat, gdouble amount, gchar	*memo);
-guint da_splits_parse(Split *ope_splits[], gchar *cats, gchar *amounts, gchar *memos);
-guint da_splits_tostring(Split *ope_splits[], gchar **cats, gchar **amounts, gchar **memos);
+guint da_splits_length(GPtrArray *splits);
+gboolean da_splits_remove(GPtrArray *splits, Split *item);
+void da_splits_append(GPtrArray *splits, Split *item);
 
-void split_cat_consistency (Split *txn_splits[]);
+Split *da_splits_get(GPtrArray *splits, guint index);
+GPtrArray *da_splits_clone(GPtrArray *src_splits);
+
+guint da_splits_parse(GPtrArray *splits, gchar *cats, gchar *amounts, gchar *memos);
+guint da_splits_tostring(GPtrArray *splits, gchar **cats, gchar **amounts, gchar **memos);
+
+guint da_splits_consistency (GPtrArray *splits);
 
 
 #endif

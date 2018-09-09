@@ -70,7 +70,7 @@ static guint n_radio_entries = G_N_ELEMENTS (radio_entries);
 
 static GtkActionEntry entries[] = {
   { "Filter"  , ICONNAME_HB_FILTER      , N_("Filter") , NULL,   N_("Edit filter"), G_CALLBACK (ui_repdist_action_filter) },
-  { "Refresh" , ICONNAME_REFRESH        , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
+  { "Refresh" , ICONNAME_HB_REFRESH        , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (ui_repdist_action_refresh) },
 
   //{ "Export"  , ICONNAME_HB_FILE_EXPORT , N_("Export")  , NULL,   N_("Export as CSV"), G_CALLBACK (ui_repdist_action_export) },
 };
@@ -484,12 +484,12 @@ GtkTreeIter  iter;
 				{
 					if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 					{
-					guint nbsplit = da_splits_count(ope->splits);
+					guint nbsplit = da_splits_length(ope->splits);
 					Split *split;
 					
 						for(i=0;i<nbsplit;i++)
 						{
-							split = ope->splits[i];
+							split = da_splits_get(ope->splits, i);
 							switch(tmpfor)
 							{
 								case BY_REPDIST_CATEGORY:
@@ -952,7 +952,7 @@ gdouble exprate, incrate, balrate;
 				//#1562372 in case of a split we need to take amount for filter categories only
 				if( ope->flags & OF_SPLIT )
 				{
-				guint nbsplit = da_splits_count(ope->splits);
+				guint nbsplit = da_splits_length(ope->splits);
 				Split *split;
 				Category *catentry;
 				gint sinsert;
@@ -961,10 +961,10 @@ gdouble exprate, incrate, balrate;
 
 					for(i=0;i<nbsplit;i++)
 					{
-						split = ope->splits[i];
+						split = da_splits_get(ope->splits, i);
 						catentry = da_cat_get(split->kcat);
 						if(catentry == NULL) continue;
-						sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
+						sinsert = ( catentry->flt_select == TRUE ) ? 1 : 0;
 						if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
 
 						DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );
@@ -982,17 +982,17 @@ gdouble exprate, incrate, balrate;
 				{
 					if( (tmpfor == BY_REPDIST_CATEGORY || tmpfor == BY_REPDIST_SUBCATEGORY) && ope->flags & OF_SPLIT )
 					{
-					guint nbsplit = da_splits_count(ope->splits);
+					guint nbsplit = da_splits_length(ope->splits);
 					Split *split;
 					Category *catentry;
 					gint sinsert;
 
 						for(i=0;i<nbsplit;i++)
 						{
-							split = ope->splits[i];
+							split = da_splits_get(ope->splits, i);
 							catentry = da_cat_get(split->kcat);
 							if(catentry == NULL) continue;
-							sinsert = ( catentry->filter == TRUE ) ? 1 : 0;
+							sinsert = ( catentry->flt_select == TRUE ) ? 1 : 0;
 							if(data->filter->option[FILTER_CATEGORY] == 2) sinsert ^= 1;
 
 							DB( g_print(" split '%s' insert=%d\n",catentry->name, sinsert) );

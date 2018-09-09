@@ -282,15 +282,12 @@ GtkWidget *entry;
 }
 
 
-GtkWidget *make_search(GtkWidget *label)
+GtkWidget *make_search(void)
 {
 GtkWidget *search;
 
 	search = gtk_search_entry_new();
 	gtk_entry_set_placeholder_text(GTK_ENTRY(search), _("Search...") );
-
-	if(label)
-		gtk_label_set_mnemonic_widget (GTK_LABEL(label), search);
 
 	return search;
 }
@@ -414,7 +411,7 @@ const gchar *numtext;
 	//g_message("previous text='%s' dcpos:'%d'", numtext, dcpos);
 	for (i=0 ; i < length ; i++)
 	{
-		if( isdigit(text[i]) && ( (*position <= dcpos + digits) || dcpos < 0) )
+		if( g_ascii_isdigit(text[i]) && ( (*position <= dcpos + digits) || dcpos < 0) )
 			goto inserttext;
 
 		if( text[i]=='-' && *position==0 )	/* minus sign only at position 0 */
@@ -659,6 +656,23 @@ guint i;
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+guint32 hb_combo_box_get_active_id(GtkComboBox *combobox)
+{
+const gchar* active_id = gtk_combo_box_get_active_id(combobox);
+	return atoi(active_id);
+}
+
+
+void hb_combo_box_set_active_id(GtkComboBox *combobox, guint32 active_id)
+{
+gchar idbuffer[12];
+
+	g_snprintf(idbuffer, 11, "%d", active_id);
+	gtk_combo_box_set_active_id(combobox, idbuffer);
+}
+
+
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
 /*
 **

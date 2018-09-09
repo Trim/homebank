@@ -417,12 +417,14 @@ gint crow, row;
 
 
 
-static void ui_file_chooser_add_filter(GtkFileChooser *chooser, gchar *name, gchar *pattern)
+static GtkFileFilter *ui_file_chooser_add_filter(GtkFileChooser *chooser, gchar *name, gchar *pattern)
 {
 	GtkFileFilter *filter = gtk_file_filter_new ();
 	gtk_file_filter_set_name (filter, name);
 	gtk_file_filter_add_pattern (filter, pattern);
 	gtk_file_chooser_add_filter (GTK_FILE_CHOOSER(chooser), filter);
+
+	return filter;
 }
 
 
@@ -529,7 +531,7 @@ gchar *path;
 /*
 ** open a file chooser dialog and store filename to GLOBALS if OK
 */
-gboolean ui_file_chooser_xhb(GtkFileChooserAction action, gchar **storage_ptr)
+gboolean ui_file_chooser_xhb(GtkFileChooserAction action, gchar **storage_ptr, gboolean bakmode)
 {
 GtkWidget *chooser;
 gchar *title;
@@ -540,7 +542,7 @@ gboolean retval;
 
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
-		title = _("Open HomeBank file");
+		title = (bakmode==FALSE) ? _("Open HomeBank file") : _("Open HomeBank backup file");
 		button = _("_Open");
 	}
 	else
@@ -556,10 +558,27 @@ gboolean retval;
 					button, GTK_RESPONSE_ACCEPT,
 					NULL);
 
-	ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("HomeBank files"), "*.[Xx][Hh][Bb]");
-	//ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("Backup files"), "*.[Bb][Aa][Kk]");
-	ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("All files"), "*");
+	if( bakmode == FALSE )
+	{
+		ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("HomeBank files"), "*.[Xx][Hh][Bb]");
+		ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("All files"), "*");
+	}
+	else
+	{
+		if( (action == GTK_FILE_CHOOSER_ACTION_OPEN) )
+		{
+		gchar *pattern;
+		GtkFileFilter *flt;
 
+			pattern = hb_filename_backup_get_filtername(GLOBALS->xhb_filepath);
+			flt = ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("File backup"), pattern);
+			gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(chooser), flt);
+			g_free(pattern);
+
+			ui_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), _("All backups"), "*.[Bb][Aa][Kk]");
+		}
+	}
+	
 	if( action == GTK_FILE_CHOOSER_ACTION_OPEN )
 	{
 	    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(chooser), PREFS->path_hbfile);
@@ -840,7 +859,7 @@ static void ui_dialog_transaction_xfer_select_child_selection_cb(GtkTreeSelectio
 }
 
 
-Transaction *ui_dialog_transaction_xfer_select_child(Transaction *stxn, GList *matchlist)
+Transaction *ui_dialog_transaction_xfer_select_child(GtkWindow *parent, Transaction *stxn, GList *matchlist)
 {
 struct xfer_data data;
 GtkWidget *window, *content, *mainvbox, *vbox, *sw, *label, *LB_several;
@@ -850,7 +869,7 @@ Transaction *retval = NULL;
 
 	window = gtk_dialog_new_with_buttons (
     			_("Select among possible transactions..."),
-    			GTK_WINDOW (GLOBALS->mainwindow),
+    			parent,
 			    0,
 			    _("_Cancel"),
 			    GTK_RESPONSE_REJECT,

@@ -41,7 +41,7 @@ struct _account
 	guint32		cheque1;
 	guint32		cheque2;
 	gchar	    *notes;
-
+	guint32		karc;
 
 	/* unsaved datas */
 	GQueue		*txn_queue;
@@ -51,12 +51,7 @@ struct _account
 	gdouble     bal_today;	//today balance (every transaction until today)
 	gdouble     bal_future;	//future balance (every transaction)
 
-	gboolean	filter;		//true if selected into filter
-
-	// import datas
-	gboolean	imported;
-	guint32		imp_key;	// 0 create new / x to map to existing
-	gchar		*imp_name;  // name in the file
+	gboolean	flt_select;		//true if selected into filter
 };
 
 // 0 is free

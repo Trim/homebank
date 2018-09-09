@@ -58,20 +58,25 @@ struct Preferences
 	gboolean	loadlast;
 	gboolean	appendscheduled;
 	gboolean	do_update_currency;
-	gshort		fisc_year_day;
-	gshort		fisc_year_month;
 	gint		date_range_wal;
-	gchar		*path_hbfile;
 
 	//interface
-	gchar		*language;
 	gshort		toolbar_style;
-	//gboolean	rules_hint;
+
+	gboolean	icon_symbolic;
 	gshort		grid_lines;
 	gboolean	custom_colors;
 	gchar		*color_exp;
 	gchar		*color_inc;
 	gchar		*color_warn;
+
+	//locale
+	gchar		*language;
+	gchar		*date_format;
+	gshort		fisc_year_day;
+	gshort		fisc_year_month;
+	gboolean	vehicle_unit_ismile;	// true if unit is mile, default Km
+	gboolean	vehicle_unit_isgal;		// true if unit is gallon, default Liter
 
 	//transactions
 	gint		date_range_txn;
@@ -79,26 +84,16 @@ struct Preferences
 	gboolean	hidereconciled;
 	gboolean    showremind;
 	gboolean	heritdate;
-	gint 		lst_ope_columns[NUM_LST_DSPOPE+1];
-	gint 		lst_ope_col_size[NUM_LST_DSPOPE+1];
-	gint		lst_ope_sort_id;	// -- implicit --
-	gint		lst_ope_sort_order; // -- implicit --
+	gboolean	txn_memoacp;
+	gshort		txn_memoacp_days;
 
-	//display format
-	gchar		*date_format;
-	gchar	    IntCurrSymbol[8];
-	gboolean	vehicle_unit_ismile;	// true if unit is mile, default Km
-	gboolean	vehicle_unit_isgal;		// true if unit is gallon, default Liter
-
-	//data exchange options
-	gboolean	dtex_nointro;
+	//import/export
 	gint		dtex_datefmt;
 	gint		dtex_ofxname;
 	gint		dtex_ofxmemo;
 	gboolean	dtex_qifmemo;
 	gboolean	dtex_qifswap;
-	gchar		*path_import;
-	gchar		*path_export;
+	gboolean	dtex_ucfirst;
 
 	//report options
 	gint		date_range_rep;
@@ -106,7 +101,17 @@ struct Preferences
 	gboolean	stat_byamount;
 	gboolean	stat_showrate;
 	gboolean	stat_showdetail;
-	gboolean	budg_showdetail;
+	gboolean	budg_showdetail;	
+
+	//backup option
+	gboolean	bak_is_automatic;
+	gshort		bak_max_num_copies;
+
+	//folders
+	gchar		*path_hbfile;
+	gchar		*path_import;
+	gchar		*path_export;
+	gchar		*path_attach;
 
 	//euro zone
 	gboolean	euro_active;
@@ -114,9 +119,16 @@ struct Preferences
 	gdouble		euro_value;
 	Currency	minor_cur;
 
-	//chart options
-	//gboolean	chart_legend;
 
+	//---- others data -----
+	gboolean	dtex_nointro;
+	gchar	    IntCurrSymbol[8];
+	gint 		lst_impope_columns[NUM_LST_DSPOPE+1];
+	gint 		lst_ope_columns[NUM_LST_DSPOPE+1];
+	gint 		lst_ope_col_width[NUM_LST_DSPOPE+1];
+	gint		lst_ope_sort_id;	// -- implicit --
+	gint		lst_ope_sort_order; // -- implicit --
+	
 	/* windows/dialogs size an position */
 	struct WinGeometry	wal_wg;
 	struct WinGeometry	acc_wg;

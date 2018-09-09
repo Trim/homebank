@@ -84,11 +84,11 @@ struct ui_cat_manage_dialog_data
 	GtkWidget	*LV_cat;
 	GtkWidget	*ST_name1, *ST_name2;
 
-	//GtkWidget	*BT_add1, *BT_add2;
 
 	//GtkWidget	*CM_type;
 	GtkWidget	*RA_type;
 
+	GtkWidget	*BT_add;
 	GtkWidget	*BT_edit;
 	GtkWidget	*BT_merge;
 	GtkWidget	*BT_delete;

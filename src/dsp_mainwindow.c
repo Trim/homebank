@@ -84,6 +84,7 @@ static void ui_mainwindow_action_open(void);
 static void ui_mainwindow_action_save(void);
 static void ui_mainwindow_action_saveas(void);
 static void ui_mainwindow_action_revert(void);
+static void ui_mainwindow_action_openbak(void);
 static void ui_mainwindow_action_properties(void);
 static void ui_mainwindow_action_close(void);
 static void ui_mainwindow_action_quit(void);
@@ -103,6 +104,8 @@ static void ui_mainwindow_action_toggle_topspending(GtkToggleAction *action);
 static void ui_mainwindow_action_toggle_minor(GtkToggleAction *action);
 
 static void ui_mainwindow_action_showtransactions(void);
+static void ui_mainwindow_action_showalltransactions(void);
+
 static void ui_mainwindow_action_addtransactions(void);
 static void ui_mainwindow_action_checkscheduled(void);
 
@@ -168,7 +171,7 @@ static GtkActionEntry entries[] = {
   /* name, icon-name, label */
 
   { "FileMenu"   , NULL, N_("_File"), NULL, NULL, NULL },
-  { "ImportMenu" , NULL, N_("_Import"), NULL, NULL, NULL },
+  //{ "ImportMenu" , NULL, N_("_Import"), NULL, NULL, NULL },
   { "RecentMenu" , NULL, N_("Open _Recent"), NULL, NULL, NULL },
   { "EditMenu"   , NULL, N_("_Edit"), NULL, NULL, NULL },
   { "ViewMenu"   , NULL, N_("_View"), NULL, NULL, NULL },
@@ -183,25 +186,25 @@ static GtkActionEntry entries[] = {
 	/* name, icon-name, label, accelerator, tooltip */
 
   /* FileMenu */
-  { "New"        , ICONNAME_NEW            , N_("_New")          , "<control>N", N_("Create a new file"),    G_CALLBACK (ui_mainwindow_action_new) },
-  { "Open"       , ICONNAME_OPEN           , N_("_Open...")      , "<control>O", N_("Open a file"),    G_CALLBACK (ui_mainwindow_action_open) },
-  { "Save"       , ICONNAME_SAVE           , N_("_Save")         , "<control>S", N_("Save the current file"),    G_CALLBACK (ui_mainwindow_action_save) },
+  { "New"        , ICONNAME_HB_FILE_NEW    , N_("_New")          , "<control>N", N_("Create a new file"),    G_CALLBACK (ui_mainwindow_action_new) },
+  { "Open"       , ICONNAME_HB_FILE_OPEN   , N_("_Open...")      , "<control>O", N_("Open a file"),    G_CALLBACK (ui_mainwindow_action_open) },
+  { "Save"       , ICONNAME_HB_FILE_SAVE   , N_("_Save")         , "<control>S", N_("Save the current file"),    G_CALLBACK (ui_mainwindow_action_save) },
   { "SaveAs"     , ICONNAME_SAVE_AS        , N_("Save _As...")    , "<shift><control>S", N_("Save the current file with a different name"),    G_CALLBACK (ui_mainwindow_action_saveas) },
 
   { "Revert"     , ICONNAME_REVERT         , N_("Revert")        , NULL, N_("Revert to a saved version of this file"),    G_CALLBACK (ui_mainwindow_action_revert) },
-
+  { "OpenBak"    , NULL                   , N_("Restore backup") , NULL, N_("Restore from a backup file"),    G_CALLBACK (ui_mainwindow_action_openbak) },
 
   { "Properties" , ICONNAME_PROPERTIES     , N_("Properties..."), NULL, N_("Configure the file"),    G_CALLBACK (ui_mainwindow_action_properties) },
   { "Close"      , ICONNAME_CLOSE          , N_("_Close")        , "<control>W", N_("Close the current file"),    G_CALLBACK (ui_mainwindow_action_close) },
   { "Quit"       , ICONNAME_QUIT           , N_("_Quit")         , "<control>Q", N_("Quit HomeBank"),    G_CALLBACK (ui_mainwindow_action_quit) },
 
   /* Exchange */
-
-  { "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
-  { "ImportOFX" , ICONNAME_HB_FILE_IMPORT  , N_("OFX/QFX file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
-  { "ImportCSV" , ICONNAME_HB_FILE_IMPORT  , N_("CSV file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  { "Import" , ICONNAME_HB_FILE_IMPORT  , N_("Import...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  //{ "ImportQIF" , ICONNAME_HB_FILE_IMPORT  , N_("QIF file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  //{ "ImportOFX" , ICONNAME_HB_FILE_IMPORT  , N_("OFX/QFX file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
+  //{ "ImportCSV" , ICONNAME_HB_FILE_IMPORT  , N_("CSV file...")     , NULL, N_("Open the import assistant"),    G_CALLBACK (ui_mainwindow_action_import) },
 	
-  { "ExportQIF" , ICONNAME_HB_FILE_EXPORT  , N_("Export QIF file...")     , NULL, N_("Export all account in a QIF file"),    G_CALLBACK (ui_mainwindow_action_export) },
+  { "ExportQIF" , ICONNAME_HB_FILE_EXPORT  , N_("Export as QIF...")     , NULL, N_("Export all account in a QIF file"),    G_CALLBACK (ui_mainwindow_action_export) },
 
   /* EditMenu */
   { "Preferences", ICONNAME_PREFERENCES    , N_("Preferences..."), NULL,    N_("Configure HomeBank"),    G_CALLBACK (ui_mainwindow_action_preferences) },
@@ -218,7 +221,7 @@ static GtkActionEntry entries[] = {
   /* TxnMenu */
   { "AddTxn"      , ICONNAME_HB_OPE_ADD    , N_("Add...")              , NULL, N_("Add transactions"),    G_CALLBACK (ui_mainwindow_action_addtransactions) },
   { "ShowTxn"     , ICONNAME_HB_OPE_SHOW   , N_("Show...")             , NULL, N_("Shows selected account transactions"),    G_CALLBACK (ui_mainwindow_action_showtransactions) },
-
+  { "ShowAllTxn"  , ICONNAME_HB_OPE_SHOW   , N_("Show all...")         , NULL, N_("Shows all account transactions"),    G_CALLBACK (ui_mainwindow_action_showalltransactions) },
   { "Scheduler"   , NULL                   , N_("Set scheduler...")    , NULL, N_("Configure the transaction scheduler"),    G_CALLBACK (ui_mainwindow_action_properties) },
   { "AddScheduled", NULL                   , N_("Post scheduled"), NULL, N_("Post pending scheduled transactions"),    G_CALLBACK (ui_mainwindow_action_checkscheduled) },
 
@@ -272,16 +275,17 @@ static const gchar *ui_info =
 "      <menuitem action='Save'/>"
 "      <menuitem action='SaveAs'/>"
 "        <separator/>"
-"        <menu action='ImportMenu'>"
+"      <menuitem action='Import'/>"
+/*"        <menu action='ImportMenu'>"
 "          <menuitem action='ImportQIF'/>"
 "          <menuitem action='ImportOFX'/>"
 "          <menuitem action='ImportCSV'/>"
-"        </menu>"
+"        </menu>"*/
 "      <menuitem action='ExportQIF'/>"
-//"        <separator/>"
-// print to come here
+//	 future: print to come here
+"        <separator/>"
 "      <menuitem action='Revert'/>"
-
+"      <menuitem action='OpenBak'/>"
 "        <separator/>"
 "      <menuitem action='Properties'/>"
 "        <separator/>"
@@ -311,7 +315,7 @@ static const gchar *ui_info =
 "    <menu action='TxnMenu'>"
 "      <menuitem action='AddTxn'/>"
 "      <menuitem action='ShowTxn'/>"
-
+"      <menuitem action='ShowAllTxn'/>"
 "        <separator/>"
 "      <menuitem action='Scheduler'/>"
 "      <menuitem action='AddScheduled'/>"
@@ -526,7 +530,12 @@ GtkWidget *widget = GLOBALS->mainwindow;
 
 static void ui_mainwindow_action_open(void)
 {
-	ui_mainwindow_open(GLOBALS->mainwindow, NULL);
+	ui_mainwindow_open(GLOBALS->mainwindow, GINT_TO_POINTER(FALSE));
+}
+
+static void ui_mainwindow_action_openbak(void)
+{
+	ui_mainwindow_open(GLOBALS->mainwindow, GINT_TO_POINTER(TRUE));
 }
 
 static void ui_mainwindow_action_save(void)
@@ -639,7 +648,7 @@ static void ui_mainwindow_action_defcategory(void)
 	ui_cat_manage_dialog();
 	//todo:why refresh upcoming here??
 	//ui_mainwindow_populate_upcoming(GLOBALS->mainwindow, NULL);
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
+	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE+UF_REFRESHALL));
 }
 
 
@@ -751,7 +760,7 @@ GtkWidget *window;
 	{
 		if( data->acc->window == NULL )
 		{
-			window = register_panel_window_new(data->acc->key, data->acc);
+			window = register_panel_window_new(data->acc);
 			register_panel_window_init(window, NULL);
 		}
 		else
@@ -761,6 +770,24 @@ GtkWidget *window;
 
 		}
 	}
+}
+
+
+static void ui_mainwindow_action_showalltransactions(void)
+{
+GtkWidget *window;
+
+	if( GLOBALS->alltxnwindow == NULL )
+	{
+		window = register_panel_window_new(NULL);
+		register_panel_window_init(window, NULL);
+	}
+	else
+	{
+		if(GTK_IS_WINDOW(GLOBALS->alltxnwindow))
+			gtk_window_present(GTK_WINDOW(GLOBALS->alltxnwindow));
+	}
+
 }
 
 
@@ -805,8 +832,8 @@ static void ui_mainwindow_action_vehiclecost(void)
 
 static void ui_mainwindow_action_import(GtkAction *action)
 {
-const gchar *name;
-gint filetype = FILETYPE_UNKNOW;
+/*const gchar *name;
+gint filetype = FILETYPE_UNKNOWN;
 
 	name = gtk_action_get_name(action);
 
@@ -817,11 +844,11 @@ gint filetype = FILETYPE_UNKNOW;
 	   filetype= FILETYPE_OFX;
 	else
 	if( g_str_has_suffix (name, "CSV"))
-	   filetype= FILETYPE_CSV_HB;
+	   filetype= FILETYPE_CSV_HB;*/
 
-	DB( g_print("action %s type=%d\n", name, filetype) );
+	//DB( g_print("action %s type=%d\n", name, filetype) );
 
-	ui_import_assistant_new(filetype);
+	ui_import_assistant_new(NULL);
 
 }
 
@@ -1108,14 +1135,14 @@ gint account, count;
 	if(data->acc != NULL)
 		account = data->acc->key;
 
-	window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, FALSE);
+	window = create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, FALSE, account);
 	count = 0;
-	while(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP)
+	while(result == HB_RESPONSE_ADD || result == HB_RESPONSE_ADDKEEP)
 	{
 	Transaction *ope;
 
 		/* fill in the transaction */
-		if( result == GTK_RESPONSE_ADD )
+		if( result == HB_RESPONSE_ADD )
 		{
 			ope = da_transaction_malloc();
 			ope->date = date;
@@ -1123,6 +1150,8 @@ gint account, count;
 
 			if( PREFS->heritdate == FALSE ) //fix: 318733
 				ope->date = GLOBALS->today;
+			
+			da_transaction_set_default_template(ope);
 		}
 
 		// normally we can't be in addkeep without initialized ope with add
@@ -1133,10 +1162,10 @@ gint account, count;
 
 		DB( g_print(" - dialog result is %d\n", result) );
 
-		if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
+		if(result == HB_RESPONSE_ADD || result == HB_RESPONSE_ADDKEEP || result == GTK_RESPONSE_ACCEPT)
 		{
 			deftransaction_get(window, NULL);
-			transaction_add(ope);
+			transaction_add(GTK_WINDOW(GLOBALS->mainwindow), ope);
 
 			DB( g_print(" - added 1 transaction to %d\n", ope->kacc) );
 
@@ -1147,7 +1176,7 @@ gint account, count;
 			date = ope->date;
 		}
 
-		if( result == GTK_RESPONSE_ADD )
+		if( result == HB_RESPONSE_ADD )
 		{
 			da_transaction_free(ope);
 			ope = NULL;
@@ -1290,17 +1319,34 @@ Account *acc;
 
 				if( ope->flags & OF_SPLIT )
 				{
-				guint nbsplit = da_splits_count(ope->splits);
+				guint nbsplit = da_splits_length(ope->splits);
 				Split *split;
 				struct tmptop *item;
 				
 					for(i=0;i<nbsplit;i++)
 					{
-						split = ope->splits[i];
+						split = da_splits_get(ope->splits, i);
 						pos = category_report_id(split->kcat, type);
+						if( pos <= garray->len )
+						{
+							trn_amount = hb_amount_base(split->amount, acc->kcur);
+							//trn_amount = split->amount;
+							//#1297054 if( trn_amount < 0 ) {
+								item = &g_array_index (garray, struct tmptop, pos);
+								item->key = pos;
+								item->value += trn_amount;
+								//DB( g_print(" - stored %.2f to item %d\n", trn_amount, pos)  );
+							//}
+						}
+					}
+				}
+				else
+				{
+				struct tmptop *item;
 
-						trn_amount = hb_amount_base(split->amount, acc->kcur);
-						//trn_amount = split->amount;
+					pos = category_report_id(ope->kcat, type);
+					if( pos <= garray->len )
+					{
 						//#1297054 if( trn_amount < 0 ) {
 							item = &g_array_index (garray, struct tmptop, pos);
 							item->key = pos;
@@ -1309,20 +1355,6 @@ Account *acc;
 						//}
 					}
 				}
-				else
-				{
-				struct tmptop *item;
-
-					pos = category_report_id(ope->kcat, type);
-	
-					//#1297054 if( trn_amount < 0 ) {
-						item = &g_array_index (garray, struct tmptop, pos);
-						item->key = pos;
-						item->value += trn_amount;
-						//DB( g_print(" - stored %.2f to item %d\n", trn_amount, pos)  );
-					//}
-				}
-
 
 			}
 
@@ -1369,23 +1401,25 @@ Account *acc;
 			item = &g_array_index (garray, struct tmptop, i);
 
 			if(!item->value) continue;
+			//#1767659 top spending should restrict to... spending
+			if(item->value < 0)
+			{
+				value = hb_amount_round(item->value, 2);
+				entry = da_cat_get(item->key);
+				if(entry == NULL) continue;
 
-			value = hb_amount_round(item->value, 2);
-			entry = da_cat_get(item->key);
-			if(entry == NULL) continue;
+				name = entry->key == 0 ? _("(no category)") : entry->fullname;
 
-			name = entry->key == 0 ? _("(no category)") : da_cat_get_fullname(entry);
-
-			// append test
-			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				  LST_TOPSPEND_ID, i,
-				  LST_TOPSPEND_KEY, 0,
-				  LST_TOPSPEND_NAME, name,
-				  LST_TOPSPEND_AMOUNT, value,
-				  //LST_TOPSPEND_RATE, (gint)(((ABS(value)*100)/ABS(total)) + 0.5),
-				  -1);
-
+				// append test
+				gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+				gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+					  LST_TOPSPEND_ID, i,
+					  LST_TOPSPEND_KEY, 0,
+					  LST_TOPSPEND_NAME, name,
+					  LST_TOPSPEND_AMOUNT, value,
+					  //LST_TOPSPEND_RATE, (gint)(((ABS(value)*100)/ABS(total)) + 0.5),
+					  -1);
+			}
 		}
 
 		// append test
@@ -1472,7 +1506,7 @@ GtkWidget *window;
 gint result;
 Transaction *txn;
 
-	window =  create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, TRUE);
+	window =  create_deftransaction_window(GTK_WINDOW(data->window), TRANSACTION_EDIT_ADD, TRUE, 0);
 
 	/* fill in the transaction */
 	txn = da_transaction_malloc();
@@ -1485,10 +1519,10 @@ Transaction *txn;
 
 	DB( g_print(" - dialog result is %d\n", result) );
 
-	if(result == GTK_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
+	if(result == HB_RESPONSE_ADD || result == GTK_RESPONSE_ACCEPT)
 	{
 		deftransaction_get(window, NULL);
-		transaction_add(txn);
+		transaction_add(GTK_WINDOW(GLOBALS->mainwindow), txn);
 		GLOBALS->changes_count++;
 
 		scheduled_date_advance(arc);
@@ -1534,7 +1568,7 @@ struct hbfile_data *data = user_data;
 
 			da_transaction_init_from_template(txn, arc);
 			txn->date = scheduled_get_postdate(arc, arc->nextdate);
-			transaction_add(txn);
+			transaction_add(GTK_WINDOW(GLOBALS->mainwindow), txn);
 
 			GLOBALS->changes_count++;
 			scheduled_date_advance(arc);
@@ -1781,7 +1815,7 @@ gboolean result;
 
 	result = ui_dialog_msg_confirm_alert(
 		GTK_WINDOW(GLOBALS->mainwindow),
-		_("Open a backup file ?"),
+		_("Open the backup file ?"),
 		secondtext,
 		_("_Open backup")
 	);	
@@ -1802,6 +1836,7 @@ gboolean result;
 void ui_mainwindow_open(GtkWidget *widget, gpointer user_data)
 {
 //struct hbfile_data *data;
+gboolean bakmode = GPOINTER_TO_INT(user_data);;
 gchar *filename = NULL;
 
 	DB( g_print("\n[ui-mainwindow] open\n") );
@@ -1810,7 +1845,7 @@ gchar *filename = NULL;
 
 	if( ui_dialog_msg_savechanges(widget,NULL) == TRUE )
 	{
-		if( ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_OPEN, &filename) == TRUE )
+		if( ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_OPEN, &filename, bakmode) == TRUE )
 		{
 			//#1710955 test for backup open
 			if( hbfile_file_isbackup(filename) )
@@ -1937,7 +1972,7 @@ gint r = XML_UNSET;
 
 	if(saveas == 1)
 	{
-		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_SAVE, &filename) == TRUE)
+		if(ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_SAVE, &filename, FALSE) == TRUE)
 		{
 			DB( g_print(" + should save as '%s'\n", filename) );
 			homebank_file_ensure_xhb(filename);
@@ -2065,6 +2100,8 @@ gint nballoc;
 		}
 		elt = g_list_next(elt);
 	}
+
+	DB( g_print(" end\n") );
 
 	return hash;
 }
@@ -2259,8 +2296,12 @@ gint flags;
 
 		changed = (GLOBALS->changes_count > 0) ? "*" : "";
 
+#if MYDEBUG == 1
+		data->wintitle = g_strdup_printf("%s%s (%d)- %s - " PROGNAME, changed, basename, GLOBALS->changes_count, GLOBALS->owner);
+#else
 		data->wintitle = g_strdup_printf("%s%s - %s - " PROGNAME, changed, basename, GLOBALS->owner);
-
+#endif
+		
 	    gtk_window_set_title (GTK_WINDOW (gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), data->wintitle);
 
 		g_free(basename);
@@ -2307,10 +2348,11 @@ gint flags;
 
 
 		sensitive = (GLOBALS->changes_count != 0 ) ? TRUE : FALSE;
-		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/SaveAs"), sensitive);
-		//if(sensitive == TRUE && GLOBALS->hbfile_is_new == TRUE) sensitive = FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Save"), sensitive);
-		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Revert"), GLOBALS->xhb_hasrevert);
+
+		sensitive = ( (GLOBALS->changes_count != 0) && GLOBALS->xhb_hasrevert ) ? TRUE : FALSE;
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Revert"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/OpenBak"), sensitive);
 
 
 	// define off ?
@@ -2625,8 +2667,9 @@ static void ui_mainwindow_drag_data_received (GtkWidget *widget,
 {
 gchar **uris, **str;
 gchar *newseldata;
-gint filetype, slen;
-
+gint n_uris, filetype, slen;
+GError *error = NULL;
+	
 	if (info != TARGET_URI_LIST)
 		return;
 
@@ -2637,57 +2680,77 @@ gint filetype, slen;
 	newseldata = g_new (gchar, slen + 1);
 	memcpy (newseldata, gtk_selection_data_get_data(selection_data), slen);
 	newseldata[slen] = 0;
-
+	//DB( g_print(" - seldata ='%s'\n", gtk_selection_data_get_data(selection_data) ) );
+	//DB( g_print(" - newseldata ='%s'\n", newseldata ) );
+	
 	uris = g_uri_list_extract_uris (newseldata);
+	n_uris = g_strv_length(uris);
+	DB( g_print(" - dragged %d files (len=%d)\n", n_uris, slen ) );
 
-	DB( g_print(" - dragged %d %d files\n", slen, g_strv_length(uris) ) );
+	g_free(newseldata);
 
-	str = uris;
-	//for (str = uris; *str; str++)
-	if( *str )
-	{
-		GError *error = NULL;
-		gchar *path = g_filename_from_uri (*str, NULL, &error);
+	//single file: check for xhb
+	if(n_uris == 1)
+	{		
+		filetype = hb_filename_type_get_by_extension(*uris);
 
-		if (path)
+		DB( g_print(" - filetype is homebank (%d)\n", filetype) );
+
+		if( filetype == FILETYPE_HOMEBANK )
 		{
-			filetype = homebank_alienfile_recognize(path);
+		gchar *path = g_filename_from_uri (*uris, NULL, &error);
 
-			DB( g_print(" - dragged %s, type is %d\n", path, filetype ) );
-
-			if( filetype == FILETYPE_HOMEBANK)
+			if( path != NULL )
 			{
+				DB( g_print(" - path is '%s'\n", path) );
 				hbfile_change_filepath(g_strdup(path));
 				ui_mainwindow_open_internal(GTK_WIDGET(window), NULL);
+				goto end_drop;
 			}
 			else
 			{
-				//todo: future here to implement import for other filetype
-				//	ui_import_assistant_new();
-				// + write a method into assistant to catch other filename
-
-
-				ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_ERROR,
+				g_warning ("Could not convert uri to local path: %s", error->message);
+				g_error_free (error);
+			}
+			g_free (path);
+		}
+		/* we no more manage error here
+		ui_dialog_msg_infoerror(GTK_WINDOW(window), GTK_MESSAGE_ERROR,
 					_("File error"),
 					_("The file %s is not a valid HomeBank file."),
-					path
-					);
-
-
-			}
-
-		}
-		else
-		{
-			g_warning ("Could not convert uri to local path: %s", error->message);
-
-			g_error_free (error);
-		}
-		g_free (path);
+					path);
+		*/
 	}
-	g_strfreev (uris);
+
+	//collect known filetype to import
+	DB( g_print(" - collect %d files\n", n_uris) );
 	
-	g_free(newseldata);
+	gchar **paths = g_new (gchar *, n_uris + 1);
+	slen = 0;
+	for (str = uris; *str; str++)
+	{
+		filetype = hb_filename_type_get_by_extension(*str);
+		if( filetype != FILETYPE_HOMEBANK && filetype != FILETYPE_UNKNOWN )
+		{
+		gchar *path = g_filename_from_uri (*str, NULL, NULL);
+
+			if( path != NULL )
+			{
+				DB( g_print(" - append %d '%s'\n", slen, path ) );
+				paths[slen++] = path;
+			}
+		}   
+	}
+	paths[slen] = NULL;
+
+	if( slen > 0 )
+	{
+		ui_import_assistant_new( paths );
+	}
+	
+	
+end_drop:
+	g_strfreev (uris);
 }
 
 
@@ -2795,7 +2858,6 @@ GError *error = NULL;
 
 	data->recent_manager = gtk_recent_manager_get_default ();
 
-	//todo: this generate a warning
 	data->menubar = gtk_ui_manager_get_widget (manager, "/MenuBar");
 	gtk_box_pack_start (GTK_BOX (mainvbox),
 			    data->menubar,
@@ -2823,7 +2885,7 @@ GError *error = NULL;
 			    0);
 
 	/* add the custom Open button to the toolbar */
-	GtkWidget *image = gtk_image_new_from_icon_name (ICONNAME_OPEN, GTK_ICON_SIZE_BUTTON);
+	GtkWidget *image = gtk_image_new_from_icon_name (ICONNAME_HB_FILE_OPEN, GTK_ICON_SIZE_BUTTON);
 	GtkToolItem *open_button = gtk_menu_tool_button_new(image, _("_Open"));
 	gtk_tool_item_set_tooltip_text (open_button, _("Open a file"));
 

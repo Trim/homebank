@@ -63,7 +63,7 @@ gint dt;
 		switch(GPOINTER_TO_INT(user_data))
 		{
 			case 1:
-				iconname = (acc->flags & AF_ADDED) ? ICONNAME_NEW : NULL;
+				iconname = (acc->flags & AF_ADDED) ? ICONNAME_HB_OPE_NEW : NULL;
 				// override if closed account
 				if( acc->flags & AF_CLOSED )
 					iconname = ICONNAME_CHANGES_PREVENT;

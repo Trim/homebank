@@ -56,32 +56,6 @@ gchar *CYA_ACC_TYPE[] =
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-/**
- * ui_acc_comboboxentry_get_name:
- * 
- * get the name of the active account or -1
- * 
- * Return value: a new allocated name tobe freed with g_free
- *
- */
-gchar *
-ui_acc_comboboxentry_get_name(GtkComboBox *entry_box)
-{
-gchar *cbname;
-gchar *name = NULL;
-
-	cbname = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
-
-	if( cbname != NULL)
-	{
-
-		name = g_strdup(cbname);
-		g_strstrip(name);
-	}
-
-	return name;
-}
-
 
 /**
  * ui_acc_comboboxentry_get_key:
@@ -98,25 +72,14 @@ ui_acc_comboboxentry_get_key(GtkComboBox *entry_box)
 gchar *name;
 Account *item;
 
-	name = ui_acc_comboboxentry_get_name(entry_box);
-
+	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	item = da_acc_get_by_name(name);
-
-	g_free(name);
 
 	if( item == NULL )
 	{
-		//todo: ask the user here		
-		/*		
-		item = da_acc_malloc();
-		item->name = g_strdup(name);
-		da_acc_insert(item);
-		ui_acc_comboboxentry_add(entry_box, item);
-		*/
+		//todo: future : ask the user here		
 		return 0;
 	}
-
-
 
 	return item->key;
 }
@@ -177,7 +140,6 @@ Account *acc = value;
 	if( (acc->flags & AF_CLOSED) ) return;
 	if( (ctx->insert_type == ACC_LST_INSERT_REPORT) && (acc->flags & AF_NOREPORT) ) return;
 	if( (acc->key == ctx->except_key) ) return;
-	if( (acc->imported == TRUE) ) return;
 
 	//todo check this
 	if( (ctx->kcur > 0 ) && (acc->kcur != ctx->kcur) ) return;
@@ -807,7 +769,9 @@ Account *item;
 		gtk_spin_button_update(GTK_SPIN_BUTTON(data->ST_cheque2));
 		item->cheque2 = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->ST_cheque2));
 
-		
+		item->karc= hb_combo_box_get_active_id(GTK_COMBO_BOX(data->CY_template));
+		//active_id = gtk_combo_box_get_active_id(GTK_COMBO_BOX(data->CY_template));
+		//item->karc = atoi(active_id);
 	}
 
 }
@@ -891,6 +855,10 @@ Account *item;
 
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque1), item->cheque1);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->ST_cheque2), item->cheque2);
+
+		hb_combo_box_set_active_id(GTK_COMBO_BOX(data->CY_template), item->karc);
+		//g_snprintf(idbuffer, 11, "%d", item->karc);
+		//gtk_combo_box_set_active_id(GTK_COMBO_BOX(data->CY_template), idbuffer);
 
 	}
 
@@ -999,7 +967,7 @@ struct ui_acc_manage_data *data;
 Account *item;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("\n(ui_acc_manage_add) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_acc_manage_add) data=%p\n", data) );
 
 	gchar *name = dialog_get_name(_("Account name"), NULL, GTK_WINDOW(data->window));
 	if(name != NULL)
@@ -1019,10 +987,16 @@ Account *item;
 			item->name = name; //g_strdup_printf( _("(account %d)"), da_acc_length()+1);
 			item->kcur = GLOBALS->kcur;
 
-			da_acc_append(item);
-			ui_acc_listview_add(GTK_TREE_VIEW(data->LV_acc), item);
-
-			data->change++;
+			g_strstrip(item->name);
+			
+			if( strlen(item->name) > 0 )
+			{
+				if( da_acc_append(item) )
+				{
+					ui_acc_listview_add(GTK_TREE_VIEW(data->LV_acc), item);
+					data->change++;
+				}
+			}
 		}
 	}
 }
@@ -1038,7 +1012,7 @@ guint32 key;
 gint result;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("\n(ui_acc_manage_remove) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_acc_manage_remove) data=%p\n", data) );
 
 	key = ui_acc_listview_get_selected_key(GTK_TREE_VIEW(data->LV_acc));
 	if( key > 0 )
@@ -1101,7 +1075,7 @@ guint32 key;
 gboolean bool;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("\n(ui_acc_manage_rename) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_acc_manage_rename) data=%p\n", data) );
 
 	key = ui_acc_listview_get_selected_key(GTK_TREE_VIEW(data->LV_acc));
 	if( key > 0 )
@@ -1148,7 +1122,7 @@ Account 	*accitem;
 gboolean selected, bool;
 
 	data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
-	DB( g_print("\n(ui_acc_manage_toggled_closed) (data=%x)\n", (guint)data) );
+	DB( g_print("\n(ui_acc_manage_toggled_closed) data=%p\n", data) );
 
 	selected = gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_acc)), &model, &iter);
 
@@ -1206,7 +1180,7 @@ guint32 i;
 guint32 key;
 gboolean doupdate = FALSE;
 
-	DB( g_print("\n(ui_acc_manage_cleanup) %x\n", (guint)data) );
+	DB( g_print("\n(ui_acc_manage_cleanup) %p\n", data) );
 
 		key = ui_acc_listview_get_selected_key(GTK_TREE_VIEW(data->LV_acc));
 		if(key > 0)
@@ -1248,6 +1222,8 @@ gboolean doupdate = FALSE;
 */
 static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 {
+GList *tmplist;
+gchar idbuffer[12];
 
 	DB( g_print("\n(ui_acc_manage_setup)\n") );
 
@@ -1260,6 +1236,23 @@ static void ui_acc_manage_setup(struct ui_acc_manage_data *data)
 	ui_acc_listview_populate(data->LV_acc, ACC_LST_INSERT_NORMAL);
 	ui_cur_combobox_populate(GTK_COMBO_BOX(data->CY_curr), GLOBALS->h_cur);
 	//populate_view_acc(data->LV_acc, GLOBALS->acc_list, TRUE);
+
+	//populate template
+	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(data->CY_template), "0", _("(none)"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(data->CY_template), 0);
+	tmplist = g_list_first(GLOBALS->arc_list);
+	while (tmplist != NULL)
+	{
+	Archive *item = tmplist->data;
+
+		if( !(item->flags & OF_AUTO) )
+		{
+			g_snprintf(idbuffer, 11, "%d", item->key);
+			gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(data->CY_template), idbuffer, item->memo);
+		}
+		tmplist = g_list_next(tmplist);
+	}
+
 }
 
 /*
@@ -1291,7 +1284,7 @@ gint w, h, row;
 
 	//store our dialog private data
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
-	DB( g_print("(ui_acc_manage_) dialog=%x, inst_data=%x\n", (guint)dialog, (guint)&data) );
+	DB( g_print("(ui_acc_manage_) dialog=%p, inst_data=%p\n", dialog, &data) );
 
 	//window contents
 	content = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
@@ -1482,11 +1475,29 @@ gint w, h, row;
 	data.ST_overdraft = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 1, 1);
 
-	// group :: Report exclusion
+	// group :: miscelleaneous
     group_grid = gtk_grid_new ();
 	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
 	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
 	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 2, 1, 1);
+
+	label = make_label_group(_("Miscellaneous"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 2, 1);
+	
+	row = 1;
+	label = make_label_widget(_("Default _Template:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 1, row, 1, 1);
+	widget = gtk_combo_box_text_new();
+	data.CY_template = widget;
+	gtk_widget_set_hexpand(widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 2, row, 2, 1);
+
+
+	// group :: Report exclusion
+    group_grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (group_grid), SPACING_SMALL);
+	gtk_grid_set_column_spacing (GTK_GRID (group_grid), SPACING_MEDIUM);
+	gtk_grid_attach (GTK_GRID (content_grid), group_grid, 0, 3, 1, 1);
 
 	label = make_label_group(_("Report exclusion"));
 	gtk_grid_attach (GTK_GRID (group_grid), label, 0, 0, 2, 1);

@@ -206,12 +206,21 @@ static void ui_arc_listview_cell_data_function_memo (GtkTreeViewColumn *col,
 {
 Archive *item;
 gchar *name;
+#if MYDEBUG
+gchar *string;
+#endif
 
 	gtk_tree_model_get(model, iter, LST_DEFARC_DATAS, &item, -1);
 
 	name = item->memo;
 
-	g_object_set(renderer, "text", name, NULL);
+	#if MYDEBUG
+		string = g_strdup_printf ("[%d] %s", item->key, name );
+		g_object_set(renderer, "text", string, NULL);
+		g_free(string);
+	#else
+		g_object_set(renderer, "text", name, NULL);
+	#endif	
 }
 
 
@@ -348,7 +357,8 @@ gint type;
 	if( type == ARC_TYPE_SCHEDULED )
 		item->flags |= OF_AUTO;
 
-	GLOBALS->arc_list = g_list_append(GLOBALS->arc_list, item);
+	//GLOBALS->arc_list = g_list_append(GLOBALS->arc_list, item);
+	da_archive_append_new(item);
 
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -464,6 +474,7 @@ GtkTreeSelection *selection;
 GtkTreeModel		 *model;
 GtkTreeIter			 iter;
 Archive *item;
+gchar *tagstr, *txt;
 
 	DB( g_print("\n[ui_scheduled] set\n") );
 
@@ -507,6 +518,12 @@ Archive *item;
 
 		DB( g_print(" -> PO_accto %d\n", item->kxferacc) );
 		ui_acc_comboboxentry_set_active(GTK_COMBO_BOX(data->PO_accto), item->kxferacc);
+
+		tagstr = tags_tostring(item->tags);
+		txt = (tagstr != NULL) ? tagstr : "";
+		DB( g_print(" - tags: '%s'\n", txt) );
+		gtk_entry_set_text(GTK_ENTRY(data->ST_tags), txt);
+		g_free(tagstr);
 
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(data->CM_auto), (item->flags & OF_AUTO) ? 1 : 0);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(data->NB_every), item->every);
@@ -560,6 +577,12 @@ gint active;
 		item->kxferacc	= ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_accto));
 
 		item->status = radio_get_active(GTK_CONTAINER(data->RA_status));
+
+		/* tags */
+		txt = (gchar *)gtk_entry_get_text(GTK_ENTRY(data->ST_tags));
+		DB( g_print(" - tags: '%s'\n", txt) );
+		g_free(item->tags);
+		item->tags = tags_parse(txt);
 
 		//#1615245: moved here, after get combo entry key
 		if( item->paymode != PAYMODE_INTXFER )
@@ -748,7 +771,7 @@ gboolean sensitive = TRUE;
 	
 	data->lastarcitem->flags &= ~(OF_SPLIT); //First set flag that Splits are cleared
 	
-	if (da_splits_count(data->lastarcitem->splits) > 0)
+	if (da_splits_length(data->lastarcitem->splits) > 0)
 	{
 	/* disable category if split is set */
 		data->lastarcitem->flags |= OF_SPLIT; //Then set flag that Splits are active
@@ -809,7 +832,7 @@ Archive *arcitem;
 		}
 		data->lastarcitem = arcitem;
 
-		if (da_splits_count(data->lastarcitem->splits) > 0)
+		if (da_splits_length(data->lastarcitem->splits) > 0)
 		{
 
 			data->lastarcitem->flags |= OF_SPLIT; //Then set flag that Splits are active
@@ -884,7 +907,7 @@ gdouble amount;
 
 	amount = gtk_spin_button_get_value(GTK_SPIN_BUTTON(data->ST_amount));
 
-	ui_split_dialog(data->window, data->lastarcitem->splits, amount, &ui_arc_manage_update_post_split);
+	ui_split_dialog(data->window, &data->lastarcitem->splits, amount, &ui_arc_manage_update_post_split);
 
 }
 
@@ -1053,8 +1076,13 @@ gint row;
 	data->ST_word = widget;
 	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
-	/* tags should be here some day */
-
+	row++;
+	label = make_label_widget(_("Ta_gs:"));
+	gtk_grid_attach (GTK_GRID (group_grid), label, 0, row, 1, 1);
+	widget = make_string(label);
+	data->ST_tags = widget;
+	gtk_widget_set_hexpand (widget, TRUE);
+	gtk_grid_attach (GTK_GRID (group_grid), widget, 1, row, 1, 1);
 
 	return group_grid;
 }

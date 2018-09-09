@@ -80,7 +80,7 @@ static GtkRadioActionEntry radio_entries[] = {
 static guint n_radio_entries = G_N_ELEMENTS (radio_entries);
 
 static GtkActionEntry entries[] = {
-  { "Refresh" , ICONNAME_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbalance_action_refresh) },
+  { "Refresh" , ICONNAME_HB_REFRESH   , N_("Refresh"), NULL,   N_("Refresh results"), G_CALLBACK (repbalance_action_refresh) },
 };
 
 static guint n_entries = G_N_ELEMENTS (entries);
@@ -635,7 +635,7 @@ struct repbalance_data *data;
 GtkTreeModel *model;
 GtkTreeIter  iter;
 guint32 acckey, i;
-gboolean selectall, eachday;
+gboolean range, selectall, eachday;
 Account *acc;
 
 	DB( g_print(" \n[repbalance] compute\n") );
@@ -644,7 +644,8 @@ Account *acc;
 
 	selectall = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_selectall));
 	eachday = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->CM_eachday));
-
+	range = gtk_combo_box_get_active(GTK_COMBO_BOX(data->CY_range));
+	
 	// get the account key
 	acckey = ui_acc_comboboxentry_get_key(GTK_COMBO_BOX(data->PO_acc));
 
@@ -676,7 +677,8 @@ Account *acc;
 
 	//to remove > 5.0.2
 	//#1715532 5.0.5: no... but only selectall
-	if(selectall == TRUE)
+	//#1756601 but only for FLT_RANGE_ALLDATE
+	if( (selectall == TRUE) && (range == FLT_RANGE_ALLDATE) )
 	{
 		filter_preset_daterange_set(data->filter, data->filter->range, data->accnum);
 		repbalance_update_quickdate(widget, NULL);

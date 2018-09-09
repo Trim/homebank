@@ -63,6 +63,7 @@ struct ui_arc_manage_data
 	GtkWidget	*PO_grp;
 	GtkWidget	*PO_acc;
 	GtkWidget	*LB_accto, *PO_accto;
+	GtkWidget	*ST_tags;
 
 	GtkWidget   *LB_schedinsert;
 	GtkWidget	*CM_auto;

@@ -140,7 +140,7 @@ gint i;
 
 			//data->filter->cat[i] = gtk_tree_selection_iter_is_selected(selection, &iter);
 			//data->filter->cat[i] = toggled;
-			catitem->filter = toggled;
+			catitem->flt_select = toggled;
 
 			n_child = gtk_tree_model_iter_n_children (GTK_TREE_MODEL(model), &iter);
 			gtk_tree_model_iter_children (GTK_TREE_MODEL(model), &child, &iter);
@@ -156,7 +156,7 @@ gint i;
 
 				//data->filter->cat[i] = toggled;
 				//data->filter->cat[i] = gtk_tree_selection_iter_is_selected(selection, &child);
-				catitem->filter = toggled;
+				catitem->flt_select = toggled;
 
 				n_child--;
 				gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &child);
@@ -200,7 +200,7 @@ static void ui_flt_panel_category_set(struct ui_flt_manage_data *data)
 				LST_DEFCAT_DATAS, &catitem,
 				-1);
 
-			if(catitem->filter == TRUE)
+			if(catitem->flt_select == TRUE)
 				gtk_tree_store_set (GTK_TREE_STORE (model), &iter, LST_DEFCAT_TOGGLE, TRUE, -1);
 
 			n_child = gtk_tree_model_iter_n_children (GTK_TREE_MODEL(model), &iter);
@@ -213,7 +213,7 @@ static void ui_flt_panel_category_set(struct ui_flt_manage_data *data)
 					LST_DEFCAT_DATAS, &catitem,
 					-1);
 
-				if(catitem->filter == TRUE)
+				if(catitem->flt_select == TRUE)
 					gtk_tree_store_set (GTK_TREE_STORE (model), &child, LST_DEFCAT_TOGGLE, TRUE, -1);
 
 				n_child--;
@@ -799,7 +799,7 @@ gchar *txt;
 					-1);
 
 				//data->filter->acc[i] = gtk_tree_selection_iter_is_selected(selection, &iter);
-				accitem->filter = toggled;
+				accitem->flt_select = toggled;
 
 				/* Make iter point to the next row in the list store */
 				i++; valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
@@ -822,7 +822,7 @@ gchar *txt;
 				-1);
 
 			//data->filter->pay[i] = gtk_tree_selection_iter_is_selected(selection, &iter);
-			payitem->filter = toggled;
+			payitem->flt_select = toggled;
 
 			/* Make iter point to the next row in the list store */
 			i++; valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter);
@@ -921,7 +921,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 					LST_DEFACC_DATAS, &accitem,
 					-1);
 
-				if(accitem->filter == TRUE)
+				if(accitem->flt_select == TRUE)
 					//gtk_tree_selection_select_iter(selection, &iter);
 					gtk_list_store_set (GTK_LIST_STORE (model), &iter,
 						LST_DEFACC_TOGGLE, TRUE, -1);
@@ -945,7 +945,7 @@ static void ui_flt_manage_set(struct ui_flt_manage_data *data)
 				LST_DEFPAY_DATAS, &payitem,
 				-1);
 
-			if(payitem->filter == TRUE)
+			if(payitem->flt_select == TRUE)
 				gtk_list_store_set (GTK_LIST_STORE (model), &iter, LST_DEFPAY_TOGGLE, TRUE, -1);
 
 			/* Make iter point to the next row in the list store */
@@ -999,7 +999,7 @@ static void ui_flt_manage_setup(struct ui_flt_manage_data *data)
 	{
 		//gtk_tree_selection_set_mode(GTK_TREE_SELECTION(gtk_tree_view_get_selection(GTK_TREE_VIEW(data->LV_pay))), GTK_SELECTION_MULTIPLE);
 
-		ui_pay_listview_populate(data->LV_pay);
+		ui_pay_listview_populate(data->LV_pay, NULL);
 		//populate_view_pay(data->LV_pay, GLOBALS->pay_list, FALSE);
 	}
 

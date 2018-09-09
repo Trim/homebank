@@ -100,11 +100,12 @@ struct ui_acc_manage_data
 	GtkWidget	*CM_noreport;
 	GtkWidget	*CM_closed;
 	GtkWidget	*ST_initial;
-	GtkWidget	*ST_warning;
+	//GtkWidget	*ST_warning;
 	GtkWidget	*ST_overdraft;
 	GtkWidget	*ST_cheque1;
 	GtkWidget	*ST_cheque2;
 	GtkWidget	*TB_notes;
+	GtkWidget	*CY_template;
 	
 };
 

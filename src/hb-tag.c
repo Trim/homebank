@@ -221,10 +221,118 @@ Tag *da_tag_get(guint32 key)
 }
 
 
+/* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
+guint
+tags_count(guint32 *tags)
+{
+guint count = 0;
+
+	DB( g_print("\n[tags] count\n") );
+
+	if( tags == NULL )
+		return 0;
+
+	while(*tags++ != 0 && count < 32)
+		count++;
+
+	return count;
+}
+
+
+guint32 *tags_clone(guint32 *tags)
+{
+guint32 *newtags = NULL;
+guint count;
+
+	count = tags_count(tags);
+	if(count > 0)
+	{
+		//1501962: we must also copy the final 0
+		newtags = g_memdup(tags, (count+1)*sizeof(guint32));
+	}
+
+	return newtags;	
+}
+
+
+
+guint32 *
+tags_parse(const gchar *tagstring)
+{
+gchar **str_array;
+guint32 *tags = NULL;
+guint count, i;
+Tag *tag;
+
+	DB( g_print("\n[tags] parse\n") );
+
+	if( tagstring )
+	{
+		str_array = g_strsplit (tagstring, " ", 0);
+		count = g_strv_length( str_array );
+		if( count > 0 )
+		{
+			tags = g_new0(guint32, count + 1);
+			for(i=0;i<count;i++)
+			{
+				tag = da_tag_get_by_name(str_array[i]);
+				if(tag == NULL)
+				{
+				Tag *newtag = da_tag_malloc();
+
+					newtag->name = g_strdup(str_array[i]);
+					da_tag_append(newtag);
+					tag = da_tag_get_by_name(str_array[i]);
+				}
+				tags[i] = tag->key;
+			}
+			tags[i] = 0;
+		}
+
+		g_strfreev (str_array);
+	}
+	return tags;
+}
+
+
+
+gchar *
+tags_tostring(guint32 *tags)
+{
+guint count, i;
+gchar **str_array;
+gchar *tagstring;
+Tag *tag;
+
+	DB( g_print("\n[tags] tostring\n") );
+	if( tags == NULL )
+	{
+		return NULL;
+	}
+	else
+	{
+		count = tags_count(tags);
+		str_array = g_new0(gchar*, count+1);
+		for(i=0;i<count;i++)
+		{
+			tag = da_tag_get(tags[i]);
+			if( tag )
+			{
+				str_array[i] = tag->name;
+			}
+			else
+				str_array[i] = NULL;
+		}
+		tagstring = g_strjoinv(" ", str_array);
+		g_free (str_array);
+	}
+	return tagstring;
+}
 
 
 /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
 
 #if MYDEBUG
 

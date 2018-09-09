@@ -34,6 +34,9 @@ typedef struct _GtkDateEntryClass	GtkDateEntryClass;
 typedef struct _GtkDateEntryPrivate	GtkDateEntryPrivate;
 
 
+#define HB_MINDATE  693596	  //01/01/1900
+#define HB_MAXDATE  803533	  //31/12/2200
+
 struct _GtkDateEntry
 {
 	GtkBox box;
