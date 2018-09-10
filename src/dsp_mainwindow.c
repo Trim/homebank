@@ -42,6 +42,7 @@
 
 #include "rep_balance.h"
 #include "rep_budget.h"
+#include "rep_budget_balance.h"
 #include "rep_stats.h"
 #include "rep_time.h"
 #include "rep_vehicle.h"
@@ -112,6 +113,7 @@ static void ui_mainwindow_action_checkscheduled(void);
 static void ui_mainwindow_action_statistic(void);
 static void ui_mainwindow_action_trendtime(void);
 static void ui_mainwindow_action_budget(void);
+static void ui_mainwindow_action_budget_balance(void);
 static void ui_mainwindow_action_balance(void);
 static void ui_mainwindow_action_vehiclecost(void);
 
@@ -229,6 +231,7 @@ static GtkActionEntry entries[] = {
   { "RStatistics" , ICONNAME_HB_REP_STATS  , N_("_Statistics...") , NULL,    N_("Open the Statistics report"),    G_CALLBACK (ui_mainwindow_action_statistic) },
   { "RTrendTime"  , ICONNAME_HB_REP_TIME   , N_("_Trend Time...") , NULL,    N_("Open the Trend Time report"),    G_CALLBACK (ui_mainwindow_action_trendtime) },
   { "RBudget"     , ICONNAME_HB_REP_BUDGET , N_("B_udget...")     , NULL,    N_("Open the Budget report"),    G_CALLBACK (ui_mainwindow_action_budget) },
+  { "RBudgetBalance", NULL , N_("Budget balance...") , NULL,    N_("Open the Budget Balance report"), G_CALLBACK (ui_mainwindow_action_budget_balance) },
   { "RBalance"    , ICONNAME_HB_REP_BALANCE, N_("Balance...")  , NULL,    N_("Open the Balance report"),    G_CALLBACK (ui_mainwindow_action_balance) },
   { "RVehiculeCost", ICONNAME_HB_REP_CAR   , N_("_Vehicle cost...")   , NULL,    N_("Open the Vehicle cost report"),    G_CALLBACK (ui_mainwindow_action_vehiclecost) },
 
@@ -325,6 +328,7 @@ static const gchar *ui_info =
 "      <menuitem action='RTrendTime'/>"
 "      <menuitem action='RBalance'/>"
 "      <menuitem action='RBudget'/>"
+"      <menuitem action='RBudgetBalance' />"
 "      <menuitem action='RVehiculeCost'/>"
 "    </menu>"
 "    <menu action='ToolsMenu'>"
@@ -816,6 +820,11 @@ struct hbfile_data *data = g_object_get_data(G_OBJECT(GLOBALS->mainwindow), "ins
 static void ui_mainwindow_action_budget(void)
 {
 	repbudget_window_new();
+}
+
+static void ui_mainwindow_action_budget_balance(void)
+{
+	repbudgetbalance_window_new();
 }
 
 static void ui_mainwindow_action_balance(void)
@@ -2375,6 +2384,7 @@ gint flags;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RStatistics"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RTrendTime"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBudget"), sensitive);
+		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBudgetBalance"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RBalance"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ReportMenu/RVehiculeCost"), sensitive);
 

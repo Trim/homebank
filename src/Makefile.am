@@ -82,6 +82,8 @@ homebank_SOURCES =  \
 	rep_balance.h \
 	rep_budget.c \
 	rep_budget.h \
+	rep_budget_balance.c \
+	rep_budget_balance.h \
 	rep_stats.c \
 	rep_stats.h \
 	rep_time.c \
