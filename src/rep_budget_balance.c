@@ -21,6 +21,7 @@
 #include "homebank.h"
 #include "hb-misc.h"
 #include "dsp_mainwindow.h"
+#include "hb-category.h"
 #include "rep_budget_balance.h"
 
 
@@ -76,7 +77,9 @@ static gchar *BUDGBAL_MONTHS[] = {
 // the budget model creation
 static GtkTreeModel * budget_model_new (void) {
 GtkTreeStore *budget;
-GtkTreeIter toplevel, child;
+GtkTreeIter iter_income, iter_expense, iter_total, child;
+guint n_category;
+gdouble total_income[12], total_expense[12];
 
 	// Create Tree Store
 	budget = gtk_tree_store_new ( BUDGBAL_NUMCOLS,
@@ -101,117 +104,186 @@ GtkTreeIter toplevel, child;
 
 	// Populate the store
 
-	// Add a root
+	/* Create root budget balance categories */
 	gtk_tree_store_insert_with_values (budget,
-	 &toplevel,
+	 &iter_income,
 		NULL,
 		-1,
 		BUDGBAL_CATEGORY, _(N_("Income")),
 		BUDGBAL_ISBALANCECATEGORY, TRUE,
 		-1);
 
-	// Add a child to the root created above
 	gtk_tree_store_insert_with_values (
 		budget,
-		&child,
-		&toplevel,
-		-1,
-		BUDGBAL_CATEGORY, _(N_("Salary")),
-		BUDGBAL_ISFIXEDAMOUNT, FALSE,
-		BUDGBAL_JANUARY, 100.0,
-		BUDGBAL_FEBRUARY, 200.0,
-		BUDGBAL_MARCH, 300.0,
-		BUDGBAL_APRIL, 4.0,
-		BUDGBAL_MAY, 5.0,
-		BUDGBAL_JUNE, 6.0,
-		BUDGBAL_JULY, 7.0,
-		BUDGBAL_AUGUST, 8.0,
-		BUDGBAL_SEPTEMBER, 9.0,
-		BUDGBAL_OCTOBER, 10.0,
-		BUDGBAL_NOVEMBER, 11.0,
-		BUDGBAL_DECEMBER, -12.0,
-		-1);
-
-	// Add a root
-	gtk_tree_store_insert_with_values (
-		budget,
-		&toplevel,
+		&iter_expense,
 		NULL,
 		-1,
-		BUDGBAL_CATEGORY, _(N_("Expenses")),
+		BUDGBAL_CATEGORY, _(N_("Expense")),
 		BUDGBAL_ISBALANCECATEGORY, TRUE,
 		-1);
 
-	// Add a child to the root created above
 	gtk_tree_store_insert_with_values (
 		budget,
-		&child,
-		&toplevel,
-		-1,
-		BUDGBAL_CATEGORY, N_("Bills"),
-		BUDGBAL_ISFIXEDAMOUNT, FALSE,
-		BUDGBAL_JANUARY, 100.0,
-		BUDGBAL_FEBRUARY, 200.0,
-		BUDGBAL_MARCH, 300.0,
-		BUDGBAL_APRIL, 4.0,
-		BUDGBAL_MAY, 5.0,
-		BUDGBAL_JUNE, 6.0,
-		BUDGBAL_JULY, 7.0,
-		BUDGBAL_AUGUST, 8.0,
-		BUDGBAL_SEPTEMBER, 9.0,
-		BUDGBAL_OCTOBER, 10.0,
-		BUDGBAL_NOVEMBER, 11.0,
-		BUDGBAL_DECEMBER, -12.5,
-		-1);
-
-	gtk_tree_store_insert_with_values (
-		budget,
-		&child,
-		&toplevel,
-		-1,
-		BUDGBAL_CATEGORY, N_("Subscriptions"),
-		BUDGBAL_ISFIXEDAMOUNT, TRUE,
-		BUDGBAL_FIXEDAMOUNT, 100.0,
-		-1);
-
-	// Add a root
-	gtk_tree_store_insert_with_values (
-		budget,
-		&toplevel,
+		&iter_total,
 		NULL,
 		-1,
 		BUDGBAL_CATEGORY, _(N_("Totals")),
 		BUDGBAL_ISBALANCECATEGORY, TRUE,
 		-1);
 
-	// Add a child to the root created above
+	/* Create rows for real categories */
+
+	n_category = da_cat_get_max_key();
+
+	for(guint32 i=1; i<=n_category; ++i)
+	{
+	Category *bdg_category;
+	gboolean cat_is_fixedamount;
+	gboolean cat_is_income;
+
+		bdg_category = da_cat_get(i);
+		if (bdg_category == NULL
+				|| (bdg_category->flags & GF_BUDGET) == 0)
+		{
+			continue;
+		}
+
+		cat_is_income = (category_type_get (bdg_category) == 1);
+		cat_is_fixedamount = (! (bdg_category->flags & GF_CUSTOM));
+
+		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d isfixedamount=%d\n",
+			bdg_category->key, bdg_category->name,
+			cat_is_income, (bdg_category->flags & GF_SUB),
+			(bdg_category->flags & GF_BUDGET), cat_is_fixedamount));
+
+		// Compute totals and init category in right balance category
+		if (cat_is_income)
+		{
+			for (int month = 1; month <= 12; ++month)
+			{
+				if (cat_is_fixedamount)
+				{
+					total_income[month-1] += bdg_category->budget[0];
+				}
+				else {
+					total_income[month-1] += bdg_category->budget[month];
+				}
+			}
+
+			gtk_tree_store_insert (
+				budget,
+				&child,
+				&iter_income,
+				-1);
+		}
+		else {
+			for (int month = 1; month <= 12; ++month)
+			{
+				if (cat_is_fixedamount)
+				{
+					total_expense[month-1] += bdg_category->budget[0];
+				}
+				else {
+					total_expense[month-1] += bdg_category->budget[month];
+				}
+			}
+
+			gtk_tree_store_insert (
+				budget,
+				&child,
+				&iter_expense,
+				-1);
+		}
+
+		gtk_tree_store_set(
+			budget,
+			&child,
+			BUDGBAL_CATEGORY, bdg_category->name,
+			BUDGBAL_ISBALANCECATEGORY, FALSE,
+			BUDGBAL_ISFIXEDAMOUNT, cat_is_fixedamount,
+			BUDGBAL_ISTOTAL, FALSE,
+			BUDGBAL_FIXEDAMOUNT, bdg_category->budget[0],
+			BUDGBAL_JANUARY, bdg_category->budget[1],
+			BUDGBAL_FEBRUARY, bdg_category->budget[2],
+			BUDGBAL_MARCH, bdg_category->budget[3],
+			BUDGBAL_APRIL, bdg_category->budget[4],
+			BUDGBAL_MAY, bdg_category->budget[5],
+			BUDGBAL_JUNE, bdg_category->budget[6],
+			BUDGBAL_JULY, bdg_category->budget[7],
+			BUDGBAL_AUGUST, bdg_category->budget[8],
+			BUDGBAL_SEPTEMBER, bdg_category->budget[9],
+			BUDGBAL_OCTOBER, bdg_category->budget[10],
+			BUDGBAL_NOVEMBER, bdg_category->budget[11],
+			BUDGBAL_DECEMBER, bdg_category->budget[12],
+			-1);
+	}
+
+
+	/* Create sub-categories for total balance */
+
 	gtk_tree_store_insert_with_values (
 		budget,
 		&child,
-		&toplevel,
+		&iter_total,
 		-1,
 		BUDGBAL_CATEGORY, _(N_("Incomes")),
 		BUDGBAL_ISTOTAL, TRUE,
+		BUDGBAL_JANUARY, total_income[0],
+		BUDGBAL_FEBRUARY, total_income[1],
+		BUDGBAL_MARCH, total_income[2],
+		BUDGBAL_APRIL, total_income[3],
+		BUDGBAL_MAY, total_income[4],
+		BUDGBAL_JUNE, total_income[5],
+		BUDGBAL_JULY, total_income[6],
+		BUDGBAL_AUGUST, total_income[7],
+		BUDGBAL_SEPTEMBER, total_income[8],
+		BUDGBAL_OCTOBER, total_income[9],
+		BUDGBAL_NOVEMBER, total_income[10],
+		BUDGBAL_DECEMBER, total_income[11],
 		-1);
 
 	// Add a child to the root created above
 	gtk_tree_store_insert_with_values (
 		budget,
 		&child,
-		&toplevel,
+		&iter_total,
 		-1,
 		BUDGBAL_CATEGORY, _(N_("Expenses")),
 		BUDGBAL_ISTOTAL, TRUE,
+		BUDGBAL_JANUARY, total_expense[0],
+		BUDGBAL_FEBRUARY, total_expense[1],
+		BUDGBAL_MARCH, total_expense[2],
+		BUDGBAL_APRIL, total_expense[3],
+		BUDGBAL_MAY, total_expense[4],
+		BUDGBAL_JUNE, total_expense[5],
+		BUDGBAL_JULY, total_expense[6],
+		BUDGBAL_AUGUST, total_expense[7],
+		BUDGBAL_SEPTEMBER, total_expense[8],
+		BUDGBAL_OCTOBER, total_expense[9],
+		BUDGBAL_NOVEMBER, total_expense[10],
+		BUDGBAL_DECEMBER, total_expense[11],
 		-1);
 
 	// Add a child to the root created above
 	gtk_tree_store_insert_with_values (
 		budget,
 		&child,
-		&toplevel,
+		&iter_total,
 		-1,
 		BUDGBAL_CATEGORY, _(N_("Differences")),
 		BUDGBAL_ISTOTAL, TRUE,
+		BUDGBAL_JANUARY, total_income[0] + total_expense[0],
+		BUDGBAL_FEBRUARY, total_income[1] + total_expense[1],
+		BUDGBAL_MARCH, total_income[2] + total_expense[2],
+		BUDGBAL_APRIL, total_income[3] + total_expense[3],
+		BUDGBAL_MAY, total_income[4] + total_expense[4],
+		BUDGBAL_JUNE, total_income[5] + total_expense[5],
+		BUDGBAL_JULY, total_income[6] + total_expense[6],
+		BUDGBAL_AUGUST, total_income[7] + total_expense[7],
+		BUDGBAL_SEPTEMBER, total_income[8] + total_expense[8],
+		BUDGBAL_OCTOBER, total_income[9] + total_expense[9],
+		BUDGBAL_NOVEMBER, total_income[10] + total_expense[10],
+		BUDGBAL_DECEMBER, total_income[11] + total_expense[11],
 		-1);
 
 	return GTK_TREE_MODEL(budget);
@@ -233,16 +305,13 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		-1);
 
 	// Text to display
-	if (is_fixedamount) {
+	if (is_fixedamount)
+	{
 		gtk_tree_model_get(model, iter, BUDGBAL_FIXEDAMOUNT, &amount, -1);
 	}
-	else if (column_id >= BUDGBAL_JANUARY && column_id <= BUDGBAL_DECEMBER) {
-		if (is_total) {
-			amount = 0.0;
-		}
-		else {
-			gtk_tree_model_get(model, iter, column_id, &amount, -1);
-		}
+	else if (column_id >= BUDGBAL_JANUARY && column_id <= BUDGBAL_DECEMBER)
+	{
+		gtk_tree_model_get(model, iter, column_id, &amount, -1);
 	}
 
 	text = g_strdup_printf("%.2f", amount);
@@ -253,39 +322,42 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 	is_editable = FALSE;
 	is_sensitive = TRUE;
 
-	if (is_balance_category) {
+	if (is_balance_category)
+	{
 		is_visible = FALSE;
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 	}
-	else if (is_total) {
+	else if (is_total)
+	{
 		is_visible = TRUE;
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT) {
+		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		{
 			is_visible = FALSE;
 		}
-
-		g_object_set(renderer,
-			"foreground", fgcolor,
-			NULL);
 	}
-	else if (is_fixedamount) {
+	else if (is_fixedamount)
+	{
 		is_visible = TRUE;
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT) {
+		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		{
 			is_sensitive = TRUE;
 		}
 	}
-	else if (! is_fixedamount) {
+	else if (! is_fixedamount)
+	{
 		is_visible = TRUE;
 		is_editable = FALSE;
 		is_sensitive = TRUE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT) {
+		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		{
 			is_sensitive = FALSE;
 		}
 	}
@@ -296,6 +368,8 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		"visible", is_visible,
 		"editable", is_editable,
 		"sensitive", is_sensitive,
+		"foreground", fgcolor,
+		"xalign", 1.0,
 		NULL);
 
 	g_free(text);
@@ -316,7 +390,8 @@ gboolean is_fixedamount, is_balance_category, is_total, is_visible, is_sensitive
 	is_visible = TRUE;
 	is_sensitive = TRUE;
 
-	if (is_balance_category || is_total) {
+	if (is_balance_category || is_total)
+	{
 		is_visible = FALSE;
 		is_sensitive = FALSE;
 	}
@@ -336,6 +411,7 @@ gdouble amount = 0.0;
 gdouble total = 0.0;
 gchar *text;
 gchar *fgcolor;
+gboolean is_visible = TRUE;
 
 	gtk_tree_model_get(model, iter,
 		BUDGBAL_ISBALANCECATEGORY, &is_balance_category,
@@ -344,32 +420,36 @@ gchar *fgcolor;
 		BUDGBAL_ISTOTAL, &is_total,
 		-1);
 
-	if (is_total || is_balance_category) {
-		g_object_set(renderer, "visible", FALSE, NULL);
+	if (is_fixedamount)
+	{
+		total = 12.0 * amount;
 	}
-	else {
-		if (is_fixedamount) {
-			total = 12.0 * amount;
+	else
+	{
+		for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
+		{
+			gtk_tree_model_get(model, iter, i, &amount, -1);
+			total += amount;
 		}
-		else {
-			for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i) {
-				gtk_tree_model_get(model, iter, i, &amount, -1);
-				total += amount;
-			}
-		}
-
-		text = g_strdup_printf("%.2f", total);
-		fgcolor = get_minimum_color_amount(total, 0.0);
-
-		g_object_set(renderer,
-			"text", text,
-			"foreground", fgcolor,
-			"visible", TRUE,
-			"sensitive", FALSE,
-			NULL);
-
-		g_free(text);
 	}
+
+	text = g_strdup_printf("%.2f", total);
+	fgcolor = get_minimum_color_amount(total, 0.0);
+
+	if (is_balance_category)
+	{
+		is_visible = FALSE;
+	}
+
+	g_object_set(renderer,
+		"text", text,
+		"foreground", fgcolor,
+		"visible", is_visible,
+		"sensitive", FALSE,
+		"xalign", 1.0,
+		NULL);
+
+	g_free(text);
 }
 
 // the budget view creation which run the model creation tool
@@ -412,7 +492,8 @@ GtkTreeModel *model;
 	gtk_tree_view_column_set_cell_data_func(col, renderer, display_amount, GINT_TO_POINTER(BUDGBAL_FIXEDAMOUNT), NULL);
 
 	/* --- Each month --- */
-	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i) {
+	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
+	{
 		int month = i - BUDGBAL_JANUARY ;
 		col = gtk_tree_view_column_new();
 
@@ -443,6 +524,10 @@ GtkTreeModel *model;
 	/* to automatically destroy then model with view */
 	g_object_unref(model);
 
+	/* We set selection mode to NONE as budget edition from balance is not implemented. */
+	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)),
+		GTK_SELECTION_NONE);
+
 	return view;
 }
 
@@ -450,14 +535,15 @@ GtkTreeModel *model;
 static gboolean repbudgetbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
 struct repbudgetbalance_data *data = user_data;
-//struct WinGeometry *wg;
+struct WinGeometry *wg;
 
 	DB( g_print("\n[repbudgetbalance] start dispose\n") );
 
 	g_free(data);
 
+	// TODO Uncomment and adjust when we know name of the window and pref
 	//store position and size
-	//wg = &PREFS->bud_wg;
+	//wg = &PREFS->bud_bal_wg;
 	//gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
 	//gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
 
@@ -478,7 +564,7 @@ GtkWidget *repbudgetbalance_window_new(void)
 {
 struct repbudgetbalance_data *data;
 struct WinGeometry *wg;
-GtkWidget *window, *treeview;
+GtkWidget *window, *scrolledwindow, *treeview;
 
 	data = g_malloc0(sizeof(struct repbudgetbalance_data));
 	if(!data) return NULL;
@@ -502,15 +588,21 @@ GtkWidget *window, *treeview;
 	//set the window icon
 	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_REP_BUDGET);
 
-	//window contents
+	// ScrolledWindow will permit to display budgets with a lot of active categories
+	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+	gtk_container_add(GTK_CONTAINER(window), scrolledwindow);
+
 	treeview = budget_view_new ();
-	gtk_container_add(GTK_CONTAINER(window), treeview);
+	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
+	/* signal connect */
+	g_signal_connect (window, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
 
+	// TODO Uncomment and adjust when we know name of the window and pref
 	//setup, init and show window
-	wg = &PREFS->bud_wg;
-	gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
-	gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
+	//wg = &PREFS->bud_wg;
+	//gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
+	//gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
 
 	gtk_widget_show_all (window);
 
