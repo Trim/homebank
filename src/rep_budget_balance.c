@@ -205,7 +205,7 @@ gboolean cat_is_fixedamount;
 // the budget model creation
 static GtkTreeModel * budget_model_new (void) {
 GtkTreeStore *budget;
-GtkTreeIter iter_income, iter_expense, iter_total, toplevel, child;
+GtkTreeIter iter_income, iter_expense, iter_total, child;
 guint32 n_category;
 gdouble total_income[12], total_expense[12];
 
