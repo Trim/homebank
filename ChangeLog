@@ -1,5 +1,16 @@
 
 
+2018-09-15  Maxime Doyen
+
+ Made 5.2.1 release.
+
+ * wish  : #1789698 treat search box as another filter
+ * bugfix: #1792677 backup files are not being deleted 
+ * bugfix: #1792567 trendtime report crash when display payee
+ * bugfix: #1791656 CSV import do not import info, payee, and tags
+ * bugfix: #1791554 revert and Restore backup menu items permanently greyed out
+
+
 2018-09-08  Maxime Doyen
 
  Made 5.2 release.

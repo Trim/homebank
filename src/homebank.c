@@ -246,11 +246,13 @@ gboolean retval = FALSE;
 
 	if( g_file_test(filepath, G_FILE_TEST_EXISTS) )
 	{
+		DB( g_print(" - deleting: '%s'\n", filepath) );
 		g_remove(filepath);
 		retval = TRUE;
 	}
+	else
+		DB( g_print(" - cannot delete: '%s'\n", filepath) );
 
-	DB( g_print(" - deleted: '%s' :: %d\n", filepath, retval) );
 	return retval;
 }
 
@@ -259,7 +261,7 @@ void homebank_backup_current_file(void)
 {
 gchar *bakfilename;
 GPtrArray *array;
-guint i;
+gint i;
 
 	DB( g_print("\n[homebank] backup_current_file\n") );
 
@@ -286,18 +288,30 @@ guint i;
 		//delete any offscale backup
 		DB( g_print(" clean old backup\n") );
 		array = hb_filename_backup_list(GLOBALS->xhb_filepath);
-		for(i=0;i<array->len;i++)
+
+		DB( g_print(" found %d match\n", array->len) );
+
+		gchar *dirname = g_path_get_dirname(GLOBALS->xhb_filepath);
+		
+		for(i=0;i<(gint)array->len;i++)
 		{
 		gchar *offscalefilename = g_ptr_array_index(array, i);
 	
 			DB( g_print(" %d : '%s'\n", i, offscalefilename) );
 			if( i >= PREFS->bak_max_num_copies )
 			{
-				DB( g_print(" - should delete '%s'\n", offscalefilename) );
-				homebank_file_delete_existing(offscalefilename);
+			gchar *bakdelfilepath = g_build_filename(dirname, offscalefilename, NULL);
+
+				DB( g_print(" - should delete '%s'\n", bakdelfilepath) );
+			
+				homebank_file_delete_existing(bakdelfilepath);
+
+				g_free(bakdelfilepath);
 			}
 		}
 		g_ptr_array_free(array, TRUE);
+
+		g_free(dirname);
 	}
 
 }

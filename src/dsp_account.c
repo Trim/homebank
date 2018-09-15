@@ -53,7 +53,7 @@ extern gchar *CYA_FLT_TYPE[];
 extern gchar *CYA_FLT_STATUS[];
 
 
-static void register_panel_collect_filtered_txn(GtkWidget *view);
+static void register_panel_collect_filtered_txn(GtkWidget *view, gboolean emptysearch);
 static void register_panel_listview_populate(GtkWidget *view);
 static void register_panel_action(GtkWidget *widget, gpointer user_data);
 static void register_panel_update(GtkWidget *widget, gpointer user_data);
@@ -622,14 +622,14 @@ gint range;
 		if( future && (PREFS->date_future_nbdays > 0) )
 			filter_preset_daterange_add_futuregap(data->filter, PREFS->date_future_nbdays);
 		
-		register_panel_collect_filtered_txn(data->LV_ope);
+		register_panel_collect_filtered_txn(data->LV_ope, FALSE);
 		register_panel_listview_populate(data->LV_ope);
 	}
 	else
 	{
 		if(ui_flt_manage_dialog_new(data->window, data->filter, data->showall) != GTK_RESPONSE_REJECT)
 		{
-			register_panel_collect_filtered_txn(data->LV_ope);
+			register_panel_collect_filtered_txn(data->LV_ope, FALSE);
 			register_panel_listview_populate(data->LV_ope);
 			register_panel_update(data->LV_ope, GINT_TO_POINTER(UF_SENSITIVE+UF_BALANCE));
 		}
@@ -649,7 +649,7 @@ gint type;
 
 	filter_preset_type_set(data->filter, type);
 
-	register_panel_collect_filtered_txn(data->LV_ope);
+	register_panel_collect_filtered_txn(data->LV_ope, FALSE);
 	register_panel_listview_populate(data->LV_ope);
 }
 
@@ -666,7 +666,7 @@ gint status;
 
 	filter_preset_status_set(data->filter, status);
 
-	register_panel_collect_filtered_txn(data->LV_ope);
+	register_panel_collect_filtered_txn(data->LV_ope, FALSE);
 	register_panel_listview_populate(data->LV_ope);
 }
 
@@ -689,7 +689,7 @@ struct register_panel_data *data;
 	if( PREFS->date_future_nbdays > 0 )
 		filter_preset_daterange_add_futuregap(data->filter, PREFS->date_future_nbdays);
 
-	register_panel_collect_filtered_txn(data->LV_ope);
+	register_panel_collect_filtered_txn(data->LV_ope, TRUE);
 	register_panel_listview_populate(data->LV_ope);
 	
 	g_signal_handler_block(data->CY_range, data->handler_id[HID_RANGE]);
@@ -773,7 +773,7 @@ gushort lpos = 1;
 }
 
 
-static void register_panel_collect_filtered_txn(GtkWidget *view)
+static void register_panel_collect_filtered_txn(GtkWidget *view, gboolean emptysearch)
 {
 struct register_panel_data *data;
 GList *lst_acc, *lnk_acc;
@@ -821,10 +821,13 @@ GList *lnk_txn;
 	}
 	g_list_free(lst_acc);
 
-	g_signal_handler_block(data->ST_search, data->handler_id[HID_SEARCH]);
-	gtk_entry_set_text (GTK_ENTRY(data->ST_search), "");
-	g_signal_handler_unblock(data->ST_search, data->handler_id[HID_SEARCH]);
-	
+	//#1789698 not always empty
+	if( emptysearch == TRUE )
+	{
+		g_signal_handler_block(data->ST_search, data->handler_id[HID_SEARCH]);
+		gtk_entry_set_text (GTK_ENTRY(data->ST_search), "");
+		g_signal_handler_unblock(data->ST_search, data->handler_id[HID_SEARCH]);
+	}	
 }
 
 
@@ -1436,7 +1439,7 @@ gboolean result;
 
 			if(ui_flt_manage_dialog_new(data->window, data->filter, data->showall) != GTK_RESPONSE_REJECT)
 			{
-				register_panel_collect_filtered_txn(data->LV_ope);
+				register_panel_collect_filtered_txn(data->LV_ope, TRUE);
 				register_panel_listview_populate(data->LV_ope);
 				register_panel_update(data->LV_ope, GINT_TO_POINTER(UF_SENSITIVE+UF_BALANCE));
 

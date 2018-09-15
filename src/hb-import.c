@@ -916,6 +916,7 @@ GList *list;
 				gentxn->memo = NULL;
 				gentxn->info = NULL;
 
+				// OFX:check_number
 				gentxn->info = g_strdup(gentxn->rawinfo);
 
 				if(ictx->opt_ofxname == 2)
@@ -980,8 +981,14 @@ GList *list;
 			{
 				DB( g_print(" - csv option apply\n") );
 
+				//#1791656 missing: info, payee and tagsg_freg_free(gentxn->payee);
+				g_free(gentxn->payee);
 				g_free(gentxn->memo);
+				g_free(gentxn->info);
+
+				gentxn->payee = g_strdup(gentxn->rawpayee);
 				gentxn->memo = g_strdup(gentxn->rawmemo);
+				gentxn->info = g_strdup(gentxn->rawinfo);
 			}
 			
 			//at last do ucfirst
@@ -1105,6 +1112,13 @@ gint nsplit;
 			}
 		}
 
+		//#1791656 miss tags also...
+		if( gentxn->tags != NULL )
+		{
+			g_free(newope->tags);
+			newope->tags = tags_parse(gentxn->tags);
+		}
+		
 		// splits, if not a xfer
 		if( gentxn->paymode != PAYMODE_INTXFER )
 		{

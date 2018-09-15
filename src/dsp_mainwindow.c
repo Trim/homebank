@@ -1837,13 +1837,18 @@ void ui_mainwindow_open(GtkWidget *widget, gpointer user_data)
 {
 //struct hbfile_data *data;
 gboolean bakmode = GPOINTER_TO_INT(user_data);;
+gboolean doopen = TRUE;
 gchar *filename = NULL;
 
 	DB( g_print("\n[ui-mainwindow] open\n") );
 
 	//data = g_object_get_data(G_OBJECT(gtk_widget_get_ancestor(widget, GTK_TYPE_WINDOW)), "inst_data");
 
-	if( ui_dialog_msg_savechanges(widget,NULL) == TRUE )
+	//#1791554 do ask for save confirm
+	if( bakmode != TRUE )
+		doopen = ui_dialog_msg_savechanges(widget,NULL);
+
+	if( doopen == TRUE )
 	{
 		if( ui_file_chooser_xhb(GTK_FILE_CHOOSER_ACTION_OPEN, &filename, bakmode) == TRUE )
 		{
@@ -2342,33 +2347,27 @@ gint flags;
 				active = FALSE;
 		}
 
-
-		// no change: disable save
 		DB( g_print(" changes %d - new %d\n", GLOBALS->changes_count, GLOBALS->hbfile_is_new) );
 
-
+	// save
 		sensitive = (GLOBALS->changes_count != 0 ) ? TRUE : FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Save"), sensitive);
 
+	// backup
 		sensitive = ( (GLOBALS->changes_count != 0) && GLOBALS->xhb_hasrevert ) ? TRUE : FALSE;
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Revert"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/OpenBak"), sensitive);
 
-
 	// define off ?
 		sensitive = GLOBALS->define_off == 0 ? TRUE : FALSE;
-
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Account"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Payee"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Category"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Budget"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/EditMenu/Preferences"), sensitive);
 
-	// empty account list: disable Import, Archives, Edit, Filter, Add, Statistics, Overdrawn, Car Cost
+	// empty account list: disable Archives, Edit, Filter, Add, Statistics, Overdrawn, Car Cost
 		sensitive = da_acc_length() > 0 ? TRUE : FALSE;
-
-		//gtk_action_set_sensitive(gtk_ui_manager_get_action(data-data->manager, "/MenuBar/FileMenu/Import"), sensitive);
-
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/FileMenu/Close"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/ManageMenu/Archive"), sensitive);
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddTxn"), sensitive);
@@ -2389,16 +2388,13 @@ gint flags;
 
 	// empty archive list: disable scheduled check
 		sensitive = g_list_length(GLOBALS->arc_list) > 0 ? TRUE : FALSE;
-
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/AddScheduled"), sensitive);
 
 	// no active account: disable Edit, Over
 		sensitive = (active == TRUE ) ? TRUE : FALSE;
 		if(data->acc && data->acc->window != NULL)
 			sensitive = FALSE;
-
 		gtk_action_set_sensitive(gtk_ui_manager_get_action(data->manager, "/MenuBar/TxnMenu/ShowTxn"), sensitive);
-
 	}
 
 	/* update toolbar, list */

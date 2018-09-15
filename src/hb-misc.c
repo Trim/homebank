@@ -773,7 +773,7 @@ GPtrArray *array;
 	g_free(dirname);
 	
 	g_ptr_array_sort(array, (GCompareFunc)hb_filename_backup_list_sort_func);
-	
+
 	return array;
 }
 

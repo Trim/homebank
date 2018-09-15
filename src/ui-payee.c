@@ -85,7 +85,6 @@ Payee *item;
 
 	name = (gchar *)gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (entry_box))));
 	item = da_pay_get_by_name(name);
-	g_free(name);
 
 	if( item != NULL )
 		return item->key;
