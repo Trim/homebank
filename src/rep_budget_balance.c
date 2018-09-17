@@ -45,9 +45,9 @@ enum {
 	BUDGBAL_CATEGORY_KEY = 0,
 	BUDGBAL_CATEGORY_NAME,
 	BUDGBAL_ISBALANCECATEGORY,
-	BUDGBAL_ISFIXEDAMOUNT,
+	BUDGBAL_ISSAMEAMOUNT,
 	BUDGBAL_ISTOTAL,
-	BUDGBAL_FIXEDAMOUNT,
+	BUDGBAL_SAMEAMOUNT,
 	BUDGBAL_JANUARY,
 	BUDGBAL_FEBRUARY,
 	BUDGBAL_MARCH,
@@ -114,7 +114,7 @@ guint32 key = data->key;
 static void insert_category_with_ancestors(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category) {
 GtkTreeIter child, parent;
 Category *bdg_category;
-gboolean cat_is_fixedamount;
+gboolean cat_is_sameamount;
 
 	bdg_category = da_cat_get(*key_category);
 
@@ -123,7 +123,7 @@ gboolean cat_is_fixedamount;
 		return;
 	}
 
-	cat_is_fixedamount = (! (bdg_category->flags & GF_CUSTOM));
+	cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 	/* Check if parent category already exists */
 	struct KeyIterator* parent_keyiter;
@@ -180,9 +180,9 @@ gboolean cat_is_fixedamount;
 		BUDGBAL_CATEGORY_KEY, bdg_category->key,
 		BUDGBAL_CATEGORY_NAME, bdg_category->name,
 		BUDGBAL_ISBALANCECATEGORY, FALSE,
-		BUDGBAL_ISFIXEDAMOUNT, cat_is_fixedamount,
+		BUDGBAL_ISSAMEAMOUNT, cat_is_sameamount,
 		BUDGBAL_ISTOTAL, FALSE,
-		BUDGBAL_FIXEDAMOUNT, bdg_category->budget[0],
+		BUDGBAL_SAMEAMOUNT, bdg_category->budget[0],
 		BUDGBAL_JANUARY, bdg_category->budget[1],
 		BUDGBAL_FEBRUARY, bdg_category->budget[2],
 		BUDGBAL_MARCH, bdg_category->budget[3],
@@ -214,9 +214,9 @@ gdouble total_income[12], total_expense[12];
 		G_TYPE_UINT, // BUDGBAL_CATEGORY_KEY
 		G_TYPE_STRING, // BUDGBAL_CATEGORY_NAME
 		G_TYPE_BOOLEAN, // BUDGBAL_ISBALANCECATEGORY
-		G_TYPE_BOOLEAN, // BUDGBAL_ISFIXEDAMOUNT
+		G_TYPE_BOOLEAN, // BUDGBAL_ISSAMEAMOUNT
 		G_TYPE_BOOLEAN, // BUDGBAL_ISTOTAL
-		G_TYPE_DOUBLE, // BUDGBAL_FIXEDAMOUNT
+		G_TYPE_DOUBLE, // BUDGBAL_SAMEAMOUNT
 		G_TYPE_DOUBLE, // BUDGBAL_JANUARY
 		G_TYPE_DOUBLE, // BUDGBAL_FEBRUARY
 		G_TYPE_DOUBLE, // BUDGBAL_MARCH
@@ -267,7 +267,7 @@ gdouble total_income[12], total_expense[12];
 	for(guint32 i=1; i<=n_category; ++i)
 	{
 	Category *bdg_category;
-	gboolean cat_is_fixedamount;
+	gboolean cat_is_sameamount;
 	gboolean cat_is_income;
 
 		bdg_category = da_cat_get(i);
@@ -284,19 +284,19 @@ gdouble total_income[12], total_expense[12];
 		}
 
 		cat_is_income = (category_type_get (bdg_category) == 1);
-		cat_is_fixedamount = (! (bdg_category->flags & GF_CUSTOM));
+		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
-		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d isfixedamount=%d parent=%d\n",
+		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d issameamount=%d parent=%d\n",
 			bdg_category->key, bdg_category->name,
 			cat_is_income, (bdg_category->flags & GF_SUB),
-			(bdg_category->flags & GF_BUDGET), cat_is_fixedamount, bdg_category->parent));
+			(bdg_category->flags & GF_BUDGET), cat_is_sameamount, bdg_category->parent));
 
 		// Compute totals and init category in right balance category
 		if (cat_is_income)
 		{
 			for (int month = 1; month <= 12; ++month)
 			{
-				if (cat_is_fixedamount)
+				if (cat_is_sameamount)
 				{
 					total_income[month-1] += bdg_category->budget[0];
 				}
@@ -310,7 +310,7 @@ gdouble total_income[12], total_expense[12];
 		else {
 			for (int month = 1; month <= 12; ++month)
 			{
-				if (cat_is_fixedamount)
+				if (cat_is_sameamount)
 				{
 					total_expense[month-1] += bdg_category->budget[0];
 				}
@@ -397,7 +397,7 @@ gdouble total_income[12], total_expense[12];
 // to enable or not edition on month columns
 static void display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_fixedamount, is_balance_category, is_total, is_visible, is_sensitive, is_editable;
+gboolean is_sameamount, is_balance_category, is_total, is_visible, is_sensitive, is_editable;
 gdouble amount = 0.0;
 gchar *text;
 gchar *fgcolor;
@@ -405,14 +405,14 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 
 	gtk_tree_model_get(model, iter,
 		BUDGBAL_ISBALANCECATEGORY, &is_balance_category,
-		BUDGBAL_ISFIXEDAMOUNT, &is_fixedamount,
+		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
 		BUDGBAL_ISTOTAL, &is_total,
 		-1);
 
 	// Text to display
-	if (is_fixedamount)
+	if (is_sameamount)
 	{
-		gtk_tree_model_get(model, iter, BUDGBAL_FIXEDAMOUNT, &amount, -1);
+		gtk_tree_model_get(model, iter, BUDGBAL_SAMEAMOUNT, &amount, -1);
 	}
 	else if (column_id >= BUDGBAL_JANUARY && column_id <= BUDGBAL_DECEMBER)
 	{
@@ -439,29 +439,29 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		if (column_id == BUDGBAL_SAMEAMOUNT)
 		{
 			is_visible = FALSE;
 		}
 	}
-	else if (is_fixedamount)
+	else if (is_sameamount)
 	{
 		is_visible = TRUE;
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		if (column_id == BUDGBAL_SAMEAMOUNT)
 		{
 			is_sensitive = TRUE;
 		}
 	}
-	else if (! is_fixedamount)
+	else if (! is_sameamount)
 	{
 		is_visible = TRUE;
 		is_editable = FALSE;
 		is_sensitive = TRUE;
 
-		if (column_id == BUDGBAL_FIXEDAMOUNT)
+		if (column_id == BUDGBAL_SAMEAMOUNT)
 		{
 			is_sensitive = FALSE;
 		}
@@ -481,13 +481,13 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 }
 
 // to enable or not edition on month columns
-static void display_fixedamount_toggle (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void display_sameamount_toggle (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_fixedamount, is_balance_category, is_total, is_visible, is_sensitive;
+gboolean is_sameamount, is_balance_category, is_total, is_visible, is_sensitive;
 
 	gtk_tree_model_get(model, iter,
 		BUDGBAL_ISBALANCECATEGORY, &is_balance_category,
-		BUDGBAL_ISFIXEDAMOUNT, &is_fixedamount,
+		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
 		BUDGBAL_ISTOTAL, &is_total,
 		-1);
 
@@ -502,7 +502,7 @@ gboolean is_fixedamount, is_balance_category, is_total, is_visible, is_sensitive
 	}
 
 	g_object_set(renderer,
-		"active", is_fixedamount,
+		"active", is_sameamount,
 		"visible", is_visible,
 		"sensitive", is_sensitive,
 		NULL);
@@ -511,7 +511,7 @@ gboolean is_fixedamount, is_balance_category, is_total, is_visible, is_sensitive
 // Compute dynamically the yearly total
 static void yearly_total (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_fixedamount = FALSE, is_total = FALSE, is_balance_category = FALSE;
+gboolean is_sameamount = FALSE, is_total = FALSE, is_balance_category = FALSE;
 gdouble amount = 0.0;
 gdouble total = 0.0;
 gchar *text;
@@ -520,12 +520,12 @@ gboolean is_visible = TRUE;
 
 	gtk_tree_model_get(model, iter,
 		BUDGBAL_ISBALANCECATEGORY, &is_balance_category,
-		BUDGBAL_ISFIXEDAMOUNT, &is_fixedamount,
-		BUDGBAL_FIXEDAMOUNT, &amount,
+		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
+		BUDGBAL_SAMEAMOUNT, &amount,
 		BUDGBAL_ISTOTAL, &is_total,
 		-1);
 
-	if (is_fixedamount)
+	if (is_sameamount)
 	{
 		total = 12.0 * amount;
 	}
@@ -578,25 +578,23 @@ GtkTreeModel *model;
 
 	gtk_tree_view_column_add_attribute(col, renderer, "text", BUDGBAL_CATEGORY_NAME);
 
-	/* Currently, "Fixed amount" column are hidden, because the user can't edit budget directly from the report*/
-
-	/* --- Is same amount fixed for each month ? --- */
+	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Fixed ?")));
+	gtk_tree_view_column_set_title(col, _(N_("Same ?")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_toggle_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, display_fixedamount_toggle, NULL, NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, display_sameamount_toggle, NULL, NULL);
 
-	/* --- Fixed amount --- */
+	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Fixed amount")));
+	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_text_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, display_amount, GINT_TO_POINTER(BUDGBAL_FIXEDAMOUNT), NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, display_amount, GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT), NULL);
 
 	/* --- Each month --- */
 	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
