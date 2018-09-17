@@ -64,10 +64,10 @@ enum {
 };
 
 static gchar *BUDGBAL_MONTHS[] = {
-	N_("January"), N_("February"), N_("March"),
-	N_("April"), N_("May"), N_("June"),
-	N_("July"), N_("August"), N_("September"),
-	N_("October"), N_("November"), N_("December"),
+	N_("Jan"), N_("Feb"), N_("Mar"),
+	N_("Apr"), N_("May"), N_("Jun"),
+	N_("Jul"), N_("Aug"), N_("Sept"),
+	N_("Oct"), N_("Nov"), N_("Dec"),
 	NULL};
 
 struct KeyIterator {
@@ -581,22 +581,22 @@ GtkTreeModel *model;
 	/* Currently, "Fixed amount" column are hidden, because the user can't edit budget directly from the report*/
 
 	/* --- Is same amount fixed for each month ? --- */
-	/* col = gtk_tree_view_column_new(); */
-	/* gtk_tree_view_column_set_title(col, _(N_("Fixed ?"))); */
+	col = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(col, _(N_("Fixed ?")));
 
-	/* gtk_tree_view_append_column(GTK_TREE_VIEW(view), col); */
-	/* renderer = gtk_cell_renderer_toggle_new(); */
-	/* gtk_tree_view_column_pack_start(col, renderer, TRUE); */
-	/* gtk_tree_view_column_set_cell_data_func(col, renderer, display_fixedamount_toggle, NULL, NULL); */
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+	renderer = gtk_cell_renderer_toggle_new();
+	gtk_tree_view_column_pack_start(col, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, display_fixedamount_toggle, NULL, NULL);
 
 	/* --- Fixed amount --- */
-	/* col = gtk_tree_view_column_new(); */
-	/* gtk_tree_view_column_set_title(col, _(N_("Fixed amount"))); */
+	col = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(col, _(N_("Fixed amount")));
 
-	/* gtk_tree_view_append_column(GTK_TREE_VIEW(view), col); */
-	/* renderer = gtk_cell_renderer_text_new(); */
-	/* gtk_tree_view_column_pack_start(col, renderer, TRUE); */
-	/* gtk_tree_view_column_set_cell_data_func(col, renderer, display_amount, GINT_TO_POINTER(BUDGBAL_FIXEDAMOUNT), NULL); */
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+	renderer = gtk_cell_renderer_text_new();
+	gtk_tree_view_column_pack_start(col, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, display_amount, GINT_TO_POINTER(BUDGBAL_FIXEDAMOUNT), NULL);
 
 	/* --- Each month --- */
 	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
