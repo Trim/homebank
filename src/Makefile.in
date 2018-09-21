@@ -113,9 +113,9 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	homebank.$(OBJEXT) language.$(OBJEXT) list_account.$(OBJEXT) \
 	list_operation.$(OBJEXT) list_topspending.$(OBJEXT) \
 	list_upcoming.$(OBJEXT) rep_balance.$(OBJEXT) \
-	rep_budget.$(OBJEXT) rep_stats.$(OBJEXT) rep_time.$(OBJEXT) \
-	rep_vehicle.$(OBJEXT) ui-account.$(OBJEXT) \
-	ui-archive.$(OBJEXT) ui-assign.$(OBJEXT) \
+	rep_budget.$(OBJEXT) rep_budget_balance.$(OBJEXT) \
+	rep_stats.$(OBJEXT) rep_time.$(OBJEXT) rep_vehicle.$(OBJEXT) \
+	ui-account.$(OBJEXT) ui-archive.$(OBJEXT) ui-assign.$(OBJEXT) \
 	ui-assist-import.$(OBJEXT) ui-assist-start.$(OBJEXT) \
 	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) \
 	ui-currency.$(OBJEXT) ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) \
@@ -383,6 +383,8 @@ homebank_SOURCES = \
 	rep_balance.h \
 	rep_budget.c \
 	rep_budget.h \
+	rep_budget_balance.c \
+	rep_budget_balance.h \
 	rep_stats.c \
 	rep_stats.h \
 	rep_time.c \
@@ -553,6 +555,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list_upcoming.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_balance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_budget.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_budget_balance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_vehicle.Po@am__quote@
