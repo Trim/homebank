@@ -453,17 +453,19 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		if (column_id == BUDGBAL_SAMEAMOUNT)
 		{
 			is_sensitive = TRUE;
+			is_editable = TRUE;
 		}
 	}
 	else if (! is_sameamount)
 	{
 		is_visible = TRUE;
-		is_editable = FALSE;
+		is_editable = TRUE;
 		is_sensitive = TRUE;
 
 		if (column_id == BUDGBAL_SAMEAMOUNT)
 		{
 			is_sensitive = FALSE;
+			is_editable = FALSE;
 		}
 	}
 
