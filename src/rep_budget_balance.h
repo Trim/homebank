@@ -22,9 +22,17 @@
 
 struct repbudgetbalance_data
 {
-	GtkWidget	*window;
+	GtkWidget *window;
 
-	GtkUIManager	*ui;
+	// Tree view with budget
+	GtkWidget *TV_budget;
+	GtkTreeViewColumn *TVC_issame;
+	GtkTreeViewColumn *TVC_monthly;
+
+	// Radio button for editor mode
+	GtkWidget *RA_mode;
+
+	GtkUIManager *ui;
 };
 
 GtkWidget *repbudgetbalance_window_new(void);
