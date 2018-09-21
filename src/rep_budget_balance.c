@@ -40,6 +40,17 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
+gchar *EDITOR_MODE[] = {
+	N_("View"),
+	N_("Edit"),
+	NULL
+};
+
+enum {
+	BUDGBAL_MODE_READ = 0,
+	BUDGBAL_MODE_EDIT
+};
+
 /* enum for the Budget Tree Store model */
 enum {
 	BUDGBAL_CATEGORY_KEY = 0,
@@ -559,14 +570,40 @@ gboolean is_visible = TRUE;
 	g_free(text);
 }
 
+//
+static void *budget_toggle_editor (gpointer user_data, gint mode) {
+struct repbudgetbalance_data *data = user_data;
+GtkWidget *budget;
+
+	budget = data->TV_budget;
+
+	DB(g_print("[repbudgetbalance] : button state changed to: %d\n", mode));
+
+	switch(mode) {
+		case BUDGBAL_MODE_READ:
+			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
+				GTK_SELECTION_NONE);
+			gtk_tree_view_column_set_visible(data->TVC_issame, FALSE);
+			gtk_tree_view_column_set_visible(data->TVC_monthly, FALSE);
+			break;
+		case BUDGBAL_MODE_EDIT:
+			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
+				GTK_SELECTION_SINGLE);
+			gtk_tree_view_column_set_visible(data->TVC_issame, TRUE);
+			gtk_tree_view_column_set_visible(data->TVC_monthly, TRUE);
+			break;
+	}
+}
+
 // the budget view creation which run the model creation tool
 
-static GtkWidget *budget_view_new (void)
+static GtkWidget *budget_view_new (gpointer user_data)
 {
 GtkTreeViewColumn *col;
 GtkCellRenderer *renderer;
 GtkWidget *view;
 GtkTreeModel *model;
+struct repbudgetbalance_data *data = user_data;
 
 	view = gtk_tree_view_new();
 
@@ -582,6 +619,7 @@ GtkTreeModel *model;
 
 	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
+	data->TVC_issame = col;
 	gtk_tree_view_column_set_title(col, _(N_("Same ?")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
@@ -591,6 +629,7 @@ GtkTreeModel *model;
 
 	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
+	data->TVC_monthly = col;
 	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
@@ -631,16 +670,26 @@ GtkTreeModel *model;
 	/* to automatically destroy then model with view */
 	g_object_unref(model);
 
-	/* We set selection mode to NONE as budget edition from balance is not implemented. */
-	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)),
-		GTK_SELECTION_NONE);
-
 	g_object_set(view,
 		"enable-grid-lines", GTK_TREE_VIEW_GRID_LINES_BOTH,
 		"enable-tree-lines", TRUE,
 		NULL);
 
 	return view;
+}
+
+// UI actions
+
+static void repbudgetbalance_changed_editor_mode (GtkToggleButton *button, gpointer user_data)
+{
+struct repbudgetbalance_data *data = user_data;
+gint mode;
+
+	mode = radio_get_active(GTK_CONTAINER(data->RA_mode)) == 1 ? BUDGBAL_MODE_EDIT : BUDGBAL_MODE_READ;
+
+	budget_toggle_editor((gpointer) data, mode);
+
+	return;
 }
 
 // the window close / deletion
@@ -670,13 +719,16 @@ struct WinGeometry *wg;
 	return FALSE;
 }
 
-
 // the window creation
 GtkWidget *repbudgetbalance_window_new(void)
 {
 struct repbudgetbalance_data *data;
 struct WinGeometry *wg;
-GtkWidget *window, *scrolledwindow, *treeview;
+GtkWidget *window, *grid;
+GtkWidget *radiomode, *menu;
+GtkWidget *widget, *image;
+GtkWidget *scrolledwindow, *treeview;
+gint gridrow;
 
 	data = g_malloc0(sizeof(struct repbudgetbalance_data));
 	if(!data) return NULL;
@@ -700,12 +752,69 @@ GtkWidget *window, *scrolledwindow, *treeview;
 	//set the window icon
 	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_REP_BUDGET);
 
+	//set a nice dialog size
+	gtk_window_set_default_size (GTK_WINDOW(window), 1280, 768);
+
+	// design content
+	grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (grid), SPACING_MEDIUM);
+	gtk_grid_set_column_spacing (GTK_GRID (grid), SPACING_MEDIUM);
+	g_object_set(grid, "margin", SPACING_MEDIUM, NULL);
+	gtk_container_add(GTK_CONTAINER(window), grid);
+
+	// First row displays radio button to change mode (edition / view) and menu
+	gridrow = 0;
+
+	// edition mode radio buttons
+	radiomode = make_radio(EDITOR_MODE, TRUE, GTK_ORIENTATION_HORIZONTAL);
+	data->RA_mode = radiomode;
+	gtk_widget_set_halign (radiomode, GTK_ALIGN_CENTER);
+	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
+
+	widget = radio_get_nth_widget(GTK_CONTAINER(radiomode), 1);
+	if(widget)
+	{
+		g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_changed_editor_mode), (gpointer)data);
+	}
+
+	// Hamburger menu
+	menu = gtk_menu_new ();
+	gtk_widget_set_halign (menu, GTK_ALIGN_END);
+
+	widget = gtk_menu_item_new_with_mnemonic (_("_Import CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), widget);
+	//g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (ui_bud_manage_load_csv), (gpointer)data);
+
+	widget = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), widget);
+	//g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (ui_bud_manage_save_csv), (gpointer)data);
+
+	gtk_widget_show_all (menu);
+
+	widget = gtk_menu_button_new();
+	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_MENU, GTK_ICON_SIZE_MENU);
+
+	g_object_set (widget, "image", image, "popup", GTK_MENU(menu),  NULL);
+
+	gtk_widget_set_hexpand (widget, FALSE);
+	gtk_widget_set_halign (widget, GTK_ALIGN_END);
+	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
+
+	// Next row displays the budget tree
+	gridrow++;
+
 	// ScrolledWindow will permit to display budgets with a lot of active categories
 	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-	gtk_container_add(GTK_CONTAINER(window), scrolledwindow);
+	gtk_widget_set_hexpand (scrolledwindow, TRUE);
+	gtk_widget_set_vexpand (scrolledwindow, TRUE);
+	gtk_grid_attach (GTK_GRID (grid), scrolledwindow, 0, gridrow, 1, 1);
 
-	treeview = budget_view_new ();
+	treeview = budget_view_new ((gpointer) data);
+	data->TV_budget = treeview;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+
+	// By default, show the reader mode
+	budget_toggle_editor((gpointer) data, BUDGBAL_MODE_READ);
 
 	/* signal connect */
 	g_signal_connect (window, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
