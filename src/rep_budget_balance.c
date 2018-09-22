@@ -57,7 +57,8 @@ enum {
 
 /* These values corresponds to the GF_INCOME flag from hb-category */
 enum {
-	BUDGBAL_CAT_TYPE_EXPENSE = 0,
+	BUDGBAL_CAT_TYPE_NONE = -1, // Not real category type used for some technical rows
+	BUDGBAL_CAT_TYPE_EXPENSE,
 	BUDGBAL_CAT_TYPE_INCOME
 };
 
@@ -96,6 +97,13 @@ static gchar *BUDGBAL_MONTHS[] = {
 struct category_iterator {
 	guint32 key; // key defining the category
 	GtkTreeIter *iterator; // NULL if iterator has not been found
+};
+
+struct budget_iterator {
+	gint category_type;
+	gboolean category_istitle;
+	gboolean category_istotal;
+	GtkTreeIter *iterator;
 };
 
 /* action functions -------------------- */
@@ -229,13 +237,276 @@ gboolean cat_is_sameamount;
 	return;
 }
 
+// Look for category by deterministic caracteristics
+// Only categories with specific caracteristics can be easily found
+// like titles and total rows
+static gboolean repbudgetbalance_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct budget_iterator* budget_iter)
+{
+gint category_type;
+gboolean result = FALSE, is_title, is_total;
+
+	gtk_tree_model_get (model, iter,
+											BUDGBAL_CATEGORY_TYPE, &category_type,
+											BUDGBAL_ISTITLE, &is_title,
+											BUDGBAL_ISTOTAL, &is_total,
+											-1);
+
+	budget_iter->iterator = NULL;
+
+	if (is_title == budget_iter->category_istitle
+			&& is_total == budget_iter->category_istotal
+			&& category_type == budget_iter->category_type)
+	{
+		budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
+		*budget_iter->iterator = *iter;
+
+		result = TRUE;
+	}
+
+	return result;
+}
+
+// Create title categories for the store
+static void repbudgetbalance_model_insert_titles(GtkTreeStore* budget, gint view_mode)
+{
+GtkTreeIter iter;
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
+	{
+		gtk_tree_store_insert_with_values (budget,
+		 &iter,
+			NULL,
+			-1,
+			BUDGBAL_CATEGORY_NAME, _(N_("Income")),
+			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
+			BUDGBAL_ISTITLE, TRUE,
+			BUDGBAL_ISTOTAL, FALSE,
+			-1);
+	}
+
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
+	{
+		gtk_tree_store_insert_with_values (
+			budget,
+			&iter,
+			NULL,
+			-1,
+			BUDGBAL_CATEGORY_NAME, _(N_("Expense")),
+			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
+			BUDGBAL_ISTITLE, TRUE,
+			BUDGBAL_ISTOTAL, FALSE,
+			-1);
+	}
+
+	gtk_tree_store_insert_with_values (
+		budget,
+		&iter,
+		NULL,
+		-1,
+		BUDGBAL_CATEGORY_NAME, _(N_("Totals")),
+		BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_NONE,
+		BUDGBAL_ISTITLE, TRUE,
+		BUDGBAL_ISTOTAL, FALSE,
+		-1);
+
+	return;
+}
+
+// Update (or insert) total rows for a budget according to the view  mode
+// This function will is used to initiate model and to refresh it after change by user
+static void repbudget_model_update_monthlytotal(GtkTreeStore* budget, gint view_mode)
+{
+struct budget_iterator *budget_iter;
+GtkTreeIter total_title, child;
+double total_income[12] = {0}, total_expense[12] = {0};
+gboolean cat_is_sameamount;
+int n_category;
+
+	budget_iter = g_malloc0(sizeof(struct budget_iterator));
+
+	// Go through all categories to compute totals
+	n_category = da_cat_get_max_key();
+
+	for(guint32 i=1; i<=n_category; ++i)
+	{
+	Category *bdg_category;
+	gboolean cat_is_income;
+
+		bdg_category = da_cat_get(i);
+
+		if (bdg_category == NULL)
+		{
+			continue;
+		}
+
+		cat_is_income = (category_type_get (bdg_category) == 1);
+		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
+
+		for (gint j=0; j<=11; ++j)
+		{
+			if (cat_is_income)
+			{
+				if (cat_is_sameamount)
+				{
+					total_income[j] += bdg_category->budget[0];
+				}
+				else
+				{
+					total_income[j] += bdg_category->budget[j+1];
+				}
+			}
+			else
+			{
+				if (cat_is_sameamount)
+				{
+					total_expense[j] += bdg_category->budget[0];
+				}
+				else
+				{
+					total_expense[j] += bdg_category->budget[j+1];
+				}
+			}
+		}
+	}
+
+	// Retrive total title and insert required total rows
+	budget_iter->category_istitle = TRUE;
+	budget_iter->category_istotal = FALSE;
+	budget_iter->category_type = BUDGBAL_CAT_TYPE_NONE;
+	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+												 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+												 budget_iter);
+
+	if (!budget_iter->iterator) {
+		return;
+	}
+
+	total_title = *budget_iter->iterator;
+
+	// Retrieve and set total income
+	budget_iter->category_istitle = FALSE;
+	budget_iter->category_istotal = TRUE;
+
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
+	{
+		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
+
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 budget_iter);
+
+		if (budget_iter->iterator) {
+			child = *budget_iter->iterator;
+		}
+		else {
+			gtk_tree_store_insert(budget, &child, &total_title, -1);
+		}
+
+		gtk_tree_store_set (
+			budget,
+			&child,
+			BUDGBAL_CATEGORY_NAME, _(N_("Incomes")),
+			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
+			BUDGBAL_ISTOTAL, TRUE,
+			BUDGBAL_JANUARY, total_income[0],
+			BUDGBAL_FEBRUARY, total_income[1],
+			BUDGBAL_MARCH, total_income[2],
+			BUDGBAL_APRIL, total_income[3],
+			BUDGBAL_MAY, total_income[4],
+			BUDGBAL_JUNE, total_income[5],
+			BUDGBAL_JULY, total_income[6],
+			BUDGBAL_AUGUST, total_income[7],
+			BUDGBAL_SEPTEMBER, total_income[8],
+			BUDGBAL_OCTOBER, total_income[9],
+			BUDGBAL_NOVEMBER, total_income[10],
+			BUDGBAL_DECEMBER, total_income[11],
+			-1);
+	}
+
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
+	{
+		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
+
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 budget_iter);
+
+		if (budget_iter->iterator) {
+			child = *budget_iter->iterator;
+		}
+		else {
+			gtk_tree_store_insert(budget, &child, &total_title, -1);
+		}
+
+		gtk_tree_store_set (
+			budget,
+			&child,
+			BUDGBAL_CATEGORY_NAME, _(N_("Expenses")),
+			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
+			BUDGBAL_ISTOTAL, TRUE,
+			BUDGBAL_JANUARY, total_expense[0],
+			BUDGBAL_FEBRUARY, total_expense[1],
+			BUDGBAL_MARCH, total_expense[2],
+			BUDGBAL_APRIL, total_expense[3],
+			BUDGBAL_MAY, total_expense[4],
+			BUDGBAL_JUNE, total_expense[5],
+			BUDGBAL_JULY, total_expense[6],
+			BUDGBAL_AUGUST, total_expense[7],
+			BUDGBAL_SEPTEMBER, total_expense[8],
+			BUDGBAL_OCTOBER, total_expense[9],
+			BUDGBAL_NOVEMBER, total_expense[10],
+			BUDGBAL_DECEMBER, total_expense[11],
+			-1);
+	}
+
+	if (view_mode == BUDGBAL_VIEW_SUMMARY)
+	{
+		budget_iter->category_type = BUDGBAL_CAT_TYPE_NONE;
+
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 budget_iter);
+
+		if (budget_iter->iterator) {
+			child = *budget_iter->iterator;
+		}
+		else {
+			gtk_tree_store_insert(budget, &child, &total_title, -1);
+		}
+
+		gtk_tree_store_set (
+			budget,
+			&child,
+			BUDGBAL_CATEGORY_NAME, _(N_("Differences")),
+			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_NONE,
+			BUDGBAL_ISTOTAL, TRUE,
+			BUDGBAL_JANUARY, total_income[0] + total_expense[0],
+			BUDGBAL_FEBRUARY, total_income[1] + total_expense[1],
+			BUDGBAL_MARCH, total_income[2] + total_expense[2],
+			BUDGBAL_APRIL, total_income[3] + total_expense[3],
+			BUDGBAL_MAY, total_income[4] + total_expense[4],
+			BUDGBAL_JUNE, total_income[5] + total_expense[5],
+			BUDGBAL_JULY, total_income[6] + total_expense[6],
+			BUDGBAL_AUGUST, total_income[7] + total_expense[7],
+			BUDGBAL_SEPTEMBER, total_income[8] + total_expense[8],
+			BUDGBAL_OCTOBER, total_income[9] + total_expense[9],
+			BUDGBAL_NOVEMBER, total_income[10] + total_expense[10],
+			BUDGBAL_DECEMBER, total_income[11] + total_expense[11],
+			-1);
+	}
+
+	g_free(budget_iter->iterator);
+	g_free(budget_iter);
+
+	return;
+}
+
 // the budget model creation
 static GtkTreeModel * repbudgetbalance_model_new (gint view_mode)
 {
 GtkTreeStore *budget;
-GtkTreeIter iter_income, iter_expense, iter_total, child;
+GtkTreeIter *iter_income, *iter_expense;
 guint32 n_category;
-gdouble total_income[12] = {0}, total_expense[12] = {0};
+struct budget_iterator *budget_iter;
 
 	// Create Tree Store
 	budget = gtk_tree_store_new ( BUDGBAL_NUMCOLS,
@@ -263,43 +534,35 @@ gdouble total_income[12] = {0}, total_expense[12] = {0};
 	// Populate the store
 
 	/* Create title rows */
+	repbudgetbalance_model_insert_titles (budget, view_mode);
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
-	{
-		gtk_tree_store_insert_with_values (budget,
-		 &iter_income,
-			NULL,
-			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Income")),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
-			BUDGBAL_ISTITLE, TRUE,
-			-1);
+	// Retrieve required titles
+	budget_iter = g_malloc0(sizeof(struct budget_iterator));
+	budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
+	budget_iter->category_istitle = TRUE;
+	budget_iter->category_istotal = FALSE;
+
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME) {
+		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
+
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 budget_iter);
+
+		iter_income = budget_iter->iterator;
 	}
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
-	{
-		gtk_tree_store_insert_with_values (
-			budget,
-			&iter_expense,
-			NULL,
-			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Expense")),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
-			BUDGBAL_ISTITLE, TRUE,
-			-1);
-	}
+	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE) {
+		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
 
-	gtk_tree_store_insert_with_values (
-		budget,
-		&iter_total,
-		NULL,
-		-1,
-		BUDGBAL_CATEGORY_NAME, _(N_("Totals")),
-		BUDGBAL_ISTITLE, TRUE,
-		-1);
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 budget_iter);
+
+		iter_expense = budget_iter->iterator;
+	}
 
 	/* Create rows for real categories */
-
 	n_category = da_cat_get_max_key();
 
 	for(guint32 i=1; i<=n_category; ++i)
@@ -335,114 +598,22 @@ gdouble total_income[12] = {0}, total_expense[12] = {0};
 				&& (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
 		)
 		{
-			for (int month = 1; month <= 12; ++month)
-			{
-				if (cat_is_sameamount)
-				{
-					total_income[month-1] += bdg_category->budget[0];
-				}
-				else {
-					total_income[month-1] += bdg_category->budget[month];
-				}
-			}
-
-			repbudgetbalance_model_add_category_with_lineage(budget, &iter_income, &(bdg_category->key));
+			repbudgetbalance_model_add_category_with_lineage(budget, iter_income, &(bdg_category->key));
 		}
 		else if (!cat_is_income
 						 && (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
 		)
 		{
-			for (int month = 1; month <= 12; ++month)
-			{
-				if (cat_is_sameamount)
-				{
-					total_expense[month-1] += bdg_category->budget[0];
-				}
-				else {
-					total_expense[month-1] += bdg_category->budget[month];
-				}
-			}
-
-			repbudgetbalance_model_add_category_with_lineage(budget, &iter_expense, &(bdg_category->key));
+			repbudgetbalance_model_add_category_with_lineage(budget, iter_expense, &(bdg_category->key));
 		}
 	}
 
 
 	/* Create sub-categories for total balance */
+	repbudget_model_update_monthlytotal(budget, view_mode);
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
-	{
-		gtk_tree_store_insert_with_values (
-			budget,
-			&child,
-			&iter_total,
-			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Incomes")),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_income[0],
-			BUDGBAL_FEBRUARY, total_income[1],
-			BUDGBAL_MARCH, total_income[2],
-			BUDGBAL_APRIL, total_income[3],
-			BUDGBAL_MAY, total_income[4],
-			BUDGBAL_JUNE, total_income[5],
-			BUDGBAL_JULY, total_income[6],
-			BUDGBAL_AUGUST, total_income[7],
-			BUDGBAL_SEPTEMBER, total_income[8],
-			BUDGBAL_OCTOBER, total_income[9],
-			BUDGBAL_NOVEMBER, total_income[10],
-			BUDGBAL_DECEMBER, total_income[11],
-			-1);
-	}
-
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
-	{
-		gtk_tree_store_insert_with_values (
-			budget,
-			&child,
-			&iter_total,
-			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Expenses")),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_expense[0],
-			BUDGBAL_FEBRUARY, total_expense[1],
-			BUDGBAL_MARCH, total_expense[2],
-			BUDGBAL_APRIL, total_expense[3],
-			BUDGBAL_MAY, total_expense[4],
-			BUDGBAL_JUNE, total_expense[5],
-			BUDGBAL_JULY, total_expense[6],
-			BUDGBAL_AUGUST, total_expense[7],
-			BUDGBAL_SEPTEMBER, total_expense[8],
-			BUDGBAL_OCTOBER, total_expense[9],
-			BUDGBAL_NOVEMBER, total_expense[10],
-			BUDGBAL_DECEMBER, total_expense[11],
-			-1);
-	}
-
-	if (view_mode == BUDGBAL_VIEW_SUMMARY)
-	{
-		gtk_tree_store_insert_with_values (
-			budget,
-			&child,
-			&iter_total,
-			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Differences")),
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_income[0] + total_expense[0],
-			BUDGBAL_FEBRUARY, total_income[1] + total_expense[1],
-			BUDGBAL_MARCH, total_income[2] + total_expense[2],
-			BUDGBAL_APRIL, total_income[3] + total_expense[3],
-			BUDGBAL_MAY, total_income[4] + total_expense[4],
-			BUDGBAL_JUNE, total_income[5] + total_expense[5],
-			BUDGBAL_JULY, total_income[6] + total_expense[6],
-			BUDGBAL_AUGUST, total_income[7] + total_expense[7],
-			BUDGBAL_SEPTEMBER, total_income[8] + total_expense[8],
-			BUDGBAL_OCTOBER, total_income[9] + total_expense[9],
-			BUDGBAL_NOVEMBER, total_income[10] + total_expense[10],
-			BUDGBAL_DECEMBER, total_income[11] + total_expense[11],
-			-1);
-	}
+	g_free(budget_iter->iterator);
+	g_free(budget_iter);
 
 	return GTK_TREE_MODEL(budget);
 }
