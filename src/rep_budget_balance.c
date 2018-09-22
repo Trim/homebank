@@ -104,7 +104,7 @@ struct KeyIterator {
 /* ======================== */
 
 // look for parent category
-static gboolean get_parent_keyiterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct KeyIterator *data)
+static gboolean repbudgetbalance_model_get_parent_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct KeyIterator *data)
 {
 guint32 row_category_key;
 gboolean is_title, is_total;
@@ -133,7 +133,7 @@ guint32 key = data->key;
 }
 
 /* Recursive function which had a new row in the budget model with all its ancestors */
-static void insert_category_with_ancestors(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category)
+static void repbudgetbalance_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category)
 {
 GtkTreeIter child, parent;
 Category *bdg_category;
@@ -155,7 +155,7 @@ gboolean cat_is_sameamount;
 		parent_keyiter->key = bdg_category->parent;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) get_parent_keyiterator,
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_parent_iterator,
 													 parent_keyiter);
 
 	if (bdg_category->parent == 0)
@@ -178,11 +178,11 @@ gboolean cat_is_sameamount;
 		else
 		{
 			// Parent has not been found, ask to create it first
-			insert_category_with_ancestors(budget, balanceIter, &(bdg_category->parent));
+			repbudgetbalance_model_add_category_with_lineage(budget, balanceIter, &(bdg_category->parent));
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-														 (GtkTreeModelForeachFunc) get_parent_keyiterator,
+														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_parent_iterator,
 														 parent_keyiter);
 
 			parent = parent_keyiter->iter;
@@ -343,7 +343,7 @@ gdouble total_income[12] = {0}, total_expense[12] = {0};
 				}
 			}
 
-			insert_category_with_ancestors(budget, &iter_income, &(bdg_category->key));
+			repbudgetbalance_model_add_category_with_lineage(budget, &iter_income, &(bdg_category->key));
 		}
 		else if (!cat_is_income
 						 && (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
@@ -360,7 +360,7 @@ gdouble total_income[12] = {0}, total_expense[12] = {0};
 				}
 			}
 
-			insert_category_with_ancestors(budget, &iter_expense, &(bdg_category->key));
+			repbudgetbalance_model_add_category_with_lineage(budget, &iter_expense, &(bdg_category->key));
 		}
 	}
 
