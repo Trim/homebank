@@ -92,10 +92,10 @@ static gchar *BUDGBAL_MONTHS[] = {
 	N_("Oct"), N_("Nov"), N_("Dec"),
 	NULL};
 
-struct KeyIterator {
-	guint32 key;
-	gboolean is_row_found;
-	GtkTreeIter iter;
+// A small structure to retrieve a category with its iterator
+struct category_iterator {
+	guint32 key; // key defining the category
+	GtkTreeIter *iterator; // NULL if iterator has not been found
 };
 
 /* action functions -------------------- */
@@ -104,13 +104,13 @@ struct KeyIterator {
 /* ======================== */
 
 // look for parent category
-static gboolean repbudgetbalance_model_get_parent_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct KeyIterator *data)
+static gboolean repbudgetbalance_model_get_categoryiterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct category_iterator *data)
 {
 guint32 row_category_key;
 gboolean is_title, is_total;
 guint32 key = data->key;
 
-	data->is_row_found = FALSE;
+	data->iterator = NULL;
 
 	gtk_tree_model_get (model, iter,
 											BUDGBAL_CATEGORY_KEY, &row_category_key,
@@ -123,8 +123,9 @@ guint32 key = data->key;
 			&& !(is_title))
 	{
 		DB(g_print("\tFound row with key %d !\n", key));
-		data->iter = *iter;
-		data->is_row_found = TRUE;
+
+		data->iterator = g_malloc0(sizeof(GtkTreeIter));
+		*data->iterator = *iter;
 
 		return TRUE;
 	}
@@ -135,7 +136,8 @@ guint32 key = data->key;
 /* Recursive function which had a new row in the budget model with all its ancestors */
 static void repbudgetbalance_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category)
 {
-GtkTreeIter child, parent;
+GtkTreeIter child;
+GtkTreeIter *parent;
 Category *bdg_category;
 gboolean cat_is_sameamount;
 
@@ -149,14 +151,14 @@ gboolean cat_is_sameamount;
 	cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 	/* Check if parent category already exists */
-	struct KeyIterator* parent_keyiter;
+	struct category_iterator *parent_category_iterator;
 
-		parent_keyiter = g_malloc0(sizeof(struct KeyIterator));
-		parent_keyiter->key = bdg_category->parent;
+		parent_category_iterator = g_malloc0(sizeof(struct category_iterator));
+		parent_category_iterator->key = bdg_category->parent;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_parent_iterator,
-													 parent_keyiter);
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_categoryiterator,
+													 parent_category_iterator);
 
 	if (bdg_category->parent == 0)
 	{
@@ -169,11 +171,11 @@ gboolean cat_is_sameamount;
 	}
 	else
 	{
-		if (parent_keyiter->is_row_found)
+		if (parent_category_iterator->iterator)
 		{
-			DB(g_print("\tRecursion optimisation: parent key %d already exists\n", parent_keyiter->key));
+			DB(g_print("\tRecursion optimisation: parent key %d already exists\n", parent_category_iterator->key));
 			// If parent already exists, stop recursion
-			parent = parent_keyiter->iter;
+			parent = parent_category_iterator->iterator;
 		}
 		else
 		{
@@ -182,16 +184,16 @@ gboolean cat_is_sameamount;
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_parent_iterator,
-														 parent_keyiter);
+														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_categoryiterator,
+														 parent_category_iterator);
 
-			parent = parent_keyiter->iter;
+			parent = parent_category_iterator->iterator;
 		}
 
 		gtk_tree_store_insert (
 			budget,
 			&child,
-			&parent,
+			parent,
 			-1);
 	}
 
@@ -221,7 +223,8 @@ gboolean cat_is_sameamount;
 		BUDGBAL_DECEMBER, bdg_category->budget[12],
 		-1);
 
-	g_free(parent_keyiter);
+	g_free(parent_category_iterator->iterator);
+	g_free(parent_category_iterator);
 
 	return;
 }
