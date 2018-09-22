@@ -232,7 +232,7 @@ static GtkTreeModel * repbudgetbalance_model_new (gint view_mode)
 GtkTreeStore *budget;
 GtkTreeIter iter_income, iter_expense, iter_total, child;
 guint32 n_category;
-gdouble total_income[12], total_expense[12];
+gdouble total_income[12] = {0}, total_expense[12] = {0};
 
 	// Create Tree Store
 	budget = gtk_tree_store_new ( BUDGBAL_NUMCOLS,
