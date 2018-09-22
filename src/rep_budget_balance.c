@@ -733,12 +733,11 @@ static void repbudgetbalance_changed_view_mode (GtkToggleButton *button, gpointe
 struct repbudgetbalance_data *data = user_data;
 gint view_mode = BUDGBAL_VIEW_SUMMARY;
 
-	//if(!gtk_toggle_button_get_active(button))
-	//{
-	//	return;
-	//}
-
-	DB(g_print("\n[repbudgetbalance] view mode changed !\n"));
+	// Only run once the view update, so only run on the activated button signal
+	if(!gtk_toggle_button_get_active(button))
+	{
+		return;
+	}
 
 	// Mode is directly setted by radio button, because the VIE_MODE and enum
 	// for view mode are constructed to correspond (manually)
@@ -831,10 +830,13 @@ gint gridrow;
 	gtk_widget_set_halign (radiomode, GTK_ALIGN_CENTER);
 	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
 
-	widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), 1);
+	// connect every radio button to the toggled signal to correctly update the view
+	for (int i=0; i<**VIEW_MODE; i++){
+		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
 
-	if (widget) {
-		g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_changed_view_mode), (gpointer)data);
+		if (widget) {
+			g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_changed_view_mode), (gpointer)data);
+		}
 	}
 
 
