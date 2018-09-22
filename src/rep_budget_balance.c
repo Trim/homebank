@@ -43,8 +43,8 @@ extern struct Preferences *PREFS;
 /* The different views available */
 gchar *VIEW_MODE[] = {
 	N_("Summary"),
-	N_("Incomes"),
-	N_("Expenses"),
+	N_("Income"),
+	N_("Expense"),
 	NULL
 };
 
@@ -788,7 +788,7 @@ gboolean is_visible = TRUE;
 // When view mode is toggled:
 // - compute again the model to add required rows
 // - update the view columns to show only the required ones
-static void *repbudgetbalance_view_toggle (gpointer user_data, gint view_mode)
+static void repbudgetbalance_view_toggle (gpointer user_data, gint view_mode)
 {
 struct repbudgetbalance_data *data = user_data;
 GtkWidget *budget;
@@ -826,6 +826,8 @@ GtkTreeModel *model;
 			gtk_tree_view_column_set_visible(data->TVC_monthly, TRUE);
 			break;
 	}
+
+	return;
 }
 
 // the budget view creation which run the model creation tool
@@ -894,7 +896,7 @@ struct repbudgetbalance_data *data = user_data;
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_annualtotal, NULL, NULL);
 
 	g_object_set(view,
-		"enable-grid-lines", GTK_TREE_VIEW_GRID_LINES_BOTH,
+		"enable-grid-lines", PREFS->grid_lines,
 		"enable-tree-lines", TRUE,
 		NULL);
 
@@ -956,11 +958,11 @@ GtkWidget *repbudgetbalance_window_new(void)
 {
 struct repbudgetbalance_data *data;
 struct WinGeometry *wg;
-GtkWidget *window, *grid;
+GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode, *menu;
 GtkWidget *widget, *image;
 GtkWidget *scrolledwindow, *treeview;
-gint gridrow;
+gint gridrow, w, h;
 
 	data = g_malloc0(sizeof(struct repbudgetbalance_data));
 	if(!data) return NULL;
@@ -972,27 +974,34 @@ gint gridrow;
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
 
 	// create window
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	data->window = window;
+	dialog = gtk_dialog_new_with_buttons (_("Advanced Manage Budget"),
+		GTK_WINDOW(GLOBALS->mainwindow),
+		0,
+		_("_Close"),
+		GTK_RESPONSE_ACCEPT,
+		NULL);
+
+	data->window = dialog;
+
+	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_BUDGET);
+
+	//window contents
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));	 	// return a vbox
 
 	//store our window private data
-	g_object_set_data(G_OBJECT(window), "inst_data", (gpointer)data);
-	DB( g_print(" - new window=%p, inst_data=%p\n", window, data) );
-
-	gtk_window_set_title (GTK_WINDOW (window), _("Budget balance report"));
-
-	//set the window icon
-	gtk_window_set_icon_name(GTK_WINDOW (window), ICONNAME_HB_REP_BUDGET);
+	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
+	DB( g_print(" - new dialog=%p, inst_data=%p\n", dialog, data) );
 
 	//set a nice dialog size
-	gtk_window_set_default_size (GTK_WINDOW(window), 1280, 768);
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h/PHI);
 
 	// design content
 	grid = gtk_grid_new ();
 	gtk_grid_set_row_spacing (GTK_GRID (grid), SPACING_MEDIUM);
 	gtk_grid_set_column_spacing (GTK_GRID (grid), SPACING_MEDIUM);
 	g_object_set(grid, "margin", SPACING_MEDIUM, NULL);
-	gtk_container_add(GTK_CONTAINER(window), grid);
+	gtk_container_add(GTK_CONTAINER(content_area), grid);
 
 	// First row displays radio button to change mode (edition / view) and menu
 	gridrow = 0;
@@ -1044,6 +1053,8 @@ gint gridrow;
 	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_set_hexpand (scrolledwindow, TRUE);
 	gtk_widget_set_vexpand (scrolledwindow, TRUE);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_grid_attach (GTK_GRID (grid), scrolledwindow, 0, gridrow, 1, 1);
 
 	treeview = repbudgetbalance_view_new ((gpointer) data);
@@ -1054,16 +1065,20 @@ gint gridrow;
 	repbudgetbalance_view_toggle((gpointer) data, BUDGBAL_VIEW_SUMMARY);
 
 	/* signal connect */
-	g_signal_connect (window, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
+	g_signal_connect (dialog, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
 
 	// TODO Uncomment and adjust when we know name of the window and pref
 	//setup, init and show window
 	//wg = &PREFS->bud_wg;
-	//gtk_window_move(GTK_WINDOW(window), wg->l, wg->t);
-	//gtk_window_resize(GTK_WINDOW(window), wg->w, wg->h);
+	//gtk_window_move(GTK_WINDOW(dialog), wg->l, wg->t);
+	//gtk_window_resize(GTK_WINDOW(dialog), wg->w, wg->h);
 
-	gtk_widget_show_all (window);
+	gtk_widget_show_all (dialog);
 
-	return(window);
+	gtk_dialog_run (GTK_DIALOG (dialog));
+
+	gtk_widget_destroy (dialog);
+
+	return NULL;
 }
 
