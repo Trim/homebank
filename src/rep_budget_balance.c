@@ -791,8 +791,9 @@ gboolean is_visible = TRUE;
 static void repbudgetbalance_view_toggle (gpointer user_data, gint view_mode)
 {
 struct repbudgetbalance_data *data = user_data;
-GtkWidget *budget;
+GtkWidget *budget, *scrolledwindow;
 GtkTreeModel *model;
+gint w, h;
 
 	budget = data->TV_budget;
 
@@ -800,6 +801,15 @@ GtkTreeModel *model;
 	model = repbudgetbalance_model_new(view_mode);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(budget), model);
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
+
+	// Resize the window to get natural width for the dialog
+	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
+	g_object_ref(budget); // Add temporary a manual ref to keep the view alive
+	gtk_container_remove(GTK_CONTAINER(scrolledwindow), budget);
+	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
+	gtk_window_resize (GTK_WINDOW(data->window), 1, h * 0.8);
+	gtk_container_add(GTK_CONTAINER(scrolledwindow), budget);
+	g_object_unref(budget);
 
 	/* to automatically destroy then model with view */
 	g_object_unref(model);
@@ -994,7 +1004,7 @@ gint gridrow, w, h;
 
 	//set a nice dialog size
 	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
-	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h/PHI);
+	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h * 0.8);
 
 	// design content
 	grid = gtk_grid_new ();
