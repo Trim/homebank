@@ -42,7 +42,7 @@ extern struct Preferences *PREFS;
 
 /* The different views available */
 gchar *VIEW_MODE[] = {
-	N_("Summary"),
+	N_("Balance"),
 	N_("Income"),
 	N_("Expense"),
 	NULL
@@ -50,7 +50,7 @@ gchar *VIEW_MODE[] = {
 
 /* These values has to correspond to VIEW_MODE */
 enum {
-	BUDGBAL_VIEW_SUMMARY = 0,
+	BUDGBAL_VIEW_BALANCE = 0,
 	BUDGBAL_VIEW_INCOME,
 	BUDGBAL_VIEW_EXPENSE
 };
@@ -270,7 +270,7 @@ gboolean result = FALSE, is_title, is_total;
 static void repbudgetbalance_model_insert_titles(GtkTreeStore* budget, gint view_mode)
 {
 GtkTreeIter iter;
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
 	{
 		gtk_tree_store_insert_with_values (budget,
 		 &iter,
@@ -283,7 +283,7 @@ GtkTreeIter iter;
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
 	{
 		gtk_tree_store_insert_with_values (
 			budget,
@@ -386,7 +386,7 @@ int n_category;
 	budget_iter->category_istitle = FALSE;
 	budget_iter->category_istotal = TRUE;
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
 	{
 		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
 
@@ -422,7 +422,7 @@ int n_category;
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
 	{
 		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
 
@@ -458,7 +458,7 @@ int n_category;
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY)
+	if (view_mode == BUDGBAL_VIEW_BALANCE)
 	{
 		budget_iter->category_type = BUDGBAL_CAT_TYPE_NONE;
 
@@ -542,7 +542,7 @@ struct budget_iterator *budget_iter;
 	budget_iter->category_istitle = TRUE;
 	budget_iter->category_istotal = FALSE;
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME) {
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME) {
 		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
@@ -552,7 +552,7 @@ struct budget_iterator *budget_iter;
 		iter_income = budget_iter->iterator;
 	}
 
-	if (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE) {
+	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE) {
 		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
@@ -579,7 +579,7 @@ struct budget_iterator *budget_iter;
 		}
 
 		/* Display category only if forced or if a budget has been defined. */
-		if ( view_mode == BUDGBAL_VIEW_SUMMARY
+		if ( view_mode == BUDGBAL_VIEW_BALANCE
 			&& !(bdg_category->flags & (GF_BUDGET|GF_FORCED)))
 		{
 			continue;
@@ -595,13 +595,13 @@ struct budget_iterator *budget_iter;
 
 		// Compute totals and init category in right balance category
 		if (cat_is_income
-				&& (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_INCOME)
+				&& (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
 		)
 		{
 			repbudgetbalance_model_add_category_with_lineage(budget, iter_income, &(bdg_category->key));
 		}
 		else if (!cat_is_income
-						 && (view_mode == BUDGBAL_VIEW_SUMMARY || view_mode == BUDGBAL_VIEW_EXPENSE)
+						 && (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
 		)
 		{
 			repbudgetbalance_model_add_category_with_lineage(budget, iter_expense, &(bdg_category->key));
@@ -817,7 +817,7 @@ gint w, h;
 	DB(g_print("[repbudgetbalance] : button state changed to: %d\n", view_mode));
 
 	switch(view_mode) {
-		case BUDGBAL_VIEW_SUMMARY:
+		case BUDGBAL_VIEW_BALANCE:
 			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
 				GTK_SELECTION_NONE);
 			gtk_tree_view_column_set_visible(data->TVC_issame, FALSE);
@@ -917,7 +917,7 @@ struct repbudgetbalance_data *data = user_data;
 static void repbudgetbalance_changed_view_mode (GtkToggleButton *button, gpointer user_data)
 {
 struct repbudgetbalance_data *data = user_data;
-gint view_mode = BUDGBAL_VIEW_SUMMARY;
+gint view_mode = BUDGBAL_VIEW_BALANCE;
 
 	// Only run once the view update, so only run on the activated button signal
 	if(!gtk_toggle_button_get_active(button))
@@ -1072,7 +1072,7 @@ gint gridrow, w, h;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
 	// By default, show the reader mode
-	repbudgetbalance_view_toggle((gpointer) data, BUDGBAL_VIEW_SUMMARY);
+	repbudgetbalance_view_toggle((gpointer) data, BUDGBAL_VIEW_BALANCE);
 
 	/* signal connect */
 	g_signal_connect (dialog, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
