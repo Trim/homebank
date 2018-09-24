@@ -94,12 +94,12 @@ static gchar *BUDGBAL_MONTHS[] = {
 	NULL};
 
 // A small structure to retrieve a category with its iterator
-static struct category_iterator {
+struct category_iterator {
 	guint32 key; // key defining the category
 	GtkTreeIter *iterator; // NULL if iterator has not been found
 };
 
-static struct budget_iterator {
+struct budget_iterator {
 	gint category_type;
 	gboolean category_istitle;
 	gboolean category_istotal;
@@ -1003,9 +1003,9 @@ gint gridrow, w, h;
 	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_BUDGET);
 
 	//window contents
-	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));	 	// return a vbox
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog)); // return a vbox
 
-	//store our window private data
+	// store data inside dialog property to retrieve them easily in callbacks
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
 	DB( g_print(" - new dialog=%p, inst_data=%p\n", dialog, data) );
 
