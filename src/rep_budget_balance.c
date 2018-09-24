@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 2018 Adrien Dorsaz <adorsaz.ch>
+ *  Copyright (C) 2018 Adrien Dorsaz <adrien@adorsaz.ch>
  *
  *  This file is part of HomeBank.
  *
@@ -41,7 +41,7 @@ extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
 /* The different views available */
-gchar *VIEW_MODE[] = {
+static gchar *VIEW_MODE[] = {
 	N_("Balance"),
 	N_("Income"),
 	N_("Expense"),
@@ -94,25 +94,24 @@ static gchar *BUDGBAL_MONTHS[] = {
 	NULL};
 
 // A small structure to retrieve a category with its iterator
-struct category_iterator {
+static struct category_iterator {
 	guint32 key; // key defining the category
 	GtkTreeIter *iterator; // NULL if iterator has not been found
 };
 
-struct budget_iterator {
+static struct budget_iterator {
 	gint category_type;
 	gboolean category_istitle;
 	gboolean category_istotal;
 	GtkTreeIter *iterator;
 };
 
-/* action functions -------------------- */
-
-
-/* ======================== */
+/**
+ * GtkTreeModel functions
+ **/
 
 // look for parent category
-static gboolean repbudgetbalance_model_get_categoryiterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct category_iterator *data)
+static gboolean repbudgetbalance_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct category_iterator *data)
 {
 guint32 row_category_key;
 gboolean is_title, is_total;
@@ -165,7 +164,7 @@ gboolean cat_is_sameamount;
 		parent_category_iterator->key = bdg_category->parent;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_categoryiterator,
+													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_category_iterator,
 													 parent_category_iterator);
 
 	if (bdg_category->parent == 0)
@@ -192,7 +191,7 @@ gboolean cat_is_sameamount;
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_categoryiterator,
+														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_category_iterator,
 														 parent_category_iterator);
 
 			parent = parent_category_iterator->iterator;
@@ -313,7 +312,7 @@ GtkTreeIter iter;
 
 // Update (or insert) total rows for a budget according to the view  mode
 // This function will is used to initiate model and to refresh it after change by user
-static void repbudget_model_update_monthlytotal(GtkTreeStore* budget, gint view_mode)
+static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, gint view_mode)
 {
 struct budget_iterator *budget_iter;
 GtkTreeIter total_title, child;
@@ -610,13 +609,17 @@ struct budget_iterator *budget_iter;
 
 
 	/* Create sub-categories for total balance */
-	repbudget_model_update_monthlytotal(budget, view_mode);
+	repbudgetbalance_model_update_monthlytotal(budget, view_mode);
 
 	g_free(budget_iter->iterator);
 	g_free(budget_iter);
 
 	return GTK_TREE_MODEL(budget);
 }
+
+/**
+ * GtkTreeView functions
+ **/
 
 // to enable or not edition on month columns
 static void repbudgetbalance_view_display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
@@ -913,8 +916,12 @@ struct repbudgetbalance_data *data = user_data;
 	return view;
 }
 
-// UI actions
-static void repbudgetbalance_changed_view_mode (GtkToggleButton *button, gpointer user_data)
+/**
+ * UI actions
+ **/
+
+// Update budget view and model according to the new view mode slected
+static void repbudgetbalance_view_update_mode (GtkToggleButton *button, gpointer user_data)
 {
 struct repbudgetbalance_data *data = user_data;
 gint view_mode = BUDGBAL_VIEW_BALANCE;
@@ -936,7 +943,7 @@ gint view_mode = BUDGBAL_VIEW_BALANCE;
 	return;
 }
 
-// the window close / deletion
+// Close / delete main window: save preference and clean memory
 static gboolean repbudgetbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
 struct repbudgetbalance_data *data = user_data;
@@ -963,7 +970,7 @@ struct WinGeometry *wg;
 	return FALSE;
 }
 
-// the window creation
+// Open / create the main window, the budget view and the budget model
 GtkWidget *repbudgetbalance_window_new(void)
 {
 struct repbudgetbalance_data *data;
@@ -1028,7 +1035,7 @@ gint gridrow, w, h;
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
 
 		if (widget) {
-			g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_changed_view_mode), (gpointer)data);
+			g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_view_update_mode), (gpointer)data);
 		}
 	}
 
