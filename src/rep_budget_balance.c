@@ -920,6 +920,13 @@ struct repbudgetbalance_data *data = user_data;
  * UI actions
  **/
 
+// Update amount in budget model and homebank category on user change
+static void repbudgetbalance_cell_update_amount(GtkCellRendererText *cell, gchar *path_string, gchar *new_text, gpointer user_data)
+{
+
+	return;
+}
+
 // Update budget view and model according to the new view mode slected
 static void repbudgetbalance_view_update_mode (GtkToggleButton *button, gpointer user_data)
 {
