@@ -67,6 +67,7 @@ enum {
 	BUDGBAL_CATEGORY_KEY = 0,
 	BUDGBAL_CATEGORY_NAME,
 	BUDGBAL_CATEGORY_TYPE,
+	BUDGBAL_ISDISPLAYFORCED,
 	BUDGBAL_ISTITLE, // To retrieve the 3 main categories which are only titles
 	BUDGBAL_ISSAMEAMOUNT,
 	BUDGBAL_ISTOTAL,
@@ -212,6 +213,7 @@ gboolean cat_is_sameamount;
 		BUDGBAL_CATEGORY_KEY, bdg_category->key,
 		BUDGBAL_CATEGORY_NAME, bdg_category->name,
 		BUDGBAL_CATEGORY_TYPE, category_type_get ((bdg_category)),
+		BUDGBAL_ISDISPLAYFORCED, (bdg_category->flags & GF_FORCED),
 		BUDGBAL_ISTITLE, FALSE,
 		BUDGBAL_ISSAMEAMOUNT, cat_is_sameamount,
 		BUDGBAL_ISTOTAL, FALSE,
@@ -512,6 +514,7 @@ struct budget_iterator *budget_iter;
 		G_TYPE_UINT, // BUDGBAL_CATEGORY_KEY
 		G_TYPE_STRING, // BUDGBAL_CATEGORY_NAME
 		G_TYPE_INT, // BUDGBAL_CATEGORY_TYPE
+		G_TYPE_BOOLEAN, // BUDGBAL_ISDISPLAYFORCED
 		G_TYPE_BOOLEAN, // BUDGBAL_ISTITLE
 		G_TYPE_BOOLEAN, // BUDGBAL_ISSAMEAMOUNT
 		G_TYPE_BOOLEAN, // BUDGBAL_ISTOTAL
@@ -567,6 +570,7 @@ struct budget_iterator *budget_iter;
 	for(guint32 i=1; i<=n_category; ++i)
 	{
 	Category *bdg_category;
+	gboolean cat_is_displayed;
 	gboolean cat_is_sameamount;
 	gboolean cat_is_income;
 
@@ -577,15 +581,16 @@ struct budget_iterator *budget_iter;
 			continue;
 		}
 
+		cat_is_displayed = (bdg_category->flags & (GF_BUDGET|GF_FORCED));
+		cat_is_income = (category_type_get (bdg_category) == 1);
+		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
+
 		/* Display category only if forced or if a budget has been defined. */
 		if ( view_mode == BUDGBAL_VIEW_BALANCE
-			&& !(bdg_category->flags & (GF_BUDGET|GF_FORCED)))
+			&& !cat_is_displayed)
 		{
 			continue;
 		}
-
-		cat_is_income = (category_type_get (bdg_category) == 1);
-		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d issameamount=%d parent=%d\n",
 			bdg_category->key, bdg_category->name,
@@ -739,6 +744,34 @@ gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive;
 		NULL);
 }
 
+// Toggle force display
+static void repbudgetbalance_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+{
+gboolean is_displayforced, is_title, is_total, is_visible, is_sensitive;
+
+	gtk_tree_model_get(model, iter,
+		BUDGBAL_ISDISPLAYFORCED, &is_displayforced,
+		BUDGBAL_ISTITLE, &is_title,
+		BUDGBAL_ISTOTAL, &is_total,
+		-1);
+
+	// Default values
+	is_visible = TRUE;
+	is_sensitive = TRUE;
+
+	if (is_title || is_total)
+	{
+		is_visible = FALSE;
+		is_sensitive = FALSE;
+	}
+
+	g_object_set(renderer,
+		"active", is_displayforced,
+		"visible", is_visible,
+		"sensitive", is_sensitive,
+		NULL);
+}
+
 // Compute dynamically the yearly total
 static void repbudgetbalance_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
@@ -819,24 +852,16 @@ gint w, h;
 
 	DB(g_print("[repbudgetbalance] : button state changed to: %d\n", view_mode));
 
+	// For each view mode, apply specific modifications of the budget view
 	switch(view_mode) {
 		case BUDGBAL_VIEW_BALANCE:
-			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
-				GTK_SELECTION_NONE);
-			gtk_tree_view_column_set_visible(data->TVC_issame, FALSE);
-			gtk_tree_view_column_set_visible(data->TVC_monthly, FALSE);
+			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, FALSE);
 			break;
 		case BUDGBAL_VIEW_INCOME:
-			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
-				GTK_SELECTION_SINGLE);
-			gtk_tree_view_column_set_visible(data->TVC_issame, TRUE);
-			gtk_tree_view_column_set_visible(data->TVC_monthly, TRUE);
+			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
 			break;
 		case BUDGBAL_VIEW_EXPENSE:
-			gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(budget)),
-				GTK_SELECTION_SINGLE);
-			gtk_tree_view_column_set_visible(data->TVC_issame, TRUE);
-			gtk_tree_view_column_set_visible(data->TVC_monthly, TRUE);
+			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
 			break;
 	}
 
@@ -864,10 +889,19 @@ struct repbudgetbalance_data *data = user_data;
 
 	gtk_tree_view_column_add_attribute(col, renderer, "text", BUDGBAL_CATEGORY_NAME);
 
+	/* --- Display forced ? ---*/
+	col = gtk_tree_view_column_new();
+	data->TVC_isdisplayforced = col;
+	gtk_tree_view_column_set_title(col, _(N_("Force display")));
+
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+	renderer = gtk_cell_renderer_toggle_new();
+	gtk_tree_view_column_pack_start(col, renderer, TRUE);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_isdisplayforced, NULL, NULL);
+
 	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
-	data->TVC_issame = col;
-	gtk_tree_view_column_set_title(col, _(N_("Same ?")));
+	gtk_tree_view_column_set_title(col, _(N_("Same amount")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_toggle_new();
@@ -876,7 +910,6 @@ struct repbudgetbalance_data *data = user_data;
 
 	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
-	data->TVC_monthly = col;
 	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
@@ -907,6 +940,8 @@ struct repbudgetbalance_data *data = user_data;
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_annualtotal, NULL, NULL);
+
+	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_SINGLE);
 
 	g_object_set(view,
 		"enable-grid-lines", PREFS->grid_lines,

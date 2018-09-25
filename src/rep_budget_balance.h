@@ -28,8 +28,7 @@ struct repbudgetbalance_data
 	GtkWidget *TV_budget;
 
 	// Tree columns to dynamically display
-	GtkTreeViewColumn *TVC_issame;
-	GtkTreeViewColumn *TVC_monthly;
+	GtkTreeViewColumn *TVC_isdisplayforced;
 
 	// Radio buttons of view mode
 	GtkWidget *RA_mode;
