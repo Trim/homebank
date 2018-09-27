@@ -844,12 +844,12 @@ gint w, h;
 	gtk_tree_view_set_model(GTK_TREE_VIEW(budget), model);
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
 
-	// Resize the window to get natural width for the dialog
+	// Resize the window to get natural width for the dialog and keep the current height
 	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
 	g_object_ref(budget); // Add temporary a manual ref to keep the view alive
 	gtk_container_remove(GTK_CONTAINER(scrolledwindow), budget);
-	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
-	gtk_window_resize (GTK_WINDOW(data->window), 1, h * 0.8);
+	gtk_window_get_size(GTK_WINDOW(data->window), &w, &h);
+	gtk_window_resize (GTK_WINDOW(data->window), 1, h);
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), budget);
 	g_object_unref(budget);
 
