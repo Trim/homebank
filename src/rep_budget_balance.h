@@ -35,6 +35,7 @@ struct repbudgetbalance_data
 
 	GtkUIManager *ui;
 };
+typedef struct repbudgetbalance_data repbudgetbalance_data_t;
 
 GtkWidget *repbudgetbalance_window_new(void);
 

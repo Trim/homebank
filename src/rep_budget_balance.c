@@ -40,30 +40,39 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
+static gchar *BUDGBAL_MONTHS[] = {
+	N_("Jan"), N_("Feb"), N_("Mar"),
+	N_("Apr"), N_("May"), N_("Jun"),
+	N_("Jul"), N_("Aug"), N_("Sept"),
+	N_("Oct"), N_("Nov"), N_("Dec"),
+	NULL};
+
 /* The different views available */
-static gchar *VIEW_MODE[] = {
+static gchar *BUDGBAL_VIEW_MODE[] = {
 	N_("Balance"),
 	N_("Income"),
 	N_("Expense"),
 	NULL
 };
 
-/* These values has to correspond to VIEW_MODE */
-enum {
+/* These values has to correspond to BUDGBAL_VIEW_MODE */
+enum budgbal_view_mode {
 	BUDGBAL_VIEW_BALANCE = 0,
 	BUDGBAL_VIEW_INCOME,
 	BUDGBAL_VIEW_EXPENSE
 };
+typedef enum budgbal_view_mode budgbal_view_mode_t;
 
 /* These values corresponds to the GF_INCOME flag from hb-category */
-enum {
+enum budgbal_cat_type {
 	BUDGBAL_CAT_TYPE_NONE = -1, // Not real category type used for some technical rows
-	BUDGBAL_CAT_TYPE_EXPENSE,
-	BUDGBAL_CAT_TYPE_INCOME
+	BUDGBAL_CAT_TYPE_EXPENSE = 0,
+	BUDGBAL_CAT_TYPE_INCOME = GF_INCOME
 };
+typedef enum budgbal_cat_type budgbal_cat_type_t;
 
 /* enum for the Budget Tree Store model */
-enum {
+enum budgbal_store {
 	BUDGBAL_CATEGORY_KEY = 0,
 	BUDGBAL_CATEGORY_NAME,
 	BUDGBAL_CATEGORY_TYPE,
@@ -86,33 +95,30 @@ enum {
 	BUDGBAL_DECEMBER,
 	BUDGBAL_NUMCOLS
 };
-
-static gchar *BUDGBAL_MONTHS[] = {
-	N_("Jan"), N_("Feb"), N_("Mar"),
-	N_("Apr"), N_("May"), N_("Jun"),
-	N_("Jul"), N_("Aug"), N_("Sept"),
-	N_("Oct"), N_("Nov"), N_("Dec"),
-	NULL};
+typedef enum budgbal_store budgbal_store_t;
 
 // A small structure to retrieve a category with its iterator
-struct category_iterator {
+struct budgbal_category_iterator {
 	guint32 key; // key defining the category
 	GtkTreeIter *iterator; // NULL if iterator has not been found
 };
+typedef struct budgbal_category_iterator budgbal_category_iterator_t;
 
-struct budget_iterator {
-	gint category_type;
+// Retrive a budget iterator according
+struct budgbal_budget_iterator {
+	budgbal_cat_type_t category_type; // Type of the category
 	gboolean category_istitle;
 	gboolean category_istotal;
 	GtkTreeIter *iterator;
 };
+typedef struct budgbal_budget_iterator budgbal_budget_iterator_t;
 
 /**
  * GtkTreeModel functions
  **/
 
 // look for parent category
-static gboolean repbudgetbalance_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct category_iterator *data)
+static gboolean repbudgetbalance_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, budgbal_category_iterator_t *data)
 {
 guint32 row_category_key;
 gboolean is_title, is_total;
@@ -159,9 +165,9 @@ gboolean cat_is_sameamount;
 	cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 	/* Check if parent category already exists */
-	struct category_iterator *parent_category_iterator;
+	budgbal_category_iterator_t *parent_category_iterator;
 
-		parent_category_iterator = g_malloc0(sizeof(struct category_iterator));
+		parent_category_iterator = g_malloc0(sizeof(budgbal_category_iterator_t));
 		parent_category_iterator->key = bdg_category->parent;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
@@ -241,7 +247,7 @@ gboolean cat_is_sameamount;
 // Look for category by deterministic caracteristics
 // Only categories with specific caracteristics can be easily found
 // like titles and total rows
-static gboolean repbudgetbalance_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct budget_iterator* budget_iter)
+static gboolean repbudgetbalance_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, budgbal_budget_iterator_t * budget_iter)
 {
 gint category_type;
 gboolean result = FALSE, is_title, is_total;
@@ -268,7 +274,7 @@ gboolean result = FALSE, is_title, is_total;
 }
 
 // Create title categories for the store
-static void repbudgetbalance_model_insert_titles(GtkTreeStore* budget, gint view_mode)
+static void repbudgetbalance_model_insert_titles(GtkTreeStore* budget, budgbal_view_mode_t view_mode)
 {
 GtkTreeIter iter;
 	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
@@ -277,7 +283,7 @@ GtkTreeIter iter;
 		 &iter,
 			NULL,
 			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Income")),
+			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_INCOME]),
 			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
 			BUDGBAL_ISTITLE, TRUE,
 			BUDGBAL_ISTOTAL, FALSE,
@@ -291,7 +297,7 @@ GtkTreeIter iter;
 			&iter,
 			NULL,
 			-1,
-			BUDGBAL_CATEGORY_NAME, _(N_("Expense")),
+			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_EXPENSE]),
 			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
 			BUDGBAL_ISTITLE, TRUE,
 			BUDGBAL_ISTOTAL, FALSE,
@@ -314,15 +320,15 @@ GtkTreeIter iter;
 
 // Update (or insert) total rows for a budget according to the view  mode
 // This function will is used to initiate model and to refresh it after change by user
-static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, gint view_mode)
+static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, budgbal_view_mode_t view_mode)
 {
-struct budget_iterator *budget_iter;
+budgbal_budget_iterator_t *budget_iter;
 GtkTreeIter total_title, child;
 double total_income[12] = {0}, total_expense[12] = {0};
 gboolean cat_is_sameamount;
 int n_category;
 
-	budget_iter = g_malloc0(sizeof(struct budget_iterator));
+	budget_iter = g_malloc0(sizeof(budgbal_budget_iterator_t));
 
 	// Go through all categories to compute totals
 	n_category = da_cat_get_max_key();
@@ -405,7 +411,7 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(N_("Incomes")),
+			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_INCOME]),
 			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
 			BUDGBAL_ISTOTAL, TRUE,
 			BUDGBAL_JANUARY, total_income[0],
@@ -441,7 +447,7 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(N_("Expenses")),
+			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_EXPENSE]),
 			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
 			BUDGBAL_ISTOTAL, TRUE,
 			BUDGBAL_JANUARY, total_expense[0],
@@ -477,7 +483,7 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(N_("Differences")),
+			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_BALANCE]),
 			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_NONE,
 			BUDGBAL_ISTOTAL, TRUE,
 			BUDGBAL_JANUARY, total_income[0] + total_expense[0],
@@ -502,12 +508,12 @@ int n_category;
 }
 
 // the budget model creation
-static GtkTreeModel * repbudgetbalance_model_new (gint view_mode)
+static GtkTreeModel * repbudgetbalance_model_new (budgbal_view_mode_t view_mode)
 {
 GtkTreeStore *budget;
 GtkTreeIter *iter_income, *iter_expense;
 guint32 n_category;
-struct budget_iterator *budget_iter;
+budgbal_budget_iterator_t *budget_iter;
 
 	// Create Tree Store
 	budget = gtk_tree_store_new ( BUDGBAL_NUMCOLS,
@@ -539,7 +545,7 @@ struct budget_iterator *budget_iter;
 	repbudgetbalance_model_insert_titles (budget, view_mode);
 
 	// Retrieve required titles
-	budget_iter = g_malloc0(sizeof(struct budget_iterator));
+	budget_iter = g_malloc0(sizeof(budgbal_budget_iterator_t));
 	budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
 	budget_iter->category_istitle = TRUE;
 	budget_iter->category_istotal = FALSE;
@@ -824,9 +830,9 @@ gboolean is_visible = TRUE;
 // When view mode is toggled:
 // - compute again the model to add required rows
 // - update the view columns to show only the required ones
-static void repbudgetbalance_view_toggle (gpointer user_data, gint view_mode)
+static void repbudgetbalance_view_toggle (gpointer user_data, budgbal_view_mode_t view_mode)
 {
-struct repbudgetbalance_data *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 GtkWidget *budget, *scrolledwindow;
 GtkTreeModel *model;
 gint w, h;
@@ -875,7 +881,7 @@ static GtkWidget *repbudgetbalance_view_new (gpointer user_data)
 GtkTreeViewColumn *col;
 GtkCellRenderer *renderer;
 GtkWidget *view;
-struct repbudgetbalance_data *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 
 	view = gtk_tree_view_new();
 
@@ -965,8 +971,8 @@ static void repbudgetbalance_cell_update_amount(GtkCellRendererText *cell, gchar
 // Update budget view and model according to the new view mode slected
 static void repbudgetbalance_view_update_mode (GtkToggleButton *button, gpointer user_data)
 {
-struct repbudgetbalance_data *data = user_data;
-gint view_mode = BUDGBAL_VIEW_BALANCE;
+repbudgetbalance_data_t *data = user_data;
+budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 
 	// Only run once the view update, so only run on the activated button signal
 	if(!gtk_toggle_button_get_active(button))
@@ -988,7 +994,7 @@ gint view_mode = BUDGBAL_VIEW_BALANCE;
 // Close / delete main window: save preference and clean memory
 static gboolean repbudgetbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
-struct repbudgetbalance_data *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 struct WinGeometry *wg;
 
 	DB( g_print("\n[repbudgetbalance] start dispose\n") );
@@ -1015,7 +1021,7 @@ struct WinGeometry *wg;
 // Open / create the main window, the budget view and the budget model
 GtkWidget *repbudgetbalance_window_new(void)
 {
-struct repbudgetbalance_data *data;
+repbudgetbalance_data_t *data;
 struct WinGeometry *wg;
 GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode, *menu;
@@ -1023,7 +1029,7 @@ GtkWidget *widget, *image;
 GtkWidget *scrolledwindow, *treeview;
 gint gridrow, w, h;
 
-	data = g_malloc0(sizeof(struct repbudgetbalance_data));
+	data = g_malloc0(sizeof(repbudgetbalance_data_t));
 	if(!data) return NULL;
 
 	DB( g_print("\n[repbudgetbalance] new\n") );
@@ -1067,13 +1073,13 @@ gint gridrow, w, h;
 
 	// edition mode radio buttons
 	//
-	radiomode = make_radio(VIEW_MODE, TRUE, GTK_ORIENTATION_HORIZONTAL);
+	radiomode = make_radio(BUDGBAL_VIEW_MODE, TRUE, GTK_ORIENTATION_HORIZONTAL);
 	data->RA_mode = radiomode;
 	gtk_widget_set_halign (radiomode, GTK_ALIGN_CENTER);
 	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
 
 	// connect every radio button to the toggled signal to correctly update the view
-	for (int i=0; i<**VIEW_MODE; i++){
+	for (int i=0; i<**BUDGBAL_VIEW_MODE; i++){
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
 
 		if (widget) {
