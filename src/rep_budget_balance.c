@@ -635,6 +635,7 @@ budgbal_budget_iterator_t *budget_iter;
 // to enable or not edition on month columns
 static void repbudgetbalance_view_display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
+GtkAdjustment *adjustment;
 gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive, is_editable;
 gboolean row_category_type;
 gdouble amount = 0.0;
@@ -709,6 +710,13 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		}
 	}
 
+	adjustment = gtk_adjustment_new(
+		0.0, // initial-value
+		-G_MAXDOUBLE, // minmal-value
+		G_MAXDOUBLE, // maximal-value
+		0.5, // step increment
+		10, // page increment
+		0); // page size (0 because irrelevant for GtkSpinButton)
 
 	g_object_set(renderer,
 		"text", text,
@@ -717,6 +725,8 @@ const gint column_id = GPOINTER_TO_INT(user_data);
 		"sensitive", is_sensitive,
 		"foreground", fgcolor,
 		"xalign", 1.0,
+		"adjustment", adjustment,
+		"digits", 2,
 		NULL);
 
 	g_free(text);
@@ -919,7 +929,7 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
-	renderer = gtk_cell_renderer_text_new();
+	renderer = gtk_cell_renderer_spin_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT), NULL);
 
@@ -931,7 +941,7 @@ repbudgetbalance_data_t *data = user_data;
 
 		gtk_tree_view_column_set_title(col, _(BUDGBAL_MONTHS[month]));
 		gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
-		renderer = gtk_cell_renderer_text_new();
+		renderer = gtk_cell_renderer_spin_new();
 
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(i), NULL);
