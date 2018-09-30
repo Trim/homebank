@@ -22,7 +22,7 @@
 
 struct repbudgetbalance_data
 {
-	GtkWidget *window;
+	GtkWidget *dialog;
 
 	// Number of changes to notify globally
 	gint change;

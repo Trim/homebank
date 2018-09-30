@@ -1065,8 +1065,8 @@ gint w, h;
 	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
 	g_object_ref(budget); // Add temporary a manual ref to keep the view alive
 	gtk_container_remove(GTK_CONTAINER(scrolledwindow), budget);
-	gtk_window_get_size(GTK_WINDOW(data->window), &w, &h);
-	gtk_window_resize (GTK_WINDOW(data->window), 1, h);
+	gtk_window_get_size(GTK_WINDOW(data->dialog), &w, &h);
+	gtk_window_resize (GTK_WINDOW(data->dialog), 1, h);
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), budget);
 	g_object_unref(budget);
 
@@ -1245,7 +1245,7 @@ gint gridrow, w, h;
 		GTK_RESPONSE_ACCEPT,
 		NULL);
 
-	data->window = dialog;
+	data->dialog = dialog;
 
 	gtk_window_set_icon_name(GTK_WINDOW (dialog), ICONNAME_HB_BUDGET);
 
