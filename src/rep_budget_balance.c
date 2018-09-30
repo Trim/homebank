@@ -113,6 +113,85 @@ struct budgbal_budget_iterator {
 };
 typedef struct budgbal_budget_iterator budgbal_budget_iterator_t;
 
+// Functions
+static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, budgbal_view_mode_t view_mode);
+
+/*
+ * UI actions
+ **/
+
+// Update amount in budget model and homebank category on user change
+static void repbudgetbalance_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
+{
+const budgbal_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "repbudgetbalance_column_id"));
+const repbudgetbalance_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gdouble amount;
+guint32 category_key;
+budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+
+	DB(g_print("\n[repbudgetbalance] Amount updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											BUDGBAL_CATEGORY_KEY, &category_key,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	amount = g_strtod(new_text, NULL);
+
+	DB(g_print("\column: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - BUDGBAL_JANUARY + 1, category_key, amount));
+
+	// Update Category
+	category->budget[column_id - BUDGBAL_JANUARY + 1] = amount;
+
+	// Reset Budget Flag
+	category->flags &= ~(GF_BUDGET);
+	for(gint budget_id = 0; budget_id <=12; ++budget_id)
+	{
+		if( category->budget[budget_id] != 0.0)
+		{
+			category->flags |= GF_BUDGET;
+			break;
+		}
+	}
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		column_id, amount,
+		-1);
+
+	// Refresh total rows
+	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+
+	return;
+}
+	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+
+	return;
+}
+
+	return;
+}
+
 /**
  * GtkTreeModel functions
  **/
@@ -641,7 +720,7 @@ gboolean row_category_type;
 gdouble amount = 0.0;
 gchar *text;
 gchar *fgcolor;
-const gint column_id = GPOINTER_TO_INT(user_data);
+const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
 
 	gtk_tree_model_get(model, iter,
 		BUDGBAL_CATEGORY_TYPE, &row_category_type,
@@ -933,6 +1012,9 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT), NULL);
 
+	g_object_set_data(G_OBJECT(renderer), "repbudgetbalance_column_id", GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT));
+	g_signal_connect(renderer, "edited", repbudgetbalance_cell_update_amount, (gpointer) data);
+
 	/* --- Each month --- */
 	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
 	{
@@ -945,6 +1027,9 @@ repbudgetbalance_data_t *data = user_data;
 
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(i), NULL);
+
+		g_object_set_data(G_OBJECT(renderer), "repbudgetbalance_column_id", GINT_TO_POINTER(i));
+		g_signal_connect(renderer, "edited", repbudgetbalance_cell_update_amount, (gpointer) data);
 	}
 
 	/* --- Year Total -- */
@@ -968,15 +1053,8 @@ repbudgetbalance_data_t *data = user_data;
 }
 
 /**
- * UI actions
+ * Dialog actions
  **/
-
-// Update amount in budget model and homebank category on user change
-static void repbudgetbalance_cell_update_amount(GtkCellRendererText *cell, gchar *path_string, gchar *new_text, gpointer user_data)
-{
-
-	return;
-}
 
 // Update budget view and model according to the new view mode slected
 static void repbudgetbalance_view_update_mode (GtkToggleButton *button, gpointer user_data)
