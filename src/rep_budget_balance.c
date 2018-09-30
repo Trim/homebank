@@ -184,10 +184,127 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 
 	return;
 }
+
+// Update the row to (dis/enable) same amount for this category
+static void repbudgetbalance_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+{
+const repbudgetbalance_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gboolean issame;
+guint32 category_key;
+budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+
+	DB(g_print("\n[repbudgetbalance] Is same amount updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											BUDGBAL_CATEGORY_KEY, &category_key,
+											BUDGBAL_ISSAMEAMOUNT, &issame,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	// Value has been toggled !
+	issame = !(issame);
+
+	DB(g_print("\tcategory key: %d, issame: %d (before: %d)\n", category_key, issame, !(issame)));
+
+	// Update Category
+
+	// Reset Forced Flag
+	category->flags &= ~(GF_CUSTOM);
+
+	if (issame == FALSE)
+	{
+		category->flags |= (GF_CUSTOM);
+	}
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		BUDGBAL_ISSAMEAMOUNT, issame,
+		-1);
+
+	// Refresh total rows
 	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
 
 	return;
 }
+
+// Update the row to (dis/enable) same amount for this category
+static void repbudgetbalance_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+{
+const repbudgetbalance_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gboolean isdisplayforced;
+guint32 category_key;
+budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+
+	DB(g_print("\n[repbudgetbalance] Is display forced updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											BUDGBAL_CATEGORY_KEY, &category_key,
+											BUDGBAL_ISDISPLAYFORCED, &isdisplayforced,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	// Value has been toggled !
+	isdisplayforced = !(isdisplayforced);
+
+	DB(g_print("\tcategory key: %d, isdisplayforced: %d (before: %d)\n", category_key, isdisplayforced, !(isdisplayforced)));
+
+	// Update Category
+
+	// Reset Forced Flag
+	category->flags &= ~(GF_FORCED);
+
+	if (isdisplayforced == TRUE)
+	{
+		category->flags |= (GF_FORCED);
+	}
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		BUDGBAL_ISDISPLAYFORCED, isdisplayforced,
+		-1);
+
+	// Refresh total rows
+	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
 
 	return;
 }
@@ -833,6 +950,7 @@ gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive;
 	}
 
 	g_object_set(renderer,
+		"activatable", TRUE,
 		"active", is_sameamount,
 		"visible", is_visible,
 		"sensitive", is_sensitive,
@@ -861,6 +979,7 @@ gboolean is_displayforced, is_title, is_total, is_visible, is_sensitive;
 	}
 
 	g_object_set(renderer,
+		"activatable", TRUE,
 		"active", is_displayforced,
 		"visible", is_visible,
 		"sensitive", is_sensitive,
@@ -994,6 +1113,8 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_isdisplayforced, NULL, NULL);
 
+	g_signal_connect (renderer, "toggled", repbudgetbalance_cell_update_isdisplayforced, (gpointer) data);
+
 	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(col, _(N_("Same amount")));
@@ -1002,6 +1123,8 @@ repbudgetbalance_data_t *data = user_data;
 	renderer = gtk_cell_renderer_toggle_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_issameamount, NULL, NULL);
+
+	g_signal_connect (renderer, "toggled", repbudgetbalance_cell_update_issameamount, (gpointer) data);
 
 	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
