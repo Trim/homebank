@@ -1250,7 +1250,7 @@ gint gridrow, w, h;
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
 
 	// create window
-	dialog = gtk_dialog_new_with_buttons (_("Advanced Manage Budget"),
+	dialog = gtk_dialog_new_with_buttons (_("Advanced Budget Management"),
 		GTK_WINDOW(GLOBALS->mainwindow),
 		0,
 		_("_Close"),
