@@ -40,7 +40,7 @@
 extern struct HomeBank *GLOBALS;
 extern struct Preferences *PREFS;
 
-static gchar *BUDGBAL_MONTHS[] = {
+static gchar *ADVBUD_MONTHS[] = {
 	N_("Jan"), N_("Feb"), N_("Mar"),
 	N_("Apr"), N_("May"), N_("Jun"),
 	N_("Jul"), N_("Aug"), N_("Sept"),
@@ -48,92 +48,92 @@ static gchar *BUDGBAL_MONTHS[] = {
 	NULL};
 
 /* The different views available */
-static gchar *BUDGBAL_VIEW_MODE[] = {
+static gchar *ADVBUD_VIEW_MODE[] = {
 	N_("Balance"),
 	N_("Income"),
 	N_("Expense"),
 	NULL
 };
 
-/* These values has to correspond to BUDGBAL_VIEW_MODE */
-enum budgbal_view_mode {
-	BUDGBAL_VIEW_BALANCE = 0,
-	BUDGBAL_VIEW_INCOME,
-	BUDGBAL_VIEW_EXPENSE
+/* These values has to correspond to ADVBUD_VIEW_MODE */
+enum advbud_view_mode {
+	ADVBUD_VIEW_BALANCE = 0,
+	ADVBUD_VIEW_INCOME,
+	ADVBUD_VIEW_EXPENSE
 };
-typedef enum budgbal_view_mode budgbal_view_mode_t;
+typedef enum advbud_view_mode advbud_view_mode_t;
 
 /* These values corresponds to the GF_INCOME flag from hb-category */
-enum budgbal_cat_type {
-	BUDGBAL_CAT_TYPE_NONE = -1, // Not real category type used for some technical rows
-	BUDGBAL_CAT_TYPE_EXPENSE = 0,
-	BUDGBAL_CAT_TYPE_INCOME = GF_INCOME
+enum advbud_cat_type {
+	ADVBUD_CAT_TYPE_NONE = -1, // Not real category type used for some technical rows
+	ADVBUD_CAT_TYPE_EXPENSE = 0,
+	ADVBUD_CAT_TYPE_INCOME = GF_INCOME
 };
-typedef enum budgbal_cat_type budgbal_cat_type_t;
+typedef enum advbud_cat_type advbud_cat_type_t;
 
 /* enum for the Budget Tree Store model */
-enum budgbal_store {
-	BUDGBAL_CATEGORY_KEY = 0,
-	BUDGBAL_CATEGORY_NAME,
-	BUDGBAL_CATEGORY_TYPE,
-	BUDGBAL_ISDISPLAYFORCED,
-	BUDGBAL_ISTITLE, // To retrieve the 3 main categories which are only titles
-	BUDGBAL_ISSAMEAMOUNT,
-	BUDGBAL_ISTOTAL,
-	BUDGBAL_SAMEAMOUNT,
-	BUDGBAL_JANUARY,
-	BUDGBAL_FEBRUARY,
-	BUDGBAL_MARCH,
-	BUDGBAL_APRIL,
-	BUDGBAL_MAY,
-	BUDGBAL_JUNE,
-	BUDGBAL_JULY,
-	BUDGBAL_AUGUST,
-	BUDGBAL_SEPTEMBER,
-	BUDGBAL_OCTOBER,
-	BUDGBAL_NOVEMBER,
-	BUDGBAL_DECEMBER,
-	BUDGBAL_NUMCOLS
+enum advbud_store {
+	ADVBUD_CATEGORY_KEY = 0,
+	ADVBUD_CATEGORY_NAME,
+	ADVBUD_CATEGORY_TYPE,
+	ADVBUD_ISDISPLAYFORCED,
+	ADVBUD_ISTITLE, // To retrieve the 3 main categories which are only titles
+	ADVBUD_ISSAMEAMOUNT,
+	ADVBUD_ISTOTAL,
+	ADVBUD_SAMEAMOUNT,
+	ADVBUD_JANUARY,
+	ADVBUD_FEBRUARY,
+	ADVBUD_MARCH,
+	ADVBUD_APRIL,
+	ADVBUD_MAY,
+	ADVBUD_JUNE,
+	ADVBUD_JULY,
+	ADVBUD_AUGUST,
+	ADVBUD_SEPTEMBER,
+	ADVBUD_OCTOBER,
+	ADVBUD_NOVEMBER,
+	ADVBUD_DECEMBER,
+	ADVBUD_NUMCOLS
 };
-typedef enum budgbal_store budgbal_store_t;
+typedef enum advbud_store advbud_store_t;
 
 // A small structure to retrieve a category with its iterator
-struct budgbal_category_iterator {
+struct advbud_category_iterator {
 	guint32 key; // key defining the category
 	GtkTreeIter *iterator; // NULL if iterator has not been found
 };
-typedef struct budgbal_category_iterator budgbal_category_iterator_t;
+typedef struct advbud_category_iterator advbud_category_iterator_t;
 
 // Retrive a budget iterator according
-struct budgbal_budget_iterator {
-	budgbal_cat_type_t category_type; // Type of the category
+struct advbud_budget_iterator {
+	advbud_cat_type_t category_type; // Type of the category
 	gboolean category_istitle;
 	gboolean category_istotal;
 	GtkTreeIter *iterator;
 };
-typedef struct budgbal_budget_iterator budgbal_budget_iterator_t;
+typedef struct advbud_budget_iterator advbud_budget_iterator_t;
 
 // Functions
-static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, budgbal_view_mode_t view_mode);
+static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode);
 
 /*
  * UI actions
  **/
 
 // Update amount in budget model and homebank category on user change
-static void repbudgetbalance_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
+static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
 {
-const budgbal_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "repbudgetbalance_column_id"));
-repbudgetbalance_data_t *data = user_data;
+const advbud_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "ui_adv_bud_column_id"));
+adv_bud_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
 Category* category;
 gdouble amount;
 guint32 category_key;
-budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
 
-	DB(g_print("\n[repbudgetbalance] Amount updated:\n"));
+	DB(g_print("\n[ui_adv_bud] Amount updated:\n"));
 
 	view = data->TV_budget;
 	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
@@ -142,7 +142,7 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
 
 	gtk_tree_model_get (budget, &iter,
-											BUDGBAL_CATEGORY_KEY, &category_key,
+											ADVBUD_CATEGORY_KEY, &category_key,
 											-1);
 
 	category = da_cat_get (category_key);
@@ -154,10 +154,10 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 
 	amount = g_strtod(new_text, NULL);
 
-	DB(g_print("\tcolumn: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - BUDGBAL_JANUARY + 1, category_key, amount));
+	DB(g_print("\tcolumn: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - ADVBUD_JANUARY + 1, category_key, amount));
 
 	// Update Category
-	category->budget[column_id - BUDGBAL_JANUARY + 1] = amount;
+	category->budget[column_id - ADVBUD_JANUARY + 1] = amount;
 
 	// Reset Budget Flag
 	category->flags &= ~(GF_BUDGET);
@@ -183,24 +183,24 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 		-1);
 
 	// Refresh total rows
-	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
 
 	return;
 }
 
 // Update the row to (dis/enable) same amount for this category
-static void repbudgetbalance_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+static void ui_adv_bud_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
 {
-repbudgetbalance_data_t *data = user_data;
+adv_bud_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
 Category* category;
 gboolean issame;
 guint32 category_key;
-budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
 
-	DB(g_print("\n[repbudgetbalance] Is same amount updated:\n"));
+	DB(g_print("\n[ui_adv_bud] Is same amount updated:\n"));
 
 	view = data->TV_budget;
 	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
@@ -209,8 +209,8 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
 
 	gtk_tree_model_get (budget, &iter,
-											BUDGBAL_CATEGORY_KEY, &category_key,
-											BUDGBAL_ISSAMEAMOUNT, &issame,
+											ADVBUD_CATEGORY_KEY, &category_key,
+											ADVBUD_ISSAMEAMOUNT, &issame,
 											-1);
 
 	category = da_cat_get (category_key);
@@ -244,28 +244,28 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	gtk_tree_store_set(
 		GTK_TREE_STORE(budget),
 		&iter,
-		BUDGBAL_ISSAMEAMOUNT, issame,
+		ADVBUD_ISSAMEAMOUNT, issame,
 		-1);
 
 	// Refresh total rows
-	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
 
 	return;
 }
 
 // Update the row to (dis/enable) same amount for this category
-static void repbudgetbalance_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
 {
-repbudgetbalance_data_t *data = user_data;
+adv_bud_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
 Category* category;
 gboolean isdisplayforced;
 guint32 category_key;
-budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
 
-	DB(g_print("\n[repbudgetbalance] Is display forced updated:\n"));
+	DB(g_print("\n[ui_adv_bud] Is display forced updated:\n"));
 
 	view = data->TV_budget;
 	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
@@ -274,8 +274,8 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
 
 	gtk_tree_model_get (budget, &iter,
-											BUDGBAL_CATEGORY_KEY, &category_key,
-											BUDGBAL_ISDISPLAYFORCED, &isdisplayforced,
+											ADVBUD_CATEGORY_KEY, &category_key,
+											ADVBUD_ISDISPLAYFORCED, &isdisplayforced,
 											-1);
 
 	category = da_cat_get (category_key);
@@ -309,11 +309,11 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	gtk_tree_store_set(
 		GTK_TREE_STORE(budget),
 		&iter,
-		BUDGBAL_ISDISPLAYFORCED, isdisplayforced,
+		ADVBUD_ISDISPLAYFORCED, isdisplayforced,
 		-1);
 
 	// Refresh total rows
-	repbudgetbalance_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
 
 	return;
 }
@@ -323,7 +323,7 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
  **/
 
 // look for parent category
-static gboolean repbudgetbalance_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, budgbal_category_iterator_t *data)
+static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data)
 {
 guint32 row_category_key;
 gboolean is_title, is_total;
@@ -332,9 +332,9 @@ guint32 key = data->key;
 	data->iterator = NULL;
 
 	gtk_tree_model_get (model, iter,
-											BUDGBAL_CATEGORY_KEY, &row_category_key,
-											BUDGBAL_ISTITLE, &is_title,
-											BUDGBAL_ISTOTAL, &is_total,
+											ADVBUD_CATEGORY_KEY, &row_category_key,
+											ADVBUD_ISTITLE, &is_title,
+											ADVBUD_ISTOTAL, &is_total,
 											-1);
 
 	if ( row_category_key == key
@@ -353,7 +353,7 @@ guint32 key = data->key;
 }
 
 /* Recursive function which had a new row in the budget model with all its ancestors */
-static void repbudgetbalance_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category)
+static void ui_adv_bud_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category)
 {
 GtkTreeIter child;
 GtkTreeIter *parent;
@@ -370,13 +370,13 @@ gboolean cat_is_sameamount;
 	cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 	/* Check if parent category already exists */
-	budgbal_category_iterator_t *parent_category_iterator;
+	advbud_category_iterator_t *parent_category_iterator;
 
-		parent_category_iterator = g_malloc0(sizeof(budgbal_category_iterator_t));
+		parent_category_iterator = g_malloc0(sizeof(advbud_category_iterator_t));
 		parent_category_iterator->key = bdg_category->parent;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_category_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
 													 parent_category_iterator);
 
 	if (bdg_category->parent == 0)
@@ -399,11 +399,11 @@ gboolean cat_is_sameamount;
 		else
 		{
 			// Parent has not been found, ask to create it first
-			repbudgetbalance_model_add_category_with_lineage(budget, balanceIter, &(bdg_category->parent));
+			ui_adv_bud_model_add_category_with_lineage(budget, balanceIter, &(bdg_category->parent));
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-														 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_category_iterator,
+														 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
 														 parent_category_iterator);
 
 			parent = parent_category_iterator->iterator;
@@ -421,26 +421,26 @@ gboolean cat_is_sameamount;
 	gtk_tree_store_set(
 		budget,
 		&child,
-		BUDGBAL_CATEGORY_KEY, bdg_category->key,
-		BUDGBAL_CATEGORY_NAME, bdg_category->name,
-		BUDGBAL_CATEGORY_TYPE, category_type_get ((bdg_category)),
-		BUDGBAL_ISDISPLAYFORCED, (bdg_category->flags & GF_FORCED),
-		BUDGBAL_ISTITLE, FALSE,
-		BUDGBAL_ISSAMEAMOUNT, cat_is_sameamount,
-		BUDGBAL_ISTOTAL, FALSE,
-		BUDGBAL_SAMEAMOUNT, bdg_category->budget[0],
-		BUDGBAL_JANUARY, bdg_category->budget[1],
-		BUDGBAL_FEBRUARY, bdg_category->budget[2],
-		BUDGBAL_MARCH, bdg_category->budget[3],
-		BUDGBAL_APRIL, bdg_category->budget[4],
-		BUDGBAL_MAY, bdg_category->budget[5],
-		BUDGBAL_JUNE, bdg_category->budget[6],
-		BUDGBAL_JULY, bdg_category->budget[7],
-		BUDGBAL_AUGUST, bdg_category->budget[8],
-		BUDGBAL_SEPTEMBER, bdg_category->budget[9],
-		BUDGBAL_OCTOBER, bdg_category->budget[10],
-		BUDGBAL_NOVEMBER, bdg_category->budget[11],
-		BUDGBAL_DECEMBER, bdg_category->budget[12],
+		ADVBUD_CATEGORY_KEY, bdg_category->key,
+		ADVBUD_CATEGORY_NAME, bdg_category->name,
+		ADVBUD_CATEGORY_TYPE, category_type_get ((bdg_category)),
+		ADVBUD_ISDISPLAYFORCED, (bdg_category->flags & GF_FORCED),
+		ADVBUD_ISTITLE, FALSE,
+		ADVBUD_ISSAMEAMOUNT, cat_is_sameamount,
+		ADVBUD_ISTOTAL, FALSE,
+		ADVBUD_SAMEAMOUNT, bdg_category->budget[0],
+		ADVBUD_JANUARY, bdg_category->budget[1],
+		ADVBUD_FEBRUARY, bdg_category->budget[2],
+		ADVBUD_MARCH, bdg_category->budget[3],
+		ADVBUD_APRIL, bdg_category->budget[4],
+		ADVBUD_MAY, bdg_category->budget[5],
+		ADVBUD_JUNE, bdg_category->budget[6],
+		ADVBUD_JULY, bdg_category->budget[7],
+		ADVBUD_AUGUST, bdg_category->budget[8],
+		ADVBUD_SEPTEMBER, bdg_category->budget[9],
+		ADVBUD_OCTOBER, bdg_category->budget[10],
+		ADVBUD_NOVEMBER, bdg_category->budget[11],
+		ADVBUD_DECEMBER, bdg_category->budget[12],
 		-1);
 
 	g_free(parent_category_iterator->iterator);
@@ -452,15 +452,15 @@ gboolean cat_is_sameamount;
 // Look for category by deterministic caracteristics
 // Only categories with specific caracteristics can be easily found
 // like titles and total rows
-static gboolean repbudgetbalance_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, budgbal_budget_iterator_t * budget_iter)
+static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter)
 {
 gint category_type;
 gboolean result = FALSE, is_title, is_total;
 
 	gtk_tree_model_get (model, iter,
-											BUDGBAL_CATEGORY_TYPE, &category_type,
-											BUDGBAL_ISTITLE, &is_title,
-											BUDGBAL_ISTOTAL, &is_total,
+											ADVBUD_CATEGORY_TYPE, &category_type,
+											ADVBUD_ISTITLE, &is_title,
+											ADVBUD_ISTOTAL, &is_total,
 											-1);
 
 	budget_iter->iterator = NULL;
@@ -479,33 +479,33 @@ gboolean result = FALSE, is_title, is_total;
 }
 
 // Create title categories for the store
-static void repbudgetbalance_model_insert_titles(GtkTreeStore* budget, budgbal_view_mode_t view_mode)
+static void ui_adv_bud_model_insert_titles(GtkTreeStore* budget, advbud_view_mode_t view_mode)
 {
 GtkTreeIter iter;
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_INCOME)
 	{
 		gtk_tree_store_insert_with_values (budget,
 		 &iter,
 			NULL,
 			-1,
-			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_INCOME]),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
-			BUDGBAL_ISTITLE, TRUE,
-			BUDGBAL_ISTOTAL, FALSE,
+			ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
+			ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
+			ADVBUD_ISTITLE, TRUE,
+			ADVBUD_ISTOTAL, FALSE,
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_EXPENSE)
 	{
 		gtk_tree_store_insert_with_values (
 			budget,
 			&iter,
 			NULL,
 			-1,
-			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_EXPENSE]),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
-			BUDGBAL_ISTITLE, TRUE,
-			BUDGBAL_ISTOTAL, FALSE,
+			ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
+			ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
+			ADVBUD_ISTITLE, TRUE,
+			ADVBUD_ISTOTAL, FALSE,
 			-1);
 	}
 
@@ -514,10 +514,10 @@ GtkTreeIter iter;
 		&iter,
 		NULL,
 		-1,
-		BUDGBAL_CATEGORY_NAME, _(N_("Totals")),
-		BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_NONE,
-		BUDGBAL_ISTITLE, TRUE,
-		BUDGBAL_ISTOTAL, FALSE,
+		ADVBUD_CATEGORY_NAME, _(N_("Totals")),
+		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_NONE,
+		ADVBUD_ISTITLE, TRUE,
+		ADVBUD_ISTOTAL, FALSE,
 		-1);
 
 	return;
@@ -525,15 +525,15 @@ GtkTreeIter iter;
 
 // Update (or insert) total rows for a budget according to the view  mode
 // This function will is used to initiate model and to refresh it after change by user
-static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, budgbal_view_mode_t view_mode)
+static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode)
 {
-budgbal_budget_iterator_t *budget_iter;
+advbud_budget_iterator_t *budget_iter;
 GtkTreeIter total_title, child;
 double total_income[12] = {0}, total_expense[12] = {0};
 gboolean cat_is_sameamount;
 int n_category;
 
-	budget_iter = g_malloc0(sizeof(budgbal_budget_iterator_t));
+	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
 
 	// Go through all categories to compute totals
 	n_category = da_cat_get_max_key();
@@ -583,9 +583,9 @@ int n_category;
 	// Retrive total title and insert required total rows
 	budget_iter->category_istitle = TRUE;
 	budget_iter->category_istotal = FALSE;
-	budget_iter->category_type = BUDGBAL_CAT_TYPE_NONE;
+	budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-												 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+												 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 												 budget_iter);
 
 	if (!budget_iter->iterator) {
@@ -598,12 +598,12 @@ int n_category;
 	budget_iter->category_istitle = FALSE;
 	budget_iter->category_istotal = TRUE;
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_INCOME)
 	{
-		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
+		budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 													 budget_iter);
 
 		if (budget_iter->iterator) {
@@ -616,30 +616,30 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_INCOME]),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_INCOME,
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_income[0],
-			BUDGBAL_FEBRUARY, total_income[1],
-			BUDGBAL_MARCH, total_income[2],
-			BUDGBAL_APRIL, total_income[3],
-			BUDGBAL_MAY, total_income[4],
-			BUDGBAL_JUNE, total_income[5],
-			BUDGBAL_JULY, total_income[6],
-			BUDGBAL_AUGUST, total_income[7],
-			BUDGBAL_SEPTEMBER, total_income[8],
-			BUDGBAL_OCTOBER, total_income[9],
-			BUDGBAL_NOVEMBER, total_income[10],
-			BUDGBAL_DECEMBER, total_income[11],
+			ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
+			ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
+			ADVBUD_ISTOTAL, TRUE,
+			ADVBUD_JANUARY, total_income[0],
+			ADVBUD_FEBRUARY, total_income[1],
+			ADVBUD_MARCH, total_income[2],
+			ADVBUD_APRIL, total_income[3],
+			ADVBUD_MAY, total_income[4],
+			ADVBUD_JUNE, total_income[5],
+			ADVBUD_JULY, total_income[6],
+			ADVBUD_AUGUST, total_income[7],
+			ADVBUD_SEPTEMBER, total_income[8],
+			ADVBUD_OCTOBER, total_income[9],
+			ADVBUD_NOVEMBER, total_income[10],
+			ADVBUD_DECEMBER, total_income[11],
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_EXPENSE)
 	{
-		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
+		budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 													 budget_iter);
 
 		if (budget_iter->iterator) {
@@ -652,30 +652,30 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_EXPENSE]),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_EXPENSE,
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_expense[0],
-			BUDGBAL_FEBRUARY, total_expense[1],
-			BUDGBAL_MARCH, total_expense[2],
-			BUDGBAL_APRIL, total_expense[3],
-			BUDGBAL_MAY, total_expense[4],
-			BUDGBAL_JUNE, total_expense[5],
-			BUDGBAL_JULY, total_expense[6],
-			BUDGBAL_AUGUST, total_expense[7],
-			BUDGBAL_SEPTEMBER, total_expense[8],
-			BUDGBAL_OCTOBER, total_expense[9],
-			BUDGBAL_NOVEMBER, total_expense[10],
-			BUDGBAL_DECEMBER, total_expense[11],
+			ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
+			ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
+			ADVBUD_ISTOTAL, TRUE,
+			ADVBUD_JANUARY, total_expense[0],
+			ADVBUD_FEBRUARY, total_expense[1],
+			ADVBUD_MARCH, total_expense[2],
+			ADVBUD_APRIL, total_expense[3],
+			ADVBUD_MAY, total_expense[4],
+			ADVBUD_JUNE, total_expense[5],
+			ADVBUD_JULY, total_expense[6],
+			ADVBUD_AUGUST, total_expense[7],
+			ADVBUD_SEPTEMBER, total_expense[8],
+			ADVBUD_OCTOBER, total_expense[9],
+			ADVBUD_NOVEMBER, total_expense[10],
+			ADVBUD_DECEMBER, total_expense[11],
 			-1);
 	}
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE)
+	if (view_mode == ADVBUD_VIEW_BALANCE)
 	{
-		budget_iter->category_type = BUDGBAL_CAT_TYPE_NONE;
+		budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 													 budget_iter);
 
 		if (budget_iter->iterator) {
@@ -688,21 +688,21 @@ int n_category;
 		gtk_tree_store_set (
 			budget,
 			&child,
-			BUDGBAL_CATEGORY_NAME, _(BUDGBAL_VIEW_MODE[BUDGBAL_VIEW_BALANCE]),
-			BUDGBAL_CATEGORY_TYPE, BUDGBAL_CAT_TYPE_NONE,
-			BUDGBAL_ISTOTAL, TRUE,
-			BUDGBAL_JANUARY, total_income[0] + total_expense[0],
-			BUDGBAL_FEBRUARY, total_income[1] + total_expense[1],
-			BUDGBAL_MARCH, total_income[2] + total_expense[2],
-			BUDGBAL_APRIL, total_income[3] + total_expense[3],
-			BUDGBAL_MAY, total_income[4] + total_expense[4],
-			BUDGBAL_JUNE, total_income[5] + total_expense[5],
-			BUDGBAL_JULY, total_income[6] + total_expense[6],
-			BUDGBAL_AUGUST, total_income[7] + total_expense[7],
-			BUDGBAL_SEPTEMBER, total_income[8] + total_expense[8],
-			BUDGBAL_OCTOBER, total_income[9] + total_expense[9],
-			BUDGBAL_NOVEMBER, total_income[10] + total_expense[10],
-			BUDGBAL_DECEMBER, total_income[11] + total_expense[11],
+			ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_BALANCE]),
+			ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_NONE,
+			ADVBUD_ISTOTAL, TRUE,
+			ADVBUD_JANUARY, total_income[0] + total_expense[0],
+			ADVBUD_FEBRUARY, total_income[1] + total_expense[1],
+			ADVBUD_MARCH, total_income[2] + total_expense[2],
+			ADVBUD_APRIL, total_income[3] + total_expense[3],
+			ADVBUD_MAY, total_income[4] + total_expense[4],
+			ADVBUD_JUNE, total_income[5] + total_expense[5],
+			ADVBUD_JULY, total_income[6] + total_expense[6],
+			ADVBUD_AUGUST, total_income[7] + total_expense[7],
+			ADVBUD_SEPTEMBER, total_income[8] + total_expense[8],
+			ADVBUD_OCTOBER, total_income[9] + total_expense[9],
+			ADVBUD_NOVEMBER, total_income[10] + total_expense[10],
+			ADVBUD_DECEMBER, total_income[11] + total_expense[11],
 			-1);
 	}
 
@@ -713,63 +713,63 @@ int n_category;
 }
 
 // the budget model creation
-static GtkTreeModel * repbudgetbalance_model_new (budgbal_view_mode_t view_mode)
+static GtkTreeModel * ui_adv_bud_model_new (advbud_view_mode_t view_mode)
 {
 GtkTreeStore *budget;
 GtkTreeIter *iter_income, *iter_expense;
 guint32 n_category;
-budgbal_budget_iterator_t *budget_iter;
+advbud_budget_iterator_t *budget_iter;
 
 	// Create Tree Store
-	budget = gtk_tree_store_new ( BUDGBAL_NUMCOLS,
-		G_TYPE_UINT, // BUDGBAL_CATEGORY_KEY
-		G_TYPE_STRING, // BUDGBAL_CATEGORY_NAME
-		G_TYPE_INT, // BUDGBAL_CATEGORY_TYPE
-		G_TYPE_BOOLEAN, // BUDGBAL_ISDISPLAYFORCED
-		G_TYPE_BOOLEAN, // BUDGBAL_ISTITLE
-		G_TYPE_BOOLEAN, // BUDGBAL_ISSAMEAMOUNT
-		G_TYPE_BOOLEAN, // BUDGBAL_ISTOTAL
-		G_TYPE_DOUBLE, // BUDGBAL_SAMEAMOUNT
-		G_TYPE_DOUBLE, // BUDGBAL_JANUARY
-		G_TYPE_DOUBLE, // BUDGBAL_FEBRUARY
-		G_TYPE_DOUBLE, // BUDGBAL_MARCH
-		G_TYPE_DOUBLE, // BUDGBAL_APRIL
-		G_TYPE_DOUBLE, // BUDGBAL_MAY
-		G_TYPE_DOUBLE, // BUDGBAL_JUNE
-		G_TYPE_DOUBLE, // BUDGBAL_JULY
-		G_TYPE_DOUBLE, // BUDGBAL_AUGUST
-		G_TYPE_DOUBLE, // BUDGBAL_SEPTEMBER
-		G_TYPE_DOUBLE, // BUDGBAL_OCTOBER
-		G_TYPE_DOUBLE, // BUDGBAL_NOVEMBER
-		G_TYPE_DOUBLE  // BUDGBAL_DECEMBER
+	budget = gtk_tree_store_new ( ADVBUD_NUMCOLS,
+		G_TYPE_UINT, // ADVBUD_CATEGORY_KEY
+		G_TYPE_STRING, // ADVBUD_CATEGORY_NAME
+		G_TYPE_INT, // ADVBUD_CATEGORY_TYPE
+		G_TYPE_BOOLEAN, // ADVBUD_ISDISPLAYFORCED
+		G_TYPE_BOOLEAN, // ADVBUD_ISTITLE
+		G_TYPE_BOOLEAN, // ADVBUD_ISSAMEAMOUNT
+		G_TYPE_BOOLEAN, // ADVBUD_ISTOTAL
+		G_TYPE_DOUBLE, // ADVBUD_SAMEAMOUNT
+		G_TYPE_DOUBLE, // ADVBUD_JANUARY
+		G_TYPE_DOUBLE, // ADVBUD_FEBRUARY
+		G_TYPE_DOUBLE, // ADVBUD_MARCH
+		G_TYPE_DOUBLE, // ADVBUD_APRIL
+		G_TYPE_DOUBLE, // ADVBUD_MAY
+		G_TYPE_DOUBLE, // ADVBUD_JUNE
+		G_TYPE_DOUBLE, // ADVBUD_JULY
+		G_TYPE_DOUBLE, // ADVBUD_AUGUST
+		G_TYPE_DOUBLE, // ADVBUD_SEPTEMBER
+		G_TYPE_DOUBLE, // ADVBUD_OCTOBER
+		G_TYPE_DOUBLE, // ADVBUD_NOVEMBER
+		G_TYPE_DOUBLE  // ADVBUD_DECEMBER
 	);
 
 	// Populate the store
 
 	/* Create title rows */
-	repbudgetbalance_model_insert_titles (budget, view_mode);
+	ui_adv_bud_model_insert_titles (budget, view_mode);
 
 	// Retrieve required titles
-	budget_iter = g_malloc0(sizeof(budgbal_budget_iterator_t));
+	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
 	budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
 	budget_iter->category_istitle = TRUE;
 	budget_iter->category_istotal = FALSE;
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME) {
-		budget_iter->category_type = BUDGBAL_CAT_TYPE_INCOME;
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_INCOME) {
+		budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 													 budget_iter);
 
 		iter_income = budget_iter->iterator;
 	}
 
-	if (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE) {
-		budget_iter->category_type = BUDGBAL_CAT_TYPE_EXPENSE;
+	if (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_EXPENSE) {
+		budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
 
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-													 (GtkTreeModelForeachFunc) repbudgetbalance_model_get_budget_iterator,
+													 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
 													 budget_iter);
 
 		iter_expense = budget_iter->iterator;
@@ -797,7 +797,7 @@ budgbal_budget_iterator_t *budget_iter;
 		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 		/* Display category only if forced or if a budget has been defined. */
-		if ( view_mode == BUDGBAL_VIEW_BALANCE
+		if ( view_mode == ADVBUD_VIEW_BALANCE
 			&& !cat_is_displayed)
 		{
 			continue;
@@ -810,22 +810,22 @@ budgbal_budget_iterator_t *budget_iter;
 
 		// Compute totals and init category in right balance category
 		if (cat_is_income
-				&& (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_INCOME)
+				&& (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_INCOME)
 		)
 		{
-			repbudgetbalance_model_add_category_with_lineage(budget, iter_income, &(bdg_category->key));
+			ui_adv_bud_model_add_category_with_lineage(budget, iter_income, &(bdg_category->key));
 		}
 		else if (!cat_is_income
-						 && (view_mode == BUDGBAL_VIEW_BALANCE || view_mode == BUDGBAL_VIEW_EXPENSE)
+						 && (view_mode == ADVBUD_VIEW_BALANCE || view_mode == ADVBUD_VIEW_EXPENSE)
 		)
 		{
-			repbudgetbalance_model_add_category_with_lineage(budget, iter_expense, &(bdg_category->key));
+			ui_adv_bud_model_add_category_with_lineage(budget, iter_expense, &(bdg_category->key));
 		}
 	}
 
 
 	/* Create sub-categories for total balance */
-	repbudgetbalance_model_update_monthlytotal(budget, view_mode);
+	ui_adv_bud_model_update_monthlytotal(budget, view_mode);
 
 	g_free(budget_iter->iterator);
 	g_free(budget_iter);
@@ -838,7 +838,7 @@ budgbal_budget_iterator_t *budget_iter;
  **/
 
 // to enable or not edition on month columns
-static void repbudgetbalance_view_display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void ui_adv_bud_view_display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 GtkAdjustment *adjustment;
 gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive, is_editable;
@@ -846,21 +846,21 @@ gboolean row_category_type;
 gdouble amount = 0.0;
 gchar *text;
 gchar *fgcolor;
-const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
+const advbud_store_t column_id = GPOINTER_TO_INT(user_data);
 
 	gtk_tree_model_get(model, iter,
-		BUDGBAL_CATEGORY_TYPE, &row_category_type,
-		BUDGBAL_ISTITLE, &is_title,
-		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
-		BUDGBAL_ISTOTAL, &is_total,
+		ADVBUD_CATEGORY_TYPE, &row_category_type,
+		ADVBUD_ISTITLE, &is_title,
+		ADVBUD_ISSAMEAMOUNT, &is_sameamount,
+		ADVBUD_ISTOTAL, &is_total,
 		-1);
 
 	// Text to display
 	if (is_sameamount)
 	{
-		gtk_tree_model_get(model, iter, BUDGBAL_SAMEAMOUNT, &amount, -1);
+		gtk_tree_model_get(model, iter, ADVBUD_SAMEAMOUNT, &amount, -1);
 	}
-	else if (column_id >= BUDGBAL_JANUARY && column_id <= BUDGBAL_DECEMBER)
+	else if (column_id >= ADVBUD_JANUARY && column_id <= ADVBUD_DECEMBER)
 	{
 		gtk_tree_model_get(model, iter, column_id, &amount, -1);
 	}
@@ -885,7 +885,7 @@ const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_SAMEAMOUNT)
+		if (column_id == ADVBUD_SAMEAMOUNT)
 		{
 			is_visible = FALSE;
 		}
@@ -896,7 +896,7 @@ const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
 		is_editable = FALSE;
 		is_sensitive = FALSE;
 
-		if (column_id == BUDGBAL_SAMEAMOUNT)
+		if (column_id == ADVBUD_SAMEAMOUNT)
 		{
 			is_sensitive = TRUE;
 			is_editable = TRUE;
@@ -908,7 +908,7 @@ const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
 		is_editable = TRUE;
 		is_sensitive = TRUE;
 
-		if (column_id == BUDGBAL_SAMEAMOUNT)
+		if (column_id == ADVBUD_SAMEAMOUNT)
 		{
 			is_sensitive = FALSE;
 			is_editable = FALSE;
@@ -938,14 +938,14 @@ const budgbal_store_t column_id = GPOINTER_TO_INT(user_data);
 }
 
 // to enable or not edition on month columns
-static void repbudgetbalance_view_display_issameamount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void ui_adv_bud_view_display_issameamount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive;
 
 	gtk_tree_model_get(model, iter,
-		BUDGBAL_ISTITLE, &is_title,
-		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
-		BUDGBAL_ISTOTAL, &is_total,
+		ADVBUD_ISTITLE, &is_title,
+		ADVBUD_ISSAMEAMOUNT, &is_sameamount,
+		ADVBUD_ISTOTAL, &is_total,
 		-1);
 
 	// Default values
@@ -967,14 +967,14 @@ gboolean is_sameamount, is_title, is_total, is_visible, is_sensitive;
 }
 
 // Toggle force display
-static void repbudgetbalance_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void ui_adv_bud_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 gboolean is_displayforced, is_title, is_total, is_visible, is_sensitive;
 
 	gtk_tree_model_get(model, iter,
-		BUDGBAL_ISDISPLAYFORCED, &is_displayforced,
-		BUDGBAL_ISTITLE, &is_title,
-		BUDGBAL_ISTOTAL, &is_total,
+		ADVBUD_ISDISPLAYFORCED, &is_displayforced,
+		ADVBUD_ISTITLE, &is_title,
+		ADVBUD_ISTOTAL, &is_total,
 		-1);
 
 	// Default values
@@ -996,7 +996,7 @@ gboolean is_displayforced, is_title, is_total, is_visible, is_sensitive;
 }
 
 // Compute dynamically the yearly total
-static void repbudgetbalance_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+static void ui_adv_bud_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 gboolean is_sameamount = FALSE, is_total = FALSE, is_title = FALSE;
 gdouble amount = 0.0;
@@ -1006,10 +1006,10 @@ gchar *fgcolor;
 gboolean is_visible = TRUE;
 
 	gtk_tree_model_get(model, iter,
-		BUDGBAL_ISTITLE, &is_title,
-		BUDGBAL_ISSAMEAMOUNT, &is_sameamount,
-		BUDGBAL_SAMEAMOUNT, &amount,
-		BUDGBAL_ISTOTAL, &is_total,
+		ADVBUD_ISTITLE, &is_title,
+		ADVBUD_ISSAMEAMOUNT, &is_sameamount,
+		ADVBUD_SAMEAMOUNT, &amount,
+		ADVBUD_ISTOTAL, &is_total,
 		-1);
 
 	if (is_sameamount)
@@ -1018,7 +1018,7 @@ gboolean is_visible = TRUE;
 	}
 	else
 	{
-		for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
+		for (int i = ADVBUD_JANUARY ; i <= ADVBUD_DECEMBER ; ++i)
 		{
 			gtk_tree_model_get(model, iter, i, &amount, -1);
 			total += amount;
@@ -1047,9 +1047,9 @@ gboolean is_visible = TRUE;
 // When view mode is toggled:
 // - compute again the model to add required rows
 // - update the view columns to show only the required ones
-static void repbudgetbalance_view_toggle (gpointer user_data, budgbal_view_mode_t view_mode)
+static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode)
 {
-repbudgetbalance_data_t *data = user_data;
+adv_bud_data_t *data = user_data;
 GtkWidget *budget, *scrolledwindow;
 GtkTreeModel *model;
 gint w, h;
@@ -1057,7 +1057,7 @@ gint w, h;
 	budget = data->TV_budget;
 
 	// Replace model with the new one
-	model = repbudgetbalance_model_new(view_mode);
+	model = ui_adv_bud_model_new(view_mode);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(budget), model);
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
 
@@ -1073,17 +1073,17 @@ gint w, h;
 	/* to automatically destroy then model with view */
 	g_object_unref(model);
 
-	DB(g_print("[repbudgetbalance] : button state changed to: %d\n", view_mode));
+	DB(g_print("[ui_adv_bud] : button state changed to: %d\n", view_mode));
 
 	// For each view mode, apply specific modifications of the budget view
 	switch(view_mode) {
-		case BUDGBAL_VIEW_BALANCE:
+		case ADVBUD_VIEW_BALANCE:
 			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, FALSE);
 			break;
-		case BUDGBAL_VIEW_INCOME:
+		case ADVBUD_VIEW_INCOME:
 			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
 			break;
-		case BUDGBAL_VIEW_EXPENSE:
+		case ADVBUD_VIEW_EXPENSE:
 			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
 			break;
 	}
@@ -1093,12 +1093,12 @@ gint w, h;
 
 // the budget view creation which run the model creation tool
 
-static GtkWidget *repbudgetbalance_view_new (gpointer user_data)
+static GtkWidget *ui_adv_bud_view_new (gpointer user_data)
 {
 GtkTreeViewColumn *col;
 GtkCellRenderer *renderer;
 GtkWidget *view;
-repbudgetbalance_data_t *data = user_data;
+adv_bud_data_t *data = user_data;
 
 	view = gtk_tree_view_new();
 
@@ -1110,7 +1110,7 @@ repbudgetbalance_data_t *data = user_data;
 	renderer = gtk_cell_renderer_text_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 
-	gtk_tree_view_column_add_attribute(col, renderer, "text", BUDGBAL_CATEGORY_NAME);
+	gtk_tree_view_column_add_attribute(col, renderer, "text", ADVBUD_CATEGORY_NAME);
 
 	/* --- Display forced ? ---*/
 	col = gtk_tree_view_column_new();
@@ -1120,9 +1120,9 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_toggle_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_isdisplayforced, NULL, NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_isdisplayforced, NULL, NULL);
 
-	g_signal_connect (renderer, "toggled", repbudgetbalance_cell_update_isdisplayforced, (gpointer) data);
+	g_signal_connect (renderer, "toggled", ui_adv_bud_cell_update_isdisplayforced, (gpointer) data);
 
 	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
@@ -1131,9 +1131,9 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_toggle_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_issameamount, NULL, NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_issameamount, NULL, NULL);
 
-	g_signal_connect (renderer, "toggled", repbudgetbalance_cell_update_issameamount, (gpointer) data);
+	g_signal_connect (renderer, "toggled", ui_adv_bud_cell_update_issameamount, (gpointer) data);
 
 	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
@@ -1142,26 +1142,26 @@ repbudgetbalance_data_t *data = user_data;
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_spin_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT), NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_amount, GINT_TO_POINTER(ADVBUD_SAMEAMOUNT), NULL);
 
-	g_object_set_data(G_OBJECT(renderer), "repbudgetbalance_column_id", GINT_TO_POINTER(BUDGBAL_SAMEAMOUNT));
-	g_signal_connect(renderer, "edited", repbudgetbalance_cell_update_amount, (gpointer) data);
+	g_object_set_data(G_OBJECT(renderer), "ui_adv_bud_column_id", GINT_TO_POINTER(ADVBUD_SAMEAMOUNT));
+	g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_amount, (gpointer) data);
 
 	/* --- Each month --- */
-	for (int i = BUDGBAL_JANUARY ; i <= BUDGBAL_DECEMBER ; ++i)
+	for (int i = ADVBUD_JANUARY ; i <= ADVBUD_DECEMBER ; ++i)
 	{
-		int month = i - BUDGBAL_JANUARY ;
+		int month = i - ADVBUD_JANUARY ;
 		col = gtk_tree_view_column_new();
 
-		gtk_tree_view_column_set_title(col, _(BUDGBAL_MONTHS[month]));
+		gtk_tree_view_column_set_title(col, _(ADVBUD_MONTHS[month]));
 		gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 		renderer = gtk_cell_renderer_spin_new();
 
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
-		gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_amount, GINT_TO_POINTER(i), NULL);
+		gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_amount, GINT_TO_POINTER(i), NULL);
 
-		g_object_set_data(G_OBJECT(renderer), "repbudgetbalance_column_id", GINT_TO_POINTER(i));
-		g_signal_connect(renderer, "edited", repbudgetbalance_cell_update_amount, (gpointer) data);
+		g_object_set_data(G_OBJECT(renderer), "ui_adv_bud_column_id", GINT_TO_POINTER(i));
+		g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_amount, (gpointer) data);
 	}
 
 	/* --- Year Total -- */
@@ -1172,7 +1172,7 @@ repbudgetbalance_data_t *data = user_data;
 	renderer = gtk_cell_renderer_text_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 
-	gtk_tree_view_column_set_cell_data_func(col, renderer, repbudgetbalance_view_display_annualtotal, NULL, NULL);
+	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_annualtotal, NULL, NULL);
 
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_SINGLE);
 
@@ -1189,10 +1189,10 @@ repbudgetbalance_data_t *data = user_data;
  **/
 
 // Update budget view and model according to the new view mode slected
-static void repbudgetbalance_view_update_mode (GtkToggleButton *button, gpointer user_data)
+static void ui_adv_bud_view_update_mode (GtkToggleButton *button, gpointer user_data)
 {
-repbudgetbalance_data_t *data = user_data;
-budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
+adv_bud_data_t *data = user_data;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
 
 	// Only run once the view update, so only run on the activated button signal
 	if(!gtk_toggle_button_get_active(button))
@@ -1204,16 +1204,16 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	// for view mode are constructed to correspond (manually)
 	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
 
-	DB(g_print("\n[repbudgetbalance] view mode toggled to: %d\n", view_mode));
+	DB(g_print("\n[ui_adv_bud] view mode toggled to: %d\n", view_mode));
 
-	repbudgetbalance_view_toggle((gpointer) data, view_mode);
+	ui_adv_bud_view_toggle((gpointer) data, view_mode);
 
 	return;
 }
 
-static void repbudgetbalance_dialog_close(repbudgetbalance_data_t *data, gint response)
+static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
-	DB( g_print("[repbudgetbalance] dialog close\n") );
+	DB( g_print("[ui_adv_bud] dialog close\n") );
 
 	GLOBALS->changes_count += data->change;
 
@@ -1223,7 +1223,7 @@ static void repbudgetbalance_dialog_close(repbudgetbalance_data_t *data, gint re
 // Open / create the main window, the budget view and the budget model
 GtkWidget *ui_adv_bud_manage_dialog(void)
 {
-repbudgetbalance_data_t *data;
+adv_bud_data_t *data;
 GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode;
 GtkWidget *widget;
@@ -1231,11 +1231,11 @@ GtkWidget *scrolledwindow, *treeview;
 gint response;
 gint gridrow, w, h;
 
-	data = g_malloc0(sizeof(repbudgetbalance_data_t));
+	data = g_malloc0(sizeof(adv_bud_data_t));
 	data->change = 0;
 	if(!data) return NULL;
 
-	DB( g_print("\n[repbudgetbalance] open dialog\n") );
+	DB( g_print("\n[ui_adv_bud] open dialog\n") );
 
 	// create window
 	dialog = gtk_dialog_new_with_buttons (_("Advanced Budget Management"),
@@ -1272,17 +1272,17 @@ gint gridrow, w, h;
 
 	// edition mode radio buttons
 	//
-	radiomode = make_radio(BUDGBAL_VIEW_MODE, TRUE, GTK_ORIENTATION_HORIZONTAL);
+	radiomode = make_radio(ADVBUD_VIEW_MODE, TRUE, GTK_ORIENTATION_HORIZONTAL);
 	data->RA_mode = radiomode;
 	gtk_widget_set_halign (radiomode, GTK_ALIGN_CENTER);
 	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
 
 	// connect every radio button to the toggled signal to correctly update the view
-	for (int i=0; i<**BUDGBAL_VIEW_MODE; i++){
+	for (int i=0; i<**ADVBUD_VIEW_MODE; i++){
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
 
 		if (widget) {
-			g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_view_update_mode), (gpointer)data);
+			g_signal_connect (widget, "toggled", G_CALLBACK (ui_adv_bud_view_update_mode), (gpointer)data);
 		}
 	}
 
@@ -1297,12 +1297,12 @@ gint gridrow, w, h;
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_grid_attach (GTK_GRID (grid), scrolledwindow, 0, gridrow, 1, 1);
 
-	treeview = repbudgetbalance_view_new ((gpointer) data);
+	treeview = ui_adv_bud_view_new ((gpointer) data);
 	data->TV_budget = treeview;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
 	// By default, show the reader mode
-	repbudgetbalance_view_toggle((gpointer) data, BUDGBAL_VIEW_BALANCE);
+	ui_adv_bud_view_toggle((gpointer) data, ADVBUD_VIEW_BALANCE);
 
 	/* signal connect */
 	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
@@ -1311,7 +1311,7 @@ gint gridrow, w, h;
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
-	repbudgetbalance_dialog_close(data, response);
+	ui_adv_bud_dialog_close(data, response);
 	gtk_widget_destroy (dialog);
 
 	return NULL;

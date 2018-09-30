@@ -20,7 +20,7 @@
 #ifndef __HOMEBANK_REPBUDGETBALANCE_H__
 #define __HOMEBANK_REPBUDGETBALANCE_H__
 
-struct repbudgetbalance_data
+struct adv_bud_data
 {
 	GtkWidget *dialog;
 
@@ -38,7 +38,7 @@ struct repbudgetbalance_data
 
 	GtkUIManager *ui;
 };
-typedef struct repbudgetbalance_data repbudgetbalance_data_t;
+typedef struct adv_bud_data adv_bud_data_t;
 
 GtkWidget *ui_adv_bud_manage_dialog(void);
 
