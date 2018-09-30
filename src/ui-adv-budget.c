@@ -113,213 +113,35 @@ struct advbud_budget_iterator {
 };
 typedef struct advbud_budget_iterator advbud_budget_iterator_t;
 
-// Functions
-static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode);
-
 /*
- * UI actions
+ * Local headers
  **/
 
-// Update amount in budget model and homebank category on user change
-static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
-{
-const advbud_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "ui_adv_bud_column_id"));
-adv_bud_data_t *data = user_data;
-GtkWidget *view;
-GtkTreeIter iter;
-GtkTreeModel *budget;
-Category* category;
-gdouble amount;
-guint32 category_key;
-advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
+// GtkTreeStore model
+static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data);
+static void ui_adv_bud_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category);
+static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter);
+static void ui_adv_bud_model_insert_titles(GtkTreeStore* budget, advbud_view_mode_t view_mode);
+static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode);
+static GtkTreeModel * ui_adv_bud_model_new (advbud_view_mode_t view_mode);
 
-	DB(g_print("\n[ui_adv_bud] Amount updated:\n"));
+// GtkTreeView displaing widget
+static void ui_adv_bud_view_display_amount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+static void ui_adv_bud_view_display_issameamount (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+static void ui_adv_bud_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+static void ui_adv_bud_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode);
+static GtkWidget *ui_adv_bud_view_new (gpointer user_data);
 
-	view = data->TV_budget;
-	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
-	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
-
-	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
-
-	gtk_tree_model_get (budget, &iter,
-											ADVBUD_CATEGORY_KEY, &category_key,
-											-1);
-
-	category = da_cat_get (category_key);
-
-	if (! category)
-	{
-		return;
-	}
-
-	amount = g_strtod(new_text, NULL);
-
-	DB(g_print("\tcolumn: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - ADVBUD_JANUARY + 1, category_key, amount));
-
-	// Update Category
-	category->budget[column_id - ADVBUD_JANUARY + 1] = amount;
-
-	// Reset Budget Flag
-	category->flags &= ~(GF_BUDGET);
-	for(gint budget_id = 0; budget_id <=12; ++budget_id)
-	{
-		if( category->budget[budget_id] != 0.0)
-		{
-			category->flags |= GF_BUDGET;
-			break;
-		}
-	}
-
-	// Notify of changes
-	data->change++;
-
-	// Update budget model
-
-	// Current row
-	gtk_tree_store_set(
-		GTK_TREE_STORE(budget),
-		&iter,
-		column_id, amount,
-		-1);
-
-	// Refresh total rows
-	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
-
-	return;
-}
-
-// Update the row to (dis/enable) same amount for this category
-static void ui_adv_bud_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
-{
-adv_bud_data_t *data = user_data;
-GtkWidget *view;
-GtkTreeIter iter;
-GtkTreeModel *budget;
-Category* category;
-gboolean issame;
-guint32 category_key;
-advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
-
-	DB(g_print("\n[ui_adv_bud] Is same amount updated:\n"));
-
-	view = data->TV_budget;
-	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
-	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
-
-	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
-
-	gtk_tree_model_get (budget, &iter,
-											ADVBUD_CATEGORY_KEY, &category_key,
-											ADVBUD_ISSAMEAMOUNT, &issame,
-											-1);
-
-	category = da_cat_get (category_key);
-
-	if (! category)
-	{
-		return;
-	}
-
-	// Value has been toggled !
-	issame = !(issame);
-
-	DB(g_print("\tcategory key: %d, issame: %d (before: %d)\n", category_key, issame, !(issame)));
-
-	// Update Category
-
-	// Reset Forced Flag
-	category->flags &= ~(GF_CUSTOM);
-
-	if (issame == FALSE)
-	{
-		category->flags |= (GF_CUSTOM);
-	}
-
-	// Notify of changes
-	data->change++;
-
-	// Update budget model
-
-	// Current row
-	gtk_tree_store_set(
-		GTK_TREE_STORE(budget),
-		&iter,
-		ADVBUD_ISSAMEAMOUNT, issame,
-		-1);
-
-	// Refresh total rows
-	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
-
-	return;
-}
-
-// Update the row to (dis/enable) same amount for this category
-static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
-{
-adv_bud_data_t *data = user_data;
-GtkWidget *view;
-GtkTreeIter iter;
-GtkTreeModel *budget;
-Category* category;
-gboolean isdisplayforced;
-guint32 category_key;
-advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
-
-	DB(g_print("\n[ui_adv_bud] Is display forced updated:\n"));
-
-	view = data->TV_budget;
-	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
-	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
-
-	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
-
-	gtk_tree_model_get (budget, &iter,
-											ADVBUD_CATEGORY_KEY, &category_key,
-											ADVBUD_ISDISPLAYFORCED, &isdisplayforced,
-											-1);
-
-	category = da_cat_get (category_key);
-
-	if (! category)
-	{
-		return;
-	}
-
-	// Value has been toggled !
-	isdisplayforced = !(isdisplayforced);
-
-	DB(g_print("\tcategory key: %d, isdisplayforced: %d (before: %d)\n", category_key, isdisplayforced, !(isdisplayforced)));
-
-	// Update Category
-
-	// Reset Forced Flag
-	category->flags &= ~(GF_FORCED);
-
-	if (isdisplayforced == TRUE)
-	{
-		category->flags |= (GF_FORCED);
-	}
-
-	// Notify of changes
-	data->change++;
-
-	// Update budget model
-
-	// Current row
-	gtk_tree_store_set(
-		GTK_TREE_STORE(budget),
-		&iter,
-		ADVBUD_ISDISPLAYFORCED, isdisplayforced,
-		-1);
-
-	// Refresh total rows
-	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
-
-	return;
-}
+// UI actions
+static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data);
+static void ui_adv_bud_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data);
+static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data);
+static void ui_adv_bud_view_update_mode (GtkToggleButton *button, gpointer user_data);
+static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
 /**
- * GtkTreeModel functions
+ * GtkTreeStore model
  **/
 
 // look for parent category
@@ -1184,9 +1006,207 @@ adv_bud_data_t *data = user_data;
 	return view;
 }
 
-/**
- * Dialog actions
+/*
+ * UI actions
  **/
+
+// Update amount in budget model and homebank category on user change
+static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
+{
+const advbud_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "ui_adv_bud_column_id"));
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gdouble amount;
+guint32 category_key;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
+
+	DB(g_print("\n[ui_adv_bud] Amount updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											ADVBUD_CATEGORY_KEY, &category_key,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	amount = g_strtod(new_text, NULL);
+
+	DB(g_print("\tcolumn: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - ADVBUD_JANUARY + 1, category_key, amount));
+
+	// Update Category
+	category->budget[column_id - ADVBUD_JANUARY + 1] = amount;
+
+	// Reset Budget Flag
+	category->flags &= ~(GF_BUDGET);
+	for(gint budget_id = 0; budget_id <=12; ++budget_id)
+	{
+		if( category->budget[budget_id] != 0.0)
+		{
+			category->flags |= GF_BUDGET;
+			break;
+		}
+	}
+
+	// Notify of changes
+	data->change++;
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		column_id, amount,
+		-1);
+
+	// Refresh total rows
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+
+	return;
+}
+
+// Update the row to (dis/enable) same amount for this category
+static void ui_adv_bud_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gboolean issame;
+guint32 category_key;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
+
+	DB(g_print("\n[ui_adv_bud] Is same amount updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											ADVBUD_CATEGORY_KEY, &category_key,
+											ADVBUD_ISSAMEAMOUNT, &issame,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	// Value has been toggled !
+	issame = !(issame);
+
+	DB(g_print("\tcategory key: %d, issame: %d (before: %d)\n", category_key, issame, !(issame)));
+
+	// Update Category
+
+	// Reset Forced Flag
+	category->flags &= ~(GF_CUSTOM);
+
+	if (issame == FALSE)
+	{
+		category->flags |= (GF_CUSTOM);
+	}
+
+	// Notify of changes
+	data->change++;
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		ADVBUD_ISSAMEAMOUNT, issame,
+		-1);
+
+	// Refresh total rows
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+
+	return;
+}
+
+// Update the row to (dis/enable) forced display for this category
+static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+gboolean isdisplayforced;
+guint32 category_key;
+advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
+
+	DB(g_print("\n[ui_adv_bud] Is display forced updated:\n"));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+											ADVBUD_CATEGORY_KEY, &category_key,
+											ADVBUD_ISDISPLAYFORCED, &isdisplayforced,
+											-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+	// Value has been toggled !
+	isdisplayforced = !(isdisplayforced);
+
+	DB(g_print("\tcategory key: %d, isdisplayforced: %d (before: %d)\n", category_key, isdisplayforced, !(isdisplayforced)));
+
+	// Update Category
+
+	// Reset Forced Flag
+	category->flags &= ~(GF_FORCED);
+
+	if (isdisplayforced == TRUE)
+	{
+		category->flags |= (GF_FORCED);
+	}
+
+	// Notify of changes
+	data->change++;
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		ADVBUD_ISDISPLAYFORCED, isdisplayforced,
+		-1);
+
+	// Refresh total rows
+	ui_adv_bud_model_update_monthlytotal (GTK_TREE_STORE(budget), view_mode);
+
+	return;
+}
 
 // Update budget view and model according to the new view mode slected
 static void ui_adv_bud_view_update_mode (GtkToggleButton *button, gpointer user_data)
