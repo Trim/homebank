@@ -1225,8 +1225,8 @@ GtkWidget *ui_adv_bud_manage_dialog(void)
 {
 repbudgetbalance_data_t *data;
 GtkWidget *dialog, *content_area, *grid;
-GtkWidget *radiomode, *menu;
-GtkWidget *widget, *image;
+GtkWidget *radiomode;
+GtkWidget *widget;
 GtkWidget *scrolledwindow, *treeview;
 gint response;
 gint gridrow, w, h;
@@ -1285,30 +1285,6 @@ gint gridrow, w, h;
 			g_signal_connect (widget, "toggled", G_CALLBACK (repbudgetbalance_view_update_mode), (gpointer)data);
 		}
 	}
-
-
-	// Hamburger menu
-	menu = gtk_menu_new ();
-	gtk_widget_set_halign (menu, GTK_ALIGN_END);
-
-	widget = gtk_menu_item_new_with_mnemonic (_("_Import CSV"));
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), widget);
-	//g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (ui_bud_manage_load_csv), (gpointer)data);
-
-	widget = gtk_menu_item_new_with_mnemonic (_("E_xport CSV"));
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), widget);
-	//g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (ui_bud_manage_save_csv), (gpointer)data);
-
-	gtk_widget_show_all (menu);
-
-	widget = gtk_menu_button_new();
-	image = gtk_image_new_from_icon_name (ICONNAME_HB_BUTTON_MENU, GTK_ICON_SIZE_MENU);
-
-	g_object_set (widget, "image", image, "popup", GTK_MENU(menu),  NULL);
-
-	gtk_widget_set_hexpand (widget, FALSE);
-	gtk_widget_set_halign (widget, GTK_ALIGN_END);
-	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	// Next row displays the budget tree
 	gridrow++;
