@@ -124,7 +124,7 @@ static void repbudgetbalance_model_update_monthlytotal(GtkTreeStore* budget, bud
 static void repbudgetbalance_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
 {
 const budgbal_store_t column_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(renderer), "repbudgetbalance_column_id"));
-const repbudgetbalance_data_t *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
@@ -154,7 +154,7 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 
 	amount = g_strtod(new_text, NULL);
 
-	DB(g_print("\column: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - BUDGBAL_JANUARY + 1, category_key, amount));
+	DB(g_print("\tcolumn: %d (month: %d), category key: %d, amount %.2f\n", column_id, column_id - BUDGBAL_JANUARY + 1, category_key, amount));
 
 	// Update Category
 	category->budget[column_id - BUDGBAL_JANUARY + 1] = amount;
@@ -169,6 +169,9 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 			break;
 		}
 	}
+
+	// Notify of changes
+	data->change++;
 
 	// Update budget model
 
@@ -188,7 +191,7 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 // Update the row to (dis/enable) same amount for this category
 static void repbudgetbalance_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
 {
-const repbudgetbalance_data_t *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
@@ -232,6 +235,9 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 		category->flags |= (GF_CUSTOM);
 	}
 
+	// Notify of changes
+	data->change++;
+
 	// Update budget model
 
 	// Current row
@@ -250,7 +256,7 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 // Update the row to (dis/enable) same amount for this category
 static void repbudgetbalance_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data)
 {
-const repbudgetbalance_data_t *data = user_data;
+repbudgetbalance_data_t *data = user_data;
 GtkWidget *view;
 GtkTreeIter iter;
 GtkTreeModel *budget;
@@ -293,6 +299,9 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	{
 		category->flags |= (GF_FORCED);
 	}
+
+	// Notify of changes
+	data->change++;
 
 	// Update budget model
 
@@ -1202,52 +1211,31 @@ budgbal_view_mode_t view_mode = BUDGBAL_VIEW_BALANCE;
 	return;
 }
 
-// Close / delete main window: save preference and clean memory
-static gboolean repbudgetbalance_window_dispose(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+static void repbudgetbalance_dialog_close(repbudgetbalance_data_t *data, gint response)
 {
-repbudgetbalance_data_t *data = user_data;
-struct WinGeometry *wg;
+	DB( g_print("[repbudgetbalance] dialog close\n") );
 
-	DB( g_print("\n[repbudgetbalance] start dispose\n") );
+	GLOBALS->changes_count += data->change;
 
-	g_free(data);
-
-	// TODO Uncomment and adjust when we know name of the window and pref
-	//store position and size
-	//wg = &PREFS->bud_bal_wg;
-	//gtk_window_get_position(GTK_WINDOW(widget), &wg->l, &wg->t);
-	//gtk_window_get_size(GTK_WINDOW(widget), &wg->w, &wg->h);
-
-	//DB( g_print(" window: l=%d, t=%d, w=%d, h=%d\n", wg->l, wg->t, wg->w, wg->h) );
-
-	//enable define windows
-	GLOBALS->define_off--;
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
-
-	DB( g_print("\n[repbudgetbalance] end dispose\n") );
-
-	return FALSE;
+	return;
 }
 
 // Open / create the main window, the budget view and the budget model
 GtkWidget *repbudgetbalance_window_new(void)
 {
 repbudgetbalance_data_t *data;
-struct WinGeometry *wg;
 GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode, *menu;
 GtkWidget *widget, *image;
 GtkWidget *scrolledwindow, *treeview;
+gint response;
 gint gridrow, w, h;
 
 	data = g_malloc0(sizeof(repbudgetbalance_data_t));
+	data->change = 0;
 	if(!data) return NULL;
 
-	DB( g_print("\n[repbudgetbalance] new\n") );
-
-	//disable define windows
-	GLOBALS->define_off++;
-	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_SENSITIVE));
+	DB( g_print("\n[repbudgetbalance] open dialog\n") );
 
 	// create window
 	dialog = gtk_dialog_new_with_buttons (_("Advanced Budget Management"),
@@ -1341,18 +1329,13 @@ gint gridrow, w, h;
 	repbudgetbalance_view_toggle((gpointer) data, BUDGBAL_VIEW_BALANCE);
 
 	/* signal connect */
-	g_signal_connect (dialog, "delete-event", G_CALLBACK (repbudgetbalance_window_dispose), (gpointer)data);
-
-	// TODO Uncomment and adjust when we know name of the window and pref
-	//setup, init and show window
-	//wg = &PREFS->bud_wg;
-	//gtk_window_move(GTK_WINDOW(dialog), wg->l, wg->t);
-	//gtk_window_resize(GTK_WINDOW(dialog), wg->w, wg->h);
+	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	gtk_widget_show_all (dialog);
 
-	gtk_dialog_run (GTK_DIALOG (dialog));
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
+	repbudgetbalance_dialog_close(data, response);
 	gtk_widget_destroy (dialog);
 
 	return NULL;

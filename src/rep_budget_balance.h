@@ -24,6 +24,9 @@ struct repbudgetbalance_data
 {
 	GtkWidget *window;
 
+	// Number of changes to notify globally
+	gint change;
+
 	// Tree view with budget
 	GtkWidget *TV_budget;
 
