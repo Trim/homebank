@@ -40,7 +40,7 @@ struct repbudgetbalance_data
 };
 typedef struct repbudgetbalance_data repbudgetbalance_data_t;
 
-GtkWidget *repbudgetbalance_window_new(void);
+GtkWidget *ui_adv_bud_manage_dialog(void);
 
 
 #endif

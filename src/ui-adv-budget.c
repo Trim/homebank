@@ -22,7 +22,7 @@
 #include "hb-misc.h"
 #include "dsp_mainwindow.h"
 #include "hb-category.h"
-#include "rep_budget_balance.h"
+#include "ui-adv-budget.h"
 
 
 /****************************************************************************/
@@ -1221,7 +1221,7 @@ static void repbudgetbalance_dialog_close(repbudgetbalance_data_t *data, gint re
 }
 
 // Open / create the main window, the budget view and the budget model
-GtkWidget *repbudgetbalance_window_new(void)
+GtkWidget *ui_adv_bud_manage_dialog(void)
 {
 repbudgetbalance_data_t *data;
 GtkWidget *dialog, *content_area, *grid;
