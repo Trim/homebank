@@ -36,6 +36,7 @@
 #include "ui-archive.h"
 #include "ui-assign.h"
 #include "ui-budget.h"
+#include "ui-adv-budget.h"
 #include "ui-pref.h"
 #include "ui-hbfile.h"
 #include "ui-transaction.h"
@@ -95,6 +96,7 @@ static void ui_mainwindow_action_defpayee(void);
 static void ui_mainwindow_action_defcategory(void);
 static void ui_mainwindow_action_defarchive(void);
 static void ui_mainwindow_action_defbudget(void);
+static void ui_mainwindow_action_defadvancedbudget(void);
 static void ui_mainwindow_action_defassign(void);
 static void ui_mainwindow_action_preferences(void);
 
@@ -216,6 +218,7 @@ static GtkActionEntry entries[] = {
   { "Category"   , ICONNAME_HB_CATEGORY    , N_("Categories...") , NULL,    N_("Configure the categories"),    G_CALLBACK (ui_mainwindow_action_defcategory) },
   { "Archive"    , ICONNAME_HB_ARCHIVE     , N_("Scheduled/Template...")  , NULL,    N_("Configure the scheduled/template transactions"),    G_CALLBACK (ui_mainwindow_action_defarchive) },
   { "Budget"     , ICONNAME_HB_BUDGET      , N_("Budget...")     , NULL,    N_("Configure the budget"),    G_CALLBACK (ui_mainwindow_action_defbudget) },
+  { "AdvancedBudget", ICONNAME_HB_BUDGET , N_("Advanced Budget...") , NULL,    N_("Configure the budget"), G_CALLBACK (ui_mainwindow_action_defadvancedbudget) },
   { "Assign"     , ICONNAME_HB_ASSIGN      , N_("Assignments..."), NULL,    N_("Configure the automatic assignments"),    G_CALLBACK (ui_mainwindow_action_defassign) },
 
   /* TxnMenu */
@@ -309,6 +312,7 @@ static const gchar *ui_info =
 "      <menuitem action='Category'/>"
 "      <menuitem action='Archive'/>"
 "      <menuitem action='Budget'/>"
+"      <menuitem action='AdvancedBudget'/>"
 "      <menuitem action='Assign'/>"
 "      <menuitem action='Currency'/>"
 "    </menu>"
@@ -680,6 +684,12 @@ static void ui_mainwindow_action_defarchive(void)
 static void ui_mainwindow_action_defbudget(void)
 {
 	ui_bud_manage_dialog();
+	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
+}
+
+static void ui_mainwindow_action_defadvancedbudget(void)
+{
+	ui_adv_bud_manage_dialog();
 	ui_mainwindow_update(GLOBALS->mainwindow, GINT_TO_POINTER(UF_TITLE+UF_SENSITIVE));
 }
 
