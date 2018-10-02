@@ -90,6 +90,8 @@ homebank_SOURCES =  \
 	rep_vehicle.h \
 	ui-account.c \
 	ui-account.h \
+	ui-adv-budget.c \
+	ui-adv-budget.h \
 	ui-archive.c \
 	ui-archive.h \
 	ui-assign.c \
