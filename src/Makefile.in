@@ -115,13 +115,14 @@ am_homebank_OBJECTS = dsp_account.$(OBJEXT) dsp_mainwindow.$(OBJEXT) \
 	list_upcoming.$(OBJEXT) rep_balance.$(OBJEXT) \
 	rep_budget.$(OBJEXT) rep_stats.$(OBJEXT) rep_time.$(OBJEXT) \
 	rep_vehicle.$(OBJEXT) ui-account.$(OBJEXT) \
-	ui-archive.$(OBJEXT) ui-assign.$(OBJEXT) \
-	ui-assist-import.$(OBJEXT) ui-assist-start.$(OBJEXT) \
-	ui-budget.$(OBJEXT) ui-category.$(OBJEXT) \
-	ui-currency.$(OBJEXT) ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) \
-	ui-hbfile.$(OBJEXT) ui-payee.$(OBJEXT) ui-pref.$(OBJEXT) \
-	ui-split.$(OBJEXT) ui-transaction.$(OBJEXT) \
-	ui-txn-multi.$(OBJEXT) ui-widgets.$(OBJEXT)
+	ui-adv-budget.$(OBJEXT) ui-archive.$(OBJEXT) \
+	ui-assign.$(OBJEXT) ui-assist-import.$(OBJEXT) \
+	ui-assist-start.$(OBJEXT) ui-budget.$(OBJEXT) \
+	ui-category.$(OBJEXT) ui-currency.$(OBJEXT) \
+	ui-dialogs.$(OBJEXT) ui-filter.$(OBJEXT) ui-hbfile.$(OBJEXT) \
+	ui-payee.$(OBJEXT) ui-pref.$(OBJEXT) ui-split.$(OBJEXT) \
+	ui-transaction.$(OBJEXT) ui-txn-multi.$(OBJEXT) \
+	ui-widgets.$(OBJEXT)
 homebank_OBJECTS = $(am_homebank_OBJECTS)
 am__DEPENDENCIES_1 =
 homebank_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -391,6 +392,8 @@ homebank_SOURCES = \
 	rep_vehicle.h \
 	ui-account.c \
 	ui-account.h \
+	ui-adv-budget.c \
+	ui-adv-budget.h \
 	ui-archive.c \
 	ui-archive.h \
 	ui-assign.c \
@@ -557,6 +560,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rep_vehicle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-account.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-adv-budget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-archive.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ui-assist-import.Po@am__quote@
