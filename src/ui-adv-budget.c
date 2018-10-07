@@ -1337,7 +1337,7 @@ gint gridrow, w, h;
 	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
 
 	// connect every radio button to the toggled signal to correctly update the view
-	for (int i=0; i<**ADVBUD_VIEW_MODE; i++)
+	for (int i=0; ADVBUD_VIEW_MODE[i] != NULL; i++)
 	{
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
 
