@@ -36,6 +36,12 @@ struct adv_bud_data
 	// Radio buttons of view mode
 	GtkWidget *RA_mode;
 
+  // Tool bar
+  GtkWidget *BT_category_add, *BT_category_delete, *BT_expand, *BT_collapse;
+
+  // Should the tree be collapsed
+  gboolean TV_isexpanded;
+
 	GtkUIManager *ui;
 };
 typedef struct adv_bud_data adv_bud_data_t;

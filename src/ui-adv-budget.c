@@ -336,6 +336,65 @@ gboolean result = FALSE, is_root, is_total;
 	return result;
 }
 
+// Collapse all categories except root
+static void ui_adv_bud_model_collapse (GtkTreeView *view) {
+GtkTreeModel *budget;
+GtkTreePath *path;
+advbud_budget_iterator_t *budget_iter;
+
+  budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
+
+  budget = gtk_tree_view_get_model (view);
+
+  gtk_tree_view_collapse_all(view);
+
+  // Keep root categories expanded
+
+  // Retrieve income root
+	budget_iter->category_isroot = TRUE;
+	budget_iter->category_istotal = FALSE;
+	budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
+	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
+		budget_iter);
+
+	if (budget_iter->iterator != NULL) {
+    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	  gtk_tree_view_expand_row(view, path, FALSE);
+  }
+
+	// Retrieve expense root
+	budget_iter->category_isroot = TRUE;
+	budget_iter->category_istotal = FALSE;
+	budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
+	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
+		budget_iter);
+
+	if (budget_iter->iterator != NULL) {
+    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	  gtk_tree_view_expand_row(view, path, FALSE);
+  }
+
+	// Retrieve total root
+	budget_iter->category_isroot = TRUE;
+	budget_iter->category_istotal = FALSE;
+	budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
+	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
+		budget_iter);
+
+	if (budget_iter->iterator != NULL) {
+    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	  gtk_tree_view_expand_row(view, path, FALSE);
+  }
+
+  g_free(budget_iter->iterator);
+  g_free(budget_iter);
+
+  return;
+}
+
 // Create tree roots for the store
 static void ui_adv_bud_model_insert_roots(GtkTreeStore* budget, advbud_view_mode_t view_mode)
 {
@@ -920,7 +979,13 @@ gint w, h;
 	// Replace model with the new one
 	model = ui_adv_bud_model_new(view_mode);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(budget), model);
-	gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
+
+  if (data->TV_isexpanded) {
+	  gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
+  }
+  else {
+    ui_adv_bud_model_collapse(GTK_TREE_VIEW(budget));
+  }
 
 	// Resize the window to get natural width for the dialog and keep the current height
 	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
@@ -1270,6 +1335,37 @@ advbud_view_mode_t view_mode = ADVBUD_VIEW_BALANCE;
 	return;
 }
 
+// Expand all categories inside the current view
+static void ui_adv_bud_view_expand (GtkButton *button, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+
+	view = data->TV_budget;
+
+  data->TV_isexpanded = TRUE;
+
+	gtk_tree_view_expand_all(GTK_TREE_VIEW(view));
+
+	return;
+}
+
+// Collapse all categories inside the current view
+static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+
+	view = data->TV_budget;
+
+  data->TV_isexpanded = FALSE;
+
+  ui_adv_bud_model_collapse (GTK_TREE_VIEW(view));
+
+	return;
+}
+
+
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
 	DB( g_print("[ui_adv_bud] dialog close\n") );
@@ -1286,7 +1382,10 @@ adv_bud_data_t *data;
 GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode;
 GtkWidget *widget;
+GtkWidget *vbox, *hbox;
 GtkWidget *scrolledwindow, *treeview;
+GtkWidget *toolbar;
+GtkToolItem *toolitem;
 gint response;
 gint gridrow, w, h;
 
@@ -1336,7 +1435,75 @@ gint gridrow, w, h;
 	gtk_widget_set_halign (radiomode, GTK_ALIGN_CENTER);
 	gtk_grid_attach (GTK_GRID (grid), radiomode, 0, gridrow, 1, 1);
 
-	// connect every radio button to the toggled signal to correctly update the view
+	// Next row displays the budget tree with its toolbar
+	gridrow++;
+
+  // We use a Vertical Box to link tree with toolbar
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	gtk_widget_set_margin_right(vbox, SPACING_SMALL);
+  gtk_grid_attach (GTK_GRID (grid), vbox, 0, gridrow, 1, 1);
+
+	// Scrolled Window will permit to display budgets with a lot of active categories
+	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+	gtk_widget_set_hexpand (scrolledwindow, TRUE);
+	gtk_widget_set_vexpand (scrolledwindow, TRUE);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_box_pack_start (GTK_BOX (vbox), scrolledwindow, TRUE, TRUE, 0);
+
+	treeview = ui_adv_bud_view_new ((gpointer) data);
+	data->TV_budget = treeview;
+	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+
+	// Toolbar to add, remove categories, expand and collapse categorie
+	toolbar = gtk_toolbar_new();
+	gtk_toolbar_set_icon_size (GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_MENU);
+	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
+	gtk_box_pack_start (GTK_BOX (vbox), toolbar, FALSE, FALSE, 0);
+
+	gtk_style_context_add_class (gtk_widget_get_style_context (toolbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
+
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	widget = make_image_button(ICONNAME_LIST_ADD, _("Add category"));
+  data->BT_category_add = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+	widget = make_image_button(ICONNAME_LIST_REMOVE, _("Remove category"));
+  data->BT_category_delete = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+  // Separator for add / remove category and collapse / expand buttons
+	toolitem = gtk_separator_tool_item_new ();
+	gtk_tool_item_set_expand (toolitem, TRUE);
+	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
+
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+
+	toolitem = gtk_tool_item_new();
+	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	widget = make_image_button(ICONNAME_HB_BUTTON_EXPAND, _("Expand all"));
+  data->BT_expand = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+	widget = make_image_button(ICONNAME_HB_BUTTON_COLLAPSE, _("Collapse all"));
+  data->BT_collapse = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
+	// By default, show the balance mode with all categories expanded
+  data->TV_isexpanded = TRUE;
+	ui_adv_bud_view_toggle((gpointer) data, ADVBUD_VIEW_BALANCE);
+
+	/* signal connect */
+
+  // connect every radio button to the toggled signal to correctly update the view
 	for (int i=0; ADVBUD_VIEW_MODE[i] != NULL; i++)
 	{
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
@@ -1347,25 +1514,11 @@ gint gridrow, w, h;
 		}
 	}
 
-	// Next row displays the budget tree
-	gridrow++;
+  // toolbar buttons
+  g_signal_connect (data->BT_expand, "clicked", G_CALLBACK (ui_adv_bud_view_expand), (gpointer)data);
+  g_signal_connect (data->BT_collapse, "clicked", G_CALLBACK (ui_adv_bud_view_collapse), (gpointer)data);
 
-	// Scrolled Window will permit to display budgets with a lot of active categories
-	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_hexpand (scrolledwindow, TRUE);
-	gtk_widget_set_vexpand (scrolledwindow, TRUE);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	gtk_grid_attach (GTK_GRID (grid), scrolledwindow, 0, gridrow, 1, 1);
-
-	treeview = ui_adv_bud_view_new ((gpointer) data);
-	data->TV_budget = treeview;
-	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-	// By default, show the reader mode
-	ui_adv_bud_view_toggle((gpointer) data, ADVBUD_VIEW_BALANCE);
-
-	/* signal connect */
+  // dialog
 	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	gtk_widget_show_all (dialog);
