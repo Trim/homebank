@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 2018 Adrien Dorsaz <adrien@adorsaz.ch>
+ *  Copyright (C) 2018-2019 Adrien Dorsaz <adrien@adorsaz.ch>
  *
  *  This file is part of HomeBank.
  *
@@ -155,6 +155,7 @@ typedef struct advbud_budget_iterator advbud_budget_iterator_t;
 static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data);
 static void ui_adv_bud_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category);
 static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter);
+static void ui_adv_bud_model_collapse (GtkTreeView *view);
 static void ui_adv_bud_model_insert_roots(GtkTreeStore* budget, advbud_view_mode_t view_mode);
 static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode);
 static GtkTreeModel * ui_adv_bud_model_new (advbud_view_mode_t view_mode);
@@ -168,10 +169,13 @@ static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_
 static GtkWidget *ui_adv_bud_view_new (gpointer user_data);
 
 // UI actions
+static void ui_adv_bud_cell_update_category(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data);
 static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data);
 static void ui_adv_bud_cell_update_issameamount(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data);
 static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer, gchar *path_string, gpointer user_data);
 static void ui_adv_bud_view_update_mode (GtkToggleButton *button, gpointer user_data);
+static void ui_adv_bud_view_expand (GtkButton *button, gpointer user_data);
+static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
 /**
@@ -1038,6 +1042,9 @@ adv_bud_data_t *data = user_data;
 
 	gtk_tree_view_column_add_attribute(col, renderer, "text", ADVBUD_CATEGORY_NAME);
 
+  g_object_set(renderer, "editable", TRUE, NULL);
+  g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_category, (gpointer) data);
+
 	/* --- Display forced ? ---*/
 	col = gtk_tree_view_column_new();
 	data->TVC_isdisplayforced = col;
@@ -1113,6 +1120,53 @@ adv_bud_data_t *data = user_data;
 /*
  * UI actions
  **/
+
+// Update homebank category on user change
+static void ui_adv_bud_cell_update_category(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeIter iter;
+GtkTreeModel *budget;
+Category* category;
+guint32 category_key;
+
+  DB(g_print("\n[ui_adv_bud] category name updated with new name '%s'\n", new_text));
+
+	view = data->TV_budget;
+	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+
+  // Look for category
+	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
+
+	gtk_tree_model_get (budget, &iter,
+		ADVBUD_CATEGORY_KEY, &category_key,
+		-1);
+
+	category = da_cat_get (category_key);
+
+	if (! category)
+	{
+		return;
+	}
+
+  // Update category
+  strcpy(category->name, new_text);
+
+	// Notify of changes
+	data->change++;
+
+	// Update budget model
+
+	// Current row
+	gtk_tree_store_set(
+		GTK_TREE_STORE(budget),
+		&iter,
+		ADVBUD_CATEGORY_NAME, new_text,
+		-1);
+
+	return;
+}
 
 // Update amount in budget model and homebank category on user change
 static void ui_adv_bud_cell_update_amount(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data)

@@ -1,5 +1,5 @@
 /*  HomeBank -- Free, easy, personal accounting for everyone.
- *  Copyright (C) 2018 Adrien Dorsaz <adrien@adorsaz.ch>
+ *  Copyright (C) 2018-2019 Adrien Dorsaz <adrien@adorsaz.ch>
  *
  *  This file is part of HomeBank.
  *
