@@ -706,7 +706,6 @@ advbud_budget_iterator_t *budget_iter;
 	{
 	Category *bdg_category;
 	gboolean cat_is_displayed;
-	gboolean cat_is_sameamount;
 	gboolean cat_is_income;
 
 		bdg_category = da_cat_get(i);
@@ -718,7 +717,6 @@ advbud_budget_iterator_t *budget_iter;
 
 		cat_is_displayed = (bdg_category->flags & (GF_BUDGET|GF_FORCED));
 		cat_is_income = (category_type_get (bdg_category) == 1);
-		cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 		/* Display category only if forced or if a budget has been defined. */
 		if ( view_mode == ADVBUD_VIEW_BALANCE
@@ -727,10 +725,10 @@ advbud_budget_iterator_t *budget_iter;
 			continue;
 		}
 
-		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d issameamount=%d parent=%d\n",
+		DB(g_print(" category %d:'%s' isincome=%d, issub=%d hasbudget=%d parent=%d\n",
 			bdg_category->key, bdg_category->name,
 			cat_is_income, (bdg_category->flags & GF_SUB),
-			(bdg_category->flags & GF_BUDGET), cat_is_sameamount, bdg_category->parent));
+			(bdg_category->flags & GF_BUDGET), bdg_category->parent));
 
 		// Compute totals and initiate category in right tree root
 		if (cat_is_income
@@ -995,8 +993,6 @@ gint w, h;
 	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
 	g_object_ref(budget); // Add temporary a manual ref to keep the view alive
 	gtk_container_remove(GTK_CONTAINER(scrolledwindow), budget);
-	gtk_window_get_size(GTK_WINDOW(data->dialog), &w, &h);
-	gtk_window_resize (GTK_WINDOW(data->dialog), 1, h);
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), budget);
 	g_object_unref(budget);
 
@@ -1043,7 +1039,7 @@ adv_bud_data_t *data = user_data;
 	gtk_tree_view_column_add_attribute(col, renderer, "text", ADVBUD_CATEGORY_NAME);
 
   g_object_set(renderer, "editable", TRUE, NULL);
-  g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_category, (gpointer) data);
+  g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_category), (gpointer) data);
 
 	/* --- Display forced ? ---*/
 	col = gtk_tree_view_column_new();
@@ -1055,7 +1051,7 @@ adv_bud_data_t *data = user_data;
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_isdisplayforced, NULL, NULL);
 
-	g_signal_connect (renderer, "toggled", ui_adv_bud_cell_update_isdisplayforced, (gpointer) data);
+	g_signal_connect (renderer, "toggled", G_CALLBACK(ui_adv_bud_cell_update_isdisplayforced), (gpointer) data);
 
 	/* --- Is same amount each month ? --- */
 	col = gtk_tree_view_column_new();
@@ -1066,7 +1062,7 @@ adv_bud_data_t *data = user_data;
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_issameamount, NULL, NULL);
 
-	g_signal_connect (renderer, "toggled", ui_adv_bud_cell_update_issameamount, (gpointer) data);
+	g_signal_connect (renderer, "toggled", G_CALLBACK(ui_adv_bud_cell_update_issameamount), (gpointer) data);
 
 	/* --- Monthly --- */
 	col = gtk_tree_view_column_new();
@@ -1078,7 +1074,7 @@ adv_bud_data_t *data = user_data;
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_amount, GINT_TO_POINTER(ADVBUD_SAMEAMOUNT), NULL);
 
 	g_object_set_data(G_OBJECT(renderer), "ui_adv_bud_column_id", GINT_TO_POINTER(ADVBUD_SAMEAMOUNT));
-	g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_amount, (gpointer) data);
+	g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_amount), (gpointer) data);
 
 	/* --- Each month --- */
 	for (int i = ADVBUD_JANUARY ; i <= ADVBUD_DECEMBER ; ++i)
@@ -1094,7 +1090,7 @@ adv_bud_data_t *data = user_data;
 		gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_amount, GINT_TO_POINTER(i), NULL);
 
 		g_object_set_data(G_OBJECT(renderer), "ui_adv_bud_column_id", GINT_TO_POINTER(i));
-		g_signal_connect(renderer, "edited", ui_adv_bud_cell_update_amount, (gpointer) data);
+		g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_amount), (gpointer) data);
 	}
 
 	/* --- Year Total -- */
@@ -1468,9 +1464,9 @@ gint gridrow, w, h;
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
 	DB( g_print(" - new dialog=%p, inst_data=%p\n", dialog, data) );
 
-	//set a nice dialog size
+  // set a nice default dialog size
 	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
-	gtk_window_set_default_size (GTK_WINDOW(dialog), -1, h * 0.8);
+	gtk_window_resize (GTK_WINDOW(data->dialog), w * 0.9, h * 0.9);
 
 	// design content
 	grid = gtk_grid_new ();
@@ -1502,7 +1498,7 @@ gint gridrow, w, h;
 	gtk_widget_set_hexpand (scrolledwindow, TRUE);
 	gtk_widget_set_vexpand (scrolledwindow, TRUE);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_box_pack_start (GTK_BOX (vbox), scrolledwindow, TRUE, TRUE, 0);
 
 	treeview = ui_adv_bud_view_new ((gpointer) data);
