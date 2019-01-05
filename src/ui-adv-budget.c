@@ -166,7 +166,7 @@ static void ui_adv_bud_view_display_issameamount (GtkTreeViewColumn *col, GtkCel
 static void ui_adv_bud_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode);
-static GtkWidget *ui_adv_bud_view_new (gpointer user_data);
+static GtkWidget *ui_adv_bud_view_new (gpointer user_data, advbud_view_mode_t view_mode);
 
 // UI actions
 static void ui_adv_bud_cell_update_category(GtkCellRendererText *renderer, gchar *path_string, gchar *new_text, gpointer user_data);
@@ -346,15 +346,15 @@ GtkTreeModel *budget;
 GtkTreePath *path;
 advbud_budget_iterator_t *budget_iter;
 
-  budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
+	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
 
-  budget = gtk_tree_view_get_model (view);
+	budget = gtk_tree_view_get_model (view);
 
-  gtk_tree_view_collapse_all(view);
+	gtk_tree_view_collapse_all(view);
 
-  // Keep root categories expanded
+	// Keep root categories expanded
 
-  // Retrieve income root
+	// Retrieve income root
 	budget_iter->category_isroot = TRUE;
 	budget_iter->category_istotal = FALSE;
 	budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
@@ -363,9 +363,9 @@ advbud_budget_iterator_t *budget_iter;
 		budget_iter);
 
 	if (budget_iter->iterator != NULL) {
-    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
-	  gtk_tree_view_expand_row(view, path, FALSE);
-  }
+		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+		gtk_tree_view_expand_row(view, path, FALSE);
+	}
 
 	// Retrieve expense root
 	budget_iter->category_isroot = TRUE;
@@ -376,9 +376,9 @@ advbud_budget_iterator_t *budget_iter;
 		budget_iter);
 
 	if (budget_iter->iterator != NULL) {
-    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
-	  gtk_tree_view_expand_row(view, path, FALSE);
-  }
+		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+		gtk_tree_view_expand_row(view, path, FALSE);
+	}
 
 	// Retrieve total root
 	budget_iter->category_isroot = TRUE;
@@ -389,14 +389,14 @@ advbud_budget_iterator_t *budget_iter;
 		budget_iter);
 
 	if (budget_iter->iterator != NULL) {
-    path = gtk_tree_model_get_path(budget, budget_iter->iterator);
-	  gtk_tree_view_expand_row(view, path, FALSE);
-  }
+		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+		gtk_tree_view_expand_row(view, path, FALSE);
+	}
 
-  g_free(budget_iter->iterator);
-  g_free(budget_iter);
+	g_free(budget_iter->iterator);
+	g_free(budget_iter);
 
-  return;
+	return;
 }
 
 // Create tree roots for the store
@@ -445,7 +445,7 @@ GtkTreeIter iter;
 	return;
 }
 
-// Update (or insert) total rows for a budget according to the view  mode
+// Update (or insert) total rows for a budget according to the view mode
 // This function will is used to initiate model and to refresh it after change by user
 static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget, advbud_view_mode_t view_mode)
 {
@@ -968,58 +968,42 @@ gboolean is_visible = TRUE;
 
 // When view mode is toggled:
 // - compute again the model to add required rows
-// - update the view columns to show only the required ones
+// - recreate the view to update columns rendering
 static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode)
 {
 adv_bud_data_t *data = user_data;
-GtkWidget *budget, *scrolledwindow;
+GtkWidget *view, *scrolledwindow;
 GtkTreeModel *model;
-gint w, h;
 
-	budget = data->TV_budget;
+	gtk_container_remove(GTK_CONTAINER(data->SW_treeview), GTK_WIDGET(data->TV_budget));
+	view = ui_adv_bud_view_new (user_data, view_mode);
+	data->TV_budget = view;
+	gtk_container_add(GTK_CONTAINER(data->SW_treeview), view);
 
-	// Replace model with the new one
+	// Set the new model on the new tree view
 	model = ui_adv_bud_model_new(view_mode);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(budget), model);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(view), model);
 
-  if (data->TV_isexpanded) {
-	  gtk_tree_view_expand_all(GTK_TREE_VIEW(budget));
-  }
-  else {
-    ui_adv_bud_model_collapse(GTK_TREE_VIEW(budget));
-  }
+	if (data->TV_isexpanded) {
+		gtk_tree_view_expand_all(GTK_TREE_VIEW(view));
+	}
+	else {
+		ui_adv_bud_model_collapse(GTK_TREE_VIEW(view));
+	}
 
-	// Resize the window to get natural width for the dialog and keep the current height
-	scrolledwindow = gtk_widget_get_parent(GTK_WIDGET(budget));
-	g_object_ref(budget); // Add temporary a manual ref to keep the view alive
-	gtk_container_remove(GTK_CONTAINER(scrolledwindow), budget);
-	gtk_container_add(GTK_CONTAINER(scrolledwindow), budget);
-	g_object_unref(budget);
-
-	/* to automatically destroy then model with view */
+	/* to automatically destroy the model with view */
 	g_object_unref(model);
 
-	DB(g_print("[ui_adv_bud] : button state changed to: %d\n", view_mode));
+	gtk_widget_show_all (data->SW_treeview);
 
-	// For each view mode, apply specific modifications of the budget view
-	switch(view_mode) {
-		case ADVBUD_VIEW_BALANCE:
-			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, FALSE);
-			break;
-		case ADVBUD_VIEW_INCOME:
-			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
-			break;
-		case ADVBUD_VIEW_EXPENSE:
-			gtk_tree_view_column_set_visible(data->TVC_isdisplayforced, TRUE);
-			break;
-	}
+	DB(g_print("[ui_adv_bud] : button state changed to: %d\n", view_mode));
 
 	return;
 }
 
 // the budget view creation which run the model creation tool
 
-static GtkWidget *ui_adv_bud_view_new (gpointer user_data)
+static GtkWidget *ui_adv_bud_view_new (gpointer user_data, advbud_view_mode_t view_mode)
 {
 GtkTreeViewColumn *col;
 GtkCellRenderer *renderer;
@@ -1028,47 +1012,50 @@ adv_bud_data_t *data = user_data;
 
 	view = gtk_tree_view_new();
 
-	/* --- Category --- */
+	/* --- Category column --- */
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Category")));
-
+	if (view_mode == ADVBUD_VIEW_BALANCE)
+	{
+		gtk_tree_view_column_set_title(col, _(N_("Category")));
+	}
+	else
+	{
+		gtk_tree_view_column_set_title(col, _(N_("Category (check to force display)")));
+	}
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 
+	// Category is display forced
+	if (view_mode != ADVBUD_VIEW_BALANCE)
+	{
+		renderer = gtk_cell_renderer_toggle_new();
+		gtk_tree_view_column_pack_start (col, renderer, TRUE);
+		gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_isdisplayforced, NULL, NULL);
+
+		g_signal_connect (renderer, "toggled", G_CALLBACK(ui_adv_bud_cell_update_isdisplayforced), (gpointer) data);
+	}
+
+	// Category Name
+	renderer = gtk_cell_renderer_text_new();
+	gtk_tree_view_column_pack_start (col, renderer, TRUE);
 	gtk_tree_view_column_add_attribute(col, renderer, "text", ADVBUD_CATEGORY_NAME);
 
-  g_object_set(renderer, "editable", TRUE, NULL);
-  g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_category), (gpointer) data);
+	g_object_set(renderer, "editable", TRUE, NULL);
+	g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_category), (gpointer) data);
 
-	/* --- Display forced ? ---*/
+
+	/* --- Monthly column --- */
 	col = gtk_tree_view_column_new();
-	data->TVC_isdisplayforced = col;
-	gtk_tree_view_column_set_title(col, _(N_("Force display")));
-
+	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
-	renderer = gtk_cell_renderer_toggle_new();
-	gtk_tree_view_column_pack_start(col, renderer, TRUE);
-	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_isdisplayforced, NULL, NULL);
 
-	g_signal_connect (renderer, "toggled", G_CALLBACK(ui_adv_bud_cell_update_isdisplayforced), (gpointer) data);
-
-	/* --- Is same amount each month ? --- */
-	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Same amount")));
-
-	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+	// Monthly toggler
 	renderer = gtk_cell_renderer_toggle_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_issameamount, NULL, NULL);
 
 	g_signal_connect (renderer, "toggled", G_CALLBACK(ui_adv_bud_cell_update_issameamount), (gpointer) data);
 
-	/* --- Monthly --- */
-	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
-
-	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+	// Monthly amount
 	renderer = gtk_cell_renderer_spin_new();
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_amount, GINT_TO_POINTER(ADVBUD_SAMEAMOUNT), NULL);
@@ -1076,7 +1063,7 @@ adv_bud_data_t *data = user_data;
 	g_object_set_data(G_OBJECT(renderer), "ui_adv_bud_column_id", GINT_TO_POINTER(ADVBUD_SAMEAMOUNT));
 	g_signal_connect(renderer, "edited", G_CALLBACK(ui_adv_bud_cell_update_amount), (gpointer) data);
 
-	/* --- Each month --- */
+	/* --- Each month amount --- */
 	for (int i = ADVBUD_JANUARY ; i <= ADVBUD_DECEMBER ; ++i)
 	{
 		int month = i - ADVBUD_JANUARY ;
@@ -1127,12 +1114,12 @@ GtkTreeModel *budget;
 Category* category;
 guint32 category_key;
 
-  DB(g_print("\n[ui_adv_bud] category name updated with new name '%s'\n", new_text));
+	DB(g_print("\n[ui_adv_bud] category name updated with new name '%s'\n", new_text));
 
 	view = data->TV_budget;
 	budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
 
-  // Look for category
+	// Look for category
 	gtk_tree_model_get_iter_from_string (budget, &iter, path_string);
 
 	gtk_tree_model_get (budget, &iter,
@@ -1146,8 +1133,8 @@ guint32 category_key;
 		return;
 	}
 
-  // Update category
-  strcpy(category->name, new_text);
+	// Update category
+	strcpy(category->name, new_text);
 
 	// Notify of changes
 	data->change++;
@@ -1393,7 +1380,7 @@ GtkWidget *view;
 
 	view = data->TV_budget;
 
-  data->TV_isexpanded = TRUE;
+	data->TV_isexpanded = TRUE;
 
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(view));
 
@@ -1408,13 +1395,12 @@ GtkWidget *view;
 
 	view = data->TV_budget;
 
-  data->TV_isexpanded = FALSE;
+	data->TV_isexpanded = FALSE;
 
-  ui_adv_bud_model_collapse (GTK_TREE_VIEW(view));
+	ui_adv_bud_model_collapse (GTK_TREE_VIEW(view));
 
 	return;
 }
-
 
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
@@ -1464,7 +1450,7 @@ gint gridrow, w, h;
 	g_object_set_data(G_OBJECT(dialog), "inst_data", (gpointer)&data);
 	DB( g_print(" - new dialog=%p, inst_data=%p\n", dialog, data) );
 
-  // set a nice default dialog size
+	// set a nice default dialog size
 	gtk_window_get_size(GTK_WINDOW(GLOBALS->mainwindow), &w, &h);
 	gtk_window_resize (GTK_WINDOW(data->dialog), w * 0.9, h * 0.9);
 
@@ -1488,20 +1474,21 @@ gint gridrow, w, h;
 	// Next row displays the budget tree with its toolbar
 	gridrow++;
 
-  // We use a Vertical Box to link tree with toolbar
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	// We use a Vertical Box to link tree with toolbar
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_widget_set_margin_right(vbox, SPACING_SMALL);
-  gtk_grid_attach (GTK_GRID (grid), vbox, 0, gridrow, 1, 1);
+	gtk_grid_attach (GTK_GRID (grid), vbox, 0, gridrow, 1, 1);
 
 	// Scrolled Window will permit to display budgets with a lot of active categories
 	scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+	data->SW_treeview = scrolledwindow;
 	gtk_widget_set_hexpand (scrolledwindow, TRUE);
 	gtk_widget_set_vexpand (scrolledwindow, TRUE);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_box_pack_start (GTK_BOX (vbox), scrolledwindow, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), scrolledwindow, TRUE, TRUE, 0);
 
-	treeview = ui_adv_bud_view_new ((gpointer) data);
+	treeview = ui_adv_bud_view_new ((gpointer) data, ADVBUD_VIEW_BALANCE);
 	data->TV_budget = treeview;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
@@ -1513,47 +1500,47 @@ gint gridrow, w, h;
 
 	gtk_style_context_add_class (gtk_widget_get_style_context (toolbar), GTK_STYLE_CLASS_INLINE_TOOLBAR);
 
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
 	toolitem = gtk_tool_item_new();
 	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
 
 	widget = make_image_button(ICONNAME_LIST_ADD, _("Add category"));
-  data->BT_category_add = widget;
+	data->BT_category_add = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	widget = make_image_button(ICONNAME_LIST_REMOVE, _("Remove category"));
-  data->BT_category_delete = widget;
+	data->BT_category_delete = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
-  // Separator for add / remove category and collapse / expand buttons
+	// Separator for add / remove category and collapse / expand buttons
 	toolitem = gtk_separator_tool_item_new ();
 	gtk_tool_item_set_expand (toolitem, TRUE);
 	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
 
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
 	toolitem = gtk_tool_item_new();
 	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
 
 	widget = make_image_button(ICONNAME_HB_BUTTON_EXPAND, _("Expand all"));
-  data->BT_expand = widget;
+	data->BT_expand = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	widget = make_image_button(ICONNAME_HB_BUTTON_COLLAPSE, _("Collapse all"));
-  data->BT_collapse = widget;
+	data->BT_collapse = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	// By default, show the balance mode with all categories expanded
-  data->TV_isexpanded = TRUE;
+	data->TV_isexpanded = TRUE;
 	ui_adv_bud_view_toggle((gpointer) data, ADVBUD_VIEW_BALANCE);
 
 	/* signal connect */
 
-  // connect every radio button to the toggled signal to correctly update the view
+	// connect every radio button to the toggled signal to correctly update the view
 	for (int i=0; ADVBUD_VIEW_MODE[i] != NULL; i++)
 	{
 		widget = radio_get_nth_widget (GTK_CONTAINER(radiomode), i);
@@ -1564,19 +1551,20 @@ gint gridrow, w, h;
 		}
 	}
 
-  // toolbar buttons
-  g_signal_connect (data->BT_expand, "clicked", G_CALLBACK (ui_adv_bud_view_expand), (gpointer)data);
-  g_signal_connect (data->BT_collapse, "clicked", G_CALLBACK (ui_adv_bud_view_collapse), (gpointer)data);
+	// toolbar buttons
+	g_signal_connect (data->BT_expand, "clicked", G_CALLBACK (ui_adv_bud_view_expand), (gpointer)data);
+	g_signal_connect (data->BT_collapse, "clicked", G_CALLBACK (ui_adv_bud_view_collapse), (gpointer)data);
 
-  // dialog
+	// dialog
 	g_signal_connect (dialog, "destroy", G_CALLBACK (gtk_widget_destroyed), &dialog);
 
 	gtk_widget_show_all (dialog);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
-	ui_adv_bud_dialog_close(data, response);
 	gtk_widget_destroy (dialog);
+
+	g_free(data);
 
 	return NULL;
 }
