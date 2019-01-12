@@ -17,8 +17,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __HOMEBANK_REPBUDGETBALANCE_H__
-#define __HOMEBANK_REPBUDGETBALANCE_H__
+#ifndef __HOMEBANK_ADVBUDGET_H__
+#define __HOMEBANK_ADVBUDGET_H__
 
 struct adv_bud_data
 {
