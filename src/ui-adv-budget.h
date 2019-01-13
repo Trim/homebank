@@ -27,20 +27,19 @@ struct adv_bud_data
 	// Number of changes to notify globally
 	gint change;
 
-	// Scrolled Window with the tree view
-	GtkWidget * SW_treeview;
-
 	// Tree view with budget
 	GtkWidget *TV_budget;
+	GtkTreeViewColumn *TVC_category;
+	GtkTreeViewColumn *TVC_category_with_force;
 
 	// Radio buttons of view mode
 	GtkWidget *RA_mode;
 
-  // Tool bar
-  GtkWidget *BT_category_add, *BT_category_delete, *BT_expand, *BT_collapse;
+	// Tool bar
+	GtkWidget *BT_category_add, *BT_category_delete, *BT_expand, *BT_collapse;
 
-  // Should the tree be collapsed
-  gboolean TV_isexpanded;
+	// Should the tree be collapsed
+	gboolean TV_isexpanded;
 
 	GtkUIManager *ui;
 };
