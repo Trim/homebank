@@ -110,8 +110,9 @@ enum advbud_store {
 	ADVBUD_CATEGORY_KEY = 0,
 	ADVBUD_CATEGORY_NAME,
 	ADVBUD_CATEGORY_TYPE,
-	ADVBUD_ISROOT, // To retrieve easier the 3 tree roots
+	ADVBUD_ISROOT, // To retrieve easier the 3 main tree roots
 	ADVBUD_ISTOTAL, // To retrieve rows inside the Total root
+	ADVBUD_ISSEPARATOR, // Row to just display a separator in Tree View
 	ADVBUD_ISDISPLAYFORCED,
 	ADVBUD_ISSAMEAMOUNT,
 	ADVBUD_SAMEAMOUNT,
@@ -168,6 +169,7 @@ static void ui_adv_bud_view_display_issameamount (GtkTreeViewColumn *col, GtkCel
 static void ui_adv_bud_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode);
+static gboolean ui_adv_view_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data);
 static GtkWidget *ui_adv_bud_view_new (gpointer user_data);
 
 // UI actions
@@ -405,11 +407,11 @@ advbud_budget_iterator_t *budget_iter;
 // Create tree roots for the store
 static void ui_adv_bud_model_insert_roots(GtkTreeStore* budget)
 {
-GtkTreeIter iter;
+GtkTreeIter iter, root;
 
 	gtk_tree_store_insert_with_values (
 		budget,
-		&iter,
+		&root,
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
@@ -418,11 +420,11 @@ GtkTreeIter iter;
 		ADVBUD_ISTOTAL, FALSE,
 		-1);
 
-	// Copy of the root to be able to select root in adding dialog
+	// For add category dialog: copy of the root to be able to select it
 	gtk_tree_store_insert_with_values (
 		budget,
 		&iter,
-		&iter,
+		&root,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
@@ -431,9 +433,18 @@ GtkTreeIter iter;
 		ADVBUD_ISTOTAL, FALSE,
 		-1);
 
+	// For add category dialog: add a separator to distinguish root with children
 	gtk_tree_store_insert_with_values (
 		budget,
 		&iter,
+		&root,
+		-1,
+		ADVBUD_ISSEPARATOR, TRUE,
+		-1);
+
+	gtk_tree_store_insert_with_values (
+		budget,
+		&root,
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
@@ -442,11 +453,11 @@ GtkTreeIter iter;
 		ADVBUD_ISTOTAL, FALSE,
 		-1);
 
-	// Copy of the root to be able to select root in adding dialog
+	// For add category dialog: copy of the root to be able to select it
 	gtk_tree_store_insert_with_values (
 		budget,
 		&iter,
-		&iter,
+		&root,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
@@ -455,9 +466,18 @@ GtkTreeIter iter;
 		ADVBUD_ISTOTAL, FALSE,
 		-1);
 
+	// For add category dialog: add a separator to distinguish root with children
 	gtk_tree_store_insert_with_values (
 		budget,
 		&iter,
+		&root,
+		-1,
+		ADVBUD_ISSEPARATOR, TRUE,
+		-1);
+
+	gtk_tree_store_insert_with_values (
+		budget,
+		&root,
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(N_("Totals")),
@@ -652,7 +672,7 @@ int n_category;
 // Filter shown rows according to VIEW mode
 static gboolean ui_adv_bud_model_row_filter (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_visible, is_root, is_total, is_forced_display;
+gboolean is_visible, is_root, is_total, is_forced_display, is_separator;
 adv_bud_data_t* data;
 advbud_view_mode_t view_mode;
 guint32 category_key;
@@ -665,6 +685,7 @@ advbud_cat_type_t category_type;
 	gtk_tree_model_get(model, iter,
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
+		ADVBUD_ISSEPARATOR, &is_separator,
 		ADVBUD_ISDISPLAYFORCED, &is_forced_display,
 		ADVBUD_CATEGORY_KEY, &category_key,
 		ADVBUD_CATEGORY_TYPE, &category_type,
@@ -775,6 +796,7 @@ advbud_budget_iterator_t *budget_iter;
 		G_TYPE_INT, // ADVBUD_CATEGORY_TYPE
 		G_TYPE_BOOLEAN, // ADVBUD_ISROOT
 		G_TYPE_BOOLEAN, // ADVBUD_ISTOTAL
+		G_TYPE_BOOLEAN, // ADVBUD_ISSEPARATOR
 		G_TYPE_BOOLEAN, // ADVBUD_ISDISPLAYFORCED
 		G_TYPE_BOOLEAN, // ADVBUD_ISSAMEAMOUNT
 		G_TYPE_DOUBLE, // ADVBUD_SAMEAMOUNT
@@ -1103,6 +1125,17 @@ GtkWidget *view;
 	DB(g_print("[ui_adv_bud] : button state changed to: %d\n", view_mode));
 
 	return;
+}
+
+static gboolean ui_adv_view_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
+{
+gboolean is_separator;
+
+	gtk_tree_model_get(model, iter,
+		ADVBUD_ISSEPARATOR, &is_separator,
+		-1);
+
+	return is_separator;
 }
 
 // the budget view creation which run the model creation tool
@@ -1592,6 +1625,13 @@ gint gridrow, response;
 
 	combobox = gtk_combo_box_new_with_model(categories);
 	gtk_grid_attach (GTK_GRID (grid), combobox, 1, gridrow, 1, 1);
+
+	gtk_combo_box_set_row_separator_func(
+		GTK_COMBO_BOX(combobox),
+		ui_adv_view_separator,
+		data,
+		NULL
+	);
 
 	gtk_combo_box_set_id_column(GTK_COMBO_BOX(combobox), ADVBUD_CATEGORY_KEY);
 	// TODO First retrieve first ancestor of iter and then select it
