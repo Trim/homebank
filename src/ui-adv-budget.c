@@ -672,11 +672,12 @@ int n_category;
 // Filter shown rows according to VIEW mode
 static gboolean ui_adv_bud_model_row_filter (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_visible, is_root, is_total, is_forced_display, is_separator;
+gboolean is_visible, is_root, is_total, is_separator;
 adv_bud_data_t* data;
 advbud_view_mode_t view_mode;
 guint32 category_key;
 advbud_cat_type_t category_type;
+Category *bdg_category;
 
 	is_visible = TRUE;
 	data = user_data;
@@ -686,7 +687,6 @@ advbud_cat_type_t category_type;
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
 		ADVBUD_ISSEPARATOR, &is_separator,
-		ADVBUD_ISDISPLAYFORCED, &is_forced_display,
 		ADVBUD_CATEGORY_KEY, &category_key,
 		ADVBUD_CATEGORY_TYPE, &category_type,
 		-1);
@@ -714,7 +714,57 @@ advbud_cat_type_t category_type;
 		is_visible = FALSE;
 	}
 
-	// TODO: On balance mode, hidde not forced categories
+	// On balance mode, hidde not forced empty categories
+	if (!is_total
+		&& !is_root
+		&& category_key != 0
+		&& view_mode == ADVBUD_VIEW_BALANCE)
+	{
+		bdg_category = da_cat_get(category_key);
+
+		if (bdg_category != NULL)
+		{
+			// Either the category has some budget, or its display is forced
+			is_visible = (bdg_category->flags & (GF_BUDGET|GF_FORCED));
+
+			// Force display if one of its children should be displayed
+			if (!is_visible)
+			{
+			GtkTreeIter child;
+			Category *subcat;
+			guint32 subcat_key;
+			gint child_id=0;
+
+				while (gtk_tree_model_iter_nth_child(model,
+					&child,
+					iter,
+					child_id))
+				{
+					gtk_tree_model_get(model, &child,
+						ADVBUD_CATEGORY_KEY, &subcat_key,
+						-1);
+
+					if (subcat_key != 0)
+					{
+						subcat = da_cat_get (subcat_key);
+
+						if (subcat != NULL)
+						{
+							is_visible = (subcat->flags & (GF_BUDGET|GF_FORCED));
+						}
+					}
+
+					// Stop loop on first visible children
+					if (is_visible)
+					{
+						break;
+					}
+
+					++child_id;
+				}
+			}
+		}
+	}
 
 	return is_visible;
 }
