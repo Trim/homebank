@@ -1278,8 +1278,8 @@ guint32 category_key;
 		return;
 	}
 
-	// Update category
-	strcpy(category->name, new_text);
+	// Update category name
+	category_rename(category, new_text);
 
 	// Notify of changes
 	data->change++;
