@@ -693,23 +693,23 @@ Category *bdg_category;
 
 	// On specific mode, hidde categories of opposite type
 	if (!is_total
-			&& category_type == ADVBUD_CAT_TYPE_INCOME
-			&& view_mode == ADVBUD_VIEW_EXPENSE)
+		&& category_type == ADVBUD_CAT_TYPE_INCOME
+		&& view_mode == ADVBUD_VIEW_EXPENSE)
 	{
 		is_visible = FALSE;
 	}
 
 	if (!is_total
-			&& category_type == ADVBUD_CAT_TYPE_EXPENSE
-			&& view_mode == ADVBUD_VIEW_INCOME)
+		&& category_type == ADVBUD_CAT_TYPE_EXPENSE
+		&& view_mode == ADVBUD_VIEW_INCOME)
 	{
 		is_visible = FALSE;
 	}
 
 	// Hidde fake first child root used for add dialog
 	if (!is_total
-			&& !is_root
-			&& category_key == 0)
+		&& !is_root
+		&& category_key == 0)
 	{
 		is_visible = FALSE;
 	}
