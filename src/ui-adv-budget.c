@@ -480,7 +480,7 @@ GtkTreeIter iter, root;
 		&root,
 		NULL,
 		-1,
-		ADVBUD_CATEGORY_NAME, _(N_("Totals")),
+		ADVBUD_CATEGORY_NAME, _("Totals"),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_NONE,
 		ADVBUD_ISROOT, TRUE,
 		ADVBUD_ISTOTAL, FALSE,
@@ -1203,7 +1203,7 @@ adv_bud_data_t *data = user_data;
 	col = gtk_tree_view_column_new();
 	data->TVC_category = col;
 
-	gtk_tree_view_column_set_title(col, _(N_("Category")));
+	gtk_tree_view_column_set_title(col, _("Category"));
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 
 	// Category Name
@@ -1218,7 +1218,7 @@ adv_bud_data_t *data = user_data;
 	col = gtk_tree_view_column_new();
 	data->TVC_category_with_force = col;
 
-	gtk_tree_view_column_set_title(col, _(N_("Category (check to force display)")));
+	gtk_tree_view_column_set_title(col, _("Category (check to force display)"));
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 
 	// Is display forced ?
@@ -1234,7 +1234,7 @@ adv_bud_data_t *data = user_data;
 
 	/* --- Monthly column --- */
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Monthly")));
+	gtk_tree_view_column_set_title(col, _("Monthly"));
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 
 	// Monthly toggler
@@ -1271,7 +1271,7 @@ adv_bud_data_t *data = user_data;
 
 	/* --- Year Total -- */
 	col = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_title(col, _(N_("Total")));
+	gtk_tree_view_column_set_title(col, _("Total"));
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
 	renderer = gtk_cell_renderer_text_new();
@@ -1648,7 +1648,7 @@ gint gridrow, response;
 
 	DB( g_print("[ui_adv_bud] open sub-dialog to add a category\n") );
 
-	dialog = gtk_dialog_new_with_buttons (_(N_("Add a category")),
+	dialog = gtk_dialog_new_with_buttons (_("Add a category"),
 		GTK_WINDOW(data->dialog),
 		0,
 		_("_Cancel"),
@@ -1670,7 +1670,7 @@ gint gridrow, response;
 	// First row display parent selector
 	gridrow = 0;
 
-	widget = gtk_label_new(_(N_("Parent category")));
+	widget = gtk_label_new(_("Parent category"));
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	combobox = gtk_combo_box_new_with_model(categories);
@@ -1694,7 +1694,7 @@ gint gridrow, response;
 	// Next row displays the new category entry
 	gridrow++;
 
-	widget = gtk_label_new(_(N_("Category name")));
+	widget = gtk_label_new(_("Category name"));
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	widget = gtk_entry_new();
