@@ -1618,14 +1618,16 @@ static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data)
 {
 adv_bud_data_t *data = user_data;
 GtkWidget *view;
+advbud_view_mode_t view_mode;
 GtkTreeModel *filter_budget, *budget, *categories;
 GtkTreeSelection *selection;
 GtkTreeIter filter_budget_iter, iter, categories_iter;
-GtkWidget *dialog, *content_area, *grid, *combobox, *widget;
+GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
 gint gridrow, response;
 
 	view = data->TV_budget;
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
 
 	// Read filter data
 	filter_budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
@@ -1698,15 +1700,117 @@ gint gridrow, response;
 	widget = gtk_label_new(_("Category name"));
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
-	widget = gtk_entry_new();
-	gtk_grid_attach (GTK_GRID (grid), widget, 1, gridrow, 1, 1);
+	textentry = gtk_entry_new();
+	gtk_grid_attach (GTK_GRID (grid), textentry, 1, gridrow, 1, 1);
 
 	gtk_widget_show_all (dialog);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
-	if (response == GTK_RESPONSE_APPLY) {
+	if (response == GTK_RESPONSE_APPLY
+			&& gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter)) {
+	Category *new_item;
+	const gchar *new_name;
+	gchar *parent_name;
+	guint32 parent_key;
+	advbud_cat_type_t parent_type;
+	gboolean parent_is_separator;
+	advbud_budget_iterator_t *budget_iter;
+	GtkTreeIter *root_iter;
+
 		DB( g_print("[ui_adv_bud] applying creation of a new category\n") );
+
+		// Retrieve info from dialog
+
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(categories),
+			&iter,
+			&categories_iter);
+
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_NAME, &parent_name,
+			ADVBUD_CATEGORY_KEY, &parent_key,
+			ADVBUD_CATEGORY_TYPE, &parent_type,
+			ADVBUD_ISSEPARATOR, &parent_is_separator,
+			-1);
+
+		DB( g_print(" -> from parent cat: %s (key: %d, type: %d)\n",
+								parent_name, parent_key ,parent_type) );
+
+		// Retrieve required root
+		budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
+		budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
+		budget_iter->category_isroot = TRUE;
+		budget_iter->category_istotal = FALSE;
+		budget_iter->category_type = parent_type;
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+			(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
+			budget_iter);
+
+		if (budget_iter->iterator == NULL) {
+			DB(g_print(" -> error: not found good tree root !\n"));
+			return;
+		}
+
+		root_iter = budget_iter->iterator;
+
+		new_name = gtk_entry_get_text(GTK_ENTRY(textentry));
+
+		/* ignore if item is empty */
+		if (new_name && *new_name)
+		{
+			data->change++;
+
+			new_item = da_cat_malloc();
+
+			new_item->name = g_strdup(new_name);
+			g_strstrip(new_item->name);
+
+			if (strlen(new_item->name) > 0)
+			{
+				new_item->parent = parent_key;
+
+				if (parent_key)
+				{
+					new_item->flags |= GF_SUB;
+				}
+
+				if (parent_type == ADVBUD_CAT_TYPE_INCOME)
+				{
+					new_item->flags |= GF_INCOME;
+				}
+
+				if (view_mode == ADVBUD_VIEW_BALANCE)
+				{
+					new_item->flags |= GF_FORCED;
+				}
+
+				if(da_cat_append(new_item))
+				{
+				GtkTreePath *path;
+
+					DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
+
+					// Finally add it to model
+					ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
+
+					if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter_budget),
+						&filter_budget_iter,
+						&iter)
+					)
+					{
+						path = gtk_tree_model_get_path(filter_budget, &filter_budget_iter);
+						gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
+					}
+				}
+			}
+			else
+			{
+				da_cat_free(new_item);
+				g_free(budget_iter->iterator);
+				g_free(budget_iter);
+			}
+		}
+
 	}
 
 	gtk_widget_destroy(dialog);
