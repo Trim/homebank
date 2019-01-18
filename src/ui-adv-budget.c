@@ -95,13 +95,11 @@ enum advbud_view_mode {
 };
 typedef enum advbud_view_mode advbud_view_mode_t;
 
-/* These values corresponds to the GF_INCOME flag from hb-category */
+/* These values corresponds to the return of category_type_get from hb-category */
 enum advbud_cat_type {
-	// Not real category type: used to retrieve tree roots
-	ADVBUD_CAT_TYPE_NONE = -1,
-	// Currently defined types of Category
-	ADVBUD_CAT_TYPE_EXPENSE = 0,
-	ADVBUD_CAT_TYPE_INCOME = GF_INCOME
+	ADVBUD_CAT_TYPE_EXPENSE = -1,
+	ADVBUD_CAT_TYPE_NONE = 0, // Not real category type: used to retrieve tree roots
+	ADVBUD_CAT_TYPE_INCOME = 1
 };
 typedef enum advbud_cat_type advbud_cat_type_t;
 
@@ -282,14 +280,15 @@ gboolean cat_is_sameamount;
 			-1);
 	}
 
-	DB(g_print("insert new category %d\n", bdg_category->key));
+	DB(g_print("insert new category %s (key: %d, type: %d)\n",
+		bdg_category->name, bdg_category->key, category_type_get (bdg_category)));
 
 	gtk_tree_store_set(
 		budget,
 		&child,
 		ADVBUD_CATEGORY_KEY, bdg_category->key,
 		ADVBUD_CATEGORY_NAME, bdg_category->name,
-		ADVBUD_CATEGORY_TYPE, category_type_get ((bdg_category)),
+		ADVBUD_CATEGORY_TYPE, category_type_get (bdg_category),
 		ADVBUD_ISDISPLAYFORCED, (bdg_category->flags & GF_FORCED),
 		ADVBUD_ISROOT, FALSE,
 		ADVBUD_ISSAMEAMOUNT, cat_is_sameamount,
@@ -320,13 +319,14 @@ gboolean cat_is_sameamount;
 // like roots and total rows
 static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter)
 {
-gint category_type;
-gboolean result = FALSE, is_root, is_total;
+advbud_cat_type_t category_type;
+gboolean result = FALSE, is_root, is_total, is_separator;
 
 	gtk_tree_model_get (model, iter,
 		ADVBUD_CATEGORY_TYPE, &category_type,
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
+		ADVBUD_ISSEPARATOR, &is_separator,
 		-1);
 
 	budget_iter->iterator = NULL;
@@ -334,6 +334,7 @@ gboolean result = FALSE, is_root, is_total;
 	if (is_root == budget_iter->category_isroot
 		&& is_total == budget_iter->category_istotal
 		&& category_type == budget_iter->category_type
+		&& !is_separator
 	)
 	{
 		budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
