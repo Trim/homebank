@@ -1650,7 +1650,7 @@ gint gridrow, response;
 
 	dialog = gtk_dialog_new_with_buttons (_("Add a category"),
 		GTK_WINDOW(data->dialog),
-		0,
+		GTK_DIALOG_MODAL,
 		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
 		_("_Apply"),
@@ -1746,7 +1746,7 @@ gint gridrow, w, h;
 	// create window
 	dialog = gtk_dialog_new_with_buttons (_("Advanced Budget Management"),
 		GTK_WINDOW(GLOBALS->mainwindow),
-		0,
+		GTK_DIALOG_MODAL,
 		_("_Close"),
 		GTK_RESPONSE_ACCEPT,
 		NULL);
