@@ -41,6 +41,10 @@ struct adv_bud_data
 	// Should the tree be collapsed
 	gboolean TV_isexpanded;
 
+	// Add Dialog
+	GtkWidget *add_dialog;
+	GtkWidget *CB_add_parent, *EN_add_name, *BT_apply;
+
 	GtkUIManager *ui;
 };
 typedef struct adv_bud_data adv_bud_data_t;

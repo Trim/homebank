@@ -60,7 +60,6 @@
  *   - Income: show all available Homebank categories of income type
  *   - Expense: show all available Homebank categories of expense type
  *
- * TODO: finish category add UI (checks of answer)
  * TODO: category delete UI
  * TODO: category merge UI
  * TODO: category search UI
@@ -184,6 +183,7 @@ static void ui_adv_bud_cell_update_isdisplayforced(GtkCellRendererText *renderer
 static void ui_adv_bud_view_update_mode (GtkToggleButton *button, gpointer user_data);
 static void ui_adv_bud_view_expand (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data);
+static void ui_adv_bud_category_add_full_filled (GtkWidget *source, gpointer user_data);
 static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
@@ -1687,11 +1687,42 @@ GtkWidget *view;
 	return;
 }
 
+// Check if add category dialog is full filled
+static void ui_adv_bud_category_add_full_filled (GtkWidget *source, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+const gchar* new_raw_name;
+gchar* new_name;
+gboolean is_name_filled = FALSE, is_parent_choosen = FALSE;
+
+	// Check a name for the new category is given:
+	new_raw_name = gtk_entry_get_text(GTK_ENTRY(data->EN_add_name));
+
+	if (new_raw_name && *new_raw_name)
+	{
+		new_name = g_strdup(new_raw_name);
+		g_strstrip(new_name);
+
+		if (strlen(new_name) > 0)
+		{
+			is_name_filled = TRUE;
+		}
+	}
+
+	// Check an entry has been selected in parent combobox
+	is_parent_choosen = (gtk_combo_box_get_active(GTK_COMBO_BOX(data->CB_add_parent)) > -1);
+
+	// Dis/Enable apply dialog button
+	gtk_widget_set_sensitive(data->BT_apply, is_name_filled && is_parent_choosen);
+
+	return;
+}
+
 // Add a category according to the current selection
 static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data)
 {
 adv_bud_data_t *data = user_data;
-GtkWidget *view;
+GtkWidget *view, *apply;
 advbud_view_mode_t view_mode;
 GtkTreeModel *filter, *budget, *categories;
 GtkTreeSelection *selection;
@@ -1699,6 +1730,7 @@ GtkTreeIter filter_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
 gint gridrow, response, item_key;
+gboolean exists_default_select = FALSE;
 
 	view = data->TV_budget;
 	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
@@ -1706,53 +1738,58 @@ gint gridrow, response, item_key;
 	// Read filter to retrieve the currently selected row
 	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-	gtk_tree_selection_get_selected(selection, &filter, &filter_iter);
-
-	// Convert data to budget model
 	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
-	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
-		&iter,
-		&filter_iter);
-
-	// If currently selected row is a leaf, take its parent
-	gtk_tree_model_get (budget, &iter,
-		ADVBUD_CATEGORY_KEY, &item_key,
-		-1);
-
-	if (item_key != 0)
-	{
-	Category *category;
-		category = da_cat_get(item_key);
-
-		if (category != NULL && category->parent != 0)
-		{
-		advbud_search_criteria_t parent_search = advbud_search_criteria_default;
-			parent_search.row_category_key = category->parent;
-
-			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-				(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
-				&parent_search);
-
-			if (!parent_search.iterator) {
-				DB(g_print(" -> error: not found good parent iterator !\n"));
-				return;
-			}
-
-			iter = *parent_search.iterator;
-
-			g_free(parent_search.iterator);
-		}
-	}
-
 
 	// Selectable categories from original model
 	categories = gtk_tree_model_filter_new(budget, NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(categories),
 		ui_adv_bud_model_row_filter_parents, data, NULL);
 
-	gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(categories),
-		&categories_iter,
-		&iter);
+	// Retrieve default selection from budget dialog
+	if (gtk_tree_selection_get_selected(selection, &filter, &filter_iter))
+	{
+		exists_default_select = TRUE;
+
+		// Convert data to budget model
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+			&iter,
+			&filter_iter);
+
+		// If currently selected row is a leaf, take its parent
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_KEY, &item_key,
+			-1);
+
+		if (item_key != 0)
+		{
+		Category *category;
+			category = da_cat_get(item_key);
+
+			if (category != NULL && category->parent != 0)
+			{
+			advbud_search_criteria_t parent_search = advbud_search_criteria_default;
+				parent_search.row_category_key = category->parent;
+
+				gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+					(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+					&parent_search);
+
+				if (!parent_search.iterator) {
+					DB(g_print(" -> error: not found good parent iterator !\n"));
+					return;
+				}
+
+				iter = *parent_search.iterator;
+
+				g_free(parent_search.iterator);
+			}
+		}
+
+
+		gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(categories),
+			&categories_iter,
+			&iter);
+	}
 
 	DB( g_print("[ui_adv_bud] open sub-dialog to add a category\n") );
 
@@ -1761,9 +1798,15 @@ gint gridrow, response, item_key;
 		GTK_DIALOG_MODAL,
 		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
-		_("_Apply"),
-		GTK_RESPONSE_APPLY,
 		NULL);
+	data->add_dialog = dialog;
+
+	// Apply button will be enabled only when parent category and name are choosen
+	apply = gtk_dialog_add_button(GTK_DIALOG(dialog),
+		_("_Apply"),
+		GTK_RESPONSE_APPLY);
+	data->BT_apply = apply;
+	gtk_widget_set_sensitive(apply, FALSE);
 
 	//window contents
 	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
@@ -1782,6 +1825,7 @@ gint gridrow, response, item_key;
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	combobox = gtk_combo_box_new_with_model(categories);
+	data->CB_add_parent = combobox;
 	gtk_grid_attach (GTK_GRID (grid), combobox, 1, gridrow, 1, 1);
 
 	gtk_combo_box_set_row_separator_func(
@@ -1792,7 +1836,6 @@ gint gridrow, response, item_key;
 	);
 
 	gtk_combo_box_set_id_column(GTK_COMBO_BOX(combobox), ADVBUD_CATEGORY_KEY);
-	gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
 
 	renderer = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combobox), renderer, TRUE);
@@ -1805,15 +1848,24 @@ gint gridrow, response, item_key;
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	textentry = gtk_entry_new();
+	data->EN_add_name = textentry;
 	gtk_grid_attach (GTK_GRID (grid), textentry, 1, gridrow, 1, 1);
+
+	// Signals to enable Apply button
+	g_signal_connect (data->CB_add_parent, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
+	g_signal_connect (data->EN_add_name, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
+
+	if (exists_default_select)
+	{
+		gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
+	}
 
 	gtk_widget_show_all (dialog);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
-	// TODO: add checks and warning if parent category is not selected or if name is empty
-	if (response == GTK_RESPONSE_APPLY
-		&& gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter)) {
+	// When the response is APPLY, the form was full filled
+	if (response == GTK_RESPONSE_APPLY) {
 	Category *new_item;
 	const gchar *new_name;
 	gchar *parent_name;
@@ -1826,6 +1878,7 @@ gint gridrow, response, item_key;
 		DB( g_print("[ui_adv_bud] applying creation of a new category\n") );
 
 		// Retrieve info from dialog
+		gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
 
 		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(categories),
 			&iter,
@@ -1856,65 +1909,51 @@ gint gridrow, response, item_key;
 
 		root_iter = root_search.iterator;
 
+		// Build new category from name and parent iterator
 		new_name = gtk_entry_get_text(GTK_ENTRY(textentry));
 
-		/* ignore if item is empty */
-		if (new_name && *new_name)
+		data->change++;
+		new_item = da_cat_malloc();
+		new_item->name = g_strdup(new_name);
+		g_strstrip(new_item->name);
+
+		new_item->parent = parent_key;
+
+		if (parent_key)
 		{
-			data->change++;
-
-			new_item = da_cat_malloc();
-
-			new_item->name = g_strdup(new_name);
-			g_strstrip(new_item->name);
-
-			if (strlen(new_item->name) > 0)
-			{
-				new_item->parent = parent_key;
-
-				if (parent_key)
-				{
-					new_item->flags |= GF_SUB;
-				}
-
-				if (parent_type == ADVBUD_CAT_TYPE_INCOME)
-				{
-					new_item->flags |= GF_INCOME;
-				}
-
-				// On balance mode, enable forced display too to render it to user
-				if (view_mode == ADVBUD_VIEW_BALANCE)
-				{
-					new_item->flags |= GF_FORCED;
-				}
-
-				if(da_cat_append(new_item))
-				{
-				GtkTreePath *path;
-
-					DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
-
-					// Finally add it to model
-					ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
-
-					// Expand view up to the newly added item, so expand its parent which is already known as iter
-					if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
-						&filter_iter,
-						&iter)
-					)
-					{
-						path = gtk_tree_model_get_path(filter, &filter_iter);
-						gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
-					}
-				}
-			}
-			else
-			{
-				da_cat_free(new_item);
-				g_free(root_search.iterator);
-			}
+			new_item->flags |= GF_SUB;
 		}
 
+		if (parent_type == ADVBUD_CAT_TYPE_INCOME)
+		{
+			new_item->flags |= GF_INCOME;
+		}
+
+		// On balance mode, enable forced display too to render it to user
+		if (view_mode == ADVBUD_VIEW_BALANCE)
+		{
+			new_item->flags |= GF_FORCED;
+		}
+
+		if(da_cat_append(new_item))
+		{
+		GtkTreePath *path;
+
+			DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
+
+			// Finally add it to model
+			ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
+
+			// Expand view up to the newly added item, so expand its parent which is already known as iter
+			if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
+				&filter_iter,
+				&iter)
+			)
+			{
+				path = gtk_tree_model_get_path(filter, &filter_iter);
+				gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
+			}
+		}
 	}
 
 	gtk_widget_destroy(dialog);
