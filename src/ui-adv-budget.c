@@ -268,8 +268,8 @@ gboolean cat_is_sameamount;
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-														 (GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
-														 parent_category_iterator);
+				(GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
+				parent_category_iterator);
 
 			parent = parent_category_iterator->iterator;
 		}
