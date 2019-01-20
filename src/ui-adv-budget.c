@@ -159,6 +159,7 @@ static void ui_adv_bud_model_insert_roots(GtkTreeStore* budget);
 static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget);
 static gboolean ui_adv_bud_model_row_filter (GtkTreeModel *model, GtkTreeIter *iter, gpointer data);
 static gboolean ui_adv_bud_model_row_filter_parents (GtkTreeModel *model, GtkTreeIter *iter, gpointer data);
+static gint ui_adv_bud_model_row_sort (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
 static GtkTreeModel * ui_adv_bud_model_new ();
 
 // GtkTreeView widget
@@ -441,6 +442,7 @@ GtkTreeIter iter, root;
 		&root,
 		-1,
 		ADVBUD_ISSEPARATOR, TRUE,
+		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
 		-1);
 
 	gtk_tree_store_insert_with_values (
@@ -474,6 +476,7 @@ GtkTreeIter iter, root;
 		&root,
 		-1,
 		ADVBUD_ISSEPARATOR, TRUE,
+		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
 		-1);
 
 	gtk_tree_store_insert_with_values (
@@ -830,6 +833,85 @@ advbud_view_mode_t view_mode;
 	}
 
 	return is_visible;
+}
+
+static gint ui_adv_bud_model_row_sort (GtkTreeModel *model, GtkTreeIter *cat_a, GtkTreeIter *cat_b, gpointer user_data)
+{
+const gchar* cat_a_name;
+const gchar* cat_b_name;
+advbud_cat_type_t cat_a_type, cat_b_type;
+guint32 cat_a_key, cat_b_key;
+gboolean cat_a_is_separator, cat_b_is_separator;
+gint order = 0;
+
+	gtk_tree_model_get(model, cat_a,
+		ADVBUD_CATEGORY_NAME, &cat_a_name,
+		ADVBUD_CATEGORY_TYPE, &cat_a_type,
+		ADVBUD_CATEGORY_KEY, &cat_a_key,
+		ADVBUD_ISSEPARATOR, &cat_a_is_separator,
+		-1);
+
+	gtk_tree_model_get(model, cat_b,
+		ADVBUD_CATEGORY_NAME, &cat_b_name,
+		ADVBUD_CATEGORY_TYPE, &cat_b_type,
+		ADVBUD_CATEGORY_KEY, &cat_b_key,
+		ADVBUD_ISSEPARATOR, &cat_b_is_separator,
+		-1);
+
+	// Sort first by category type
+	if (cat_a_type != cat_b_type)
+	{
+		switch (cat_a_type)
+		{
+			case ADVBUD_CAT_TYPE_INCOME:
+				order = -1;
+				break;
+			case ADVBUD_CAT_TYPE_EXPENSE:
+				order = 0;
+				break;
+			case ADVBUD_CAT_TYPE_NONE:
+				order = 1;
+				break;
+		}
+	}
+	else
+	{
+		// On standard categories, just order by name
+		if (cat_a_key != 0 && cat_b_key != 0)
+		{
+			order = g_strcmp0(cat_a_name, cat_b_name);
+		}
+		// Otherwise, fake categories have to be first (header and separator)
+		else if (cat_a_key == 0)
+		{
+			if (cat_b_key != 0)
+			{
+				order = -1;
+			}
+			// When both are fake, header has to be first
+			else
+			{
+				order = (cat_a_is_separator ? 1 : -1);
+			}
+		}
+		else
+		{
+			// Same idea for fake categories when cat_b is fake, but
+			// with reversed result, because sort function return
+			// result according to cat_a
+
+			if (cat_a_key != 0)
+			{
+				order = 1;
+			}
+			else
+			{
+				order = (cat_b_is_separator ? -1 : 1);
+			}
+		}
+	}
+
+	return order;
 }
 
 // the budget model creation
@@ -1838,7 +1920,7 @@ GtkWidget *vbox, *hbox;
 GtkWidget *scrolledwindow, *treeview;
 GtkWidget *toolbar;
 GtkToolItem *toolitem;
-GtkTreeModel *model, *filter;
+GtkTreeModel *model, *sort, *filter;
 gint response;
 gint gridrow, w, h;
 
@@ -1973,10 +2055,20 @@ gint gridrow, w, h;
 
 	// tree model to map HomeBank categories to the tree view
 	model = ui_adv_bud_model_new();
-	filter = gtk_tree_model_filter_new(model, NULL);
+
+	sort = gtk_tree_model_sort_new_with_model(model);
+	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE (sort),
+		ADVBUD_CATEGORY_NAME, ui_adv_bud_model_row_sort,
+		data, NULL);
+	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sort),
+		ADVBUD_CATEGORY_NAME, GTK_SORT_ASCENDING);
+
+	filter = gtk_tree_model_filter_new(sort, NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filter), ui_adv_bud_model_row_filter, data, NULL);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), filter);
-	g_object_unref(model); // Remove model with filter ?
+
+	g_object_unref(model); // Remove model with sort ?
+	g_object_unref(sort); // Remove sort with filter ?
 	g_object_unref(filter); // Remove filter with view
 
 	// By default, show the balance mode with all categories expanded
