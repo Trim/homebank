@@ -879,7 +879,9 @@ gint order = 0;
 		// On standard categories, just order by name
 		if (cat_a_key != 0 && cat_b_key != 0)
 		{
-			order = g_strcmp0(cat_a_name, cat_b_name);
+			order = g_strcmp0(g_utf8_casefold(cat_a_name, -1),
+				g_utf8_casefold(cat_b_name, -1)
+				);
 		}
 		// Otherwise, fake categories have to be first (header and separator)
 		else if (cat_a_key == 0)
