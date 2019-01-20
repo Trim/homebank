@@ -186,7 +186,7 @@ static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
  * GtkTreeStore model
  **/
 
-// look for parent category
+// Check if an iterator match with the given category key
 static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data)
 {
 guint32 row_category_key;
@@ -1011,6 +1011,13 @@ advbud_budget_iterator_t *budget_iter;
 	g_free(budget_iter->iterator);
 	g_free(budget_iter);
 
+	/* Sort categories on same node level */
+	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(budget),
+		ADVBUD_CATEGORY_NAME, ui_adv_bud_model_row_sort,
+		NULL, NULL);
+	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (budget),
+		ADVBUD_CATEGORY_NAME, GTK_SORT_ASCENDING);
+
 	return GTK_TREE_MODEL(budget);
 }
 
@@ -1703,9 +1710,9 @@ static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data)
 adv_bud_data_t *data = user_data;
 GtkWidget *view;
 advbud_view_mode_t view_mode;
-GtkTreeModel *filter, *sort, *budget, *categories;
+GtkTreeModel *filter, *budget, *categories;
 GtkTreeSelection *selection;
-GtkTreeIter filter_iter, sort_iter, iter, categories_iter;
+GtkTreeIter filter_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
 gint gridrow, response;
@@ -1718,17 +1725,11 @@ gint gridrow, response;
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 	gtk_tree_selection_get_selected(selection, &filter, &filter_iter);
 
-	// Read sort
-	sort = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
-	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
-		&sort_iter,
-		&filter_iter);
-
 	// Convert data to budget model
-	budget = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(sort));
-	gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(sort),
+	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
 		&iter,
-		&sort_iter);
+		&filter_iter);
 
 	// Selectable categories from original model
 	categories = gtk_tree_model_filter_new(budget, NULL);
@@ -1885,30 +1886,15 @@ gint gridrow, response;
 					// Finally add it to model
 					ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
 
-					// Expand view up to the newly added
-					new_item_iter = g_malloc0(sizeof(advbud_category_iterator_t));
-					new_item_iter->key = new_item->key;
-
-					if (new_item_iter->iterator != NULL)
+					// Expand view up to the newly added item, so expand its parent which is already known as iter
+					if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
+						&filter_iter,
+						&iter)
+					)
 					{
-						gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-							(GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
-							new_item_iter);
-
-						gtk_tree_model_sort_convert_child_iter_to_iter(GTK_TREE_MODEL_SORT(sort),
-							&sort_iter,
-							&iter);
-
-						if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
-							&filter_iter,
-							&sort_iter)
-						)
-						{
-							path = gtk_tree_model_get_path(filter, &filter_iter);
-							gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
-						}
+						path = gtk_tree_model_get_path(filter, &filter_iter);
+						gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
 					}
-					g_free(new_item_iter);
 				}
 			}
 			else
@@ -1946,7 +1932,7 @@ GtkWidget *vbox, *hbox;
 GtkWidget *scrolledwindow, *treeview;
 GtkWidget *toolbar;
 GtkToolItem *toolitem;
-GtkTreeModel *model, *sort, *filter;
+GtkTreeModel *model, *filter;
 gint response;
 gint gridrow, w, h;
 
@@ -2082,19 +2068,11 @@ gint gridrow, w, h;
 	// tree model to map HomeBank categories to the tree view
 	model = ui_adv_bud_model_new();
 
-	sort = gtk_tree_model_sort_new_with_model(model);
-	gtk_tree_sortable_set_sort_func(GTK_TREE_SORTABLE (sort),
-		ADVBUD_CATEGORY_NAME, ui_adv_bud_model_row_sort,
-		data, NULL);
-	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (sort),
-		ADVBUD_CATEGORY_NAME, GTK_SORT_ASCENDING);
-
-	filter = gtk_tree_model_filter_new(sort, NULL);
+	filter = gtk_tree_model_filter_new(model, NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filter), ui_adv_bud_model_row_filter, data, NULL);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), filter);
 
-	g_object_unref(model); // Remove model with sort ?
-	g_object_unref(sort); // Remove sort with filter ?
+	g_object_unref(model); // Remove model with filter
 	g_object_unref(filter); // Remove filter with view
 
 	// By default, show the balance mode with all categories expanded
