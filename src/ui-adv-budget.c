@@ -39,22 +39,31 @@
  *      - Balance: difference between the two above sub-rows
  *
  * The view columns contain:
- *   - Category name: Homebank categories organised in hierarchy
+ *   - Category: Homebank categories organised in hierarchy
  *     See the main tree roots above.
- *   - Force Display: toggle the GF_FORCED flag of Homebank categories
- *     Is this category forced to be displayed, even if no budget has been set?
- *   - Same: toggle the GF_CUSTOM flag of Homebank categories
- *     Does this category have same amount planned for every month ?
+ *     - That column show also a check box (only in non-Balance mode):
+ *       Check it to enable the GF_FORCED flag of Homebank categories
+ *       "Is this category forced to be displayed, even if no budget has been set?"
+ *
  *   - Monthly: set the monthly amount when the Same flag is active
+ *     - That column contains a toggle check box to enable or not monthly values
+ *       Check it to disable the GF_CUSTOM flag of Homebank categories
+ *       "Does this category has same amount planned every month ?"
+ *
  *   - 12 columns for each month of the year containing their specific amount
+ *
  *   - Total: sum all amounts of the year for the category
  *
- * The dialog show 3 radio buttons to choose between 3 edition modes:
+ * The dialog shows 3 radio buttons to choose between 3 edition modes:
  *   - Balance: show Homebank categories with budget set or set with GF_FORCED
- *     This mode hide the "Force Display" column
+ *     This mode hide the toggle in the Category column
  *   - Income: show all available Homebank categories of income type
  *   - Expense: show all available Homebank categories of expense type
  *
+ * TODO: finish category add UI (checks of answer)
+ * TODO: category delete UI
+ * TODO: category merge UI
+ * TODO: category search UI
  */
 
 /****************************************************************************/
@@ -1783,7 +1792,6 @@ gint gridrow, response, item_key;
 	);
 
 	gtk_combo_box_set_id_column(GTK_COMBO_BOX(combobox), ADVBUD_CATEGORY_KEY);
-	// TODO First retrieve first ancestor of iter and then select it
 	gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -1803,8 +1811,9 @@ gint gridrow, response, item_key;
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
 
+	// TODO: add checks and warning if parent category is not selected or if name is empty
 	if (response == GTK_RESPONSE_APPLY
-			&& gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter)) {
+		&& gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter)) {
 	Category *new_item;
 	const gchar *new_name;
 	gchar *parent_name;
