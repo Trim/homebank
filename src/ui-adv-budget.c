@@ -1703,9 +1703,9 @@ static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data)
 adv_bud_data_t *data = user_data;
 GtkWidget *view;
 advbud_view_mode_t view_mode;
-GtkTreeModel *filter_budget, *budget, *categories;
+GtkTreeModel *filter, *sort, *budget, *categories;
 GtkTreeSelection *selection;
-GtkTreeIter filter_budget_iter, iter, categories_iter;
+GtkTreeIter filter_iter, sort_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
 gint gridrow, response;
@@ -1713,16 +1713,22 @@ gint gridrow, response;
 	view = data->TV_budget;
 	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
 
-	// Read filter data
-	filter_budget = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	// Read filter
+	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-	gtk_tree_selection_get_selected(selection, &filter_budget, &filter_budget_iter);
+	gtk_tree_selection_get_selected(selection, &filter, &filter_iter);
+
+	// Read sort
+	sort = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+		&sort_iter,
+		&filter_iter);
 
 	// Convert data to budget model
-	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter_budget));
-	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter_budget),
+	budget = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(sort));
+	gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(sort),
 		&iter,
-		&filter_budget_iter);
+		&sort_iter);
 
 	// Selectable categories from original model
 	categories = gtk_tree_model_filter_new(budget, NULL);
@@ -1863,6 +1869,7 @@ gint gridrow, response;
 					new_item->flags |= GF_INCOME;
 				}
 
+				// On balance mode, enable forced display too to render it to user
 				if (view_mode == ADVBUD_VIEW_BALANCE)
 				{
 					new_item->flags |= GF_FORCED;
@@ -1871,20 +1878,37 @@ gint gridrow, response;
 				if(da_cat_append(new_item))
 				{
 				GtkTreePath *path;
+				advbud_category_iterator_t *new_item_iter;
 
 					DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
 
 					// Finally add it to model
 					ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
 
-					if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter_budget),
-						&filter_budget_iter,
-						&iter)
-					)
+					// Expand view up to the newly added
+					new_item_iter = g_malloc0(sizeof(advbud_category_iterator_t));
+					new_item_iter->key = new_item->key;
+
+					if (new_item_iter->iterator != NULL)
 					{
-						path = gtk_tree_model_get_path(filter_budget, &filter_budget_iter);
-						gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
+						gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+							(GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
+							new_item_iter);
+
+						gtk_tree_model_sort_convert_child_iter_to_iter(GTK_TREE_MODEL_SORT(sort),
+							&sort_iter,
+							&iter);
+
+						if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
+							&filter_iter,
+							&sort_iter)
+						)
+						{
+							path = gtk_tree_model_get_path(filter, &filter_iter);
+							gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
+						}
 					}
+					g_free(new_item_iter);
 				}
 			}
 			else
