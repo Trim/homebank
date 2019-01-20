@@ -130,30 +130,26 @@ enum advbud_store {
 };
 typedef enum advbud_store advbud_store_t;
 
-// A small structure to retrieve a category with its iterator
-struct advbud_category_iterator {
-	guint32 key; // key defining the category
-	GtkTreeIter *iterator; // NULL if iterator has not been found
-};
-typedef struct advbud_category_iterator advbud_category_iterator_t;
-
-// Retrieve a budget iterator according
-struct advbud_budget_iterator {
-	advbud_cat_type_t category_type; // Type of the category
-	gboolean category_isroot;
-	gboolean category_istotal;
+// Retrieve a row iterator according to specific criterias
+const struct advbud_search_criteria {
+	// Search by non-zero category key
+	guint32 row_category_key;
+	// Search by other criterias
+	advbud_cat_type_t row_category_type;
+	gboolean row_isroot;
+	gboolean row_istotal;
+	// Found iterator, NULL if not found
 	GtkTreeIter *iterator;
-};
-typedef struct advbud_budget_iterator advbud_budget_iterator_t;
+} advbud_search_criteria_default = {0, ADVBUD_CAT_TYPE_NONE, FALSE, FALSE, NULL} ;
+typedef struct advbud_search_criteria advbud_search_criteria_t;
 
 /*
  * Local headers
  **/
 
 // GtkTreeStore model
-static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data);
+static gboolean ui_adv_bud_model_search_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_search_criteria_t *search);
 static void ui_adv_bud_model_add_category_with_lineage(GtkTreeStore *budget, GtkTreeIter *balanceIter, guint32 *key_category);
-static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter);
 static void ui_adv_bud_model_collapse (GtkTreeView *view);
 static void ui_adv_bud_model_insert_roots(GtkTreeStore* budget);
 static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget);
@@ -186,35 +182,54 @@ static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
  * GtkTreeStore model
  **/
 
-// Check if an iterator match with the given category key
-static gboolean ui_adv_bud_model_get_category_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_category_iterator_t *data)
+// Look for category by deterministic characteristics
+// Only categories with specific characteristics can be easily found
+// like roots, total rows and categories with real key id
+// You are responsible to g_free iterator
+static gboolean ui_adv_bud_model_search_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_search_criteria_t *search)
 {
-guint32 row_category_key;
-gboolean is_root, is_total;
-guint32 key = data->key;
+guint32 category_key;
+advbud_cat_type_t category_type;
+gboolean is_found = FALSE, is_root, is_total, is_separator;
 
-	data->iterator = NULL;
+	search->iterator = NULL;
 
 	gtk_tree_model_get (model, iter,
-		ADVBUD_CATEGORY_KEY, &row_category_key,
+		ADVBUD_CATEGORY_KEY, &category_key,
+		ADVBUD_CATEGORY_TYPE, &category_type,
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
+		ADVBUD_ISSEPARATOR, &is_separator,
 		-1);
 
-	if ( row_category_key == key
-			&& !(is_total)
-			&& !(is_root)
+	if (search->row_category_key > 0 // Look for iter of real category row
+		&& category_key == search->row_category_key
+		&& !(is_total)
+		&& !(is_root)
 	)
 	{
-		DB(g_print("\tFound row with key %d\n", key));
-
-		data->iterator = g_malloc0(sizeof(GtkTreeIter));
-		*data->iterator = *iter;
-
-		return TRUE;
+		DB(g_print("\tFound row with key %d\n", category_key));
+		is_found = TRUE;
+	}
+	else if (search->row_category_key == 0 // Look for iter of fake category row
+		&& is_root == search->row_isroot
+		&& is_total == search->row_istotal
+		&& category_type == search->row_category_type
+		&& !is_separator
+	)
+	{
+		DB(g_print("\tFound row with is_root = %d, is_total %d, type = %d\n", is_root, is_total, category_type));
+		is_found = TRUE;
 	}
 
-	return FALSE;
+	// If found, save result to struct
+	if (is_found)
+	{
+		search->iterator = g_malloc0(sizeof(GtkTreeIter));
+		*search->iterator = *iter;
+	}
+
+	return is_found;
 }
 
 /* Recursive function which add a new row in the budget model with all its ancestors */
@@ -224,6 +239,7 @@ GtkTreeIter child;
 GtkTreeIter *parent;
 Category *bdg_category;
 gboolean cat_is_sameamount;
+advbud_search_criteria_t parent_search = advbud_search_criteria_default;
 
 	bdg_category = da_cat_get(*key_category);
 
@@ -235,14 +251,11 @@ gboolean cat_is_sameamount;
 	cat_is_sameamount = (! (bdg_category->flags & GF_CUSTOM));
 
 	/* Check if parent category already exists */
-	advbud_category_iterator_t *parent_category_iterator;
-
-	parent_category_iterator = g_malloc0(sizeof(advbud_category_iterator_t));
-	parent_category_iterator->key = bdg_category->parent;
+	parent_search.row_category_key = bdg_category->parent;
 
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
-		parent_category_iterator);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&parent_search);
 
 	if (bdg_category->parent == 0)
 	{
@@ -255,11 +268,11 @@ gboolean cat_is_sameamount;
 	}
 	else
 	{
-		if (parent_category_iterator->iterator)
+		if (parent_search.iterator)
 		{
-			DB(g_print("\tRecursion optimisation: parent key %d already exists\n", parent_category_iterator->key));
+			DB(g_print("\tRecursion optimisation: parent key %d already exists\n", parent_search.row_category_key));
 			// If parent already exists, stop recursion
-			parent = parent_category_iterator->iterator;
+			parent = parent_search.iterator;
 		}
 		else
 		{
@@ -268,10 +281,10 @@ gboolean cat_is_sameamount;
 
 			// Now, we are sure parent exists, look for it again
 			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-				(GtkTreeModelForeachFunc) ui_adv_bud_model_get_category_iterator,
-				parent_category_iterator);
+				(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+				&parent_search);
 
-			parent = parent_category_iterator->iterator;
+			parent = parent_search.iterator;
 		}
 
 		gtk_tree_store_insert (
@@ -309,51 +322,16 @@ gboolean cat_is_sameamount;
 		ADVBUD_DECEMBER, bdg_category->budget[12],
 		-1);
 
-	g_free(parent_category_iterator->iterator);
-	g_free(parent_category_iterator);
+	g_free(parent_search.iterator);
 
 	return;
-}
-
-// Look for category by deterministic characteristics
-// Only categories with specific characteristics can be easily found
-// like roots and total rows
-static gboolean ui_adv_bud_model_get_budget_iterator (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, advbud_budget_iterator_t * budget_iter)
-{
-advbud_cat_type_t category_type;
-gboolean result = FALSE, is_root, is_total, is_separator;
-
-	gtk_tree_model_get (model, iter,
-		ADVBUD_CATEGORY_TYPE, &category_type,
-		ADVBUD_ISROOT, &is_root,
-		ADVBUD_ISTOTAL, &is_total,
-		ADVBUD_ISSEPARATOR, &is_separator,
-		-1);
-
-	budget_iter->iterator = NULL;
-
-	if (is_root == budget_iter->category_isroot
-		&& is_total == budget_iter->category_istotal
-		&& category_type == budget_iter->category_type
-		&& !is_separator
-	)
-	{
-		budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
-		*budget_iter->iterator = *iter;
-
-		result = TRUE;
-	}
-
-	return result;
 }
 
 // Collapse all categories except root
 static void ui_adv_bud_model_collapse (GtkTreeView *view) {
 GtkTreeModel *budget;
 GtkTreePath *path;
-advbud_budget_iterator_t *budget_iter;
-
-	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
+advbud_search_criteria_t root_search = advbud_search_criteria_default;
 
 	budget = gtk_tree_view_get_model (view);
 
@@ -362,46 +340,45 @@ advbud_budget_iterator_t *budget_iter;
 	// Keep root categories expanded
 
 	// Retrieve income root
-	budget_iter->category_isroot = TRUE;
-	budget_iter->category_istotal = FALSE;
-	budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
+	root_search.row_isroot = TRUE;
+	root_search.row_istotal = FALSE;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_INCOME;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator != NULL) {
-		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	if (root_search.iterator != NULL) {
+		path = gtk_tree_model_get_path(budget, root_search.iterator);
 		gtk_tree_view_expand_row(view, path, FALSE);
 	}
 
 	// Retrieve expense root
-	budget_iter->category_isroot = TRUE;
-	budget_iter->category_istotal = FALSE;
-	budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
+	root_search.row_isroot = TRUE;
+	root_search.row_istotal = FALSE;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_EXPENSE;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator != NULL) {
-		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	if (root_search.iterator != NULL) {
+		path = gtk_tree_model_get_path(budget, root_search.iterator);
 		gtk_tree_view_expand_row(view, path, FALSE);
 	}
 
 	// Retrieve total root
-	budget_iter->category_isroot = TRUE;
-	budget_iter->category_istotal = FALSE;
-	budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
+	root_search.row_isroot = TRUE;
+	root_search.row_istotal = FALSE;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_NONE;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator != NULL) {
-		path = gtk_tree_model_get_path(budget, budget_iter->iterator);
+	if (root_search.iterator != NULL) {
+		path = gtk_tree_model_get_path(budget, root_search.iterator);
 		gtk_tree_view_expand_row(view, path, FALSE);
 	}
 
-	g_free(budget_iter->iterator);
-	g_free(budget_iter);
+	g_free(root_search.iterator);
 
 	return;
 }
@@ -497,13 +474,11 @@ GtkTreeIter iter, root;
 // This function will is used to initiate model and to refresh it after change by user
 static void ui_adv_bud_model_update_monthlytotal(GtkTreeStore* budget)
 {
-advbud_budget_iterator_t *budget_iter;
+advbud_search_criteria_t root_search = advbud_search_criteria_default;
 GtkTreeIter total_root, child;
 double total_income[12] = {0}, total_expense[12] = {0};
 gboolean cat_is_sameamount;
 int n_category;
-
-	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
 
 	// Go through all categories to compute totals
 	n_category = da_cat_get_max_key();
@@ -551,31 +526,32 @@ int n_category;
 	}
 
 	// Retrieve total root and insert required total rows
-	budget_iter->category_isroot = TRUE;
-	budget_iter->category_istotal = FALSE;
-	budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
+	root_search.row_isroot = TRUE;
+	root_search.row_istotal = FALSE;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_NONE;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (!budget_iter->iterator) {
+	if (!root_search.iterator) {
 		return;
 	}
 
-	total_root = *budget_iter->iterator;
+	total_root = *root_search.iterator;
 
-	// Retrieve and set total income
-	budget_iter->category_isroot = FALSE;
-	budget_iter->category_istotal = TRUE;
+	// Retrieve and set totals
+	root_search.row_isroot = FALSE;
+	root_search.row_istotal = TRUE;
 
-	budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
+	// First, look for Incomes
+	root_search.row_category_type = ADVBUD_CAT_TYPE_INCOME;
 
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator) {
-		child = *budget_iter->iterator;
+	if (root_search.iterator) {
+		child = *root_search.iterator;
 	}
 	else {
 		gtk_tree_store_insert(budget, &child, &total_root, -1);
@@ -601,14 +577,15 @@ int n_category;
 		ADVBUD_DECEMBER, total_income[11],
 		-1);
 
-	budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
+	// Then look for Expenses
+	root_search.row_category_type = ADVBUD_CAT_TYPE_EXPENSE;
 
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator) {
-		child = *budget_iter->iterator;
+	if (root_search.iterator) {
+		child = *root_search.iterator;
 	}
 	else {
 		gtk_tree_store_insert(budget, &child, &total_root, -1);
@@ -634,14 +611,15 @@ int n_category;
 		ADVBUD_DECEMBER, total_expense[11],
 		-1);
 
-	budget_iter->category_type = ADVBUD_CAT_TYPE_NONE;
+	// Finally, set Balance total row
+	root_search.row_category_type = ADVBUD_CAT_TYPE_NONE;
 
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
 
-	if (budget_iter->iterator) {
-		child = *budget_iter->iterator;
+	if (root_search.iterator) {
+		child = *root_search.iterator;
 	}
 	else {
 		gtk_tree_store_insert(budget, &child, &total_root, -1);
@@ -667,8 +645,7 @@ int n_category;
 		ADVBUD_DECEMBER, total_income[11] + total_expense[11],
 		-1);
 
-	g_free(budget_iter->iterator);
-	g_free(budget_iter);
+	g_free(root_search.iterator);
 
 	return;
 }
@@ -922,7 +899,7 @@ static GtkTreeModel * ui_adv_bud_model_new ()
 GtkTreeStore *budget;
 GtkTreeIter *iter_income, *iter_expense;
 guint32 n_category;
-advbud_budget_iterator_t *budget_iter;
+advbud_search_criteria_t root_search = advbud_search_criteria_default;
 
 	// Create Tree Store
 	budget = gtk_tree_store_new ( ADVBUD_NUMCOLS,
@@ -955,22 +932,20 @@ advbud_budget_iterator_t *budget_iter;
 	ui_adv_bud_model_insert_roots (budget);
 
 	// Retrieve required root
-	budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
-	budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
-	budget_iter->category_isroot = TRUE;
-	budget_iter->category_istotal = FALSE;
+	root_search.row_isroot = TRUE;
+	root_search.row_istotal = FALSE;
 
-	budget_iter->category_type = ADVBUD_CAT_TYPE_INCOME;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_INCOME;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
-	iter_income = budget_iter->iterator;
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
+	iter_income = root_search.iterator;
 
-	budget_iter->category_type = ADVBUD_CAT_TYPE_EXPENSE;
+	root_search.row_category_type = ADVBUD_CAT_TYPE_EXPENSE;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-		(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-		budget_iter);
-	iter_expense = budget_iter->iterator;
+		(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+		&root_search);
+	iter_expense = root_search.iterator;
 
 	/* Create rows for real categories */
 	n_category = da_cat_get_max_key();
@@ -1008,15 +983,14 @@ advbud_budget_iterator_t *budget_iter;
 	/* Create rows for total root */
 	ui_adv_bud_model_update_monthlytotal(GTK_TREE_STORE(budget));
 
-	g_free(budget_iter->iterator);
-	g_free(budget_iter);
-
 	/* Sort categories on same node level */
 	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE(budget),
 		ADVBUD_CATEGORY_NAME, ui_adv_bud_model_row_sort,
 		NULL, NULL);
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (budget),
 		ADVBUD_CATEGORY_NAME, GTK_SORT_ASCENDING);
+
+	g_free(root_search.iterator);
 
 	return GTK_TREE_MODEL(budget);
 }
@@ -1715,12 +1689,12 @@ GtkTreeSelection *selection;
 GtkTreeIter filter_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
-gint gridrow, response;
+gint gridrow, response, item_key;
 
 	view = data->TV_budget;
 	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
 
-	// Read filter
+	// Read filter to retrieve the currently selected row
 	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 	gtk_tree_selection_get_selected(selection, &filter, &filter_iter);
@@ -1730,6 +1704,37 @@ gint gridrow, response;
 	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
 		&iter,
 		&filter_iter);
+
+	// If currently selected row is a leaf, take its parent
+	gtk_tree_model_get (budget, &iter,
+		ADVBUD_CATEGORY_KEY, &item_key,
+		-1);
+
+	if (item_key != 0)
+	{
+	Category *category;
+		category = da_cat_get(item_key);
+
+		if (category != NULL && category->parent != 0)
+		{
+		advbud_search_criteria_t parent_search = advbud_search_criteria_default;
+			parent_search.row_category_key = category->parent;
+
+			gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+				(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+				&parent_search);
+
+			if (!parent_search.iterator) {
+				DB(g_print(" -> error: not found good parent iterator !\n"));
+				return;
+			}
+
+			iter = *parent_search.iterator;
+
+			g_free(parent_search.iterator);
+		}
+	}
+
 
 	// Selectable categories from original model
 	categories = gtk_tree_model_filter_new(budget, NULL);
@@ -1806,7 +1811,7 @@ gint gridrow, response;
 	guint32 parent_key;
 	advbud_cat_type_t parent_type;
 	gboolean parent_is_separator;
-	advbud_budget_iterator_t *budget_iter;
+	advbud_search_criteria_t root_search = advbud_search_criteria_default;
 	GtkTreeIter *root_iter;
 
 		DB( g_print("[ui_adv_bud] applying creation of a new category\n") );
@@ -1828,21 +1833,19 @@ gint gridrow, response;
 								parent_name, parent_key ,parent_type) );
 
 		// Retrieve required root
-		budget_iter = g_malloc0(sizeof(advbud_budget_iterator_t));
-		budget_iter->iterator = g_malloc0(sizeof(GtkTreeIter));
-		budget_iter->category_isroot = TRUE;
-		budget_iter->category_istotal = FALSE;
-		budget_iter->category_type = parent_type;
+		root_search.row_isroot = TRUE;
+		root_search.row_istotal = FALSE;
+		root_search.row_category_type = parent_type;
 		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
-			(GtkTreeModelForeachFunc) ui_adv_bud_model_get_budget_iterator,
-			budget_iter);
+			(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+			&root_search);
 
-		if (budget_iter->iterator == NULL) {
+		if (!root_search.iterator) {
 			DB(g_print(" -> error: not found good tree root !\n"));
 			return;
 		}
 
-		root_iter = budget_iter->iterator;
+		root_iter = root_search.iterator;
 
 		new_name = gtk_entry_get_text(GTK_ENTRY(textentry));
 
@@ -1879,7 +1882,6 @@ gint gridrow, response;
 				if(da_cat_append(new_item))
 				{
 				GtkTreePath *path;
-				advbud_category_iterator_t *new_item_iter;
 
 					DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
 
@@ -1900,8 +1902,7 @@ gint gridrow, response;
 			else
 			{
 				da_cat_free(new_item);
-				g_free(budget_iter->iterator);
-				g_free(budget_iter);
+				g_free(root_search.iterator);
 			}
 		}
 
