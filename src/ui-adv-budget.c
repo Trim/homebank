@@ -60,7 +60,6 @@
  *   - Income: show all available Homebank categories of income type
  *   - Expense: show all available Homebank categories of expense type
  *
- * TODO: category delete UI
  * TODO: category merge UI
  * TODO: category search UI
  */
@@ -185,6 +184,7 @@ static void ui_adv_bud_view_expand (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_add_full_filled (GtkWidget *source, gpointer user_data);
 static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data);
+static void ui_adv_bud_category_delete (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
 /**
@@ -1961,6 +1961,83 @@ gboolean exists_default_select = FALSE;
 	return;
 }
 
+// Delete a category according to the current selection
+static void ui_adv_bud_category_delete (GtkButton *button, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeModel *filter, *budget;
+GtkTreeSelection *selection;
+GtkTreeIter filter_iter, iter;
+gint response;
+
+	DB( g_print("[ui_adv_bud] open sub-dialog to delete a category\n") );
+
+	view = data->TV_budget;
+
+	// Read filter to retrieve the currently selected row
+	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+
+	// Retrieve selected row from filter if possible
+	if (gtk_tree_selection_get_selected(selection, &filter, &filter_iter))
+	{
+	Category* category;
+	guint32 item_key;
+
+		// Convert data to budget model
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+			&iter,
+			&filter_iter);
+
+		// If currently selected row is a leaf, take its parent
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_KEY, &item_key,
+			-1);
+
+		// Can't delete fake categories
+		if (item_key != 0)
+		{
+		gchar *title = NULL;
+		gchar *secondtext = NULL;
+
+			category = da_cat_get(item_key);
+
+			title = g_strdup_printf (
+				_("Are you sure you want to permanently delete '%s'?"), category->name);
+
+			if( category->usage_count > 0 )
+			{
+				secondtext = _("This category is used.\n"
+				    "Any transaction using that category will be set to (no category)");
+			}
+
+			response = ui_dialog_msg_confirm_alert(
+					GTK_WINDOW(data->dialog),
+					title,
+					secondtext,
+					_("_Delete")
+				);
+
+			g_free(title);
+
+			if( response == GTK_RESPONSE_OK )
+			{
+				gtk_tree_store_remove(GTK_TREE_STORE(budget),
+					&iter);
+
+				category_move(category->key, 0);
+				da_cat_remove(category->key);
+				data->change++;
+			}
+		}
+	}
+
+
+	return;
+}
+
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
 	DB( g_print("[ui_adv_bud] dialog close\n") );
@@ -2108,6 +2185,7 @@ gint gridrow, w, h;
 
 	// toolbar buttons
 	g_signal_connect (data->BT_category_add, "clicked", G_CALLBACK(ui_adv_bud_category_add), (gpointer)data);
+	g_signal_connect (data->BT_category_delete, "clicked", G_CALLBACK (ui_adv_bud_category_delete), (gpointer)data);
 	g_signal_connect (data->BT_expand, "clicked", G_CALLBACK (ui_adv_bud_view_expand), (gpointer)data);
 	g_signal_connect (data->BT_collapse, "clicked", G_CALLBACK (ui_adv_bud_view_collapse), (gpointer)data);
 
