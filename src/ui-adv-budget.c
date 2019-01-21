@@ -62,6 +62,7 @@
  *
  * TODO: category merge UI
  * TODO: category search UI
+ * TODO: disable category rename for roots and totals
  */
 
 /****************************************************************************/
