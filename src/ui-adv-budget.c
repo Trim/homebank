@@ -62,7 +62,6 @@
  *
  * TODO: category merge UI
  * TODO: category search UI
- * TODO: disable category rename for roots and totals
  */
 
 /****************************************************************************/
@@ -1378,6 +1377,7 @@ GtkTreeIter filter_iter, iter;
 GtkTreeModel *filter, *budget;
 Category* category;
 guint32 category_key;
+gboolean is_root, is_total;
 
 	DB(g_print("\n[ui_adv_bud] category name updated with new name '%s'\n", new_text));
 
@@ -1395,11 +1395,13 @@ guint32 category_key;
 
 	gtk_tree_model_get (budget, &iter,
 		ADVBUD_CATEGORY_KEY, &category_key,
+		ADVBUD_ISROOT, &is_root,
+		ADVBUD_ISTOTAL, &is_total,
 		-1);
 
 	category = da_cat_get (category_key);
 
-	if (! category)
+	if (! category || is_root || is_total)
 	{
 		return;
 	}
