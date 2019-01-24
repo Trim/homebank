@@ -45,6 +45,9 @@ struct adv_bud_data
 	GtkWidget *add_dialog;
 	GtkWidget *CB_add_parent, *EN_add_name, *BT_apply;
 
+	// Search
+	GtkWidget *EN_search;
+
 	GtkUIManager *ui;
 };
 typedef struct adv_bud_data adv_bud_data_t;

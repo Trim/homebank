@@ -61,7 +61,6 @@
  *   - Expense: show all available Homebank categories of expense type
  *
  * TODO: category merge UI
- * TODO: category search UI
  */
 
 /****************************************************************************/
@@ -186,6 +185,7 @@ static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_add_full_filled (GtkWidget *source, gpointer user_data);
 static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_delete (GtkButton *button, gpointer user_data);
+static gboolean ui_adv_bud_on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
 /**
@@ -2077,6 +2077,20 @@ gint response;
 	return;
 }
 
+static gboolean ui_adv_bud_on_key_press(GtkWidget *source, GdkEventKey *event, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+
+	// On Control-f enable search entry
+	if (event->state & GDK_CONTROL_MASK
+		&& event->keyval == GDK_KEY_f)
+	{
+		gtk_widget_grab_focus(data->EN_search);
+	}
+
+	return GDK_EVENT_PROPAGATE;
+}
+
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
 	DB( g_print("[ui_adv_bud] dialog close\n") );
@@ -2094,6 +2108,7 @@ GtkWidget *dialog, *content_area, *grid;
 GtkWidget *radiomode;
 GtkWidget *widget;
 GtkWidget *vbox, *hbox;
+GtkWidget *search_entry;
 GtkWidget *scrolledwindow, *treeview;
 GtkWidget *toolbar;
 GtkToolItem *toolitem;
@@ -2150,7 +2165,7 @@ gint gridrow, w, h;
 	// Next row displays the budget tree with its toolbar
 	gridrow++;
 
-	// We use a Vertical Box to link tree with toolbar
+	// We use a Vertical Box to link tree with searchbar and toolbar
 	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_widget_set_margin_right(vbox, SPACING_SMALL);
 	gtk_grid_attach (GTK_GRID (grid), vbox, 0, gridrow, 1, 1);
@@ -2181,6 +2196,7 @@ gint gridrow, w, h;
 	gtk_container_add (GTK_CONTAINER(toolitem), hbox);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
 
+	// Add / Remove / Merge
 	widget = make_image_button(ICONNAME_LIST_ADD, _("Add category"));
 	data->BT_category_add = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
@@ -2189,12 +2205,30 @@ gint gridrow, w, h;
 	data->BT_category_delete = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
-	// Separator for add / remove category and collapse / expand buttons
+	// Separator
 	toolitem = gtk_separator_tool_item_new ();
 	gtk_tool_item_set_expand (toolitem, TRUE);
 	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
 
+	// Search
+	toolitem = gtk_tool_item_new();
+	gtk_tool_item_set_expand (toolitem, TRUE);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	search_entry = gtk_search_entry_new();
+	data->EN_search = search_entry;
+	gtk_container_add (GTK_CONTAINER(toolitem), search_entry);
+
+	gtk_tree_view_set_search_entry(GTK_TREE_VIEW(treeview), GTK_ENTRY(search_entry));
+
+	// Separator
+	toolitem = gtk_separator_tool_item_new ();
+	gtk_tool_item_set_expand (toolitem, TRUE);
+	gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(toolitem), FALSE);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), GTK_TOOL_ITEM(toolitem), -1);
+
+	// Expand / Collapse
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
 	toolitem = gtk_tool_item_new();
@@ -2221,6 +2255,9 @@ gint gridrow, w, h;
 			g_signal_connect (widget, "toggled", G_CALLBACK (ui_adv_bud_view_update_mode), (gpointer)data);
 		}
 	}
+
+	// Connect to key press to handle some events like Control-f
+	g_signal_connect (dialog, "key-press-event", G_CALLBACK (ui_adv_bud_on_key_press), (gpointer)data);
 
 	// toolbar buttons
 	g_signal_connect (data->BT_category_add, "clicked", G_CALLBACK(ui_adv_bud_category_add), (gpointer)data);
