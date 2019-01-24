@@ -171,6 +171,7 @@ static void ui_adv_bud_view_display_issameamount (GtkTreeViewColumn *col, GtkCel
 static void ui_adv_bud_view_display_isdisplayforced (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_display_annualtotal (GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 static void ui_adv_bud_view_toggle (gpointer user_data, advbud_view_mode_t view_mode);
+static gboolean ui_adv_bud_view_search (GtkTreeModel *model, gint column, const gchar *key, GtkTreeIter *iter, gpointer data);
 static gboolean ui_adv_view_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data);
 static GtkWidget *ui_adv_bud_view_new (gpointer user_data);
 
@@ -1252,6 +1253,35 @@ GtkWidget *view;
 	return;
 }
 
+static gboolean ui_adv_bud_view_search (GtkTreeModel *filter, gint column, const gchar *key, GtkTreeIter *filter_iter, gpointer data)
+{
+gboolean is_matching = FALSE, is_root, is_total;
+GtkTreeModel *budget;
+GtkTreeIter iter;
+gchar *category_name;
+
+	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+		&iter,
+		filter_iter);
+
+	gtk_tree_model_get(budget, &iter,
+		ADVBUD_CATEGORY_NAME, &category_name,
+		ADVBUD_ISROOT, &is_root,
+		ADVBUD_ISTOTAL, &is_total,
+		-1);
+
+	if (!is_root && !is_total
+		&& g_strstr_len(g_utf8_casefold(category_name, -1), -1,
+			g_utf8_casefold(key, -1)))
+	{
+		is_matching = TRUE;
+	}
+
+	// GtkTreeViewSearchEqualFunc has to return FALSE only if iter matches.
+	return !is_matching;
+}
+
 static gboolean ui_adv_view_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
 {
 gboolean is_separator;
@@ -1355,6 +1385,10 @@ adv_bud_data_t *data = user_data;
 	gtk_tree_view_column_set_cell_data_func(col, renderer, ui_adv_bud_view_display_annualtotal, NULL, NULL);
 
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(view)), GTK_SELECTION_SINGLE);
+
+	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(view), TRUE);
+	gtk_tree_view_set_search_column(GTK_TREE_VIEW(view), ADVBUD_CATEGORY_NAME);
+	gtk_tree_view_set_search_equal_func(GTK_TREE_VIEW(view), (GtkTreeViewSearchEqualFunc) ui_adv_bud_view_search, NULL, NULL);
 
 	g_object_set(view,
 		"enable-grid-lines", PREFS->grid_lines,
