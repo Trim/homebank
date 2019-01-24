@@ -1744,6 +1744,8 @@ gboolean is_name_filled = FALSE, is_parent_choosen = FALSE;
 		{
 			is_name_filled = TRUE;
 		}
+
+		g_free(new_name);
 	}
 
 	// Check an entry has been selected in parent combobox
@@ -1751,8 +1753,6 @@ gboolean is_name_filled = FALSE, is_parent_choosen = FALSE;
 
 	// Dis/Enable apply dialog button
 	gtk_widget_set_sensitive(data->BT_apply, is_name_filled && is_parent_choosen);
-
-	g_free(new_name);
 
 	return;
 }
