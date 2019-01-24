@@ -866,7 +866,7 @@ gint order = 0;
 		// On standard categories, just order by name
 		if (cat_a_key != 0 && cat_b_key != 0)
 		{
-			order = g_strcmp0(g_utf8_casefold(cat_a_name, -1),
+			order = g_utf8_collate(g_utf8_casefold(cat_a_name, -1),
 				g_utf8_casefold(cat_b_name, -1)
 				);
 		}
