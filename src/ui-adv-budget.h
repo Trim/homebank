@@ -36,7 +36,7 @@ struct adv_bud_data
 	GtkWidget *RA_mode;
 
 	// Tool bar
-	GtkWidget *BT_category_add, *BT_category_delete, *BT_expand, *BT_collapse;
+	GtkWidget *BT_category_add, *BT_category_delete, *BT_category_merge, *BT_expand, *BT_collapse;
 
 	// Should the tree be collapsed
 	gboolean TV_isexpanded;
@@ -44,6 +44,10 @@ struct adv_bud_data
 	// Add Dialog
 	GtkWidget *add_dialog;
 	GtkWidget *CB_add_parent, *EN_add_name, *BT_apply;
+
+  // Merge Dialog
+  GtkWidget *sub_dialog;
+  GtkWidget *COMBO_merge_target, *CHECK_merge_delete;
 
 	// Search
 	GtkWidget *EN_search;

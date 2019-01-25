@@ -187,6 +187,7 @@ static void ui_adv_bud_view_collapse (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_add_full_filled (GtkWidget *source, gpointer user_data);
 static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_delete (GtkButton *button, gpointer user_data);
+static void ui_adv_bud_category_merge (GtkButton *button, gpointer user_data);
 static gboolean ui_adv_bud_on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
@@ -851,6 +852,52 @@ adv_bud_data_t* data;
 				is_visible = FALSE;
 			}
 		}
+	}
+
+	return is_visible;
+}
+
+// Filter rows to show only mergeable categories
+static gboolean ui_adv_bud_model_row_filter_merge (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
+{
+gboolean is_visible, is_root, is_total, is_separator, is_childheader;
+Category *bdg_category;
+guint32 category_key;
+advbud_cat_type_t category_type;
+adv_bud_data_t* data;
+
+	is_visible = TRUE;
+
+	data = user_data;
+
+	gtk_tree_model_get(model, iter,
+		ADVBUD_CATEGORY_KEY, &category_key,
+		ADVBUD_CATEGORY_TYPE, &category_type,
+		ADVBUD_ISROOT, &is_root,
+		ADVBUD_ISTOTAL, &is_total,
+		ADVBUD_ISCHILDHEADER, &is_childheader,
+		ADVBUD_ISSEPARATOR, &is_separator,
+		-1);
+
+	// Hidde Total root
+	if (is_root
+		&& category_type == ADVBUD_CAT_TYPE_NONE )
+	{
+		is_visible = FALSE;
+	}
+
+	// Hidde Total rows
+	if (is_total) {
+		is_visible = FALSE;
+	}
+
+	if ((is_separator || is_childheader))
+	{
+	GtkTreeIter parent;
+		gtk_tree_model_iter_parent(model, &parent, iter);
+
+		// Show child header and separator if parent has more than 2 children
+		is_visible = (gtk_tree_model_iter_n_children(model, &parent) > 2);
 	}
 
 	return is_visible;
@@ -2115,6 +2162,243 @@ gint response;
 	return;
 }
 
+
+static void ui_adv_bud_category_merge (GtkButton *button, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view, *apply;
+advbud_view_mode_t view_mode;
+GtkTreeModel *filter, *budget, *categories;
+GtkTreeSelection *selection;
+GtkTreeIter filter_iter, iter, categories_iter;
+GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
+GtkCellRenderer *renderer;
+gint gridrow, response, item_key;
+gboolean exists_default_select = FALSE;
+
+	view = data->TV_budget;
+	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
+
+	// Read filter to retrieve the currently selected row
+	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+
+	// Selectable categories from original model
+	categories = gtk_tree_model_filter_new(budget, NULL);
+	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(categories),
+		ui_adv_bud_model_row_filter_merge, data, NULL);
+
+	// Retrieve default selection from budget dialog
+	if (gtk_tree_selection_get_selected(selection, &filter, &filter_iter))
+	{
+		exists_default_select = TRUE;
+
+		// Convert data to budget model
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+			&iter,
+			&filter_iter);
+
+		// If currently selected row is a leaf, take its parent
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_KEY, &item_key,
+			-1);
+
+		if (item_key != 0)
+		{
+		Category *category;
+			category = da_cat_get(item_key);
+
+			if (category != NULL && category->parent != 0)
+			{
+			advbud_search_criteria_t parent_search = advbud_search_criteria_default;
+				parent_search.row_category_key = category->parent;
+
+				gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+					(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+					&parent_search);
+
+				if (!parent_search.iterator) {
+					DB(g_print(" -> error: not found good parent iterator !\n"));
+					return;
+				}
+
+				iter = *parent_search.iterator;
+
+				g_free(parent_search.iterator);
+			}
+		}
+
+
+		gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(categories),
+			&categories_iter,
+			&iter);
+	}
+
+	DB( g_print("[ui_adv_bud] open sub-dialog to add a category\n") );
+
+	dialog = gtk_dialog_new_with_buttons (_("Merge categories"),
+		GTK_WINDOW(data->dialog),
+		GTK_DIALOG_MODAL,
+		_("_Cancel"),
+		GTK_RESPONSE_CANCEL,
+		NULL);
+	data->add_dialog = dialog;
+
+	// Apply button will be enabled only when a target merge category is choosen
+	apply = gtk_dialog_add_button(GTK_DIALOG(dialog),
+		_("_Apply"),
+		GTK_RESPONSE_APPLY);
+	data->BT_apply = apply;
+	gtk_widget_set_sensitive(apply, FALSE);
+
+	//window contents
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG (dialog));
+
+	// design content
+	grid = gtk_grid_new ();
+	gtk_grid_set_row_spacing (GTK_GRID (grid), SPACING_MEDIUM);
+	gtk_grid_set_column_spacing (GTK_GRID (grid), SPACING_MEDIUM);
+	g_object_set(grid, "margin", SPACING_MEDIUM, NULL);
+	gtk_container_add(GTK_CONTAINER(content_area), grid);
+
+	// First row display parent selector
+	gridrow = 0;
+
+	widget = gtk_label_new(_("Target category"));
+	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
+
+	combobox = gtk_combo_box_new_with_model(categories);
+	data->COMBO_merge_target = combobox;
+	gtk_grid_attach (GTK_GRID (grid), combobox, 1, gridrow, 1, 1);
+
+	gtk_combo_box_set_row_separator_func(
+		GTK_COMBO_BOX(combobox),
+		ui_adv_view_separator,
+		data,
+		NULL
+	);
+
+	gtk_combo_box_set_id_column(GTK_COMBO_BOX(combobox), ADVBUD_CATEGORY_KEY);
+
+	renderer = gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combobox), renderer, TRUE);
+	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(combobox), renderer, "text", ADVBUD_CATEGORY_FULLNAME);
+
+	// Next row displays the automatic delete option
+	gridrow++;
+
+
+	// Signals to enable Apply button
+	//g_signal_connect (data->COMBO_merge_target, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
+	//g_signal_connect (data->CHECK_merge_delete, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
+
+	if (exists_default_select)
+	{
+		gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
+	}
+
+	gtk_widget_show_all (dialog);
+
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
+
+	// When the response is APPLY, the form was full filled
+	if (response == GTK_RESPONSE_APPLY) {
+	Category *new_item;
+	const gchar *new_name;
+	gchar *parent_name;
+	guint32 parent_key;
+	advbud_cat_type_t parent_type;
+	gboolean parent_is_separator;
+	advbud_search_criteria_t root_search = advbud_search_criteria_default;
+	GtkTreeIter *root_iter;
+
+		DB( g_print("[ui_adv_bud] applying merge\n") );
+
+		// Retrieve info from dialog
+		gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
+
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(categories),
+			&iter,
+			&categories_iter);
+
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_NAME, &parent_name,
+			ADVBUD_CATEGORY_KEY, &parent_key,
+			ADVBUD_CATEGORY_TYPE, &parent_type,
+			ADVBUD_ISSEPARATOR, &parent_is_separator,
+			-1);
+
+		DB( g_print(" -> from parent cat: %s (key: %d, type: %d)\n",
+								parent_name, parent_key ,parent_type) );
+
+		// Retrieve required root
+		root_search.row_isroot = TRUE;
+		root_search.row_istotal = FALSE;
+		root_search.row_category_type = parent_type;
+		gtk_tree_model_foreach(GTK_TREE_MODEL(budget),
+			(GtkTreeModelForeachFunc) ui_adv_bud_model_search_iterator,
+			&root_search);
+
+		if (!root_search.iterator) {
+			DB(g_print(" -> error: not found good tree root !\n"));
+			return;
+		}
+
+		root_iter = root_search.iterator;
+
+		// Build new category from name and parent iterator
+		new_name = gtk_entry_get_text(GTK_ENTRY(textentry));
+
+		data->change++;
+		new_item = da_cat_malloc();
+		new_item->name = g_strdup(new_name);
+		g_strstrip(new_item->name);
+
+		new_item->parent = parent_key;
+
+		if (parent_key)
+		{
+			new_item->flags |= GF_SUB;
+		}
+
+		if (parent_type == ADVBUD_CAT_TYPE_INCOME)
+		{
+			new_item->flags |= GF_INCOME;
+		}
+
+		// On balance mode, enable forced display too to render it to user
+		if (view_mode == ADVBUD_VIEW_BALANCE)
+		{
+			new_item->flags |= GF_FORCED;
+		}
+
+		if(da_cat_append(new_item))
+		{
+		GtkTreePath *path;
+
+			DB( g_print(" => add cat: %p (%d), type=%d\n", new_item->name, new_item->key, category_type_get(new_item)) );
+
+			// Finally add it to model
+			ui_adv_bud_model_add_category_with_lineage (GTK_TREE_STORE(budget), root_iter, &(new_item->key));
+
+			// Expand view up to the newly added item, so expand its parent which is already known as iter
+			if(gtk_tree_model_filter_convert_child_iter_to_iter(GTK_TREE_MODEL_FILTER(filter),
+				&filter_iter,
+				&iter)
+			)
+			{
+				path = gtk_tree_model_get_path(filter, &filter_iter);
+				gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, TRUE);
+			}
+		}
+	}
+
+	gtk_widget_destroy(dialog);
+
+	return;
+}
+
 static gboolean ui_adv_bud_on_key_press(GtkWidget *source, GdkEventKey *event, gpointer user_data)
 {
 adv_bud_data_t *data = user_data;
@@ -2243,6 +2527,10 @@ gint gridrow, w, h;
 	data->BT_category_delete = widget;
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
+	widget = gtk_button_new_with_label (_("Merge"));
+	data->BT_category_merge = widget;
+	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+
 	// Separator
 	toolitem = gtk_separator_tool_item_new ();
 	gtk_tool_item_set_expand (toolitem, TRUE);
@@ -2300,6 +2588,7 @@ gint gridrow, w, h;
 	// toolbar buttons
 	g_signal_connect (data->BT_category_add, "clicked", G_CALLBACK(ui_adv_bud_category_add), (gpointer)data);
 	g_signal_connect (data->BT_category_delete, "clicked", G_CALLBACK (ui_adv_bud_category_delete), (gpointer)data);
+	g_signal_connect (data->BT_category_merge, "clicked", G_CALLBACK (ui_adv_bud_category_merge), (gpointer)data);
 	g_signal_connect (data->BT_expand, "clicked", G_CALLBACK (ui_adv_bud_view_expand), (gpointer)data);
 	g_signal_connect (data->BT_collapse, "clicked", G_CALLBACK (ui_adv_bud_view_collapse), (gpointer)data);
 
