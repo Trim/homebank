@@ -43,7 +43,7 @@ struct adv_bud_data
 
 	// Add Dialog
 	GtkWidget *add_dialog;
-	GtkWidget *CB_add_parent, *EN_add_name, *BT_apply;
+	GtkWidget *COMBO_add_parent, *EN_add_name, *BT_apply;
 
   // Merge Dialog
   GtkWidget *sub_dialog;

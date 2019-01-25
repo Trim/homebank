@@ -1836,7 +1836,7 @@ gboolean is_name_filled = FALSE, is_parent_choosen = FALSE;
 	}
 
 	// Check an entry has been selected in parent combobox
-	is_parent_choosen = (gtk_combo_box_get_active(GTK_COMBO_BOX(data->CB_add_parent)) > -1);
+	is_parent_choosen = (gtk_combo_box_get_active(GTK_COMBO_BOX(data->COMBO_add_parent)) > -1);
 
 	// Dis/Enable apply dialog button
 	gtk_widget_set_sensitive(data->BT_apply, is_name_filled && is_parent_choosen);
@@ -1951,7 +1951,7 @@ gboolean exists_default_select = FALSE;
 	gtk_grid_attach (GTK_GRID (grid), widget, 0, gridrow, 1, 1);
 
 	combobox = gtk_combo_box_new_with_model(categories);
-	data->CB_add_parent = combobox;
+	data->COMBO_add_parent = combobox;
 	gtk_grid_attach (GTK_GRID (grid), combobox, 1, gridrow, 1, 1);
 
 	gtk_combo_box_set_row_separator_func(
@@ -1978,7 +1978,7 @@ gboolean exists_default_select = FALSE;
 	gtk_grid_attach (GTK_GRID (grid), textentry, 1, gridrow, 1, 1);
 
 	// Signals to enable Apply button
-	g_signal_connect (data->CB_add_parent, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
+	g_signal_connect (data->COMBO_add_parent, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
 	g_signal_connect (data->EN_add_name, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
 
 	if (exists_default_select)
