@@ -113,9 +113,11 @@ typedef enum advbud_cat_type advbud_cat_type_t;
 enum advbud_store {
 	ADVBUD_CATEGORY_KEY = 0,
 	ADVBUD_CATEGORY_NAME,
+	ADVBUD_CATEGORY_FULLNAME,
 	ADVBUD_CATEGORY_TYPE,
 	ADVBUD_ISROOT, // To retrieve easier the 3 main tree roots
 	ADVBUD_ISTOTAL, // To retrieve rows inside the Total root
+	ADVBUD_ISCHILDHEADER, // The row corresponds to the head child which is shown before the separator
 	ADVBUD_ISSEPARATOR, // Row to just display a separator in Tree View
 	ADVBUD_ISDISPLAYFORCED,
 	ADVBUD_ISSAMEAMOUNT,
@@ -312,6 +314,7 @@ advbud_search_criteria_t parent_search = advbud_search_criteria_default;
 		&child,
 		ADVBUD_CATEGORY_KEY, bdg_category->key,
 		ADVBUD_CATEGORY_NAME, bdg_category->name,
+		ADVBUD_CATEGORY_FULLNAME, bdg_category->fullname,
 		ADVBUD_CATEGORY_TYPE, category_type_get (bdg_category),
 		ADVBUD_ISDISPLAYFORCED, (bdg_category->flags & GF_FORCED),
 		ADVBUD_ISROOT, FALSE,
@@ -331,6 +334,32 @@ advbud_search_criteria_t parent_search = advbud_search_criteria_default;
 		ADVBUD_NOVEMBER, bdg_category->budget[11],
 		ADVBUD_DECEMBER, bdg_category->budget[12],
 		-1);
+
+	// Always add child header and separator
+	parent = gtk_tree_iter_copy(&child);
+	gtk_tree_store_insert_with_values(
+		budget,
+		&child,
+		parent,
+		-1,
+		ADVBUD_CATEGORY_KEY, bdg_category->key,
+		ADVBUD_CATEGORY_NAME, bdg_category->name,
+		ADVBUD_CATEGORY_FULLNAME, bdg_category->fullname,
+		ADVBUD_CATEGORY_TYPE, category_type_get (bdg_category),
+		ADVBUD_ISCHILDHEADER, TRUE,
+		-1);
+
+	gtk_tree_store_insert_with_values(
+		budget,
+		&child,
+		parent,
+		-1,
+		ADVBUD_CATEGORY_KEY, bdg_category->key,
+		ADVBUD_CATEGORY_TYPE, category_type_get (bdg_category),
+		ADVBUD_ISSEPARATOR, TRUE,
+		-1);
+
+	gtk_tree_iter_free(parent);
 
 	g_free(parent_search.iterator);
 
@@ -404,6 +433,7 @@ GtkTreeIter iter, root;
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
 		ADVBUD_ISROOT, TRUE,
 		ADVBUD_ISTOTAL, FALSE,
@@ -416,10 +446,12 @@ GtkTreeIter iter, root;
 		&root,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
 		ADVBUD_CATEGORY_KEY, 0,
 		ADVBUD_ISROOT, FALSE,
 		ADVBUD_ISTOTAL, FALSE,
+		ADVBUD_ISCHILDHEADER, TRUE,
 		-1);
 
 	// For add category dialog: add a separator to distinguish root with children
@@ -438,6 +470,7 @@ GtkTreeIter iter, root;
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
 		ADVBUD_ISROOT, TRUE,
 		ADVBUD_ISTOTAL, FALSE,
@@ -450,10 +483,12 @@ GtkTreeIter iter, root;
 		&root,
 		-1,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
 		ADVBUD_CATEGORY_KEY, 0,
 		ADVBUD_ISROOT, FALSE,
 		ADVBUD_ISTOTAL, FALSE,
+		ADVBUD_ISCHILDHEADER, TRUE,
 		-1);
 
 	// For add category dialog: add a separator to distinguish root with children
@@ -472,6 +507,7 @@ GtkTreeIter iter, root;
 		NULL,
 		-1,
 		ADVBUD_CATEGORY_NAME, _("Totals"),
+		ADVBUD_CATEGORY_FULLNAME, _("Totals"),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_NONE,
 		ADVBUD_ISROOT, TRUE,
 		ADVBUD_ISTOTAL, FALSE,
@@ -571,6 +607,7 @@ int n_category;
 		budget,
 		&child,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_INCOME]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_INCOME,
 		ADVBUD_ISTOTAL, TRUE,
 		ADVBUD_JANUARY, total_income[0],
@@ -605,6 +642,7 @@ int n_category;
 		budget,
 		&child,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_EXPENSE]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_EXPENSE,
 		ADVBUD_ISTOTAL, TRUE,
 		ADVBUD_JANUARY, total_expense[0],
@@ -639,6 +677,7 @@ int n_category;
 		budget,
 		&child,
 		ADVBUD_CATEGORY_NAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_BALANCE]),
+		ADVBUD_CATEGORY_FULLNAME, _(ADVBUD_VIEW_MODE[ADVBUD_VIEW_BALANCE]),
 		ADVBUD_CATEGORY_TYPE, ADVBUD_CAT_TYPE_NONE,
 		ADVBUD_ISTOTAL, TRUE,
 		ADVBUD_JANUARY, total_income[0] + total_expense[0],
@@ -663,7 +702,7 @@ int n_category;
 // Filter shown rows according to VIEW mode
 static gboolean ui_adv_bud_model_row_filter (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_visible, is_root, is_total, is_separator;
+gboolean is_visible, is_root, is_total, is_separator, is_childheader;
 adv_bud_data_t* data;
 advbud_view_mode_t view_mode;
 guint32 category_key;
@@ -678,6 +717,7 @@ Category *bdg_category;
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
 		ADVBUD_ISSEPARATOR, &is_separator,
+		ADVBUD_ISCHILDHEADER, &is_childheader,
 		ADVBUD_CATEGORY_KEY, &category_key,
 		ADVBUD_CATEGORY_TYPE, &category_type,
 		-1);
@@ -698,9 +738,8 @@ Category *bdg_category;
 	}
 
 	// Hidde fake first child root used for add dialog
-	if (!is_total
-		&& !is_root
-		&& category_key == 0)
+	if (is_childheader
+	    || is_separator)
 	{
 		is_visible = FALSE;
 	}
@@ -708,7 +747,8 @@ Category *bdg_category;
 	// On balance mode, hidde not forced empty categories
 	if (!is_total
 		&& !is_root
-		&& category_key != 0
+		&& !is_childheader
+	    	&& !is_separator
 		&& view_mode == ADVBUD_VIEW_BALANCE)
 	{
 		bdg_category = da_cat_get(category_key);
@@ -761,31 +801,31 @@ Category *bdg_category;
 }
 
 
-// Filter shown rows according to VIEW mode
+// Filter rows to show only parent categories
 static gboolean ui_adv_bud_model_row_filter_parents (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
-gboolean is_visible, is_root, is_total;
+gboolean is_visible, is_root, is_total, is_separator, is_childheader;
 Category *bdg_category;
 guint32 category_key;
 advbud_cat_type_t category_type;
 adv_bud_data_t* data;
-advbud_view_mode_t view_mode;
 
 	is_visible = TRUE;
 
 	data = user_data;
-	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));;
 
 	gtk_tree_model_get(model, iter,
 		ADVBUD_CATEGORY_KEY, &category_key,
 		ADVBUD_CATEGORY_TYPE, &category_type,
 		ADVBUD_ISROOT, &is_root,
 		ADVBUD_ISTOTAL, &is_total,
+		ADVBUD_ISCHILDHEADER, &is_childheader,
+		ADVBUD_ISSEPARATOR, &is_separator,
 		-1);
 
 	// Hidde Total root
 	if (is_root
-			&& category_type == ADVBUD_CAT_TYPE_NONE )
+		&& category_type == ADVBUD_CAT_TYPE_NONE )
 	{
 		is_visible = FALSE;
 	}
@@ -795,18 +835,12 @@ advbud_view_mode_t view_mode;
 		is_visible = FALSE;
 	}
 
-	// Hidde rows without the good category type according to the view mode
-	if (category_type == ADVBUD_CAT_TYPE_INCOME
-		&& view_mode == ADVBUD_VIEW_EXPENSE)
+	if (category_key > 0 && (is_separator || is_childheader))
 	{
 		is_visible = FALSE;
 	}
-	else if(category_type == ADVBUD_CAT_TYPE_EXPENSE
-					&& view_mode == ADVBUD_VIEW_INCOME)
+	else if (category_key > 0)
 	{
-		is_visible = FALSE;
-	}
-	else if(category_key > 0) {
 		// Show categories without parents
 		bdg_category = da_cat_get(category_key);
 
@@ -828,13 +862,14 @@ const gchar* cat_a_name;
 const gchar* cat_b_name;
 advbud_cat_type_t cat_a_type, cat_b_type;
 guint32 cat_a_key, cat_b_key;
-gboolean cat_a_is_separator, cat_b_is_separator;
+gboolean cat_a_is_childheader, cat_a_is_separator, cat_b_is_childheader, cat_b_is_separator;
 gint order = 0;
 
 	gtk_tree_model_get(model, cat_a,
 		ADVBUD_CATEGORY_NAME, &cat_a_name,
 		ADVBUD_CATEGORY_TYPE, &cat_a_type,
 		ADVBUD_CATEGORY_KEY, &cat_a_key,
+		ADVBUD_ISCHILDHEADER, &cat_a_is_childheader,
 		ADVBUD_ISSEPARATOR, &cat_a_is_separator,
 		-1);
 
@@ -842,6 +877,7 @@ gint order = 0;
 		ADVBUD_CATEGORY_NAME, &cat_b_name,
 		ADVBUD_CATEGORY_TYPE, &cat_b_type,
 		ADVBUD_CATEGORY_KEY, &cat_b_key,
+		ADVBUD_ISCHILDHEADER, &cat_b_is_childheader,
 		ADVBUD_ISSEPARATOR, &cat_b_is_separator,
 		-1);
 
@@ -864,23 +900,24 @@ gint order = 0;
 	else
 	{
 		// On standard categories, just order by name
-		if (cat_a_key != 0 && cat_b_key != 0)
+		if (!cat_a_is_childheader && !cat_a_is_separator
+		    && !cat_b_is_childheader && !cat_b_is_separator)
 		{
 			order = g_utf8_collate(g_utf8_casefold(cat_a_name, -1),
 				g_utf8_casefold(cat_b_name, -1)
 				);
 		}
 		// Otherwise, fake categories have to be first (header and separator)
-		else if (cat_a_key == 0)
+		else if (cat_a_is_childheader || cat_a_is_separator)
 		{
-			if (cat_b_key != 0)
+			if (!cat_b_is_separator && !cat_b_is_childheader)
 			{
 				order = -1;
 			}
 			// When both are fake, header has to be first
 			else
 			{
-				order = (cat_a_is_separator ? 1 : -1);
+				order = (cat_a_is_childheader ? -1 : 1);
 			}
 		}
 		else
@@ -889,13 +926,13 @@ gint order = 0;
 			// with reversed result, because sort function return
 			// result according to cat_a
 
-			if (cat_a_key != 0)
+			if (!cat_a_is_separator && !cat_a_is_childheader)
 			{
 				order = 1;
 			}
 			else
 			{
-				order = (cat_b_is_separator ? -1 : 1);
+				order = (cat_b_is_childheader ? 1 : -1);
 			}
 		}
 	}
@@ -915,9 +952,11 @@ advbud_search_criteria_t root_search = advbud_search_criteria_default;
 	budget = gtk_tree_store_new ( ADVBUD_NUMCOLS,
 		G_TYPE_UINT, // ADVBUD_CATEGORY_KEY
 		G_TYPE_STRING, // ADVBUD_CATEGORY_NAME
+		G_TYPE_STRING, // ADVBUD_CATEGORY_FULLNAME
 		G_TYPE_INT, // ADVBUD_CATEGORY_TYPE
 		G_TYPE_BOOLEAN, // ADVBUD_ISROOT
 		G_TYPE_BOOLEAN, // ADVBUD_ISTOTAL
+		G_TYPE_BOOLEAN, // ADVBUD_ISCHILDHEADER
 		G_TYPE_BOOLEAN, // ADVBUD_ISSEPARATOR
 		G_TYPE_BOOLEAN, // ADVBUD_ISDISPLAYFORCED
 		G_TYPE_BOOLEAN, // ADVBUD_ISSAMEAMOUNT
@@ -1452,7 +1491,8 @@ gboolean is_root, is_total;
 	gtk_tree_store_set(
 		GTK_TREE_STORE(budget),
 		&iter,
-		ADVBUD_CATEGORY_NAME, new_text,
+		ADVBUD_CATEGORY_NAME, category->name,
+		ADVBUD_CATEGORY_FULLNAME, category->fullname,
 		-1);
 
 	return;
@@ -1878,7 +1918,7 @@ gboolean exists_default_select = FALSE;
 
 	renderer = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combobox), renderer, TRUE);
-	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(combobox), renderer, "text", ADVBUD_CATEGORY_NAME);
+	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(combobox), renderer, "text", ADVBUD_CATEGORY_FULLNAME);
 
 	// Next row displays the new category entry
 	gridrow++;
@@ -1910,7 +1950,6 @@ gboolean exists_default_select = FALSE;
 	gchar *parent_name;
 	guint32 parent_key;
 	advbud_cat_type_t parent_type;
-	gboolean parent_is_separator;
 	advbud_search_criteria_t root_search = advbud_search_criteria_default;
 	GtkTreeIter *root_iter;
 
@@ -1927,7 +1966,6 @@ gboolean exists_default_select = FALSE;
 			ADVBUD_CATEGORY_NAME, &parent_name,
 			ADVBUD_CATEGORY_KEY, &parent_key,
 			ADVBUD_CATEGORY_TYPE, &parent_type,
-			ADVBUD_ISSEPARATOR, &parent_is_separator,
 			-1);
 
 		DB( g_print(" -> from parent cat: %s (key: %d, type: %d)\n",
