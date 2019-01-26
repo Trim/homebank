@@ -189,6 +189,7 @@ static void ui_adv_bud_category_add (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_delete (GtkButton *button, gpointer user_data);
 static void ui_adv_bud_category_merge (GtkButton *button, gpointer user_data);
 static gboolean ui_adv_bud_on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data);
+static void ui_adv_bud_view_on_select(GtkTreeSelection *treeselection, gpointer user_data);
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response);
 
 /**
@@ -1863,7 +1864,7 @@ gboolean exists_default_select = FALSE;
 
 	// Read filter to retrieve the currently selected row
 	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+	selection = data->TV_selection;
 	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
 
 	// Selectable categories from original model
@@ -2403,6 +2404,62 @@ adv_bud_data_t *data = user_data;
 	return GDK_EVENT_PROPAGATE;
 }
 
+static void ui_adv_bud_view_on_select(GtkTreeSelection *treeselection, gpointer user_data)
+{
+adv_bud_data_t *data = user_data;
+GtkWidget *view;
+GtkTreeModel *filter, *budget;
+GtkTreeIter filter_iter, iter;
+GtkTreeSelection *selection;
+gboolean is_root, is_total;
+advbud_cat_type_t category_type;
+
+	view = data->TV_budget;
+	selection = data->TV_selection;
+
+	// Reset buttons
+	gtk_widget_set_sensitive(data->BT_category_add, FALSE);
+	gtk_widget_set_sensitive(data->BT_category_delete, FALSE);
+	gtk_widget_set_sensitive(data->BT_category_merge, FALSE);
+
+	// Read filter to retrieve the currently selected row in real model
+	filter = gtk_tree_view_get_model (GTK_TREE_VIEW(view));
+	budget = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(filter));
+
+	// Activate buttons if selected row is editable
+	if (gtk_tree_selection_get_selected(selection, &filter, &filter_iter))
+	{
+		// Convert data to budget model
+		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
+			&iter,
+			&filter_iter);
+
+		// Check the iter is an editable one
+		gtk_tree_model_get (budget, &iter,
+			ADVBUD_CATEGORY_TYPE, &category_type,
+			ADVBUD_ISROOT, &is_root,
+			ADVBUD_ISTOTAL, &is_total,
+			-1);
+
+		// If category is neither a root, neither a total row, every operations can be applied
+		if (!is_root && !is_total)
+		{
+			gtk_widget_set_sensitive(data->BT_category_add, TRUE);
+			gtk_widget_set_sensitive(data->BT_category_delete, TRUE);
+			gtk_widget_set_sensitive(data->BT_category_merge, TRUE);
+		}
+		// If category is a root (except the Total one), we can use it to add a child row
+		else if (category_type != ADVBUD_CAT_TYPE_NONE
+			&& is_root
+			&& !is_total)
+		{
+			gtk_widget_set_sensitive(data->BT_category_add, TRUE);
+		}
+	}
+
+	return;
+}
+
 static void ui_adv_bud_dialog_close(adv_bud_data_t *data, gint response)
 {
 	DB( g_print("[ui_adv_bud] dialog close\n") );
@@ -2494,6 +2551,8 @@ gint gridrow, w, h;
 	data->TV_budget = treeview;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
+	data->TV_selection = gtk_tree_view_get_selection(treeview);
+
 	// Toolbar to add, remove categories, expand and collapse categorie
 	toolbar = gtk_toolbar_new();
 	gtk_toolbar_set_icon_size (GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_MENU);
@@ -2511,14 +2570,17 @@ gint gridrow, w, h;
 	// Add / Remove / Merge
 	widget = make_image_button(ICONNAME_LIST_ADD, _("Add category"));
 	data->BT_category_add = widget;
+	gtk_widget_set_sensitive(widget, FALSE);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	widget = make_image_button(ICONNAME_LIST_REMOVE, _("Remove category"));
 	data->BT_category_delete = widget;
+	gtk_widget_set_sensitive(widget, FALSE);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	widget = gtk_button_new_with_label (_("Merge"));
 	data->BT_category_merge = widget;
+	gtk_widget_set_sensitive(widget, FALSE);
 	gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
 
 	// Separator
@@ -2572,8 +2634,13 @@ gint gridrow, w, h;
 		}
 	}
 
+	data->TV_selection = gtk_tree_view_get_selection (treeview);
+
 	// Connect to key press to handle some events like Control-f
 	g_signal_connect (dialog, "key-press-event", G_CALLBACK (ui_adv_bud_on_key_press), (gpointer)data);
+
+	// Tree View
+	g_signal_connect (data->TV_selection, "changed", G_CALLBACK(ui_adv_bud_view_on_select), (gpointer)data);
 
 	// toolbar buttons
 	g_signal_connect (data->BT_category_add, "clicked", G_CALLBACK(ui_adv_bud_category_add), (gpointer)data);
