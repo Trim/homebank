@@ -1925,7 +1925,6 @@ gboolean exists_default_select = FALSE;
 		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
 		NULL);
-	data->add_dialog = dialog;
 
 	// Apply button will be enabled only when parent category and name are choosen
 	apply = gtk_dialog_add_button(GTK_DIALOG(dialog),
@@ -2174,7 +2173,6 @@ GtkTreeIter filter_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
 GtkCellRenderer *renderer;
 gint gridrow, response, item_key;
-gboolean exists_default_select = FALSE;
 
 	view = data->TV_budget;
 	view_mode = radio_get_active(GTK_CONTAINER(data->RA_mode));
@@ -2192,8 +2190,6 @@ gboolean exists_default_select = FALSE;
 	// Retrieve default selection from budget dialog
 	if (gtk_tree_selection_get_selected(selection, &filter, &filter_iter))
 	{
-		exists_default_select = TRUE;
-
 		// Convert data to budget model
 		gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter),
 			&iter,
@@ -2243,7 +2239,6 @@ gboolean exists_default_select = FALSE;
 		_("_Cancel"),
 		GTK_RESPONSE_CANCEL,
 		NULL);
-	data->add_dialog = dialog;
 
 	// Apply button will be enabled only when a target merge category is choosen
 	apply = gtk_dialog_add_button(GTK_DIALOG(dialog),
@@ -2292,11 +2287,6 @@ gboolean exists_default_select = FALSE;
 	// Signals to enable Apply button
 	//g_signal_connect (data->COMBO_merge_target, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
 	//g_signal_connect (data->CHECK_merge_delete, "changed", G_CALLBACK(ui_adv_bud_category_add_full_filled), (gpointer)data);
-
-	if (exists_default_select)
-	{
-		gtk_combo_box_set_active_iter(GTK_COMBO_BOX(combobox), &categories_iter);
-	}
 
 	gtk_widget_show_all (dialog);
 

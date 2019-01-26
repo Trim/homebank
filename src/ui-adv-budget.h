@@ -31,6 +31,7 @@ struct adv_bud_data
 	GtkWidget *TV_budget;
 	GtkTreeViewColumn *TVC_category;
 	GtkTreeViewColumn *TVC_category_with_force;
+  GtkTreeSelection *TV_selection;
 
 	// Radio buttons of view mode
 	GtkWidget *RA_mode;
@@ -42,12 +43,10 @@ struct adv_bud_data
 	gboolean TV_isexpanded;
 
 	// Add Dialog
-	GtkWidget *add_dialog;
 	GtkWidget *COMBO_add_parent, *EN_add_name, *BT_apply;
 
-  // Merge Dialog
-  GtkWidget *sub_dialog;
-  GtkWidget *COMBO_merge_target, *CHECK_merge_delete;
+	// Merge Dialog
+	GtkWidget *COMBO_merge_target, *CHECK_merge_delete;
 
 	// Search
 	GtkWidget *EN_search;
