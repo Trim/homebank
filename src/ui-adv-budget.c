@@ -810,11 +810,8 @@ gboolean is_visible, is_root, is_total, is_separator, is_childheader;
 Category *bdg_category;
 guint32 category_key;
 advbud_cat_type_t category_type;
-adv_bud_data_t* data;
 
 	is_visible = TRUE;
-
-	data = user_data;
 
 	gtk_tree_model_get(model, iter,
 		ADVBUD_CATEGORY_KEY, &category_key,
@@ -862,14 +859,10 @@ adv_bud_data_t* data;
 static gboolean ui_adv_bud_model_row_filter_merge (GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data)
 {
 gboolean is_visible, is_root, is_total, is_separator, is_childheader;
-Category *bdg_category;
 guint32 category_key;
 advbud_cat_type_t category_type;
-adv_bud_data_t* data;
 
 	is_visible = TRUE;
-
-	data = user_data;
 
 	gtk_tree_model_get(model, iter,
 		ADVBUD_CATEGORY_KEY, &category_key,
@@ -2167,11 +2160,10 @@ static void ui_adv_bud_category_merge (GtkButton *button, gpointer user_data)
 {
 adv_bud_data_t *data = user_data;
 GtkWidget *view, *apply;
-advbud_view_mode_t view_mode;
 GtkTreeModel *filter, *budget, *categories;
 GtkTreeSelection *selection;
-GtkTreeIter filter_iter, iter, categories_iter;
 GtkWidget *dialog, *content_area, *grid, *combobox, *textentry, *widget;
+GtkTreeIter filter_iter, iter_source, iter, categories_iter;
 GtkCellRenderer *renderer;
 gint gridrow, response, item_key;
 
@@ -2551,7 +2543,7 @@ gint gridrow, w, h;
 	data->TV_budget = treeview;
 	gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
-	data->TV_selection = gtk_tree_view_get_selection(treeview);
+	data->TV_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 
 	// Toolbar to add, remove categories, expand and collapse categorie
 	toolbar = gtk_toolbar_new();
@@ -2633,8 +2625,6 @@ gint gridrow, w, h;
 			g_signal_connect (widget, "toggled", G_CALLBACK (ui_adv_bud_view_update_mode), (gpointer)data);
 		}
 	}
-
-	data->TV_selection = gtk_tree_view_get_selection (treeview);
 
 	// Connect to key press to handle some events like Control-f
 	g_signal_connect (dialog, "key-press-event", G_CALLBACK (ui_adv_bud_on_key_press), (gpointer)data);
